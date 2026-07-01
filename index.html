@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🚀 Команда Мастер AI Scanner 🚀</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b0e14; color: #ffffff; margin: 0; padding: 15px; box-sizing: border-box; user-select: none;
+        }
+        h2 { text-align: center; font-size: 22px; color: #00e676; margin: 5px 0; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 230, 118, 0.4); }
+        .sub-title { text-align: center; font-size: 14px; color: #a1a7b5; margin-bottom: 20px; font-weight: 500; }
+        .setup-box { background-color: #131722; border: 1px solid #222634; border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        .label { font-size: 13px; color: #787e8e; margin-bottom: 6px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        select { width: 100%; background-color: #1c202e; border: 1px solid #2d3446; color: #fff; padding: 12px; border-radius: 10px; font-size: 15px; outline: none; margin-bottom: 15px; cursor: pointer; font-weight: bold; }
+        .camera-container { position: relative; width: 100%; height: 260px; background-color: #000; border: 2px solid #222634; border-radius: 20px; overflow: hidden; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .scanner-overlay { position: absolute; border: 2px dashed #00e676; width: 85%; height: 65%; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); pointer-events: none; }
+        .scanner-overlay::after { content: ''; position: absolute; width: 100%; height: 3px; background: linear-gradient(to right, transparent, #00e676, transparent); top: 50%; box-shadow: 0 0 12px #00e676; animation: scan 1.8s linear infinite; }
+        @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+        .btn-scan { width: 100%; background: linear-gradient(135deg, #00e676 0%, #00b358 100%); color: #131722; border: none; padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 20px rgba(0, 230, 118, 0.4); text-transform: uppercase; }
+        .result-box { display: none; background-color: #131722; border: 1px solid #222634; border-radius: 20px; padding: 18px; margin-top: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+        .signal-title { font-size: 22px; font-weight: 900; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+        .reason-text { font-size: 14px; color: #d1d4dc; line-height: 1.5; margin-bottom: 12px; background: #1c202e; padding: 12px; border-radius: 10px; border-left: 4px solid #3d4456; }
+        .tips-text { font-size: 13px; color: #ffb300; line-height: 1.5; background: rgba(255, 179, 0, 0.07); padding: 12px; border-radius: 10px; border: 1px dashed rgba(255, 179, 0, 0.3); }
+    </style>
+</head>
+<body>
+
+    <h2>🤖 КОМАНДА МАСТЕР ИИ 🤖</h2>
+    <div class="sub-title">🔮 Голосовой ИИ-Сканер Pocket Option v3.5 🔮</div>
+
+    <div class="setup-box">
+        <div class="label">⏳ ИНТЕРВАЛ СВЕЧИ:</div>
+        <select id="candle-time">
+            <option value="5s">⏱️ 5 секунд</option><option value="15s">⏱️ 15 секунд</option><option value="30s">⏱️ 30 секунд</option>
+            <option value="1m" selected>⏱️ 1 минута</option><option value="2m">⏱️ 2 минуты</option><option value="3m">⏱️ 3 минуты</option>
+            <option value="5m">⏱️ 5 минут</option><option value="10m">⏱️ 10 минут</option>
+        </select>
+
+        <div class="label">🔔 ВРЕМЯ ЭКСПИРАЦИИ:</div>
+        <select id="exp-time">
+            <option value="5s">🏁 5 секунд</option><option value="15s">🏁 15 секунд</option><option value="30s">🏁 30 секунд</option>
+            <option value="1m" selected>🏁 1 минута</option><option value="2m">🏁 2 минуты</option><option value="3m">🏁 3 минуты</option>
+            <option value="5m">🏁 5 минут</option><option value="10m">🏁 10 минут</option>
+        </select>
+    </div>
+
+    <div class="camera-container">
+        <video id="webcam" autoplay playsinline muted></video>
+        <div class="scanner-overlay"></div>
+    </div>
+
+    <button class="btn-scan" onclick="startAIScan()">🔍 СКАНИРОВАТЬ ГРАФИК 🔍</button>
+
+    <div class="result-box" id="result-panel">
+        <div class="signal-title" id="sig-direction">🧠 АНАЛИЗ ИИ...</div>
+        <div class="label">📊 ПОЧЕМУ ТАКОЙ СИГНАЛ:</div>
+        <div class="reason-text" id="sig-reason">Подождите...</div>
+        <div class="label">💡 СОВЕТЫ ОТ КОМАНДЫ МАСТЕР:</div>
+        <div class="tips-text" id="sig-tips">Загрузка...</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready(); tg.expand();
+
+        const video = document.getElementById('webcam');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(stream => { video.srcObject = stream; video.play(); });
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'ru-RU'; msg.rate = 1.0; msg.pitch = 1.0;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function startAIScan() {
+            const resultPanel = document.getElementById('result-panel');
+            const sigDirection = document.getElementById('sig-direction');
+            const sigReason = document.getElementById('sig-reason');
+            const sigTips = document.getElementById('sig-tips');
+            
+            resultPanel.style.display = "block";
+            sigDirection.innerHTML = "⌛ АНАЛИЗ ПИКСЕЛЕЙ... 🧠";
+            sigDirection.style.color = "#787e8e";
+            sigReason.innerText = "ИИ считывает плотность цвета свечи в реальном времени...";
+            speak("Сканирую график.");
+
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const base64Image = canvas.toDataURL('image/jpeg', 0.7);
+
+            const candleText = document.getElementById('candle-time').options[document.getElementById('candle-time').selectedIndex].text;
+            const expText = document.getElementById('exp-time').options[document.getElementById('exp-time').selectedIndex].text;
+
+            fetch(`${window.location.origin}/analyze`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64Image, tf: candleText, exp: expText })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    sigDirection.innerHTML = "❌ ОШИБКА АНАЛИЗА";
+                    sigReason.innerText = data.error;
+                    return;
+                }
+                sigDirection.innerHTML = data.signal_text;
+                sigDirection.style.color = (data.direction === "UP") ? "#00e676" : "#ff3d57";
+                sigReason.innerText = data.reason;
+                sigTips.innerText = data.tips;
+                
+                const voiceAlert = (data.direction === "UP") ? "Сигнал вверх!" : "Сигнал вниз!";
+                speak(`Внимание! ${voiceAlert} Время экспирации ${expText}. Команда Мастер желает вам профита.`);
+            })
+            .catch(err => {
+                sigDirection.innerHTML = "❌ ОШИБКА СВЯЗИ";
+                sigReason.innerText = "Не удалось связаться с ИИ-сервером Render.";
+                speak("Ошибка соединения.");
+            });
+        }
+    </script>
+</body>
+</html>
