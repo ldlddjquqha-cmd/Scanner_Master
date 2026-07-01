@@ -7,16 +7,15 @@ from flask_cors import CORS
 from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 import asyncio
-from threading import Thread
 
-# 1. КОНСТАНТЫ ЖЕСТКО В КОД
+# 1. ЖЕСТКИЕ НАСТРОЙКИ ТОКЕНА И ССЫЛКИ 💎
 TOKEN = "8479849828:AAEl31VYsy9o7NrSL9lIHdmHDaUBrbP1aFw"
 APP_URL = "https://scanner-master.onrender.com"
 
 app = Flask(__name__)
 CORS(app)
 
-# 2. ИИ АНАЛИЗ ПИКСЕЛЕЙ СВЕЧИ
+# 2. ИИ АНАЛИЗ ПИКСЕЛЕЙ СВЕЧИ ЧЕРЕЗ OPENCV 👁️
 def analyze_image_pixels(image_bytes):
     nparr = np.frombuffer(image_bytes, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -41,10 +40,10 @@ def analyze_image_pixels(image_bytes):
         else:
             return "FLAT_DOWN", f"Рынок в узком коридоре. Продавцы аккуратно поддавливают цену (Красный: {avg_red:.1f} против Зеленого: {avg_green:.1f})."
 
-# 3. МАРШРУТЫ FLASK
+# 3. МАРШРУТЫ ДЛЯ ВЕБ-СЕРВЕРА
 @app.route('/')
 def home():
-    return "ИИ Сервер Команды Мастер запущен и работает! 🟢"
+    return "ИИ Сервер Команды Мастер работает стабильно! 🟢"
 
 @app.route('/analyze', methods=['POST'])
 def handle_analyze():
@@ -71,7 +70,7 @@ def handle_analyze():
     else:
         return jsonify({"direction": "DOWN", "signal_text": "🟡 ОСТОРОЖНО: ВНИЗ 📉", "reason": f"💤 {ai_reason}", "tips": f"💎 СОВЕТ: Вход только от верхней границы коридора."})
 
-# 4. ТЕЛЕГРАМ ОБРАБОТЧИК
+# 4. ТЕЛЕГРАМ ОБРАБОТЧИК КОМАНДЫ /START
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [[InlineKeyboardButton("🔮 ЗАПУСТИТЬ ИИ СКАНЕР 🚀", web_app=WebAppInfo(url=APP_URL))]]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -80,17 +79,28 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=reply_markup, parse_mode="Markdown"
     )
 
-def run_flask():
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port, debug=False)
-
-if __name__ == '__main__':
-    # Сначала стартуем веб-сервер во внешнем потоке
-    t = Thread(target=run_flask)
-    t.daemon = True
-    t.start()
-    
-    # Затем чисто и без конфликтов запускаем поллинг Телеграм-бота
+# 5. АСИНХРОННЫЙ ЗАПУСК ДВУХ СИСТЕМ ОДНОВРЕМЕННО
+async def main():
+    # Настраиваем и инициализируем бота
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("start", start))
-    application.run_polling()
+    
+    await application.initialize()
+    await application.start()
+    await application.updater.start_polling()
+    
+    # Настраиваем Flask веб-сервер
+    port = int(os.environ.get("PORT", 10000))
+    from werkzeug.serving import make_server
+    
+    server = make_server('0.0.0.0', port, app)
+    
+    print("🤖 Бот и ИИ-Сервер запущены синхронно!")
+    
+    # Запускаем бесконечный цикл обработки веб-сервера без блокировки асинхронности
+    while True:
+        server.handle_request()
+        await asyncio.sleep(0.1)
+
+if __name__ == '__main__':
+    asyncio.run(main())
