@@ -1,5 +1,2 @@
 flask
-flask-cors
 python-telegram-bot
-opencv-python-headless
-numpy
