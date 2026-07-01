@@ -9,8 +9,9 @@ from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMar
 from telegram.ext import Application, CommandHandler, ContextTypes
 from threading import Thread
 
-# 1. ТОКЕН ТВОЕГО БОТА 💎
+# 1. ТОКЕН ТВОЕГО БОТА И ССЫЛКА НА СЕРВЕР НАМЕРТВО 💎
 TOKEN = "8479849828:AAEl31VYsy9o7NrSL9lIHdmHDaUBrbP1aFw"
+APP_URL = "https://scanner-master.onrender.com"
 
 app = Flask(__name__)
 CORS(app)
@@ -92,9 +93,8 @@ def handle_analyze():
 
 # 4. КОМАНДА /START ДЛЯ БОТА
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    app_url = f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'scanner-master.onrender.com')}"
-    
-    keyboard = [[InlineKeyboardButton("🔮 ЗАПУСТИТЬ ИИ СКАНЕР 🚀", web_app=WebAppInfo(url=app_url))]]
+    # Используем нашу жесткую ссылку на Mini App
+    keyboard = [[InlineKeyboardButton("🔮 ЗАПУСТИТЬ ИИ СКАНЕР 🚀", web_app=WebAppInfo(url=APP_URL))]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
         "👋 Привет, Мастер трейдинга! 🤖💎\n\nНажимай на кнопку ниже, направляй прицел камеры смартфона прямо на текущую свечу на мониторе и жми сканировать! Настоящее компьютерное зрение сделает всё за тебя! 📈💸",
@@ -106,7 +106,9 @@ def run_flask():
     app.run(host='0.0.0.0', port=port)
 
 if __name__ == '__main__':
+    # Запуск веб-сервера
     Thread(target=run_flask).start()
+    # Запуск Telegram бота
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.run_polling()
