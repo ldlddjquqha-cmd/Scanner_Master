@@ -6,16 +6,16 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
-import asyncio
+import multiprocessing
 
-# 1. ЖЕСТКИЕ НАСТРОЙКИ ТОКЕНА И ССЫЛКИ 💎
+# 1. КОНСТАНТЫ ЖЕСТКО В КОД 💎
 TOKEN = "8479849828:AAEl31VYsy9o7NrSL9lIHdmHDaUBrbP1aFw"
 APP_URL = "https://scanner-master.onrender.com"
 
 app = Flask(__name__)
 CORS(app)
 
-# 2. ИИ АНАЛИЗ ПИКСЕЛЕЙ СВЕЧИ ЧЕРЕЗ OPENCV 👁️
+# 2. ИИ АНАЛИЗ ПИКСЕЛЕЙ ЧЕРЕЗ OPENCV
 def analyze_image_pixels(image_bytes):
     nparr = np.frombuffer(image_bytes, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -40,10 +40,10 @@ def analyze_image_pixels(image_bytes):
         else:
             return "FLAT_DOWN", f"Рынок в узком коридоре. Продавцы аккуратно поддавливают цену (Красный: {avg_red:.1f} против Зеленого: {avg_green:.1f})."
 
-# 3. МАРШРУТЫ ДЛЯ ВЕБ-СЕРВЕРА
+# 3. МАРШРУТЫ FLASK
 @app.route('/')
 def home():
-    return "ИИ Сервер Команды Мастер работает стабильно! 🟢"
+    return "ИИ Сервер Команды Мастер запущен! 🟢"
 
 @app.route('/analyze', methods=['POST'])
 def handle_analyze():
@@ -79,28 +79,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=reply_markup, parse_mode="Markdown"
     )
 
-# 5. АСИНХРОННЫЙ ЗАПУСК ДВУХ СИСТЕМ ОДНОВРЕМЕННО
-async def main():
-    # Настраиваем и инициализируем бота
-    application = Application.builder().token(TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    
-    await application.initialize()
-    await application.start()
-    await application.updater.start_polling()
-    
-    # Настраиваем Flask веб-сервер
+def run_web_server():
     port = int(os.environ.get("PORT", 10000))
-    from werkzeug.serving import make_server
-    
-    server = make_server('0.0.0.0', port, app)
-    
-    print("🤖 Бот и ИИ-Сервер запущены синхронно!")
-    
-    # Запускаем бесконечный цикл обработки веб-сервера без блокировки асинхронности
-    while True:
-        server.handle_request()
-        await asyncio.sleep(0.1)
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    # Запуск веб-сервера Flask в отдельном изолированном подпроцессе
+    server_process = multiprocessing.Process(target=run_web_server)
+    server_process.start()
+    
+    # Стандартный, встроенный и безопасный запуск Телеграм бота
+    application = Application.builder().token(TOKEN).build()
+    application.add_handler(
