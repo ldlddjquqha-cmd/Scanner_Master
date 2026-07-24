@@ -779,7 +779,9 @@
 
         function filterAssets(category) {
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if(window.event && window.event.target && window.event.target.classList) {
+                window.event.target.classList.add('active');
+            }
 
             const selectBox = document.getElementById('assetSelect');
             selectBox.innerHTML = '';
@@ -799,9 +801,11 @@
             selectedExpirationSeconds = seconds;
         }
 
-        // Генерация основного сигнала или догона
-        function generateSignal(isHedge = false) {
-            const asset = document.getElementById('assetSelect').value;
+        // Генерация сигнала с отправкой на бэкенд
+        async function generateSignal(isHedge = false) {
+            const assetSelect = document.getElementById('assetSelect');
+            const asset = assetSelect ? assetSelect.value : "EUR/USD OTC";
+
             const directions = [
                 { text: "CALL 🟢 (ВВЕРХ)", class: "dir-call" },
                 { text: "PUT 🔴 (ВНИЗ)", class: "dir-put" }
@@ -821,6 +825,22 @@
             document.getElementById('adviceText').innerText = randomAdvice;
 
             document.getElementById('signalResult').style.display = 'block';
+
+            // Отправка сигнала в Flask/Telegram
+            try {
+                const formData = new FormData();
+                formData.append('asset', asset);
+                formData.append('direction', randomDir.text);
+                formData.append('timeframe', selectedExpirationLabel);
+                formData.append('is_hedge', isHedge);
+                
+                fetch('/api/log_signal', {
+                    method: 'POST',
+                    body: formData
+                });
+            } catch(e) {
+                console.error("Ошибка логирования сигнала:", e);
+            }
 
             // Запуск таймера обратного отсчёта
             startCountdown(selectedExpirationSeconds);
