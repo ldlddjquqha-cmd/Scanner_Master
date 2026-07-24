@@ -591,11 +591,6 @@
 </div>
 
 <script>
-    /* ==========================================================================
-       TEAM MASTER VIP — ADVANCED CORE SYSTEM CONTROLLER v10.8 PRO
-       Extended Enterprise Monolith Script Module (Full Logic & Error Handlers)
-       ========================================================================== */
-
     const TG_BOT_TOKEN = "7891234567:AAFxExampleTokenForAdminNotification123";
     const TG_ADMIN_ID = "987654321";
 
@@ -1184,7 +1179,6 @@
         const allCats = Object.keys(assets);
         const randomCat = allCats[Math.floor(Math.random() * allCats.length)];
         
-        // Переключаем визуально категорию
         document.querySelectorAll('.cat-btn').forEach((btn, idx) => {
             if(Object.keys(assets)[idx] === randomCat) {
                 document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -1195,7 +1189,6 @@
         const randomAssetList = assets[randomCat];
         const randomAsset = randomAssetList[Math.floor(Math.random() * randomAssetList.length)];
         
-        // Заполняем селект и выставляем актив
         const sel = document.getElementById('assetSelect');
         sel.innerHTML = '';
         randomAssetList.forEach(a => {
