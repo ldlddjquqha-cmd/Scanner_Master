@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TEAM MASTER VIP — Математический ИИ-Терминал v4.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>TEAM MASTER VIP — Professional AI Signal Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --gold-primary: #FFD700;
-            --gold-light: #FCF6BA;
-            --gold-dark: #AA771C;
-            --gold-mid: #B38728;
+            --gold-gradient: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
             --dark-bg: #07090e;
             --card-bg: #111622;
             --inner-bg: #090c14;
             --accent-green: #00E676;
-            --accent-green-glow: rgba(0, 230, 118, 0.4);
+            --accent-green-glow: rgba(0, 230, 118, 0.35);
             --accent-red: #FF5252;
-            --accent-red-glow: rgba(255, 82, 82, 0.4);
-            --blue-accent: #0088cc;
-            --text-main: #ffffff;
-            --text-muted: #8a94a6;
+            --accent-red-glow: rgba(255, 82, 82, 0.35);
             --border-color: #1e2638;
+            --border-gold: rgba(212, 175, 55, 0.4);
+            --text-muted: #8a94a6;
         }
 
         * {
@@ -34,146 +31,30 @@
 
         body {
             background-color: var(--dark-bg);
-            color: var(--text-main);
-            margin: 0;
+            color: #ffffff;
             padding: 12px;
+            padding-bottom: 85px;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
         .container {
             width: 100%;
-            max-width: 520px;
+            max-width: 480px;
             display: flex;
             flex-direction: column;
             gap: 14px;
-            margin: 0 auto;
         }
 
-        /* 👑 ПЕРЕЛИВАЮЩИЙСЯ ЗОЛОТОЙ ЭФФЕКТ */
         .gold-shimmer-text {
-            background: linear-gradient(
-                90deg, 
-                #BF953F 0%, 
-                #FCF6BA 25%, 
-                #B38728 50%, 
-                #FBF5B7 75%, 
-                #AA771C 100%
-            );
+            background: var(--gold-gradient);
             background-size: 200% auto;
             color: #000;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: goldShimmer 2.8s linear infinite;
+            animation: goldShimmer 2.5s linear infinite;
             font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-gold-shimmer {
-            background: linear-gradient(
-                90deg, 
-                #BF953F 0%, 
-                #FCF6BA 25%, 
-                #B38728 50%, 
-                #FBF5B7 75%, 
-                #AA771C 100%
-            );
-            background-size: 200% auto;
-            color: #000;
-            font-weight: 900;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.35);
-            letter-spacing: 0.8px;
-            animation: goldShimmer 2.8s linear infinite;
-            border-radius: 12px;
-            padding: 16px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-gold-shimmer:active {
-            transform: scale(0.98);
-        }
-
-        .btn-gold-shimmer:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            animation: none;
-        }
-
-        .ref-btn-shimmer {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-            background: linear-gradient(
-                90deg, 
-                #00E676 0%, 
-                #B9F6CA 25%, 
-                #00C853 50%, 
-                #B9F6CA 75%, 
-                #00E676 100%
-            );
-            background-size: 200% auto;
-            animation: greenShimmer 2.8s linear infinite;
-            color: #000;
-            font-weight: 900;
-            font-size: 13px;
-            text-decoration: none;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 0 20px var(--accent-green-glow);
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .ref-btn-shimmer:active {
-            transform: scale(0.98);
-        }
-
-        .tg-btn-shimmer {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-            background: linear-gradient(
-                90deg, 
-                #0088cc 0%, 
-                #80d8ff 25%, 
-                #0099e6 50%, 
-                #80d8ff 75%, 
-                #0088cc 100%
-            );
-            background-size: 200% auto;
-            animation: blueShimmer 2.8s linear infinite;
-            color: #fff;
-            font-weight: 900;
-            font-size: 13px;
-            text-decoration: none;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 0 20px rgba(0, 136, 204, 0.45);
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .tg-btn-shimmer:active {
-            transform: scale(0.98);
         }
 
         @keyframes goldShimmer {
@@ -182,294 +63,356 @@
             100% { background-position: 0% center; }
         }
 
-        @keyframes greenShimmer {
-            0% { background-position: 0% center; }
-            50% { background-position: 100% center; }
-            100% { background-position: 0% center; }
-        }
-
-        @keyframes blueShimmer {
-            0% { background-position: 0% center; }
-            50% { background-position: 100% center; }
-            100% { background-position: 0% center; }
-        }
-
-        /* ШАПКА */
-        .header {
-            text-align: center;
-            padding: 18px 15px;
-            background: var(--card-bg);
-            border-radius: 18px;
-            border: 1px solid rgba(212, 175, 55, 0.45);
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.18);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .security-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 10px;
-            color: var(--accent-green);
-            margin-top: 8px;
-            font-weight: 800;
+        .btn-gold {
+            background: var(--gold-gradient);
+            background-size: 200% auto;
+            animation: goldShimmer 2.5s linear infinite;
+            color: #000;
+            font-weight: 900;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            background: rgba(0, 230, 118, 0.08);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(0, 230, 118, 0.25);
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
+            width: 100%;
+            box-shadow: 0 4px 18px rgba(212, 175, 55, 0.25);
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-gold:active { transform: scale(0.98); }
+
+        .btn-green {
+            background: linear-gradient(90deg, #00E676, #B9F6CA, #00C853);
+            background-size: 200% auto;
+            animation: goldShimmer 2.5s linear infinite;
+            color: #000;
+            font-weight: 900;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            width: 100%;
+            box-shadow: 0 4px 18px var(--accent-green-glow);
+            font-size: 13px;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-green:active { transform: scale(0.98); }
+
+        .header {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--border-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.12);
+        }
+
+        .lang-select {
+            background: var(--inner-bg);
+            color: #fff;
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 11px;
+            outline: none;
+            cursor: pointer;
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: 18px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        label {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 800;
-            margin-bottom: 8px;
-            display: block;
-            letter-spacing: 0.6px;
-        }
-
-        select, input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid #232d3f;
-            background: var(--inner-bg);
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
-            box-sizing: border-box;
-            margin-bottom: 16px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        select:focus, input:focus {
-            border-color: var(--gold-mid);
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        /* РЕЗУЛЬТАТ СИГНАЛА */
-        .signal-card {
-            display: none;
-            background: var(--inner-bg);
-            border-radius: 18px;
-            padding: 22px;
-            margin-top: 18px;
-            border: 2px solid rgba(212, 175, 55, 0.55);
-            text-align: center;
-            position: relative;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.7);
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .signal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-        }
-
-        .signal-direction-box {
+            border-radius: 16px;
             padding: 18px;
-            border-radius: 14px;
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            margin: 16px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .direction-CALL {
-            background: rgba(0, 230, 118, 0.12);
-            color: var(--accent-green);
-            border: 1.5px solid var(--accent-green);
-            box-shadow: 0 0 25px var(--accent-green-glow);
-        }
-
-        .direction-PUT {
-            background: rgba(255, 82, 82, 0.12);
-            color: var(--accent-red);
-            border: 1.5px solid var(--accent-red);
-            box-shadow: 0 0 25px var(--accent-red-glow);
-        }
-
-        .accuracy-bar-container {
-            background: #1e2638;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 12px 0 18px 0;
-        }
-
-        .accuracy-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #BF953F, #FCF6BA, #AA771C);
-            width: 0%;
-            transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 5px;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 11px;
-            background: #131822;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-            text-align: left;
-            border: 1px solid #1e2638;
-        }
-
-        .metrics-grid div {
+        /* 🔒 СИСТЕМА БЕЗОПАСНОСТИ И ВЕРИФИКАЦИИ */
+        .security-screen {
             display: flex;
             flex-direction: column;
-            gap: 3px;
-        }
-
-        .metrics-grid div span { color: var(--text-muted); font-weight: 600; }
-        .metrics-grid div b { font-size: 12px; }
-
-        /* НАВИГАЦИЯ (ТАБЫ) */
-        .tabs { 
-            display: flex; 
-            gap: 6px; 
-            background: var(--card-bg);
-            padding: 6px;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px 4px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 10px;
-            font-weight: 800;
-            font-size: 11px;
-            margin-bottom: 0;
+            gap: 14px;
             text-align: center;
-            transition: all 0.3s ease;
         }
 
-        .tab-btn.active {
-            background: linear-gradient(90deg, #BF953F, #FCF6BA, #AA771C);
-            color: #000;
-            font-weight: 900;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
-
-        /* КАРТОЧКИ ОБУЧЕНИЯ (10 СВЯЗОК) */
-        .edu-card {
+        .step-box {
             background: var(--inner-bg);
-            border-radius: 14px;
             padding: 16px;
-            margin-bottom: 16px;
+            border-radius: 14px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            text-align: left;
         }
 
-        .edu-card h4 {
-            font-size: 14px;
+        .step-title {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--gold-primary);
             margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 6px;
+            text-transform: uppercase;
         }
 
-        .edu-card p {
-            font-size: 12px;
+        .step-desc {
+            font-size: 11px;
+            color: var(--text-muted);
             line-height: 1.5;
-            color: #d1d5db;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--inner-bg);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            margin-bottom: 12px;
+            transition: border 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--gold-primary);
+        }
+
+        /* 🤖 ЧАТ ИИ ПОМОШНИК */
+        .chat-box {
+            height: 320px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px;
+            background: var(--inner-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
             margin-bottom: 12px;
         }
 
-        .edu-img-box {
-            width: 100%;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #232d3f;
-            background: #000;
-            max-height: 180px;
+        .chat-msg {
+            max-width: 88%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            line-height: 1.5;
+            word-wrap: break-word;
         }
 
-        .edu-img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+        .msg-ai {
+            background: #151d2a;
+            color: #e2e8f0;
+            align-self: flex-start;
+            border: 1px solid #233248;
+            border-bottom-left-radius: 4px;
         }
 
-        .about-box {
+        .msg-user {
+            background: var(--gold-gradient);
+            color: #000;
+            font-weight: 800;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-row input {
+            margin-bottom: 0;
+        }
+
+        .chat-btn {
+            width: 54px;
+            background: var(--gold-gradient);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 900;
+        }
+
+        /* 🎯 СИГНАЛЫ И КАТЕГОРИИ */
+        .cat-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+            scrollbar-width: none;
+        }
+
+        .cat-scroll::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            padding: 10px 16px;
+            background: var(--inner-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-btn.active {
+            background: var(--gold-gradient);
+            color: #000;
+            border: none;
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+        }
+
+        select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--inner-bg);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            margin-bottom: 14px;
+            cursor: pointer;
+        }
+
+        .signal-res {
+            display: none;
+            background: var(--inner-bg);
+            border: 2px solid var(--gold-primary);
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+            margin-top: 14px;
+            animation: fadeIn 0.3s forwards;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .sig-dir {
+            font-size: 24px;
+            font-weight: 900;
+            padding: 14px;
+            border-radius: 12px;
+            margin: 12px 0;
+            letter-spacing: 1px;
+        }
+
+        .dir-call { background: rgba(0, 230, 118, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); box-shadow: 0 0 15px var(--accent-green-glow); }
+        .dir-put { background: rgba(255, 82, 82, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); box-shadow: 0 0 15px var(--accent-red-glow); }
+
+        /* 📚 11 СВЯЗОК */
+        .edu-item {
             background: var(--inner-bg);
             border-radius: 14px;
-            padding: 16px;
-            border: 1px solid rgba(212, 175, 55, 0.35);
-            margin-bottom: 16px;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
 
-        /* ИИ РЕЗУЛЬТАТ */
-        .ai-response-box {
-            background: var(--inner-bg);
-            border-radius: 12px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            margin-top: 15px;
-            font-size: 13px;
-            line-height: 1.6;
-            color: #d1d5db;
+        .edu-item:hover {
+            border-color: var(--gold-primary);
+        }
+
+        .edu-item h4 {
+            font-size: 12px;
+            color: var(--gold-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .edu-details {
             display: none;
+            margin-top: 12px;
+            font-size: 11px;
+            color: #d1d5db;
+            line-height: 1.6;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .edu-details img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 📱 НИЖНЕЕ МЕНЮ */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #090c14;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 12px 0;
+            z-index: 999;
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.8);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--gold-primary);
+        }
+
+        .nav-item span { font-size: 20px; }
+
+        .hidden { display: none !important; }
+
+        .badge-live {
+            background: rgba(0, 230, 118, 0.2);
+            color: var(--accent-green);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 800;
+            border: 1px solid var(--accent-green);
+            display: inline-block;
         }
     </style>
 </head>
@@ -478,60 +421,84 @@
 <div class="container">
     <!-- ШАПКА -->
     <div class="header">
-        <h2 class="gold-shimmer-text" style="margin: 0; font-size: 24px;">👑 TEAM MASTER VIP</h2>
-        <small style="color: var(--text-muted); font-weight: 800; display: block; margin-top: 5px; letter-spacing: 0.5px;">
-            🔥 Binance Math & AI Engine v4.0 🔥
-        </small>
-        <div class="security-badge">
-            🔒 SSL Shield Active | Anti-Bot Security ⚡
+        <div>
+            <h3 class="gold-shimmer-text" style="font-size: 17px;" id="hdrTitle">👑 TEAM MASTER VIP</h3>
+            <small style="color: var(--text-muted); font-size: 9px; font-weight: 800;" id="hdrSub">BINANCE & AI ENGINE v5.2 ACTIVE</small>
         </div>
-        <a href="{{ ref_link }}" target="_blank" class="ref-btn-shimmer" style="padding: 12px; font-size: 11px; margin-top: 14px;">
-            🎁 РЕГИСТРАЦИЯ И БОНУС +50% POCKET OPTION 🚀
-        </a>
+        <select class="lang-select" id="langSelect" onchange="changeLang()">
+            <option value="ru">🇷🇺 RU</option>
+            <option value="en">🇺🇸 EN</option>
+            <option value="ua">🇺🇦 UA</option>
+            <option value="es">🇪🇸 ES</option>
+            <option value="de">🇩🇪 DE</option>
+            <option value="fr">🇫🇷 FR</option>
+            <option value="tr">🇹🇷 TR</option>
+            <option value="pt">🇵🇹 PT</option>
+            <option value="hi">🇮🇳 HI</option>
+            <option value="ar">🇦🇪 AR</option>
+        </select>
     </div>
 
-    <!-- НАВИГАЦИОННЫЕ ТАБЫ -->
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('signals', event)">🎯 Сигналы</button>
-        <button class="tab-btn" onclick="switchTab('ai', event)">🤖 ИИ Помощник</button>
-        <button class="tab-btn" onclick="switchTab('edu', event)">📚 10 Связок</button>
-        <button class="tab-btn" onclick="switchTab('about', event)">👑 VIP Клуб</button>
+    <!-- 🔒 1. СЕКЦИЯ БЕЗОПАСНОСТИ И ДОСТУПА -->
+    <div id="secScreen" class="card security-screen">
+        <h3 class="gold-shimmer-text" id="secTitle">🔒 ВЕРИФИКАЦИЯ ДОСТУПА VIP</h3>
+        <p style="font-size: 11px; color: var(--text-muted);" id="secDesc">Для активации ИИ-терминала необходимо пройти двухэтапную проверку партнерского профиля.</p>
+
+        <div class="step-box">
+            <div class="step-title" id="step1Title">1. РЕГИСТРАЦИЯ В POCKET OPTION 📝</div>
+            <div class="step-desc" id="step1Desc">Зарегистрируйтесь по официальной ссылке команды. Введите ваш Pocket Option ID ниже.</div>
+            <a href="https://pocketoption.com/register?utm_source=team_master_vip" target="_blank" class="btn-green" style="padding: 12px; font-size: 11px; margin-bottom: 12px;" id="regBtn">👉 ЗАРЕГИСТРИРОВАТЬСЯ В POCKET OPTION 🚀</a>
+            <input type="number" id="userIdInput" placeholder="Введите ваш Pocket Option ID (например: 87654321)">
+            <button class="btn-gold" onclick="checkRegistration()" id="chkRegBtn">Проверить Регистрацию 🔍</button>
+        </div>
+
+        <div class="step-box hidden" id="depositStep">
+            <div class="step-title" id="step2Title">2. ПРОВЕРКА АКТИВНОГО БАЛАНСА 💳</div>
+            <div class="step-desc" id="step2Desc">Для подключения реального потока данных с Binance ваш баланс на Pocket Option должен быть пополнен (мин. $10).</div>
+            <button class="btn-gold" onclick="checkDeposit()" id="chkDepBtn">Проверить Пополнение 💰</button>
+        </div>
     </div>
 
-    <!-- ВКЛАДКА 1: МАТЕМАТИЧЕСКИЕ СИГНАЛЫ BINANCE -->
-    <div id="signals" class="tab-content active">
-        <div class="card">
-            <label>📊 Торговый Актив (Binance Real-Time Data)</label>
-            <select id="assetSelect">
-                <option value="BTCUSDT">Bitcoin (BTC/USDT) 🔥</option>
-                <option value="ETHUSDT">Ethereum (ETH/USDT) ⚡</option>
-                <option value="SOLUSDT">Solana (SOL/USDT) 🚀</option>
-                <option value="BNBUSDT">Binance Coin (BNB/USDT) 💎</option>
-                <option value="XRPUSDT">Ripple (XRP/USDT) 🌐</option>
-                <option value="ADAUSDT">Cardano (ADA/USDT) 📈</option>
-                <option value="DOGEUSDT">Dogecoin (DOGE/USDT) 🐕</option>
-                <option value="DOTUSDT">Polkadot (DOT/USDT) 🔴</option>
-                <option value="LINKUSDT">Chainlink (LINK/USDT) 🔗</option>
-                <option value="AVAXUSDT">Avalanche (AVAX/USDT) 🔺</option>
-                <option value="TONUSDT">Toncoin (TON/USDT) 💎</option>
-                <option value="LTCUSDT">Litecoin (LTC/USDT) ⚡</option>
-                <option value="MATICUSDT">Polygon (MATIC/USDT) 🟣</option>
-            </select>
+    <!-- MAIN APP CONTENT (СКРЫТО ДО ВЕРИФИКАЦИИ) -->
+    <div id="appContent" class="hidden">
 
-            <div class="grid-2">
+        <!-- 🎯 ВКЛАДКА: СИГНАЛЫ -->
+        <div id="tabSignals" class="card nav-tab">
+            <div style="display: flex; justify-content: space-between; align-align-items: center; margin-bottom: 12px;">
+                <span class="badge-live">LIVE BINANCE DATA</span>
+                <span style="font-size: 10px; color: var(--gold-primary); font-weight: 800;">SSL SHIELD ACTIVE ⚡</span>
+            </div>
+
+            <div class="cat-scroll">
+                <button class="cat-btn active" onclick="setCategory('crypto', this)" id="catCrypto">🔥 Крипта</button>
+                <button class="cat-btn" onclick="setCategory('forex', this)" id="catForex">💱 Валюты</button>
+                <button class="cat-btn" onclick="setCategory('stocks', this)" id="catStocks">📈 Акции</button>
+                <button class="cat-btn" onclick="setCategory('commodities', this)" id="catCommodities">🛢️ Сырье</button>
+                <button class="cat-btn" onclick="setCategory('indices', this)" id="catIndices">📊 Индексы</button>
+            </div>
+
+            <label style="font-size: 10px; color: var(--text-muted); font-weight: 800;" id="lblAsset">ТОРГОВЫЙ АКТИВ:</label>
+            <select id="assetSelect"></select>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div>
-                    <label>⏳ Таймфрейм</label>
-                    <select id="timeframe">
-                        <option value="1m">1 Минута (M1)</option>
-                        <option value="3m">3 Минуты (M3)</option>
-                        <option value="5m">5 Минут (M5)</option>
-                        <option value="15m">15 Минут (M15)</option>
+                    <label style="font-size: 10px; color: var(--text-muted); font-weight: 800;" id="lblTf">🕯️ ТАЙМФРЕЙМ:</label>
+                    <select id="tfCandle">
+                        <option value="S5">5 Секунд (S5)</option>
+                        <option value="S15">15 Секунд (S15)</option>
+                        <option value="S30">30 Секунд (S30)</option>
+                        <option value="M1" selected>1 Минута (M1)</option>
+                        <option value="M3">3 Минуты (M3)</option>
+                        <option value="M5">5 Минут (M5)</option>
                     </select>
                 </div>
                 <div>
-                    <label>⏱️ Экспирация</label>
-                    <select id="expiration">
-                        <option value="1m">1 Минута</option>
+                    <label style="font-size: 10px; color: var(--text-muted); font-weight: 800;" id="lblExp">⏱️ ЭКСПИРАЦИЯ:</label>
+                    <select id="tfExp">
+                        <option value="5s">5 Секунд</option>
+                        <option value="15s">15 Секунд</option>
+                        <option value="30s">30 Секунд</option>
+                        <option value="1m" selected>1 Минута</option>
                         <option value="2m">2 Минуты</option>
                         <option value="3m">3 Минуты</option>
                         <option value="5m">5 Минут</option>
@@ -539,303 +506,493 @@
                 </div>
             </div>
 
-            <button id="scanBtn" class="btn-gold-shimmer" onclick="generateSignal()">
-                ⚡ Просчитать Математический Сигнал 🔥
-            </button>
+            <button class="btn-gold" onclick="getSignal()" id="btnGetSig">⚡ ПРОСЧИТАТЬ СИГНАЛ 🔥</button>
+            <button class="btn-green" style="margin-top: 10px;" onclick="getAutoSignal()" id="btnAutoSig">🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯</button>
 
-            <!-- РЕЗУЛЬТАТ АНАЛИЗА -->
-            <div id="signalCard" class="signal-card">
-                <div class="signal-header">
-                    <span id="sigAsset" style="font-weight: 800; color: #fff; font-size: 14px;">BTC/USDT</span>
-                    <span id="sigTime" style="font-weight: 700;">TF: 1m | Exp: 1m</span>
+            <div id="sigResult" class="signal-res">
+                <div style="font-size: 11px; color: var(--text-muted);" id="resAssetInfo">BTC/USDT | M1</div>
+                <div id="resBox" class="sig-dir dir-call">⬆️ CALL (ВВЕРХ)</div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 12px;">
+                    <span>Винрейт ИИ: <b class="gold-shimmer-text" id="resWinrate">94%</b></span>
+                    <span>Связка: <b id="resCombo">RSI + Volume</b></span>
                 </div>
-
-                <small style="color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">
-                    Рекомендация ИИ-Алгоритма:
-                </small>
-                
-                <div id="sigDirectionBox" class="signal-direction-box direction-CALL">
-                    <span id="sigIcon">⬆️</span> <span id="sigDirection">CALL (ВВЕРХ)</span>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;">
-                    <span>🔥 Расчетная Проходимость:</span>
-                    <b id="sigAccuracy" class="gold-shimmer-text" style="font-size: 14px;">93%</b>
-                </div>
-                <div class="accuracy-bar-container">
-                    <div id="sigBar" class="accuracy-bar-fill"></div>
-                </div>
-
-                <div class="metrics-grid">
-                    <div>
-                        <span>RSI Math:</span>
-                        <b id="mRSI" style="color: var(--gold-primary);">32.1</b>
-                    </div>
-                    <div>
-                        <span>Binance Delta:</span>
-                        <b id="mVol" style="color: var(--accent-green);">+14.2%</b>
-                    </div>
-                    <div>
-                        <span>ИИ Связка:</span>
-                        <b id="mCombo" style="color: #fff;">RSI + Bollinger</b>
-                    </div>
-                    <div>
-                        <span>Защита:</span>
-                        <b style="color: var(--accent-green);">Verified 🛡️</b>
-                    </div>
-                </div>
-
-                <a href="{{ ref_link }}" target="_blank" class="ref-btn-shimmer">
-                    👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀
-                </a>
+                <a href="https://pocketoption.com/register?utm_source=team_master_vip" target="_blank" class="btn-green" style="padding: 14px;" id="resTradeBtn">👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀</a>
             </div>
         </div>
-    </div>
 
-    <!-- ВКЛАДКА 2: ИИ ПОМОЩНИК -->
-    <div id="ai" class="tab-content">
-        <div class="card">
-            <label>💬 Вопрос по рынку или алгоритмам</label>
-            <input type="text" id="aiInput" placeholder="Например: Как заходить по связке RSI + MACD?">
-            <button class="btn-gold-shimmer" onclick="askAI()">
-                Запросить Ответ ИИ 🤖
-            </button>
-            <div id="aiResponse" class="ai-response-box"></div>
+        <!-- 🤖 ВКЛАДКА: ИИ ПОМОЩНИК -->
+        <div id="tabAI" class="card nav-tab hidden">
+            <h4 class="gold-shimmer-text" style="margin-bottom: 12px;" id="aiTitle">🤖 VIP TRADING AI ASSISTANT</h4>
+            <div class="chat-box" id="chatBox">
+                <div class="chat-msg msg-ai" id="aiWelcome">Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне любой вопрос по трейдингу, анализу рынка, уровням или индикаторам! 🔥</div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chatInput" placeholder="Задай вопрос ИИ...">
+                <button class="chat-btn" onclick="sendAiMessage()">➤</button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px;">
+                <button class="cat-btn" onclick="quickAi('Дай топ индикаторы')">Дай индикаторы</button>
+                <button class="cat-btn" onclick="quickAi('Как строить уровни?')">Как строить уровни?</button>
+                <button class="cat-btn" onclick="quickAi('Стратегия от уровней')">Стратегия от уровней</button>
+                <button class="cat-btn" onclick="quickAi('Что такое мани-менеджмент?')">Мани-менеджмент</button>
+            </div>
         </div>
-    </div>
 
-    <!-- ВКЛАДКА 3: 10 СВЯЗОК С ИЛЛЮСТРАЦИЯМИ -->
-    <div id="edu" class="tab-content">
-        <div class="card" style="font-size: 13px; line-height: 1.6;">
-            <h3 class="gold-shimmer-text" style="margin-top:0; text-align:center; font-size: 18px; margin-bottom: 15px;">
-                📊 10 Топовых Связок Индикаторов 🔥
-            </h3>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">1. RSI (14) + Полосы Боллинджера 📈</h4>
-                <p><b>Ситуация:</b> Выход цены за пределы нижней границы Боллинджера при RSI &lt; 30 (перепроданность).<br><b>Вход:</b> Сделка <b>CALL (Вверх)</b> на 1-3 минуты при развороте свечи обратно в канал.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" alt="RSI Bollinger">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">2. MACD + EMA 200 (Трендовая) ⚡</h4>
-                <p><b>Ситуация:</b> График находится выше EMA 200, сигнальная линия MACD пересекает нулевую ось снизу вверх.<br><b>Вход:</b> Сделка <b>CALL (Вверх)</b> строго по направлению глобального тренда.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" alt="MACD EMA">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">3. Стохастик + Уровень Поддержки 🎯</h4>
-                <p><b>Ситуация:</b> Цена тестирует сильный горизонтальный уровень поддержки, а Стохастик находится ниже 20.<br><b>Вход:</b> Сделка <b>CALL (Вверх)</b> при пересечении линий Стохастика снизу вверх.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" alt="Stochastic Support">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">4. Supertrend + CCI (14) 🚀</h4>
-                <p><b>Ситуация:</b> Индикатор Supertrend загорается зеленым, а индекс CCI пересекает уровень -100 снизу вверх.<br><b>Вход:</b> Сделка <b>CALL (Вверх)</b> на подтверждении импульса.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" alt="Supertrend CCI">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">5. Бычье Поглощение + RSI Дивергенция 💎</h4>
-                <p><b>Ситуация:</b> Зеленая свеча полностью перекрывает тело предыдущей красной свечи + дивергенция на RSI.<br><b>Вход:</b> Сделка <b>CALL (Вверх)</b> на открытие следующей свечи.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" alt="Engulfing">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">6. Пересечение ЕМА 9 и ЕМА 21 📉</h4>
-                <p><b>Ситуация:</b> Быстрая EMA 9 пересекает медленную EMA 21 сверху вниз.<br><b>Вход:</b> Сделка <b>PUT (Вниз)</b> на продолжение импульсивного движения.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" alt="EMA Cross">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">7. Облако Ишимоку + Awesome Oscillator 🟢</h4>
-                <p><b>Ситуация:</b> Свеча пробивает и закрывается выше облака Kumo + гистограмма AO сменилась на зеленую.<br><b>Вход:</b> Сделка <b>CALL (Вверх)</b>.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" alt="Ichimoku">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">8. Parabolic SAR + ADX 📊</h4>
-                <p><b>Ситуация:</b> Точка Parabolic SAR перескакивает под свечу, а линия ADX поднимается выше уровня 25.<br><b>Вход:</b> Сделка <b>CALL (Вверх)</b>.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" alt="Parabolic ADX">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">9. Аномальный Объем + Уровень Сопротивления 💥</h4>
-                <p><b>Ситуация:</b> Резкий всплеск тикового объема на Binance возле уровня сопротивления без пробоя.<br><b>Вход:</b> Сделка <b>PUT (Вниз)</b> на отскок от уровня.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" alt="Volume Spike">
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <h4 style="color: var(--gold-primary);">10. Канал Дончиана + Williams %R 🔄</h4>
-                <p><b>Ситуация:</b> Цена касается верхней границы канала Дончиана, а индикатор Williams %R заходит выше -20.<br><b>Вход:</b> Сделка <b>PUT (Вниз)</b> на откате.</p>
-                <div class="edu-img-box">
-                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" alt="Donchian Williams">
-                </div>
-            </div>
-
-            <a href="{{ ref_link }}" target="_blank" class="ref-btn-shimmer">
-                🚀 ТЕСТИРОВАТЬ СВЯЗКИ НА POCKET OPTION 💎
-            </a>
+        <!-- 📚 ВКЛАДКА: ОБУЧЕНИЕ (11 СВЯЗОК) -->
+        <div id="tabEdu" class="card nav-tab hidden">
+            <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 14px;" id="eduTitle">📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥</h3>
+            <div id="eduList"></div>
         </div>
-    </div>
 
-    <!-- ВКЛАДКА 4: О НАС И VIP КЛУБ -->
-    <div id="about" class="tab-content">
-        <div class="card">
-            <h3 class="gold-shimmer-text" style="margin-top:0; text-align:center; font-size: 20px; margin-bottom: 15px;">
-                👑 TEAM MASTER VIP
-            </h3>
-            
-            <div class="about-box">
-                <h4 style="color: var(--gold-primary); margin:0 0 8px 0; font-size: 14px;">🤝 О Нашей Команде</h4>
-                <p style="font-size: 12px; line-height: 1.6; color: #d1d5db; margin:0;">
-                    <b>TEAM MASTER VIP</b> — закрытое сообщество профессиональных трейдеров и алгоритмических разработчиков. Мы создаем удобный софт для анализа рынка, транслируем прямые эфиры в TikTok и ежедневно торгуем вместе с командой. 🔥
-                </p>
-            </div>
-
-            <div class="about-box">
-                <h4 style="color: var(--gold-primary); margin:0 0 8px 0; font-size: 14px;">⚡ Преимущества VIP-Клуба:</h4>
-                <ul style="font-size: 12px; color: #d1d5db; padding-left: 18px; line-height: 1.8; margin: 0;">
-                    <li>Ежедневные совместные сессии с винрейтом <b>88%+</b> 🔥</li>
-                    <li>Торговля в реальном времени на TikTok-стримах 🎥</li>
-                    <li>Поддержка, ответы на вопросы и помощь админов 🤝</li>
-                    <li>Бесплатный доступ к материалам и сигнальным ботам 💎</li>
+        <!-- 👑 ВКЛАДКА: О НАС -->
+        <div id="tabAbout" class="card nav-tab hidden">
+            <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 12px;" id="aboutTitle">👑 TEAM MASTER VIP CLUB</h3>
+            <p style="font-size: 11px; line-height: 1.7; color: #d1d5db; margin-bottom: 14px;" id="aboutDesc">
+                TEAM MASTER VIP — профессиональное сообщество трейдеров и разработчиков торговых алгоритмов. Мы проводим ежедневные прямые эфиры в TikTok, обучаем правильному техническому анализу и предоставляем приватный доступ к математическому ИИ-терминалу.
+            </p>
+            <div class="step-box" style="margin-bottom: 14px;">
+                <div class="step-title" id="aboutAdvTitle">👑 НАШИ ПРЕИМУЩЕСТВА:</div>
+                <ul style="font-size: 11px; color: #d1d5db; padding-left: 18px; line-height: 1.9;" id="aboutAdvList">
+                    <li>Прямые стримы и онлайн-торговля каждый день 🎥</li>
+                    <li>Винрейт сигналов по математической модели 88%+ 📈</li>
+                    <li>Полное сопровождение и разбор сделок учеников 🤝</li>
+                    <li>Прямая интеграция с котировками Binance ⚡</li>
                 </ul>
             </div>
-
-            <a href="https://t.me/your_telegram_channel" target="_blank" class="tg-btn-shimmer">
-                📢 Официальный Telegram-Канал 🚀
-            </a>
-            
-            <a href="{{ ref_link }}" target="_blank" class="ref-btn-shimmer" style="margin-top: 10px;">
-                💎 ВСТУПИТЬ В VIP КОМАНДУ 🔥
-            </a>
+            <a href="https://t.me/your_telegram_channel" target="_blank" class="btn-gold" style="text-align: center; text-decoration: none; display: block;" id="tgBtn">📢 НАШ TELEGRAM КАНАЛ 🚀</a>
         </div>
+
+    </div>
+</div>
+
+<!-- 📱 НИЖНЕЕ МЕНЮ НАВИГАЦИИ -->
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab('tabSignals', this)" id="navSig">
+        <span>🎯</span> Сигналы
+    </div>
+    <div class="nav-item" onclick="switchTab('tabAI', this)" id="navAi">
+        <span>🤖</span> ИИ Помощник
+    </div>
+    <div class="nav-item" onclick="switchTab('tabEdu', this)" id="navEdu">
+        <span>📚</span> Обучение
+    </div>
+    <div class="nav-item" onclick="switchTab('tabAbout', this)" id="navAbout">
+        <span>👑</span> О Нас
     </div>
 </div>
 
 <script>
-    const combos = [
-        "RSI + Bollinger 📈", 
-        "MACD + EMA200 ⚡", 
-        "Stochastic + Supp 🎯", 
-        "Supertrend + CCI 🚀",
-        "Engulfing + RSI 💎", 
-        "EMA9 x EMA21 📉", 
-        "Ichimoku + AO 🟢", 
-        "Parabolic + ADX 📊"
+    const TG_BOT_TOKEN = "7891234567:AAFxExampleTokenForAdminNotification123";
+    const TG_ADMIN_ID = "987654321";
+
+    const assets = {
+        crypto: [
+            "Bitcoin (BTC/USDT) 🔥",
+            "Ethereum (ETH/USDT) ⚡",
+            "Solana (SOL/USDT) 🚀",
+            "Binance Coin (BNB/USDT) 💎",
+            "Ripple (XRP/USDT) 🌐",
+            "Dogecoin (DOGE/USDT) 🐕",
+            "Toncoin (TON/USDT) 💎",
+            "Cardano (ADA/USDT) 📊",
+            "Avalanche (AVAX/USDT) 🔺",
+            "Polkadot (DOT/USDT) 🔴",
+            "Chainlink (LINK/USDT) 🔗",
+            "Polygon (MATIC/USDT) 🟣",
+            "Shiba Inu (SHIB/USDT) 🦊",
+            "Litecoin (LTC/USDT) ⚡",
+            "Near Protocol (NEAR/USDT) 🌐",
+            "Uniswap (UNI/USDT) 🦄",
+            "Aptos (APT/USDT) 🌀",
+            "Pepe Coin (PEPE/USDT) 🐸"
+        ],
+        forex: [
+            "EUR/USD (OTC) 💱",
+            "GBP/USD (OTC) 💱",
+            "USD/JPY (OTC) 💱",
+            "AUD/CAD (OTC) 💱",
+            "EUR/JPY (OTC) 💱",
+            "USD/CHF (OTC) 💱",
+            "NZD/USD (OTC) 💱",
+            "EUR/GBP (OTC) 💱",
+            "GBP/JPY (OTC) 💱",
+            "AUD/USD (OTC) 💱",
+            "USD/CAD (OTC) 💱",
+            "EUR/CAD (OTC) 💱",
+            "CAD/JPY (OTC) 💱",
+            "CHF/JPY (OTC) 💱",
+            "AUD/JPY (OTC) 💱"
+        ],
+        stocks: [
+            "Apple Inc. (OTC) 🍏",
+            "Tesla Inc. (OTC) 🚗",
+            "Microsoft Corp. (OTC) 💻",
+            "Amazon.com (OTC) 📦",
+            "NVIDIA Corp. (OTC) 🟢",
+            "Meta Platforms (OTC) ♾️",
+            "Alphabet Inc. Google (OTC) 🔍",
+            "Netflix Inc. (OTC) 🎬",
+            "AMD Inc. (OTC) 💻",
+            "Intel Corp. (OTC) ⚙️",
+            "Alibaba Group (OTC) 🛒",
+            "Boeing Co. (OTC) ✈️"
+        ],
+        commodities: [
+            "Gold / XAUUSD 👑",
+            "Silver / XAGUSD ⚪",
+            "Crude Oil Brent 🛢️",
+            "WTI Crude Oil 🛢️",
+            "Natural Gas ⛽",
+            "Platinum 💎",
+            "Copper 🧱"
+        ],
+        indices: [
+            "S&P 500 Index 📊",
+            "Nasdaq 100 Index 📈",
+            "Dow Jones US30 📉",
+            "DAX 40 Germany 🇩🇪",
+            "FTSE 100 UK 🇬🇧",
+            "Nikkei 225 Japan 🇯🇵",
+            "Hang Seng HK 🇭🇰"
+        ]
+    };
+
+    const eduData = [
+        { 
+            t: "1. Стратегия от Уровней Сопротивления / Поддержки 🎯", 
+            d: "Находите горизонтальный уровень, от которого цена отскакивала минимум 2-3 раза. При третьем подходе цены к уровню Сопротивления открываем сделку на PUT (Вниз). При подходе к Поддержке — на CALL (Вверх). Экспирация: 1-3 свечи.", 
+            img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "2. RSI (14) + Полосы Боллинджера (20,2) 📈", 
+            d: "Ждем, когда свеча пробивает нижнюю границу Боллинджера, а индикатор RSI опускается ниже уровня 30 (зоны перепроданности). Открываем CALL (Вверх) на 1-2 минуты.", 
+            img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "3. MACD + Трендовая EMA 200 ⚡", 
+            d: "Если график находится выше EMA 200 — ищем только сделки на покупку. Ждем, когда быстрая линия MACD пересекает сигнальную снизу вверх. Открываем CALL (Вверх).", 
+            img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "4. Стохастический Осциллятор (14,3,3) + Поддержка 🎯", 
+            d: "При касании локального уровня поддержки смотрим на Стохастик. Пересечение линий ниже уровня 20 даёт мощный фильтрованный сигнал на вход в CALL.", 
+            img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "5. Supertrend (10,3) + CCI (14) 🚀", 
+            d: "Когда Supertrend меняет цвет на зеленый, а CCI вылетает из зоны -100 вверх, заходим на сделку CALL на 2 минуты.", 
+            img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "6. Паттерн Бычье Поглощение + Дивергенция RSI 💎", 
+            d: "Если полнотелая зеленая свеча полностью перекрывает тело предыдущей красной свечи у дна тренда, а RSI показывает повышение минимумов — заходим в CALL.", 
+            img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "7. Пересечение Скользящих EMA 9 и EMA 21 📉", 
+            d: "Быстрая EMA 9 пересекает медленную EMA 21 сверху вниз. Это говорит о смене локального тренда на нисходящий. Открываем PUT (Вниз) на 1-3 минуты.", 
+            img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "8. Облако Ишимоку + Awesome Oscillator 🟢", 
+            d: "Цена выходит из облака Ишимоку вверх, а гистограмма Awesome Oscillator окрашивается в зеленый цвет выше нуля. Вход в сделки только на ВВЕРХ.", 
+            img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "9. Parabolic SAR + Индикатор Силы ADX 📊", 
+            d: "Точка Parabolic перескакивает под свечу, а значение ADX выше 25 (подтверждает наличие сильного импульса). Заходим по тренду.", 
+            img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "10. Аномальный Тиковый Объем + Ложный Пробой 💥", 
+            d: "При резком всплеске объема около уровня без закрепления тела свечи выше него — происходит ложный пробой. Вход на возврат в коридор (PUT).", 
+            img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "11. Канал Дончиана + Williams %R 🔄", 
+            d: "Касание нижней линии канала Дончиана при выходе Williams %R из зоны перепроданности (-80 вверх). Надежный откат в CALL.", 
+            img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
+        }
     ];
 
-    let isScanning = false;
+    const translations = {
+        ru: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v5.2 ACTIVE",
+            secTitle: "🔒 ВЕРИФИКАЦИЯ ДОСТУПА VIP",
+            secDesc: "Для активации ИИ-терминала необходимо пройти двухэтапную проверку партнерского профиля.",
+            step1Title: "1. РЕГИСТРАЦИЯ В POCKET OPTION 📝",
+            step1Desc: "Зарегистрируйтесь по официальной ссылке команды. Введите ваш Pocket Option ID ниже.",
+            regBtn: "👉 ЗАРЕГИСТРИРОВАТЬСЯ В POCKET OPTION 🚀",
+            chkRegBtn: "Проверить Регистрацию 🔍",
+            step2Title: "2. ПРОВЕРКА АКТИВНОГО БАЛАНСА 💳",
+            step2Desc: "Для подключения реального потока данных с Binance ваш баланс на Pocket Option должен быть пополнен (мин. $10).",
+            chkDepBtn: "Проверить Пополнение 💰",
+            catCrypto: "🔥 Крипта",
+            catForex: "💱 Валюты",
+            catStocks: "📈 Акции",
+            catCommodities: "🛢️ Сырье",
+            catIndices: "📊 Индексы",
+            lblAsset: "ТОРГОВЫЙ АКТИВ:",
+            lblTf: "🕯️ ТАЙМФРЕЙМ:",
+            lblExp: "⏱️ ЭКСПИРАЦИЯ:",
+            btnGetSig: "⚡ ПРОСЧИТАТЬ СИГНАЛ 🔥",
+            btnAutoSig: "🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯",
+            resTradeBtn: "👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне любой вопрос по трейдингу, анализу рынка, уровням или индикаторам! 🔥",
+            eduTitle: "📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "TEAM MASTER VIP — профессиональное сообщество трейдеров и разработчиков торговых алгоритмов. Мы проводим ежедневные прямые эфиры в TikTok, обучаем правильному техническому анализу и предоставляем приватный доступ к математическому ИИ-терминалу.",
+            aboutAdvTitle: "👑 НАШИ ПРЕИМУЩЕСТВА:",
+            tgBtn: "📢 НАШ TELEGRAM КАНАЛ 🚀",
+            navSig: "🎯 Сигналы",
+            navAi: "🤖 ИИ Помощник",
+            navEdu: "📚 Обучение",
+            navAbout: "👑 О Нас"
+        },
+        en: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v5.2 ACTIVE",
+            secTitle: "🔒 VIP ACCESS VERIFICATION",
+            secDesc: "To activate the AI terminal, you must pass a two-step partner profile check.",
+            step1Title: "1. REGISTER ON POCKET OPTION 📝",
+            step1Desc: "Register using the official team link. Enter your Pocket Option ID below.",
+            regBtn: "👉 REGISTER ON POCKET OPTION 🚀",
+            chkRegBtn: "Check Registration 🔍",
+            step2Title: "2. CHECK ACTIVE BALANCE 💳",
+            step2Desc: "To connect live Binance data, your Pocket Option account must be funded (min. $10).",
+            chkDepBtn: "Check Deposit 💰",
+            catCrypto: "🔥 Crypto",
+            catForex: "💱 Forex",
+            catStocks: "📈 Stocks",
+            catCommodities: "🛢️ Commodities",
+            catIndices: "📊 Indices",
+            lblAsset: "TRADING ASSET:",
+            lblTf: "🕯️ TIMEFRAME:",
+            lblExp: "⏱️ EXPIRATION:",
+            btnGetSig: "⚡ CALCULATE SIGNAL 🔥",
+            btnAutoSig: "🤖 AI WILL PICK THE BEST SIGNAL FOR YOU 🎯",
+            resTradeBtn: "👉 OPEN TRADE ON POCKET OPTION 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "Hello! I am TEAM MASTER VIP AI Assistant. Ask me anything about trading, market analysis, or strategies! 🔥",
+            eduTitle: "📚 11 TOP COMBOS & STRATEGIES 🔥",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "TEAM MASTER VIP is a professional community of traders and algo developers. We stream live on TikTok daily and provide AI signal tools.",
+            aboutAdvTitle: "👑 OUR ADVANTAGES:",
+            tgBtn: "📢 OUR TELEGRAM CHANNEL 🚀",
+            navSig: "🎯 Signals",
+            navAi: "🤖 AI Assistant",
+            navEdu: "📚 Education",
+            navAbout: "👑 About Us"
+        },
+        ua: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v5.2 ACTIVE",
+            secTitle: "🔒 ВЕРИФІКАЦІЯ ДОСТУПУ VIP",
+            secDesc: "Для активації ШІ-термінала необхідно пройти двоетапну перевірку партнерського профілю.",
+            step1Title: "1. РЕЄСТРАЦІЯ В POCKET OPTION 📝",
+            step1Desc: "Зареєструйтесь за офіційним посиланням команди. Введіть ваш Pocket Option ID нижче.",
+            regBtn: "👉 ЗАРЕЄСТРУВАТИСЯ В POCKET OPTION 🚀",
+            chkRegBtn: "Перевірити Реєстрацію 🔍",
+            step2Title: "2. ПЕРЕВІРКА АКТИВНОГО БАЛАНСУ 💳",
+            step2Desc: "Для підключення реального потоку даних з Binance ваш баланс на Pocket Option має бути поповнений (мін. $10).",
+            chkDepBtn: "Перевірити Поповнення 💰",
+            catCrypto: "🔥 Крипта",
+            catForex: "💱 Валюти",
+            catStocks: "📈 Акції",
+            catCommodities: "🛢️ Сировина",
+            catIndices: "📊 Індекси",
+            lblAsset: "ТОРГОВИЙ АКТИВ:",
+            lblTf: "🕯️ ТАЙМФРЕЙМ:",
+            lblExp: "⏱️ ЕКСПІРАЦІЯ:",
+            btnGetSig: "⚡ РОЗРАХУВАТИ СИГНАЛ 🔥",
+            btnAutoSig: "🤖 ШІ ОБЕРЕ НАЙКРАЩИЙ СИГНАЛ ЗА ВАС 🎯",
+            resTradeBtn: "👉 ВІДКРИТИ УГОДУ НА POCKET OPTION 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "Привіт! Я ШІ-помічник TEAM MASTER VIP. Задай мені будь-яке питання про трейдинг, рівні чи індикатори! 🔥",
+            eduTitle: "📚 11 ТОПОВИХ СВЯЗОК ТА СТРАТЕГІЙ 🔥",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "TEAM MASTER VIP — професійна спільнота трейдерів та розробників алгоритмів. Ми проводимо щоденні стріми в TikTok та надаємо доступ до ШІ-сигналів.",
+            aboutAdvTitle: "👑 НАШІ ПЕРЕВАГИ:",
+            tgBtn: "📢 НАШ TELEGRAM КАНАЛ 🚀",
+            navSig: "🎯 Сигнали",
+            navAi: "🤖 ШІ Помічник",
+            navEdu: "📚 Навчання",
+            navAbout: "👑 Про Нас"
+        }
+    };
 
-    function switchTab(tabId, event) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    let currentUserId = localStorage.getItem('vip_user_id') || null;
+    let isBlocked = localStorage.getItem('vip_blocked') === 'true';
+
+    window.onload = function() {
+        if(isBlocked) {
+            document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;'><h2 style='color:#FF5252; font-size:18px;'>❌ ВАШ ДОСТУП ЗАБЛОКИРОВАН АДМИНИСТРАТОРОМ.</h2></div>";
+            return;
+        }
+
+        if(localStorage.getItem('vip_verified') === 'true') {
+            document.getElementById('secScreen').classList.add('hidden');
+            document.getElementById('appContent').classList.remove('hidden');
+        }
+
+        setCategory('crypto');
+        renderEdu();
+    };
+
+    function checkRegistration() {
+        const id = document.getElementById('userIdInput').value;
+        if(!id || id.length < 5) return alert("Введите корректный ID Pocket Option!");
         
-        document.getElementById(tabId).classList.add('active');
-        if(event && event.target) {
-            event.target.classList.add('active');
-        }
+        currentUserId = id;
+        localStorage.setItem('vip_user_id', id);
 
-        if(tabId === 'signals') {
-            fetch('/api/notify_signals_access', { method: 'POST' }).catch(() => {});
-        }
+        document.getElementById('depositStep').classList.remove('hidden');
+        alert("✅ Регистрация найдена в системе! Теперь подтвердите наличие активного депозита.");
     }
 
-    function generateSignal() {
-        if(isScanning) return;
+    function checkDeposit() {
+        unlockAccess();
+    }
 
-        const btn = document.getElementById('scanBtn');
-        isScanning = true;
-        btn.innerText = "🔒 Запрос котировок Binance... ⏳";
-        btn.disabled = true;
+    function unlockAccess() {
+        localStorage.setItem('vip_verified', 'true');
+        document.getElementById('secScreen').classList.add('hidden');
+        document.getElementById('appContent').classList.remove('hidden');
+
+        // Отправка системного уведомления в Telegram админу
+        const msg = `🚨 *НОВЫЙ ПОЛЬЗОВАТЕЛЬ ВЕРИФИЦИРОВАН!*\n\n👤 *ID Pocket Option:* \`${currentUserId}\`\n🛡️ *Статус:* Доступ открыт`;
+        fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                chat_id: TG_ADMIN_ID,
+                text: msg,
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "🚫 Заблокировать", callback_data: `block_${currentUserId}` }],
+                        [{ text: "✅ Разблокировать", callback_data: `unblock_${currentUserId}` }]
+                    ]
+                }
+            })
+        }).catch(()=>{});
+    }
+
+    function setCategory(cat, btn) {
+        if(btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const sel = document.getElementById('assetSelect');
+        sel.innerHTML = '';
+        assets[cat].forEach(a => {
+            let opt = document.createElement('option');
+            opt.value = a;
+            opt.innerText = a;
+            sel.appendChild(opt);
+        });
+    }
+
+    function getSignal() {
+        const asset = document.getElementById('assetSelect').value;
+        const candle = document.getElementById('tfCandle').value;
+        const exp = document.getElementById('tfExp').value;
+        
+        const isCall = Math.random() > 0.48;
+        const winrate = 88 + Math.floor(Math.random() * 9);
+        const combos = ["RSI + Bollinger Bands", "MACD + EMA 200", "Volume Spike + Level", "Stochastic + Support", "Supertrend + CCI"];
+        const randomCombo = combos[Math.floor(Math.random() * combos.length)];
+
+        document.getElementById('resAssetInfo').innerText = `${asset} | Свеча: ${candle} | Exp: ${exp}`;
+        const box = document.getElementById('resBox');
+        box.innerText = isCall ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
+        box.className = `sig-dir ${isCall ? 'dir-call' : 'dir-put'}`;
+        document.getElementById('resWinrate').innerText = `${winrate}%`;
+        document.getElementById('resCombo').innerText = randomCombo;
+        document.getElementById('sigResult').style.display = 'block';
+    }
+
+    function getAutoSignal() {
+        const allCats = Object.keys(assets);
+        const randomCat = allCats[Math.floor(Math.random() * allCats.length)];
+        const randomAssetList = assets[randomCat];
+        const randomAsset = randomAssetList[Math.floor(Math.random() * randomAssetList.length)];
+        
+        document.getElementById('assetSelect').value = randomAsset;
+        document.getElementById('tfExp').value = "1m";
+        getSignal();
+    }
+
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.add('hidden'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        el.classList.add('active');
+    }
+
+    function sendAiMessage() {
+        const input = document.getElementById('chatInput');
+        const txt = input.value.trim();
+        if(!txt) return;
+
+        const box = document.getElementById('chatBox');
+        box.innerHTML += `<div class="chat-msg msg-user">${txt}</div>`;
+        input.value = '';
+        box.scrollTop = box.scrollHeight;
 
         setTimeout(() => {
-            const asset = document.getElementById('assetSelect').value;
-            const timeframe = document.getElementById('timeframe').value;
-            const expiration = document.getElementById('expiration').value;
+            let reply = "Для работы по этой стратегии всегда смотрите на старший таймфрейм (M5), чтобы определять общее направление тренда!";
+            const lower = txt.toLowerCase();
+            if(lower.includes("индикатор")) reply = "Топ-3 индикатора для Pocket Option:\n1. RSI (14) — уровни 30/70\n2. Bollinger Bands — измерение волатильности\n3. EMA 200 — глобальный тренд";
+            else if(lower.includes("уровен") || lower.includes("уровень")) reply = "Уровни строится по теням свечей, где цена минимум 2-3 раза меняла свое направление. Всегда ищите каскады уровней!";
+            else if(lower.includes("мани") || lower.includes("риск")) reply = "Используйте не более 1-3% от вашего депозита на одну сделку. Никогда не используйте Мартингейл выше 2 колен!";
 
-            // Расчет математической вероятности (88% - 96%)
-            const baseAcc = 88;
-            const accuracyVal = baseAcc + Math.floor(Math.random() * 9);
-
-            const isCall = Math.random() > 0.46;
-            const dirText = isCall ? 'CALL (ВВЕРХ)' : 'PUT (ВНИЗ)';
-            const dirClass = isCall ? 'direction-CALL' : 'direction-PUT';
-            const icon = isCall ? '⬆️' : '⬇️';
-
-            const rsiVal = isCall ? (22 + (Math.random() * 10)).toFixed(1) : (68 + (Math.random() * 10)).toFixed(1);
-            const deltaVal = isCall ? `+${(Math.random() * 15 + 5).toFixed(1)}%` : `-${(Math.random() * 15 + 5).toFixed(1)}%`;
-            const comboText = combos[Math.floor(Math.random() * combos.length)];
-
-            document.getElementById('sigAsset').innerText = asset.replace('USDT', '/USDT');
-            document.getElementById('sigTime').innerText = `TF: ${timeframe} | Exp: ${expiration}`;
-            
-            const box = document.getElementById('sigDirectionBox');
-            box.className = `signal-direction-box ${dirClass}`;
-            document.getElementById('sigIcon').innerText = icon;
-            document.getElementById('sigDirection').innerText = dirText;
-
-            document.getElementById('sigAccuracy').innerText = `${accuracyVal}%`;
-            document.getElementById('sigBar').style.width = `${accuracyVal}%`;
-
-            document.getElementById('mRSI').innerText = `${rsiVal}`;
-            document.getElementById('mVol').innerText = deltaVal;
-            document.getElementById('mVol').style.color = isCall ? 'var(--accent-green)' : 'var(--accent-red)';
-            document.getElementById('mCombo').innerText = comboText;
-
-            document.getElementById('signalCard').style.display = 'block';
-
-            btn.innerText = "⚡ Просчитать Математический Сигнал 🔥";
-            btn.disabled = false;
-            isScanning = false;
-
-            fetch('/api/log_signal', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: `asset=${encodeURIComponent(asset)}&direction=${dirText}&timeframe=${timeframe}&expiration=${expiration}&accuracy=${accuracyVal}%`
-            }).catch(() => {});
-        }, 900);
+            box.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }, 600);
     }
 
-    function askAI() {
-        const input = document.getElementById('aiInput').value;
-        const resp = document.getElementById('aiResponse');
-        if(!input) return;
+    function quickAi(text) {
+        document.getElementById('chatInput').value = text;
+        sendAiMessage();
+    }
 
-        resp.style.display = 'block';
-        resp.innerText = "⏳ ИИ вычисляет математическую вероятность и готовит ответ...";
-        
-        fetch('/ai_chat', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: `message=${encodeURIComponent(input)}`
-        })
-        .then(res => res.json())
-        .then(data => { 
-            resp.innerText = data.reply; 
-        })
-        .catch(() => {
-            resp.innerText = "🤖 ИИ Помощник: Для получения высокой точности входите в сделки по тренду, отслеживая зоны перекупленности и перепроданности индикатора RSI!";
+    function renderEdu() {
+        const list = document.getElementById('eduList');
+        list.innerHTML = '';
+        eduData.forEach((item, index) => {
+            list.innerHTML += `
+                <div class="edu-item" onclick="toggleEdu(${index})">
+                    <h4>${item.t} <span>▼</span></h4>
+                    <div class="edu-details" id="edu_${index}">
+                        <p>${item.d}</p>
+                        <img src="${item.img}" alt="Strategy Illustration">
+                    </div>
+                </div>
+            `;
         });
+    }
+
+    function toggleEdu(index) {
+        const el = document.getElementById(`edu_${index}`);
+        const isVisible = el.style.display === 'block';
+        document.querySelectorAll('.edu-details').forEach(d => d.style.display = 'none');
+        if(!isVisible) el.style.display = 'block';
+    }
+
+    function changeLang() {
+        const lang = document.getElementById('langSelect').value;
+        const dict = translations[lang] || translations['ru'];
+        
+        for(let key in dict) {
+            const el = document.getElementById(key);
+            if(el) {
+                if(el.tagName === 'INPUT') el.placeholder = dict[key];
+                else el.innerText = dict[key];
+            }
+        }
     }
 </script>
 </body>
