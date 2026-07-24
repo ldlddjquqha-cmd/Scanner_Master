@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TEAM MASTER VIP — Full AI Professional Trading Terminal v10.8 PRO (Ultimate Edition)</title>
+    <title>TEAM MASTER VIP — Full AI Professional Trading Terminal v10.8 PRO (Ultimate Extended Monolith Edition)</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -412,6 +412,7 @@
         </select>
     </div>
 
+    <!-- СЕКЦИЯ БЕЗОПАСНОСТИ -->
     <div id="secScreen" class="card security-screen">
         <div class="welcome-box">
             <h3 class="gold-shimmer-text" style="font-size: 14px; margin-bottom: 6px;" id="welTitle">👋 ДОБРО ПОЖАЛОВАТЬ В TEAM MASTER VIP</h3>
@@ -433,8 +434,10 @@
         </div>
     </div>
 
+    <!-- ОСНОВНОЙ ТЕРМИНАЛ -->
     <div id="appContent" class="hidden">
 
+        <!-- ВКЛАДКА: СИГНАЛЫ -->
         <div id="tabSignals" class="card nav-tab">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <span class="badge-live">LIVE BINANCE & POCKET OPTION DATA</span>
@@ -481,6 +484,7 @@
             <button class="btn-gold" onclick="getSignal()" id="btnGetSig">⚡ ПРОСЧИТАТЬ СИГНАЛ 🔥</button>
             <button class="btn-green" style="margin-top: 10px;" onclick="getAutoSignal()" id="btnAutoSig">🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯</button>
 
+            <!-- РЕЗУЛЬТАТ С КНОПКОЙ ПЕРЕКРЫТИЯ -->
             <div id="sigResult" class="signal-res">
                 <div style="font-size: 11px; color: var(--text-muted);" id="resAssetInfo">EUR/USD (OTC) | M1</div>
                 
@@ -500,6 +504,7 @@
             </div>
         </div>
 
+        <!-- ВКЛАДКА: ИИ ПОМОЩНИК -->
         <div id="tabAI" class="card nav-tab hidden">
             <h4 class="gold-shimmer-text" style="margin-bottom: 12px;" id="aiTitle">🤖 VIP TRADING AI ASSISTANT</h4>
             <div class="chat-box" id="chatBox">
@@ -517,6 +522,7 @@
             </div>
         </div>
 
+        <!-- ВКЛАДКА: ОБУЧЕНИЕ И СВЯЗКИ -->
         <div id="tabEdu" class="card nav-tab hidden">
             <div id="eduListContainer">
                 <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 14px;" id="eduTitle">📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥</h3>
@@ -528,6 +534,7 @@
             </div>
         </div>
 
+        <!-- ВКЛАДКА: ПРОФИЛЬ УЧЕНИКА -->
         <div id="tabProfile" class="card nav-tab hidden">
             <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 14px;" id="profileTitle">👤 ПРОФИЛЬ УЧЕНИКА</h3>
             <div class="profile-card">
@@ -539,6 +546,7 @@
             <button class="btn-gold" onclick="resetAccount()" style="background: linear-gradient(135deg, #FF5252, #FF8A80); color: #fff; font-size: 11px;">Сбросить сессию / Изменить ID 🔄</button>
         </div>
 
+        <!-- ВКЛАДКА: О НАС -->
         <div id="tabAbout" class="card nav-tab hidden">
             <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 12px;" id="aboutTitle">👑 TEAM MASTER VIP CLUB</h3>
             <p style="font-size: 11px; line-height: 1.7; color: #d1d5db; margin-bottom: 14px;" id="aboutDesc">
@@ -559,6 +567,7 @@
     </div>
 </div>
 
+<!-- НИЖНЕЕ МЕНЮ НАВИГАЦИИ -->
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('tabSignals', this)" id="navSig">
         <span>🎯</span> Сигналы
@@ -578,46 +587,103 @@
 </div>
 
 <script>
+    /* ==========================================================================
+       TEAM MASTER VIP — ADVANCED CORE SYSTEM CONTROLLER v10.8 PRO
+       Extended Enterprise Monolith Script Module (Full Logic & Error Handlers)
+       ========================================================================== */
+
     const TG_BOT_TOKEN = "7891234567:AAFxExampleTokenForAdminNotification123";
     const TG_ADMIN_ID = "987654321";
 
+    // Extended assets registry with comprehensive asset categorization
     const assets = {
         forex: [
             "EUR/USD (OTC)", "GBP/USD (OTC)", "USD/JPY (OTC)", "AUD/CAD (OTC)", "EUR/JPY (OTC)",
             "USD/CHF (OTC)", "NZD/USD (OTC)", "EUR/GBP (OTC)", "GBP/JPY (OTC)", "AUD/USD (OTC)",
-            "USD/CAD (OTC)", "EUR/CAD (OTC)", "CAD/JPY (OTC)", "CHF/JPY (OTC)", "AUD/JPY (OTC)"
+            "USD/CAD (OTC)", "EUR/CAD (OTC)", "CAD/JPY (OTC)", "CHF/JPY (OTC)", "AUD/JPY (OTC)",
+            "USD/SGD (OTC)", "GBP/CHF (OTC)", "EUR/AUD (OTC)", "AUD/NZD (OTC)", "EUR/NZD (OTC)"
         ],
         crypto: [
             "BTC/USD", "ETH/USD", "SOL/USD", "BNB/USD", "XRP/USD",
             "DOGE/USD", "TON/USD", "ADA/USD", "AVAX/USD", "DOT/USD",
-            "LINK/USD", "MATIC/USD", "SHIB/USD", "LTC/USD", "NEAR/USD"
+            "LINK/USD", "MATIC/USD", "SHIB/USD", "LTC/USD", "NEAR/USD",
+            "TRX/USD", "UNI/USD", "ATOM/USD", "BCH/USD", "APT/USD"
         ],
         stocks: [
             "Apple Inc. (OTC)", "Tesla Inc. (OTC)", "Microsoft Corp. (OTC)", "Amazon.com (OTC)",
-            "NVIDIA Corp. (OTC)", "Meta Platforms (OTC)", "Alphabet Inc. Google (OTC)", "Netflix Inc. (OTC)"
+            "NVIDIA Corp. (OTC)", "Meta Platforms (OTC)", "Alphabet Inc. Google (OTC)", "Netflix Inc. (OTC)",
+            "Intel Corp. (OTC)", "AMD Inc. (OTC)", "PayPal Holdings (OTC)", "Boeing Co. (OTC)"
         ],
         commodities: [
-            "Gold / XAUUSD", "Silver / XAGUSD", "Crude Oil Brent", "WTI Crude Oil", "Natural Gas"
+            "Gold / XAUUSD", "Silver / XAGUSD", "Crude Oil Brent", "WTI Crude Oil", "Natural Gas",
+            "Platinum / XPTUSD", "Palladium / XPDUSD", "Copper Futures", "Coffee Futures", "Sugar Futures"
         ],
         indices: [
-            "S&P 500 Index", "Nasdaq 100 Index", "Dow Jones US30", "DAX 40 Germany", "FTSE 100 UK"
+            "S&P 500 Index", "Nasdaq 100 Index", "Dow Jones US30", "DAX 40 Germany", "FTSE 100 UK",
+            "Nikkei 225 Japan", "CAC 40 France", "ASX 200 Australia", "Hang Seng Index", "Euro Stoxx 50"
         ]
     };
 
+    // Full educational modules database with detailed trading concepts and rich asset illustrations
     const eduData = [
-        { t: "1. Стратегия от Уровней Сопротивления / Поддержки 🎯", d: "Находите горизонтальный уровень, от которого цена отскакивала минимум 2-3 раза. При третьем подходе цены к уровню Сопротивления открываем сделку на PUT (Вниз). При подходе к Поддержке — на CALL (Вверх). Экспирация: 1-3 свечи.", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" },
-        { t: "2. RSI (14) + Полосы Боллинджера (20,2) 📈", d: "Ждем, когда свеча пробивает нижнюю границу Боллинджера, а индикатор RSI опускается ниже уровня 30 (зоны перепроданности). Открываем CALL (Вверх) на 1-2 минуты.", img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" },
-        { t: "3. MACD + Трендовая EMA 200 ⚡", d: "Если график находится выше EMA 200 — ищем только сделки на покупку. Ждем, когда быстрая линия MACD пересекает сигнальную снизу вверх. Открываем CALL (Вверх).", img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" },
-        { t: "4. Стохастический Осциллятор (14,3,3) + Поддержка 🎯", d: "При касании локального уровня поддержки смотрим на Стохастик. Пересечение линий ниже уровня 20 даёт мощный фильтрованный сигнал на вход в CALL.", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" },
-        { t: "5. Supertrend (10,3) + CCI (14) 🚀", d: "Когда Supertrend меняет цвет на зеленый, а CCI вылетает из зоны -100 вверх, заходим на сделку CALL на 2 минуты.", img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" },
-        { t: "6. Паттерн Бычье Поглощение + Дивергенция RSI 💎", d: "Если полнотелая зеленая свеча полностью перекрывает тело предыдущей красной свечи у дна тренда, а RSI показывает повышение минимумов — заходим в CALL.", img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" },
-        { t: "7. Пересечение Скользящих EMA 9 и EMA 21 📉", d: "Быстрая EMA 9 пересекает медленную EMA 21 сверху вниз. Это говорит о смене локального тренда на нисходящий. Открываем PUT (Вниз) на 1-3 минуты.", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" },
-        { t: "8. Облако Ишимоку + Awesome Oscillator 🟢", d: "Цена выходит из облака Ишимоку вверх, а гистограмма Awesome Oscillator окрашивается в зеленый цвет выше нуля. Вход в сделки только на ВВЕРХ.", img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" },
-        { t: "9. Parabolic SAR + Индикатор Силы ADX 📊", d: "Точка Parabolic перескакивает под свечу, а значение ADX выше 25 (подтверждает наличие сильного импульса). Заходим по тренду.", img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" },
-        { t: "10. Аномальный Тиковый Объем + Ложный Пробой 💥", d: "При резком всплеске объема около уровня без закрепления тела свечи выше него — происходит ложный пробой. Вход на возврат в коридор (PUT).", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" },
-        { t: "11. Канал Дончиана + Williams %R 🔄", d: "Касание нижней линии канала Дончиана при выходе Williams %R из зоны перепроданности (-80 вверх). Надежный откат в CALL.", img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" }
+        { 
+            t: "1. Стратегия от Уровней Сопротивления / Поддержки 🎯", 
+            d: "Находите горизонтальный уровень, от которого цена отскакивала минимум 2-3 раза. При третьем подходе цены к уровню Сопротивления открываем сделку на PUT (Вниз). При подходе к Поддержке — на CALL (Вверх). Экспирация: 1-3 свечи. Важно учитывать ложные пробои и объемы торгов на младших таймфреймах.", 
+            img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "2. RSI (14) + Полосы Боллинджера (20,2) 📈", 
+            d: "Ждем, когда свеча пробивает нижнюю границу Боллинджера, а индикатор RSI опускается ниже уровня 30 (зоны перепроданности). Открываем CALL (Вверх) на 1-2 минуты. В зеркальной ситуации при пробое верхней границы и RSI > 70 — открываем PUT.", 
+            img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "3. MACD + Трендовая EMA 200 ⚡", 
+            d: "Если график находится выше EMA 200 — ищем только сделки на покупку. Ждем, когда быстрая линия MACD пересекает сигнальную снизу вверх. Открываем CALL (Вверх). Данный фильтр отсекает до 70% ложных коррекционных входов во время флэта.", 
+            img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "4. Стохастический Осциллятор (14,3,3) + Поддержка 🎯", 
+            d: "При касании локального уровня поддержки смотрим на Стохастик. Пересечение линий ниже уровня 20 даёт мощный фильтрованный сигнал на вход в CALL. Дополнительным подтверждением служит образование пин-бара.", 
+            img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "5. Supertrend (10,3) + CCI (14) 🚀", 
+            d: "Когда Supertrend меняет цвет на зеленый, а CCI вылетает из зоны -100 вверх, заходим на сделку CALL на 2 минуты. Отличная связка для ловли импульсных трендовых движений на европейской и американской сессиях.", 
+            img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "6. Паттерн Бычье Поглощение + Дивергенция RSI 💎", 
+            d: "Если полнотелая зеленая свеча полностью перекрывает тело предыдущей красной свечи у дна тренда, а RSI показывает повышение минимумов — заходим в CALL. Надежный разворотный сетап.", 
+            img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "7. Пересечение Скользящих EMA 9 и EMA 21 📉", 
+            d: "Быстрая EMA 9 пересекает медленную EMA 21 сверху вниз. Это говорит о смене локального тренда на нисходящий. Открываем PUT (Вниз) на 1-3 минуты при условии подтверждения объемом.", 
+            img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "8. Облако Ишимоку + Awesome Oscillator 🟢", 
+            d: "Цена выходит из облака Ишимоку вверх, а гистограмма Awesome Oscillator окрашивается в зеленый цвет выше нуля. Вход в сделки только на ВВЕРХ с удержанием позиции до смены цвета гистограммы.", 
+            img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "9. Parabolic SAR + Индикатор Силы ADX 📊", 
+            d: "Точка Parabolic перескакивает под свечу, а значение ADX выше 25 (подтверждает наличие сильного импульса). Заходим по тренду с коротким временем экспирации.", 
+            img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "10. Аномальный Тиковый Объем + Ложный Пробой 💥", 
+            d: "При резком всплеске объема около уровня без закрепления тела свечи выше него — происходит ложный пробой. Вход на возврат в коридор (PUT) с высокой вероятностью успеха.", 
+            img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
+        },
+        { 
+            t: "11. Канал Дончиана + Williams %R 🔄", 
+            d: "Касание нижней линии канала Дончиана при выходе Williams %R из зоны перепроданности (-80 вверх). Надежный откат в CALL для внутридневной торговли на волатильных парах.", 
+            img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
+        }
     ];
 
+    // Multilingual localization dictionary (RU, EN, UA, ES, DE, FR, TR, PT, HI, AR)
     const translations = {
         ru: {
             hdrTitle: "👑 TEAM MASTER VIP",
@@ -694,6 +760,310 @@
             navEdu: "📚 Combos",
             navProfile: "👤 Profile",
             navAbout: "👑 About Us"
+        },
+        ua: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            welTitle: "👋 ВИТАЄМО В TEAM MASTER VIP",
+            welDesc: "Професійна закрита система торгових сигналів з 7-річним досвідом.",
+            step1Title: "1. ЗАРЕЄСТРУЙТЕСЯ ТА НАДІШЛІТЬ ID 📝",
+            step1Desc: "Зареєструйтеся за офіційним посиланням команди та введіть ваш Pocket Option ID для перевірки через API.",
+            regBtn: "👉 ЗАРЕЄСТРУВАТИСЯ В POCKET OPTION 🚀",
+            chkRegBtn: "Перевірити Реєстрацію через API 🔍",
+            step2Title: "2. ПОПОВНІТЬ БАЛАНС ВІД $10 + ПРОМО 💳",
+            step2Desc: "Для активації штучного інтелекту поповніть баланс від $10. Натисніть нижче після поповнення.",
+            chkDepBtn: "Підтвердити поповнення балансу 💰",
+            catForex: "💱 Валютні пари",
+            catCrypto: "🔥 Криптовалюта",
+            catStocks: "📈 Акції",
+            catCommodities: "🛢️ Сировина",
+            catIndices: "📊 Індекси",
+            lblAsset: "ТОРГОВИЙ АКТИВ:",
+            lblTf: "🕯️ ТАЙМФРЕЙМ:",
+            lblExp: "⏱️ ЕКСПІРАЦІЯ:",
+            btnGetSig: "⚡ ПРОРАХУВАТИ СИГНАЛ 🔥",
+            btnAutoSig: "🤖 ШІ ОБЕРЕ НАЙКРАЩИЙ СИГНАЛ ДЛЯ ВАС 🎯",
+            resTradeBtn: "👉 ВІДКРИТИ УГОДУ НА POCKET OPTION 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "Привіт! Я ШІ-помічник TEAM MASTER VIP. Запитай мене про трейдинг, ринок чи стратегії! 🔥",
+            eduTitle: "📚 11 ТОПОВИХ ЗВ'ЯЗОК ТА СТРАТЕГІЙ 🔥",
+            backEduBtn: "⬅️ Назад до списку",
+            profileTitle: "👤 ПРОФІЛЬ УЧНЯ",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "TEAM MASTER VIP — професійна спільнота трейдерів з 7-річним досвідом.",
+            aboutAdvTitle: "👑 НАШІ ПЕРЕВАГИ:",
+            tgBtn: "📢 НАШ TELEGRAM КАНАЛ 🚀",
+            navSig: "🎯 Сигнали",
+            navAi: "🤖 ШІ Чат",
+            navEdu: "📚 Зв'язки",
+            navProfile: "👤 Профіль",
+            navAbout: "👑 Про нас"
+        },
+        es: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            welTitle: "👋 BIENVENIDO A TEAM MASTER VIP",
+            welDesc: "Sistema profesional de señales de trading con 7 años de experiencia.",
+            step1Title: "1. REGÍSTRATE Y ENVÍA TU ID 📝",
+            step1Desc: "Regístrate con el enlace oficial e introduce tu ID de Pocket Option.",
+            regBtn: "👉 REGÍSTRATE EN POCKET OPTION 🚀",
+            chkRegBtn: "Verificar Registro vía API 🔍",
+            step2Title: "2. DEPOSITA DESDE $10 + PROMO 💳",
+            step2Desc: "Activa el terminal de IA depositando al menos $10.",
+            chkDepBtn: "Confirmar Depósito 💰",
+            catForex: "💱 Divisas",
+            catCrypto: "🔥 Criptomonedas",
+            catStocks: "📈 Acciones",
+            catCommodities: "🛢️ Materias primas",
+            catIndices: "📊 Índices",
+            lblAsset: "ACTIVO:",
+            lblTf: "🕯️ MARCO DE TIEMPO:",
+            lblExp: "⏱️ EXPIRACIÓN:",
+            btnGetSig: "⚡ CALCULAR SEÑAL 🔥",
+            btnAutoSig: "🤖 LA IA ELEGIRÁ LA MEJOR SEÑAL 🎯",
+            resTradeBtn: "👉 ABRIR OPERACIÓN EN POCKET OPTION 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "¡Hola! Soy tu asistente de IA. Pregúntame sobre trading y estrategias.",
+            eduTitle: "📚 11 MEJORES ESTRATEGIAS 🔥",
+            backEduBtn: "⬅️ Volver",
+            profileTitle: "👤 PERFIL",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "Comunidad profesional de trading con 7 años de experiencia.",
+            aboutAdvTitle: "👑 VENTAJAS:",
+            tgBtn: "📢 CANAL DE TELEGRAM 🚀",
+            navSig: "🎯 Señales",
+            navAi: "🤖 IA Chat",
+            navEdu: "📚 Estrategias",
+            navProfile: "👤 Perfil",
+            navAbout: "👑 Acerca"
+        },
+        de: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            welTitle: "👋 WILLKOMMEN BEI TEAM MASTER VIP",
+            welDesc: "Professionelles Handelssignalsystem mit 7 Jahren Erfahrung.",
+            step1Title: "1. REGISTRIEREN UND ID SENDEN 📝",
+            step1Desc: "Registrieren Sie sich über den offiziellen Link und geben Sie Ihre Pocket Option ID ein.",
+            regBtn: "👉 BEI POCKET OPTION REGISTRIEREN 🚀",
+            chkRegBtn: "Registrierung prüfen 🔍",
+            step2Title: "2. EINZAHLUNG AB $10 + PROMO 💳",
+            step2Desc: "Aktivieren Sie das KI-Terminal mit einer Einzahlung ab $10.",
+            chkDepBtn: "Einzahlung bestätigen 💰",
+            catForex: "💱 Forex",
+            catCrypto: "🔥 Krypto",
+            catStocks: "📈 Aktien",
+            catCommodities: "🛢️ Rohstoffe",
+            catIndices: "📊 Indizes",
+            lblAsset: "AKTIVUM:",
+            lblTf: "🕯️ ZEITRAHMEN:",
+            lblExp: "⏱️ LAUFZEIT:",
+            btnGetSig: "⚡ SIGNAL BERECHNEN 🔥",
+            btnAutoSig: "🤖 KI WÄHLT DAS BESTE SIGNAL 🎯",
+            resTradeBtn: "👉 HANDEL ÖFFNEN 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "Hallo! Ich bin Ihr KI-Assistent. Fragen Sie mich alles zum Thema Trading!",
+            eduTitle: "📚 11 TOP STRATEGIEN 🔥",
+            backEduBtn: "⬅️ Zurück",
+            profileTitle: "👤 PROFIL",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "Professionelle Trading-Community mit 7 Jahren Erfahrung.",
+            aboutAdvTitle: "👑 VORTEILE:",
+            tgBtn: "📢 TELEGRAM KANAL 🚀",
+            navSig: "🎯 Signale",
+            navAi: "🤖 KI Chat",
+            navEdu: "📚 Strategien",
+            navProfile: "👤 Profil",
+            navAbout: "👑 Über uns"
+        },
+        fr: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            welTitle: "👋 BIENVENUE DANS TEAM MASTER VIP",
+            welDesc: "Système de signaux de trading professionnel avec 7 ans d'expérience.",
+            step1Title: "1. INSCRIVEZ-VOUS ET ENVOYEZ L'ID 📝",
+            step1Desc: "Inscrivez-vous via le lien officiel et entrez votre ID Pocket Option.",
+            regBtn: "👉 S'INSCRIRE SUR POCKET OPTION 🚀",
+            chkRegBtn: "Vérifier l'inscription 🔍",
+            step2Title: "2. DÉPÔT À PARTIR DE $10 💳",
+            step2Desc: "Activez le terminal IA en effectuant un dépôt minimum de $10.",
+            chkDepBtn: "Confirmer le dépôt 💰",
+            catForex: "💱 Forex",
+            catCrypto: "🔥 Crypto",
+            catStocks: "📈 Actions",
+            catCommodities: "🛢️ Matières premières",
+            catIndices: "📊 Indices",
+            lblAsset: "ACTIF:",
+            lblTf: "🕯️ UNITÉ DE TEMPS:",
+            lblExp: "⏱️ EXPIRATION:",
+            btnGetSig: "⚡ CALCULER LE SIGNAL 🔥",
+            btnAutoSig: "🤖 L'IA CHOISIRA LE MEILLEUR SIGNAL 🎯",
+            resTradeBtn: "👉 OUVRIR UN TRADE 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "Bonjour ! Je suis l'assistant IA. Posez-moi vos questions sur le trading.",
+            eduTitle: "📚 11 MEILLEURES STRATÉGIES 🔥",
+            backEduBtn: "⬅️ Retour",
+            profileTitle: "👤 PROFIL",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "Communauté de trading professionnelle avec 7 ans d'expérience.",
+            aboutAdvTitle: "👑 AVANTAGES:",
+            tgBtn: "📢 CANAL TÉLÉGRAMME 🚀",
+            navSig: "🎯 Signaux",
+            navAi: "🤖 IA Chat",
+            navEdu: "📚 Stratégies",
+            navProfile: "👤 Profil",
+            navAbout: "👑 À propos"
+        },
+        tr: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            welTitle: "👋 TEAM MASTER VIP'E HOŞ GELDİNİZ",
+            welDesc: "7 yıllık deneyime sahip profesyonel kapalı ticaret sinyali sistemi.",
+            step1Title: "1. KAYIT OLUN VE ID GÖNDERİN 📝",
+            step1Desc: "Resmi bağlantı üzerinden kayıt olun ve Pocket Option ID'nizi girin.",
+            regBtn: "👉 POCKET OPTION'A KAYIT OL 🚀",
+            chkRegBtn: "Kayıt Kontrolü 🔍",
+            step2Title: "2. $10 VE ÜZERİ YATIRIM YAPIN 💳",
+            step2Desc: "Yapay zeka terminalini aktif etmek için en az $10 yatırın.",
+            chkDepBtn: "Yatırımı Onayla 💰",
+            catForex: "💱 Döviz Çiftleri",
+            catCrypto: "🔥 Kripto Para",
+            catStocks: "📈 Hisseler",
+            catCommodities: "🛢️ Emtialar",
+            catIndices: "📊 Endeksler",
+            lblAsset: "VARLIK:",
+            lblTf: "🕯️ ZAMAN DİLİMİ:",
+            lblExp: "⏱️ VADE:",
+            btnGetSig: "⚡ SİNYAL HESAPLA 🔥",
+            btnAutoSig: "🤖 YAPAY ZEKA EN İYİ SİNYALİ SEÇECEK 🎯",
+            resTradeBtn: "👉 İŞLEMİ AÇ 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "Merhaba! Ben yapay zeka asistanınızım. Ticaret hakkında her şeyi sorabilirsiniz.",
+            eduTitle: "📚 11 EN İYİ STRATEJİ 🔥",
+            backEduBtn: "⬅️ Geri Dön",
+            profileTitle: "👤 PROFİL",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "7 yıllık deneyime sahip profesyonel ticaret topluluğu.",
+            aboutAdvTitle: "👑 AVANTAJLARIMIZ:",
+            tgBtn: "📢 TELEGRAM KANALIMIZ 🚀",
+            navSig: "🎯 Sinyaller",
+            navAi: "🤖 AI Sohbet",
+            navEdu: "📚 Stratejiler",
+            navProfile: "👤 Profil",
+            navAbout: "👑 Hakkımızda"
+        },
+        pt: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            welTitle: "👋 BEM-VINDO AO TEAM MASTER VIP",
+            welDesc: "Sistema profissional de sinais de negociação com 7 anos de experiência.",
+            step1Title: "1. REGISTRE-SE E ENVIE O ID 📝",
+            step1Desc: "Registre-se pelo link oficial e insira seu ID da Pocket Option.",
+            regBtn: "👉 REGISTRE-SE NA POCKET OPTION 🚀",
+            chkRegBtn: "Verificar Registro 🔍",
+            step2Title: "2. DEPÓSITO A PARTIR DE $10 💳",
+            step2Desc: "Ative o terminal de IA fazendo um depósito mínimo de $10.",
+            chkDepBtn: "Confirmar Depósito 💰",
+            catForex: "💱 Forex",
+            catCrypto: "🔥 Criptomoedas",
+            catStocks: "📈 Ações",
+            catCommodities: "🛢️ Commodities",
+            catIndices: "📊 Índices",
+            lblAsset: "ATIVO:",
+            lblTf: "🕯️ TEMPO GRÁFICO:",
+            lblExp: "⏱️ EXPIRAÇÃO:",
+            btnGetSig: "⚡ CALCULAR SINAL 🔥",
+            btnAutoSig: "🤖 A IA ESCOLHERÁ O MELHOR SINAL 🎯",
+            resTradeBtn: "👉 ABRIR OPERAÇÃO 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "Olá! Sou seu assistente de IA. Tire suas dúvidas sobre trading.",
+            eduTitle: "📚 11 MELHORES ESTRATÉGIAS 🔥",
+            backEduBtn: "⬅️ Voltar",
+            profileTitle: "👤 PERFIL",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "Comunidade profissional de trading com 7 anos de experiência.",
+            aboutAdvTitle: "👑 VANTAGENS:",
+            tgBtn: "📢 CANAL TELEGRAM 🚀",
+            navSig: "🎯 Sinais",
+            navAi: "🤖 IA Chat",
+            navEdu: "📚 Estratégias",
+            navProfile: "👤 Perfil",
+            navAbout: "👑 Sobre"
+        },
+        hi: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            welTitle: "👋 TEAM MASTER VIP में आपका स्वागत है",
+            welDesc: "7 वर्षों के अनुभव के साथ पेशेवर ट्रेडिंग सिग्नल सिस्टम।",
+            step1Title: "1. रजिस्टर करें और ID भेजें 📝",
+            step1Desc: "आधिकारिक लिंक से रजिस्टर करें और अपनी Pocket Option ID दर्ज करें।",
+            regBtn: "👉 POCKET OPTION पर रजिस्टर करें 🚀",
+            chkRegBtn: "रजिस्ट्रेशन जांचें 🔍",
+            step2Title: "2. $10 से अधिक का डिपॉजिट करें 💳",
+            step2Desc: "AI टर्मिनल सक्रिय करने के लिए न्यूनतम $10 जमा करें।",
+            chkDepBtn: "डिपॉजिट की पुष्टि करें 💰",
+            catForex: "💱 फॉरेक्स जोड़े",
+            catCrypto: "🔥 क्रिप्टोकरेंसी",
+            catStocks: "📈 शेयर",
+            catCommodities: "🛢️ कमोडिटी",
+            catIndices: "📊 सूचकांक",
+            lblAsset: "ट्रेडिंग एसेट:",
+            lblTf: "🕯️ टाइमफ्रेम:",
+            lblExp: "⏱️ समाप्ति समय:",
+            btnGetSig: "⚡ सिग्नल गणना करें 🔥",
+            btnAutoSig: "🤖 AI आपके लिए सर्वश्रेष्ठ सिग्नल चुनेगा 🎯",
+            resTradeBtn: "👉 ट्रेड खोलें 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "नमस्ते! मैं आपका AI सहायक हूँ। ट्रेडिंग के बारे में कुछ भी पूछें!",
+            eduTitle: "📚 11 शीर्ष रणनीतियाँ 🔥",
+            backEduBtn: "⬅️ पीछे जाएं",
+            profileTitle: "👤 प्रोफाइल",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "7 साल के अनुभव वाला पेशेवर ट्रेडिंग समुदाय।",
+            aboutAdvTitle: "👑 हमारे लाभ:",
+            tgBtn: "📢 टेलीग्राम चैनल 🚀",
+            navSig: "🎯 सिग्नल",
+            navAi: "🤖 AI चैट",
+            navEdu: "📚 रणनीतियाँ",
+            navProfile: "👤 प्रोफाइल",
+            navAbout: "👑 हमारे बारे में"
+        },
+        ar: {
+            hdrTitle: "👑 TEAM MASTER VIP",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            welTitle: "👋 أهلاً بك في TEAM MASTER VIP",
+            welDesc: "نظام إشارات تداول احترافي مغلق مع 7 سنوات من الخبرة.",
+            step1Title: "1. سجل وأرسل المعرف (ID) 📝",
+            step1Desc: "سجل عبر الرابط الرسمي وأدخل معرف Pocket Option الخاص بك للتحقق.",
+            regBtn: "👉 التسجيل في POCKET OPTION 🚀",
+            chkRegBtn: "التحقق من التسجيل عبر API 🔍",
+            step2Title: "2. إيداع بدءاً من 10$ + عرض 💳",
+            step2Desc: "لتفعيل محطة الذكاء الاصطناعي، قم بإيداع مبلغ 10$ على الأقل.",
+            chkDepBtn: "تأكيد إيداع الرصيد 💰",
+            catForex: "💱 العملات الأجنبية",
+            catCrypto: "🔥 العملات الرقمية",
+            catStocks: "📈 الأسهم",
+            catCommodities: "🛢️ السلع",
+            catIndices: "📊 المؤشرات",
+            lblAsset: "أصل التداول:",
+            lblTf: "🕯️ الإطار الزمني:",
+            lblExp: "⏱️ وقت انتهاء الصلاحية:",
+            btnGetSig: "⚡ حساب الإشارة 🔥",
+            btnAutoSig: "🤖 سيختار الذكاء الاصطناعي أفضل إشارة لك 🎯",
+            resTradeBtn: "👉 فتح صفقة على POCKET OPTION 🚀",
+            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
+            aiWelcome: "مرحباً! أنا مساعد الذكاء الاصطناعي. اسألني عن التداول أو السوق أو الاستراتيجيات! 🔥",
+            eduTitle: "📚 11 استراتيجية ورابطة رئيسية 🔥",
+            backEduBtn: "⬅️ العودة للقائمة",
+            profileTitle: "👤 ملف الطالب",
+            aboutTitle: "👑 TEAM MASTER VIP CLUB",
+            aboutDesc: "مجتمع تداول احترافي يتمتع بخبرة 7 سنوات.",
+            aboutAdvTitle: "👑 مزايانا:",
+            tgBtn: "📢 قناتنا على تيليجرام 🚀",
+            navSig: "🎯 الإشارات",
+            navAi: "🤖 محادثة AI",
+            navEdu: "📚 استراتيجيات",
+            navProfile: "👤 الملف الشخصي",
+            navAbout: "👑 من نحن"
         }
     };
 
