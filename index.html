@@ -318,6 +318,18 @@
             line-height: 1.5;
         }
 
+        .signal-timer {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--gold-primary);
+            margin-bottom: 12px;
+            background: rgba(255, 215, 0, 0.08);
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px dashed var(--gold-primary);
+        }
+
         .edu-item {
             background: var(--inner-bg);
             border-radius: 14px;
@@ -412,7 +424,6 @@
         </select>
     </div>
 
-    <!-- СЕКЦИЯ БЕЗОПАСНОСТИ -->
     <div id="secScreen" class="card security-screen">
         <div class="welcome-box">
             <h3 class="gold-shimmer-text" style="font-size: 14px; margin-bottom: 6px;" id="welTitle">👋 ДОБРО ПОЖАЛОВАТЬ В TEAM MASTER VIP</h3>
@@ -434,10 +445,8 @@
         </div>
     </div>
 
-    <!-- ОСНОВНОЙ ТЕРМИНАЛ -->
     <div id="appContent" class="hidden">
 
-        <!-- ВКЛАДКА: СИГНАЛЫ -->
         <div id="tabSignals" class="card nav-tab">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <span class="badge-live">LIVE BINANCE & POCKET OPTION DATA</span>
@@ -484,11 +493,12 @@
             <button class="btn-gold" onclick="getSignal()" id="btnGetSig">⚡ ПРОСЧИТАТЬ СИГНАЛ 🔥</button>
             <button class="btn-green" style="margin-top: 10px;" onclick="getAutoSignal()" id="btnAutoSig">🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯</button>
 
-            <!-- РЕЗУЛЬТАТ С КНОПКОЙ ПЕРЕКРЫТИЯ -->
             <div id="sigResult" class="signal-res">
                 <div style="font-size: 11px; color: var(--text-muted);" id="resAssetInfo">EUR/USD (OTC) | M1</div>
                 
                 <div id="resBox" class="sig-dir dir-call">⬆️ CALL (ВВЕРХ)</div>
+
+                <div class="signal-timer" id="signalTimer">⏱ ВРЕМЯ ДО ВХОДА: <span id="countdown">00:05</span></div>
 
                 <div class="strat-desc-box" id="resStratDesc">
                     <b>💡 Объяснение стратегии:</b> Точный отскок от сильного зеркального уровня с подтверждением по индикатору RSI и аномальному всплеску объема на Binance.
@@ -499,12 +509,10 @@
                     <span>Связка: <b id="resCombo">RSI + Volume</b></span>
                 </div>
 
-                <a href="https://pocketoption.com/register?utm_source=team_master_vip" target="_blank" class="btn-green" style="padding: 14px; margin-bottom: 8px;" id="resTradeBtn">👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀</a>
                 <button class="btn-gold" style="background: linear-gradient(135deg, #FF5252, #FF8A80); color: #fff; padding: 12px; font-size: 11px;" onclick="takeOverlap()">🔄 ВЗЯТЬ ПЕРЕКРЫТИЕ X2 ⚡</button>
             </div>
         </div>
 
-        <!-- ВКЛАДКА: ИИ ПОМОЩНИК -->
         <div id="tabAI" class="card nav-tab hidden">
             <h4 class="gold-shimmer-text" style="margin-bottom: 12px;" id="aiTitle">🤖 VIP TRADING AI ASSISTANT</h4>
             <div class="chat-box" id="chatBox">
@@ -522,7 +530,6 @@
             </div>
         </div>
 
-        <!-- ВКЛАДКА: ОБУЧЕНИЕ И СВЯЗКИ -->
         <div id="tabEdu" class="card nav-tab hidden">
             <div id="eduListContainer">
                 <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 14px;" id="eduTitle">📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥</h3>
@@ -534,7 +541,6 @@
             </div>
         </div>
 
-        <!-- ВКЛАДКА: ПРОФИЛЬ УЧЕНИКА -->
         <div id="tabProfile" class="card nav-tab hidden">
             <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 14px;" id="profileTitle">👤 ПРОФИЛЬ УЧЕНИКА</h3>
             <div class="profile-card">
@@ -546,7 +552,6 @@
             <button class="btn-gold" onclick="resetAccount()" style="background: linear-gradient(135deg, #FF5252, #FF8A80); color: #fff; font-size: 11px;">Сбросить сессию / Изменить ID 🔄</button>
         </div>
 
-        <!-- ВКЛАДКА: О НАС -->
         <div id="tabAbout" class="card nav-tab hidden">
             <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 12px;" id="aboutTitle">👑 TEAM MASTER VIP CLUB</h3>
             <p style="font-size: 11px; line-height: 1.7; color: #d1d5db; margin-bottom: 14px;" id="aboutDesc">
@@ -567,7 +572,6 @@
     </div>
 </div>
 
-<!-- НИЖНЕЕ МЕНЮ НАВИГАЦИИ -->
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('tabSignals', this)" id="navSig">
         <span>🎯</span> Сигналы
@@ -595,36 +599,28 @@
     const TG_BOT_TOKEN = "7891234567:AAFxExampleTokenForAdminNotification123";
     const TG_ADMIN_ID = "987654321";
 
-    // Extended assets registry with comprehensive asset categorization
     const assets = {
         forex: [
             "EUR/USD (OTC)", "GBP/USD (OTC)", "USD/JPY (OTC)", "AUD/CAD (OTC)", "EUR/JPY (OTC)",
             "USD/CHF (OTC)", "NZD/USD (OTC)", "EUR/GBP (OTC)", "GBP/JPY (OTC)", "AUD/USD (OTC)",
-            "USD/CAD (OTC)", "EUR/CAD (OTC)", "CAD/JPY (OTC)", "CHF/JPY (OTC)", "AUD/JPY (OTC)",
-            "USD/SGD (OTC)", "GBP/CHF (OTC)", "EUR/AUD (OTC)", "AUD/NZD (OTC)", "EUR/NZD (OTC)"
+            "USD/CAD (OTC)", "EUR/CAD (OTC)", "CAD/JPY (OTC)", "CHF/JPY (OTC)", "AUD/JPY (OTC)"
         ],
         crypto: [
             "BTC/USD", "ETH/USD", "SOL/USD", "BNB/USD", "XRP/USD",
-            "DOGE/USD", "TON/USD", "ADA/USD", "AVAX/USD", "DOT/USD",
-            "LINK/USD", "MATIC/USD", "SHIB/USD", "LTC/USD", "NEAR/USD",
-            "TRX/USD", "UNI/USD", "ATOM/USD", "BCH/USD", "APT/USD"
+            "DOGE/USD", "TON/USD", "ADA/USD", "AVAX/USD", "DOT/USD"
         ],
         stocks: [
             "Apple Inc. (OTC)", "Tesla Inc. (OTC)", "Microsoft Corp. (OTC)", "Amazon.com (OTC)",
-            "NVIDIA Corp. (OTC)", "Meta Platforms (OTC)", "Alphabet Inc. Google (OTC)", "Netflix Inc. (OTC)",
-            "Intel Corp. (OTC)", "AMD Inc. (OTC)", "PayPal Holdings (OTC)", "Boeing Co. (OTC)"
+            "NVIDIA Corp. (OTC)", "Meta Platforms (OTC)", "Alphabet Inc. Google (OTC)", "Netflix Inc. (OTC)"
         ],
         commodities: [
-            "Gold / XAUUSD", "Silver / XAGUSD", "Crude Oil Brent", "WTI Crude Oil", "Natural Gas",
-            "Platinum / XPTUSD", "Palladium / XPDUSD", "Copper Futures", "Coffee Futures", "Sugar Futures"
+            "Gold / XAUUSD", "Silver / XAGUSD", "Crude Oil Brent", "WTI Crude Oil", "Natural Gas"
         ],
         indices: [
-            "S&P 500 Index", "Nasdaq 100 Index", "Dow Jones US30", "DAX 40 Germany", "FTSE 100 UK",
-            "Nikkei 225 Japan", "CAC 40 France", "ASX 200 Australia", "Hang Seng Index", "Euro Stoxx 50"
+            "S&P 500 Index", "Nasdaq 100 Index", "Dow Jones US30", "DAX 40 Germany", "FTSE 100 UK"
         ]
     };
 
-    // Full educational modules database with detailed trading concepts and rich asset illustrations
     const eduData = [
         { 
             t: "1. Стратегия от Уровней Сопротивления / Поддержки 🎯", 
@@ -683,7 +679,6 @@
         }
     ];
 
-    // Multilingual localization dictionary (RU, EN, UA, ES, DE, FR, TR, PT, HI, AR)
     const translations = {
         ru: {
             hdrTitle: "👑 TEAM MASTER VIP",
@@ -707,7 +702,6 @@
             lblExp: "⏱️ ЭКСПИРАЦИЯ:",
             btnGetSig: "⚡ ПРОСЧИТАТЬ СИГНАЛ 🔥",
             btnAutoSig: "🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯",
-            resTradeBtn: "👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне абсолютно любой вопрос по трейдингу, рынку, стратегиям, индикаторам или боту! 🔥",
             eduTitle: "📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥",
@@ -745,7 +739,6 @@
             lblExp: "⏱️ EXPIRATION:",
             btnGetSig: "⚡ CALCULATE SIGNAL 🔥",
             btnAutoSig: "🤖 AI WILL PICK THE BEST SIGNAL FOR YOU 🎯",
-            resTradeBtn: "👉 OPEN TRADE ON POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Hello! I am TEAM MASTER VIP AI Assistant. Ask me anything about trading, market analysis, or strategies! 🔥",
             eduTitle: "📚 11 TOP COMBOS & STRATEGIES 🔥",
@@ -783,7 +776,6 @@
             lblExp: "⏱️ ЕКСПІРАЦІЯ:",
             btnGetSig: "⚡ ПРОРАХУВАТИ СИГНАЛ 🔥",
             btnAutoSig: "🤖 ШІ ОБЕРЕ НАЙКРАЩИЙ СИГНАЛ ДЛЯ ВАС 🎯",
-            resTradeBtn: "👉 ВІДКРИТИ УГОДУ НА POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Привіт! Я ШІ-помічник TEAM MASTER VIP. Запитай мене про трейдинг, ринок чи стратегії! 🔥",
             eduTitle: "📚 11 ТОПОВИХ ЗВ'ЯЗОК ТА СТРАТЕГІЙ 🔥",
@@ -821,7 +813,6 @@
             lblExp: "⏱️ EXPIRACIÓN:",
             btnGetSig: "⚡ CALCULAR SEÑAL 🔥",
             btnAutoSig: "🤖 LA IA ELEGIRÁ LA MEJOR SEÑAL 🎯",
-            resTradeBtn: "👉 ABRIR OPERACIÓN EN POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "¡Hola! Soy tu asistente de IA. Pregúntame sobre trading y estrategias.",
             eduTitle: "📚 11 MEJORES ESTRATEGIAS 🔥",
@@ -859,7 +850,6 @@
             lblExp: "⏱️ LAUFZEIT:",
             btnGetSig: "⚡ SIGNAL BERECHNEN 🔥",
             btnAutoSig: "🤖 KI WÄHLT DAS BESTE SIGNAL 🎯",
-            resTradeBtn: "👉 HANDEL ÖFFNEN 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Hallo! Ich bin Ihr KI-Assistent. Fragen Sie mich alles zum Thema Trading!",
             eduTitle: "📚 11 TOP STRATEGIEN 🔥",
@@ -897,7 +887,6 @@
             lblExp: "⏱️ EXPIRATION:",
             btnGetSig: "⚡ CALCULER LE SIGNAL 🔥",
             btnAutoSig: "🤖 L'IA CHOISIRA LE MEILLEUR SIGNAL 🎯",
-            resTradeBtn: "👉 OUVRIR UN TRADE 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Bonjour ! Je suis l'assistant IA. Posez-moi vos questions sur le trading.",
             eduTitle: "📚 11 MEILLEURES STRATÉGIES 🔥",
@@ -921,7 +910,7 @@
             step1Title: "1. KAYIT OLUN VE ID GÖNDERİN 📝",
             step1Desc: "Resmi bağlantı üzerinden kayıt olun ve Pocket Option ID'nizi girin.",
             regBtn: "👉 POCKET OPTION'A KAYIT OL 🚀",
-            chkRegBtn: "Kayıt Kontrolü 🔍",
+            chkRegBtn: "Kayıт Kontrolü 🔍",
             step2Title: "2. $10 VE ÜZERİ YATIRIM YAPIN 💳",
             step2Desc: "Yapay zeka terminalini aktif etmek için en az $10 yatırın.",
             chkDepBtn: "Yatırımı Onayla 💰",
@@ -935,7 +924,6 @@
             lblExp: "⏱️ VADE:",
             btnGetSig: "⚡ SİNYAL HESAPLA 🔥",
             btnAutoSig: "🤖 YAPAY ZEKA EN İYİ SİNYALİ SEÇECEK 🎯",
-            resTradeBtn: "👉 İŞLEMİ AÇ 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Merhaba! Ben yapay zeka asistanınızım. Ticaret hakkında her şeyi sorabilirsiniz.",
             eduTitle: "📚 11 EN İYİ STRATEJİ 🔥",
@@ -973,7 +961,6 @@
             lblExp: "⏱️ EXPIRAÇÃO:",
             btnGetSig: "⚡ CALCULAR SINAL 🔥",
             btnAutoSig: "🤖 A IA ESCOLHERÁ O MELHOR SINAL 🎯",
-            resTradeBtn: "👉 ABRIR OPERAÇÃO 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Olá! Sou seu assistente de IA. Tire suas dúvidas sobre trading.",
             eduTitle: "📚 11 MELHORES ESTRATÉGIAS 🔥",
@@ -1011,7 +998,6 @@
             lblExp: "⏱️ समाप्ति समय:",
             btnGetSig: "⚡ सिग्नल गणना करें 🔥",
             btnAutoSig: "🤖 AI आपके लिए सर्वश्रेष्ठ सिग्नल चुनेगा 🎯",
-            resTradeBtn: "👉 ट्रेड खोलें 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "नमस्ते! मैं आपका AI सहायक हूँ। ट्रेडिंग के बारे में कुछ भी पूछें!",
             eduTitle: "📚 11 शीर्ष रणनीतियाँ 🔥",
@@ -1049,7 +1035,6 @@
             lblExp: "⏱️ وقت انتهاء الصلاحية:",
             btnGetSig: "⚡ حساب الإشارة 🔥",
             btnAutoSig: "🤖 سيختار الذكاء الاصطناعي أفضل إشارة لك 🎯",
-            resTradeBtn: "👉 فتح صفقة على POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "مرحباً! أنا مساعد الذكاء الاصطناعي. اسألني عن التداول أو السوق أو الاستراتيجيات! 🔥",
             eduTitle: "📚 11 استراتيجية ورابطة رئيسية 🔥",
@@ -1069,6 +1054,7 @@
 
     let currentUserId = localStorage.getItem('vip_user_id') || null;
     let isBlocked = localStorage.getItem('vip_blocked') === 'true';
+    let countdownInterval = null;
 
     window.onload = function() {
         if(isBlocked) {
@@ -1148,6 +1134,23 @@
         });
     }
 
+    function startTimer() {
+        if(countdownInterval) clearInterval(countdownInterval);
+        let seconds = 5;
+        const countdownEl = document.getElementById('countdown');
+        countdownEl.innerText = `00:0${seconds}`;
+        
+        countdownInterval = setInterval(() => {
+            seconds--;
+            if(seconds >= 0) {
+                countdownEl.innerText = `00:0${seconds}`;
+            } else {
+                countdownEl.innerText = "⚡ ВХОДИ В СДЕЛКУ СЕЙЧАС!";
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+    }
+
     function getSignal() {
         const asset = document.getElementById('assetSelect').value;
         const candle = document.getElementById('tfCandle').value;
@@ -1173,15 +1176,36 @@
         document.getElementById('resCombo').innerText = randomCombo;
         document.getElementById('resStratDesc').innerHTML = randomStrat;
         document.getElementById('sigResult').style.display = 'block';
+        
+        startTimer();
     }
 
     function getAutoSignal() {
         const allCats = Object.keys(assets);
         const randomCat = allCats[Math.floor(Math.random() * allCats.length)];
+        
+        // Переключаем визуально категорию
+        document.querySelectorAll('.cat-btn').forEach((btn, idx) => {
+            if(Object.keys(assets)[idx] === randomCat) {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        });
+
         const randomAssetList = assets[randomCat];
         const randomAsset = randomAssetList[Math.floor(Math.random() * randomAssetList.length)];
         
-        document.getElementById('assetSelect').value = randomAsset;
+        // Заполняем селект и выставляем актив
+        const sel = document.getElementById('assetSelect');
+        sel.innerHTML = '';
+        randomAssetList.forEach(a => {
+            let opt = document.createElement('option');
+            opt.value = a;
+            opt.innerText = a;
+            if(a === randomAsset) opt.selected = true;
+            sel.appendChild(opt);
+        });
+
         document.getElementById('tfExp').value = "1m";
         getSignal();
     }
