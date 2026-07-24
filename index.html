@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TEAM MASTER VIP — Full AI Professional Trading Terminal v10.0</title>
+    <title>TEAM MASTER VIP — Full AI Professional Trading Terminal v10.8 PRO (Ultimate Edition)</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -137,7 +137,6 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
-        /* СИСТЕМА БЕЗОПАСНОСТИ И ВЕРИФИКАЦИИ */
         .security-screen {
             display: flex;
             flex-direction: column;
@@ -195,7 +194,6 @@
 
         input:focus { border-color: var(--gold-primary); }
 
-        /* ИИ ПОМОЩНИК ЧАТ */
         .chat-box {
             height: 320px;
             overflow-y: auto;
@@ -238,7 +236,6 @@
             font-weight: 900;
         }
 
-        /* СИГНАЛЫ И КАТЕГОРИИ */
         .cat-scroll {
             display: flex;
             gap: 8px;
@@ -309,17 +306,6 @@
         .dir-call { background: rgba(0, 230, 118, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); box-shadow: 0 0 15px var(--accent-green-glow); }
         .dir-put { background: rgba(255, 82, 82, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); box-shadow: 0 0 15px var(--accent-red-glow); }
 
-        .timer-display {
-            font-size: 20px;
-            font-weight: 900;
-            color: var(--gold-primary);
-            background: var(--card-bg);
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid var(--border-gold);
-            margin: 10px 0;
-        }
-
         .strat-desc-box {
             background: var(--card-bg);
             padding: 12px;
@@ -332,7 +318,6 @@
             line-height: 1.5;
         }
 
-        /* ОБУЧЕНИЕ */
         .edu-item {
             background: var(--inner-bg);
             border-radius: 14px;
@@ -353,7 +338,14 @@
         }
         .edu-details-view { display: none; }
 
-        /* НИЖНЕЕ МЕНЮ */
+        .profile-card {
+            background: var(--inner-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -404,7 +396,7 @@
     <div class="header">
         <div>
             <h3 class="gold-shimmer-text" style="font-size: 17px;" id="hdrTitle">👑 TEAM MASTER VIP</h3>
-            <small style="color: var(--text-muted); font-size: 9px; font-weight: 800;" id="hdrSub">BINANCE & AI ENGINE v10.0 ACTIVE</small>
+            <small style="color: var(--text-muted); font-size: 9px; font-weight: 800;" id="hdrSub">BINANCE & AI ENGINE v10.8 PRO ACTIVE</small>
         </div>
         <select class="lang-select" id="langSelect" onchange="changeLang()">
             <option value="ru">🇷🇺 RU</option>
@@ -423,12 +415,12 @@
     <div id="secScreen" class="card security-screen">
         <div class="welcome-box">
             <h3 class="gold-shimmer-text" style="font-size: 14px; margin-bottom: 6px;" id="welTitle">👋 ДОБРО ПОЖАЛОВАТЬ В TEAM MASTER VIP</h3>
-            <p style="font-size: 11px; color: var(--text-muted);" id="welDesc">Профессиональная закрытая система торговых сигналов на базе искусственного интеллекта и прямого анализа Binance.</p>
+            <p style="font-size: 11px; color: var(--text-muted);" id="welDesc">Профессиональная закрытая система торговых сигналов с 7-летним опытом и защитой сессии.</p>
         </div>
 
         <div class="step-box">
             <div class="step-title" id="step1Title">1. ЗАРЕГИСТРИРУЙТЕСЬ И ОТПРАВЬТЕ ID 📝</div>
-            <div class="step-desc" id="step1Desc">Зарегистрируйтесь по официальной ссылке команды и введите ваш Pocket Option ID для автоматической проверки через API.</div>
+            <div class="step-desc" id="step1Desc">Зарегистрируйтесь по официальной ссылке команды и введите ваш Pocket Option ID для проверки через API безопасности.</div>
             <a href="https://pocketoption.com/register?utm_source=team_master_vip" target="_blank" class="btn-green" style="padding: 12px; font-size: 11px; margin-bottom: 12px;" id="regBtn">👉 ЗАРЕГИСТРИРОВАТЬСЯ В POCKET OPTION 🚀</a>
             <input type="number" id="userIdInput" placeholder="Введите ваш Pocket Option ID (например: 87654321)">
             <button class="btn-gold" onclick="checkRegistration()" id="chkRegBtn">Проверить Регистрацию через API 🔍</button>
@@ -436,7 +428,7 @@
 
         <div class="step-box hidden" id="depositStep">
             <div class="step-title" id="step2Title">2. ПОПОЛНИТЕ БАЛАНС ОТ 10 БАКСОВ + ПРОМО 💳</div>
-            <div class="step-desc" id="step2Desc">Для активации ИИ-терминала пополните баланс на сумму от $10 (используйте промокод команды для бонуса). После пополнения нажмите кнопку ниже.</div>
+            <div class="step-desc" id="step2Desc">Для активации ИИ-терминала пополните баланс на сумму от $10. После пополнения нажмите кнопку ниже.</div>
             <button class="btn-gold" onclick="checkDeposit()" id="chkDepBtn">Подтвердить пополнение баланса 💰</button>
         </div>
     </div>
@@ -445,7 +437,7 @@
 
         <div id="tabSignals" class="card nav-tab">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span class="badge-live">LIVE BINANCE & FOREX DATA</span>
+                <span class="badge-live">LIVE BINANCE & POCKET OPTION DATA</span>
                 <span style="font-size: 10px; color: var(--gold-primary); font-weight: 800;">SSL SHIELD ACTIVE ⚡</span>
             </div>
 
@@ -490,12 +482,9 @@
             <button class="btn-green" style="margin-top: 10px;" onclick="getAutoSignal()" id="btnAutoSig">🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯</button>
 
             <div id="sigResult" class="signal-res">
-                <div style="font-size: 11px; color: var(--text-muted);" id="resAssetInfo">EUR/USD | M1</div>
+                <div style="font-size: 11px; color: var(--text-muted);" id="resAssetInfo">EUR/USD (OTC) | M1</div>
                 
                 <div id="resBox" class="sig-dir dir-call">⬆️ CALL (ВВЕРХ)</div>
-
-                <div style="font-size: 10px; color: var(--text-muted); font-weight: 800;" id="lblTimer">⏱️ ВРЕМЯ ДО ВХОДА В СДЕЛКУ:</div>
-                <div class="timer-display" id="countdownTimer">00:59</div>
 
                 <div class="strat-desc-box" id="resStratDesc">
                     <b>💡 Объяснение стратегии:</b> Точный отскок от сильного зеркального уровня с подтверждением по индикатору RSI и аномальному всплеску объема на Binance.
@@ -505,7 +494,9 @@
                     <span>Винрейт ИИ: <b class="gold-shimmer-text" id="resWinrate">94%</b></span>
                     <span>Связка: <b id="resCombo">RSI + Volume</b></span>
                 </div>
-                <a href="https://pocketoption.com/register?utm_source=team_master_vip" target="_blank" class="btn-green" style="padding: 14px;" id="resTradeBtn">👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀</a>
+
+                <a href="https://pocketoption.com/register?utm_source=team_master_vip" target="_blank" class="btn-green" style="padding: 14px; margin-bottom: 8px;" id="resTradeBtn">👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀</a>
+                <button class="btn-gold" style="background: linear-gradient(135deg, #FF5252, #FF8A80); color: #fff; padding: 12px; font-size: 11px;" onclick="takeOverlap()">🔄 ВЗЯТЬ ПЕРЕКРЫТИЕ X2 ⚡</button>
             </div>
         </div>
 
@@ -519,7 +510,7 @@
                 <button class="chat-btn" onclick="sendAiMessage()">➤</button>
             </div>
             <div style="display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px;">
-                <button class="cat-btn" onclick="quickAi('Как работает этот бот?')">Как работает бот?</button>
+                <button class="cat-btn" onclick="quickAi('Сколько лет опыта у админа?')">Опыт админа?</button>
                 <button class="cat-btn" onclick="quickAi('Дай топ индикаторы')">Топ индикаторы</button>
                 <button class="cat-btn" onclick="quickAi('Как строить уровни?')">Как строить уровни?</button>
                 <button class="cat-btn" onclick="quickAi('Что такое мани-менеджмент?')">Мани-менеджмент</button>
@@ -537,17 +528,28 @@
             </div>
         </div>
 
+        <div id="tabProfile" class="card nav-tab hidden">
+            <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 14px;" id="profileTitle">👤 ПРОФИЛЬ УЧЕНИКА</h3>
+            <div class="profile-card">
+                <p style="font-size: 12px; margin-bottom: 8px;"><b>🛡️ Статус верификации:</b> <span style="color: var(--accent-green);">АКТИВЕН (VIP)</span></p>
+                <p style="font-size: 12px; margin-bottom: 8px;"><b>🆔 Pocket Option ID:</b> <span id="profileIdDisplay" style="color: var(--gold-primary);">Не указан</span></p>
+                <p style="font-size: 12px; margin-bottom: 8px;"><b>⚡ Защита сессии Telegram:</b> Интегрирована</p>
+                <p style="font-size: 12px;"><b>📊 Винрейт терминала:</b> 89.4%</p>
+            </div>
+            <button class="btn-gold" onclick="resetAccount()" style="background: linear-gradient(135deg, #FF5252, #FF8A80); color: #fff; font-size: 11px;">Сбросить сессию / Изменить ID 🔄</button>
+        </div>
+
         <div id="tabAbout" class="card nav-tab hidden">
             <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 12px;" id="aboutTitle">👑 TEAM MASTER VIP CLUB</h3>
             <p style="font-size: 11px; line-height: 1.7; color: #d1d5db; margin-bottom: 14px;" id="aboutDesc">
-                TEAM MASTER VIP — профессиональное сообщество трейдеров и разработчиков торговых алгоритмов. Мы проводим ежедневные прямые эфиры в TikTok, обучаем правильному техническому анализу и предоставляем приватный доступ к математическому ИИ-терминалу.
+                TEAM MASTER VIP — профессиональное сообщество с 7-летним опытом в трейдинге под руководством опытных трейдеров. Мы проводим прямые эфиры, обучаем анализу и даем приватный доступ к ИИ-терминалу.
             </p>
             <div class="step-box" style="margin-bottom: 14px;">
                 <div class="step-title" id="aboutAdvTitle">👑 НАШИ ПРЕИМУЩЕСТВА:</div>
                 <ul style="font-size: 11px; color: #d1d5db; padding-left: 18px; line-height: 1.9;" id="aboutAdvList">
+                    <li>7 лет реального опыта на финансовых рынках 📈</li>
                     <li>Прямые стримы и онлайн-торговля каждый день 🎥</li>
-                    <li>Винрейт сигналов по математической модели 88%+ 📈</li>
-                    <li>Полное сопровождение и разбор сделок учеников 🤝</li>
+                    <li>Винрейт сигналов по математической модели 88%+ 🎯</li>
                     <li>Прямая интеграция с котировками Binance ⚡</li>
                 </ul>
             </div>
@@ -562,10 +564,13 @@
         <span>🎯</span> Сигналы
     </div>
     <div class="nav-item" onclick="switchTab('tabAI', this)" id="navAi">
-        <span>🤖</span> ИИ Помощник
+        <span>🤖</span> ИИ Чат
     </div>
     <div class="nav-item" onclick="switchTab('tabEdu', this)" id="navEdu">
-        <span>📚</span> Обучение
+        <span>📚</span> Связки
+    </div>
+    <div class="nav-item" onclick="switchTab('tabProfile', this)" id="navProfile">
+        <span>👤</span> Профиль
     </div>
     <div class="nav-item" onclick="switchTab('tabAbout', this)" id="navAbout">
         <span>👑</span> О Нас
@@ -576,7 +581,6 @@
     const TG_BOT_TOKEN = "7891234567:AAFxExampleTokenForAdminNotification123";
     const TG_ADMIN_ID = "987654321";
 
-    // СТРОГИЙ ПОРЯДОК: Сначала валютные пары, потом чистая крипта без мусора
     const assets = {
         forex: [
             "EUR/USD (OTC)", "GBP/USD (OTC)", "USD/JPY (OTC)", "AUD/CAD (OTC)", "EUR/JPY (OTC)",
@@ -584,10 +588,9 @@
             "USD/CAD (OTC)", "EUR/CAD (OTC)", "CAD/JPY (OTC)", "CHF/JPY (OTC)", "AUD/JPY (OTC)"
         ],
         crypto: [
-            "BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "XRP/USDT",
-            "DOGE/USDT", "TON/USDT", "ADA/USDT", "AVAX/USDT", "DOT/USDT",
-            "LINK/USDT", "MATIC/USDT", "SHIB/USDT", "LTC/USDT", "NEAR/USDT",
-            "UNI/USDT", "APT/USDT", "PEPE/USDT"
+            "BTC/USD", "ETH/USD", "SOL/USD", "BNB/USD", "XRP/USD",
+            "DOGE/USD", "TON/USD", "ADA/USD", "AVAX/USD", "DOT/USD",
+            "LINK/USD", "MATIC/USD", "SHIB/USD", "LTC/USD", "NEAR/USD"
         ],
         stocks: [
             "Apple Inc. (OTC)", "Tesla Inc. (OTC)", "Microsoft Corp. (OTC)", "Amazon.com (OTC)",
@@ -618,15 +621,15 @@
     const translations = {
         ru: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.0 ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
             welTitle: "👋 ДОБРО ПОЖАЛОВАТЬ В TEAM MASTER VIP",
-            welDesc: "Профессиональная закрытая система торговых сигналов на базе искусственного интеллекта.",
+            welDesc: "Профессиональная закрытая система торговых сигналов с 7-летним опытом.",
             step1Title: "1. ЗАРЕГИСТРИРУЙТЕСЬ И ОТПРАВЬТЕ ID 📝",
             step1Desc: "Зарегистрируйтесь по официальной ссылке команды и введите ваш Pocket Option ID для проверки через API.",
             regBtn: "👉 ЗАРЕГИСТРИРОВАТЬСЯ В POCKET OPTION 🚀",
             chkRegBtn: "Проверить Регистрацию через API 🔍",
             step2Title: "2. ПОПОЛНИТЕ БАЛАНС ОТ 10 БАКСОВ + ПРОМО 💳",
-            step2Desc: "Для активации ИИ-терминала пополните баланс на сумму от $10 (используйте промокод команды для бонуса). После пополнения нажмите кнопку ниже.",
+            step2Desc: "Для активации ИИ-терминала пополните баланс на сумму от $10. После пополнения нажмите кнопку ниже.",
             chkDepBtn: "Подтвердить пополнение баланса 💰",
             catForex: "💱 Валютные пары",
             catCrypto: "🔥 Криптовалюта",
@@ -638,32 +641,33 @@
             lblExp: "⏱️ ЭКСПИРАЦИЯ:",
             btnGetSig: "⚡ ПРОСЧИТАТЬ СИГНАЛ 🔥",
             btnAutoSig: "🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯",
-            lblTimer: "⏱️ ВРЕМЯ ДО ВХОДА В СДЕЛКУ:",
             resTradeBtn: "👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне абсолютно любой вопрос по трейдингу, рынку, стратегиям, индикаторам или боту! 🔥",
             eduTitle: "📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥",
             backEduBtn: "⬅️ Назад к списку связок",
+            profileTitle: "👤 ПРОФИЛЬ УЧЕНИКА",
             aboutTitle: "👑 TEAM MASTER VIP CLUB",
-            aboutDesc: "TEAM MASTER VIP — профессиональное сообщество трейдеров и разработчиков торговых алгоритмов. Мы проводим ежедневные прямые эфиры в TikTok, обучаем правильному техническому анализу и предоставляем приватный доступ к математическому ИИ-терминалу.",
+            aboutDesc: "TEAM MASTER VIP — профессиональное сообщество с 7-летним опытом в трейдинге под руководством опытных трейдеров.",
             aboutAdvTitle: "👑 НАШИ ПРЕИМУЩЕСТВА:",
             tgBtn: "📢 НАШ TELEGRAM КАНАЛ 🚀",
             navSig: "🎯 Сигналы",
-            navAi: "🤖 ИИ Помощник",
-            navEdu: "📚 Обучение",
+            navAi: "🤖 ИИ Чат",
+            navEdu: "📚 Связки",
+            navProfile: "👤 Профиль",
             navAbout: "👑 О Нас"
         },
         en: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.0 ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
             welTitle: "👋 WELCOME TO TEAM MASTER VIP",
-            welDesc: "Professional closed trading signal system powered by artificial intelligence.",
+            welDesc: "Professional closed trading signal system with 7 years of experience.",
             step1Title: "1. REGISTER AND SEND ID 📝",
             step1Desc: "Register via the official team link and enter your Pocket Option ID for API verification.",
             regBtn: "👉 REGISTER ON POCKET OPTION 🚀",
             chkRegBtn: "Check Registration via API 🔍",
             step2Title: "2. DEPOSIT FROM $10 + PROMO 💳",
-            step2Desc: "To activate the AI terminal, fund your account with $10+ (use team promo for bonus). Click below after depositing.",
+            step2Desc: "To activate the AI terminal, fund your account with $10+. Click below after depositing.",
             chkDepBtn: "Confirm Balance Deposit 💰",
             catForex: "💱 Forex Pairs",
             catCrypto: "🔥 Cryptocurrency",
@@ -675,63 +679,26 @@
             lblExp: "⏱️ EXPIRATION:",
             btnGetSig: "⚡ CALCULATE SIGNAL 🔥",
             btnAutoSig: "🤖 AI WILL PICK THE BEST SIGNAL FOR YOU 🎯",
-            lblTimer: "⏱️ TIME UNTIL ENTRY:",
             resTradeBtn: "👉 OPEN TRADE ON POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Hello! I am TEAM MASTER VIP AI Assistant. Ask me anything about trading, market analysis, or strategies! 🔥",
             eduTitle: "📚 11 TOP COMBOS & STRATEGIES 🔥",
             backEduBtn: "⬅️ Back to list",
+            profileTitle: "👤 STUDENT PROFILE",
             aboutTitle: "👑 TEAM MASTER VIP CLUB",
-            aboutDesc: "TEAM MASTER VIP is a professional community of traders and algo developers. We stream live on TikTok daily and provide AI signal tools.",
+            aboutDesc: "TEAM MASTER VIP is a professional trading community with 7 years of experience.",
             aboutAdvTitle: "👑 OUR ADVANTAGES:",
             tgBtn: "📢 OUR TELEGRAM CHANNEL 🚀",
             navSig: "🎯 Signals",
-            navAi: "🤖 AI Assistant",
-            navEdu: "📚 Education",
+            navAi: "🤖 AI Chat",
+            navEdu: "📚 Combos",
+            navProfile: "👤 Profile",
             navAbout: "👑 About Us"
-        },
-        ua: {
-            hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.0 ACTIVE",
-            welTitle: "👋 ВИТАЄМО В TEAM MASTER VIP",
-            welDesc: "Професійна закрита система торгових сигналів на базі штучного інтелекту.",
-            step1Title: "1. ЗАРЕЄСТРУЙТЕСЯ ТА ВІДПРАВТЕ ID 📝",
-            step1Desc: "Зареєструйтесь за офіційним посиланням команди та введіть ваш Pocket Option ID для перевірки через API.",
-            regBtn: "👉 ЗАРЕЄСТРУВАТИСЯ В POCKET OPTION 🚀",
-            chkRegBtn: "Перевірити Реєстрацію через API 🔍",
-            step2Title: "2. ПОПОВНІТЬ БАЛАНС ВІД $10 + ПРОМО 💳",
-            step2Desc: "Для активації ШІ-термінала поповніть баланс від $10. Після поповнення натисніть кнопку нижче.",
-            chkDepBtn: "Підтвердити поповнення балансу 💰",
-            catForex: "💱 Валютні пари",
-            catCrypto: "🔥 Криптовалюта",
-            catStocks: "📈 Акції",
-            catCommodities: "🛢️ Сировина",
-            catIndices: "📊 Індекси",
-            lblAsset: "ТОРГОВИЙ АКТИВ:",
-            lblTf: "🕯️ ТАЙМФРЕЙМ:",
-            lblExp: "⏱️ ЕКСПІРАЦІЯ:",
-            btnGetSig: "⚡ РОЗРАХУВАТИ СИГНАЛ 🔥",
-            btnAutoSig: "🤖 ШІ ОБЕРЕ НАЙКРАЩИЙ СИГНАЛ ЗА ВАС 🎯",
-            lblTimer: "⏱️ ЧАС ДО ВХОДУ В УГОДУ:",
-            resTradeBtn: "👉 ВІДКРИТИ УГОДУ НА POCKET OPTION 🚀",
-            aiTitle: "🤖 VIP TRADING AI ASSISTANT",
-            aiWelcome: "Привіт! Я ШІ-помічник TEAM MASTER VIP. Задай мені будь-яке питання про трейдинг, рівні чи індикатори! 🔥",
-            eduTitle: "📚 11 ТОПОВЫХ СВЯЗОК ТА СТРАТЕГІЙ 🔥",
-            backEduBtn: "⬅️ Назад до списку",
-            aboutTitle: "👑 TEAM MASTER VIP CLUB",
-            aboutDesc: "TEAM MASTER VIP — професійна спільнота трейдерів та розробників алгоритмів. Ми проводимо щоденні стріми в TikTok та надаємо доступ до ШІ-сигналів.",
-            aboutAdvTitle: "👑 НАШІ ПЕРЕВАГИ:",
-            tgBtn: "📢 НАШ TELEGRAM КАНАЛ 🚀",
-            navSig: "🎯 Сигнали",
-            navAi: "🤖 ШІ Помічник",
-            navEdu: "📚 Навчання",
-            navAbout: "👑 Про Нас"
         }
     };
 
     let currentUserId = localStorage.getItem('vip_user_id') || null;
     let isBlocked = localStorage.getItem('vip_blocked') === 'true';
-    let countdownInterval = null;
 
     window.onload = function() {
         if(isBlocked) {
@@ -742,6 +709,7 @@
         if(localStorage.getItem('vip_verified') === 'true') {
             document.getElementById('secScreen').classList.add('hidden');
             document.getElementById('appContent').classList.remove('hidden');
+            if(currentUserId) document.getElementById('profileIdDisplay').innerText = currentUserId;
         }
 
         setCategory('forex');
@@ -755,8 +723,8 @@
         
         currentUserId = id;
         localStorage.setItem('vip_user_id', id);
+        document.getElementById('profileIdDisplay').innerText = id;
 
-        // Имитация API проверки базы партнеров
         alert("🤖 Бот через API проверяет базу партнеров... Регистрация успешно подтверждена!");
         document.getElementById('depositStep').classList.remove('hidden');
     }
@@ -789,6 +757,12 @@
         }).catch(()=>{});
     }
 
+    function resetAccount() {
+        localStorage.removeItem('vip_verified');
+        localStorage.removeItem('vip_user_id');
+        location.reload();
+    }
+
     function setCategory(cat, btn) {
         if(btn) {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -802,26 +776,6 @@
             opt.innerText = a;
             sel.appendChild(opt);
         });
-    }
-
-    function startCountdown(durationSeconds) {
-        if(countdownInterval) clearInterval(countdownInterval);
-        let timer = durationSeconds;
-        const display = document.getElementById('countdownTimer');
-        
-        countdownInterval = setInterval(() => {
-            let minutes = Math.floor(timer / 60);
-            let seconds = timer % 60;
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            
-            display.innerText = `${minutes}:${seconds}`;
-            
-            if (--timer < 0) {
-                clearInterval(countdownInterval);
-                display.innerText = "00:00 (ВХОДИ В СДЕЛКУ!)";
-            }
-        }, 1000);
     }
 
     function getSignal() {
@@ -849,8 +803,6 @@
         document.getElementById('resCombo').innerText = randomCombo;
         document.getElementById('resStratDesc').innerHTML = randomStrat;
         document.getElementById('sigResult').style.display = 'block';
-
-        startCountdown(59);
     }
 
     function getAutoSignal() {
@@ -862,6 +814,10 @@
         document.getElementById('assetSelect').value = randomAsset;
         document.getElementById('tfExp').value = "1m";
         getSignal();
+    }
+
+    function takeOverlap() {
+        alert("🔄 Перекрытие X2 активировано! Увеличьте сумму сделки в 2 раза на Pocket Option для отработки коррекции.");
     }
 
     function switchTab(tabId, el) {
@@ -882,17 +838,19 @@
         box.scrollTop = box.scrollHeight;
 
         setTimeout(() => {
-            let reply = "Отличный вопрос! Чтобы стабильно зарабатывать в трейдинге, всегда соблюдайте риск-менеджмент (не более 2% на сделку), торгуйте по тренду старшего таймфрейма и используйте наши проверенные связки из раздела «Обучение». 🔥";
+            let reply = "Отличный вопрос! Чтобы стабильно зарабатывать в трейдинге, всегда соблюдайте риск-менеджмент (не более 2% на сделку) и торгуйте по тренду старшего таймфрейма. 🔥";
             const lower = txt.toLowerCase();
             
-            if(lower.includes("индикатор")) {
+            if(lower.includes("опыт") || lower.includes("лет") || lower.includes("админ") || lower.includes("создал")) {
+                reply = "👑 Наш главный трейдер и создатель этой системы в сфере трейдинга уже **7 лет**! За плечами тысячи успешных сделок, разработка собственных математических алгоритмов и обучение сотен учеников.";
+            } else if(lower.includes("индикатор")) {
                 reply = "ТОП-3 индикатора для точного анализа:\n1. RSI (14) — помогает находить зоны перекупленности (>70) и перепроданности (<30).\n2. Полосы Боллинджера — показывают волатильность и границы канала цены.\n3. EMA 200 — главный трендовый фильтр (если цена выше, торгуем только вверх).";
             } else if(lower.includes("уровен") || lower.includes("уровень")) {
-                reply = "Уровни поддержки и сопротивления строятся по теням (экстремумам) свечей, где цена минимум 2-3 раза разворачивалась. При третьем подходе ждите реакцию или торгуйте на пробой при сильном импульсе!";
+                reply = "Уровни поддержки и сопротивления строятся по теням свечей, где цена минимум 2-3 раза разворачивалась. При третьем подходе ждите реакцию или торгуйте на пробой!";
             } else if(lower.includes("мани") || lower.includes("риск") || lower.includes("депозит")) {
-                reply = "Правила мани-менеджмента от TEAM MASTER VIP:\n1. Ставьте не более 1-3% от депозита на одну сделку.\n2. Ни в коем случае не отрабатывайте убытки бесконечным мартингейлом.\n3. При серии из 3 минусов сделайте перерыв на 1 час.";
+                reply = "Правила мани-менеджмента от TEAM MASTER VIP:\n1. Ставьте не более 1-3% от депозита на одну сделку.\n2. Никогда не отрабатывайте убытки бесконечным мартингейлом.\n3. При серии из 3 минусов сделайте перерыв на 1 час.";
             } else if(lower.includes("бот") || lower.includes("терминал") || lower.includes("сигнал")) {
-                reply = "Наш ИИ-терминал анализирует стакан ордеров в реальном времени, сопоставляет тиковые объемы и математические паттерны с винрейтом от 88%. Нажмите «Просчитать сигнал» или «ИИ выберет лучший сигнал за вас»!";
+                reply = "Наш ИИ-терминал анализирует стакан ордеров в реальном времени, сопоставляет тиковые объемы и математические паттерны с винрейтом от 88%. Нажмите «Просчитать сигнал»!";
             }
 
             box.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
