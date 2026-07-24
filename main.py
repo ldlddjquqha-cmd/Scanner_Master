@@ -10,7 +10,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, C
 # ==========================================
 # CONFIGURATION & LOGGING
 # ==========================================
-TOKEN = "YOUR_BOT_TOKEN_HERE"
+TOKEN = "7960762468:AAEu1rItSoIL9Q7cHtY-zA5kCr3UmlDWSLQ"
 PARTNER_API_URL = "https://api.pocketoption.com/verify"
 SECRET_KEY = "YOUR_PARTNER_SECRET_KEY"
 
