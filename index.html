@@ -501,12 +501,12 @@
                 <div class="signal-timer" id="signalTimer">⏱ ВРЕМЯ ДО ВХОДА: <span id="countdown">00:05</span></div>
 
                 <div class="strat-desc-box" id="resStratDesc">
-                    <b>💡 Объяснение стратегии:</b> Точный отскок от сильного зеркального уровня с подтверждением по индикатору RSI и аномальному всплеску объема на Binance.
+                    <b>💡 Объяснение связки и индикаторов:</b> Точный отскок от сильного зеркального уровня с подтверждением по индикатору RSI, пересечению EMA и аномальному всплеску тикового объема на Binance.
                 </div>
 
                 <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 12px;">
                     <span>Винрейт ИИ: <b class="gold-shimmer-text" id="resWinrate">94%</b></span>
-                    <span>Связка: <b id="resCombo">RSI + Volume</b></span>
+                    <span>Связка индикаторов: <b id="resCombo">RSI + Bollinger + Volume</b></span>
                 </div>
 
                 <button class="btn-gold" style="background: linear-gradient(135deg, #FF5252, #FF8A80); color: #fff; padding: 12px; font-size: 11px;" onclick="takeOverlap()">🔄 ВЗЯТЬ ПЕРЕКРЫТИЕ X2 ⚡</button>
@@ -516,7 +516,7 @@
         <div id="tabAI" class="card nav-tab hidden">
             <h4 class="gold-shimmer-text" style="margin-bottom: 12px;" id="aiTitle">🤖 VIP TRADING AI ASSISTANT</h4>
             <div class="chat-box" id="chatBox">
-                <div class="chat-msg msg-ai" id="aiWelcome">Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне абсолютно любой вопрос по трейдингу, рынку, стратегиям, индикаторам или боту! 🔥</div>
+                <div class="chat-msg msg-ai" id="aiWelcome">Привет! Я ИИ-помощник TEAM MASTER VIP. Готов ответить абсолютно на любые ваши вопросы по трейдингу, рынку, стратегиям, индикаторам, психологии и работе терминала в режиме 24/7! 🔥 Задавайте вопрос!</div>
             </div>
             <div class="chat-input-row">
                 <input type="text" id="chatInput" placeholder="Спроси ИИ о чем угодно...">
@@ -566,7 +566,7 @@
                     <li>Прямая интеграция с котировками Binance ⚡</li>
                 </ul>
             </div>
-            <a href="https://t.me/your_telegram_channel" target="_blank" class="btn-gold" style="text-align: center; text-decoration: none; display: block;" id="tgBtn">📢 НАШ TELEGRAM КАНАЛ 🚀</a>
+            <a href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" class="btn-gold" style="text-align: center; text-decoration: none; display: block;" id="tgBtn">📢 НАШ TELEGRAM КАНАЛ 🚀</a>
         </div>
 
     </div>
@@ -698,7 +698,7 @@
             btnGetSig: "⚡ ПРОСЧИТАТЬ СИГНАЛ 🔥",
             btnAutoSig: "🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
-            aiWelcome: "Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне абсолютно любой вопрос по трейдингу, рынку, стратегиям, индикаторам или боту! 🔥",
+            aiWelcome: "Привет! Я ИИ-помощник TEAM MASTER VIP. Готов ответить абсолютно на любые ваши вопросы по трейдингу, рынку, стратегиям, индикаторам, психологии и работе терминала в режиме 24/7! 🔥 Задавайте вопрос!",
             eduTitle: "📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥",
             backEduBtn: "⬅️ Назад к списку связок",
             profileTitle: "👤 ПРОФИЛЬ УЧЕНИКА",
@@ -906,7 +906,7 @@
             step1Desc: "Resmi bağlantı üzerinden kayıt olun ve Pocket Option ID'nizi girin.",
             regBtn: "👉 POCKET OPTION'A KAYIT OL 🚀",
             chkRegBtn: "Kayıт Kontrolü 🔍",
-            step2Title: "2. $10 VE ÜZERİ YATIRIM YAPIN 💳",
+            step2Title: "2. $10 VE ÜZERİ YАТIRIM YAPIN 💳",
             step2Desc: "Yapay zeka terminalini aktif etmek için en az $10 yatırın.",
             chkDepBtn: "Yatırımı Onayla 💰",
             catForex: "💱 Döviz Çiftleri",
@@ -1157,9 +1157,9 @@
         const randomCombo = combos[Math.floor(Math.random() * combos.length)];
         
         const stratTexts = [
-            "💡 <b>Объяснение стратегии:</b> Цена подошла к сильному уровню поддержки/сопротивления на старшем таймфрейме. Наблюдается затухание волатильности и формирование разворотного паттерна.",
-            "💡 <b>Объяснение стратегии:</b> Индикатор RSI вышел из зоны перепроданности/перекупленности, полосы Боллинджера расширяются, импульс направлен в сторону сделки.",
-            "💡 <b>Объяснение стратегии:</b> Зафиксирован резкий всплеск тикового объема на Binance при ложном пробое уровня. Ждем откат внутрь ценового канала."
+            "💡 <b>Объяснение связки индикаторов:</b> Цена подошла к сильному уровню поддержки/сопротивления. Индикатор RSI показывает выход из зоны экстремума, а тиковые объемы подтверждают истинность импульса.",
+            "💡 <b>Объяснение связки индикаторов:</b> Пересечение скользящих средних EMA в сочетании с полосами Боллинджера указывает на сильное импульсное движение и готовность рынка к отработке.",
+            "💡 <b>Объяснение связки индикаторов:</b> Зафиксирован резкий всплеск тикового объема на Binance при ложном пробое уровня с подтверждением по осцилляторам."
         ];
         const randomStrat = stratTexts[Math.floor(Math.random() * stratTexts.length)];
 
@@ -1237,7 +1237,9 @@
             } else if(lower.includes("мани") || lower.includes("риск") || lower.includes("депозит")) {
                 reply = "Правила мани-менеджмента от TEAM MASTER VIP:\n1. Ставьте не более 1-3% от депозита на одну сделку.\n2. Никогда не отрабатывайте убытки бесконечным мартингейлом.\n3. При серии из 3 минусов сделайте перерыв на 1 час.";
             } else if(lower.includes("бот") || lower.includes("терминал") || lower.includes("сигнал")) {
-                reply = "Наш ИИ-терминал анализирует стакан ордеров в реальном времени, сопоставляет тиковые объемы и математические паттерны с винрейтом от 88%. Нажмите «Просчитать сигнал»!";
+                reply = "Наш ИИ-терминал анализирует стакан ордеров в реальном времени, сопоставляет тиковые объемы и математические паттерны с винрейтом от 88%. Нажмите «Просчитать сигнал» или «ИИ выберет лучший сигнал за вас»!";
+            } else if(lower.includes("крипт") || lower.includes("монет") || lower.includes("биткоин")) {
+                reply = "Для торговли криптовалютой отлично подходят таймфреймы M1-M5 с анализом объемов Binance и индикаторов RSI + Боллинджер. Используйте кнопку автовыбора сигнала!";
             }
 
             box.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
