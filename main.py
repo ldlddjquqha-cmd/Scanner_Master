@@ -1,6 +1,7 @@
 import os
+import time
 import hashlib
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import requests
 from groq import Groq
 
@@ -10,207 +11,190 @@ app = Flask(__name__)
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '7960762468:AAEu1rItSoIL9Q7cHtY-zA5kCr3UmlDWSLQ')
 BOSS_TELEGRAM_ID = os.environ.get('BOSS_TELEGRAM_ID', '109386966')
 
-# Настройки партнерки Pocket Option
-POCKET_PARTNER_ID = os.environ.get('POCKET_PARTNER_ID', '109386966')  # Ваш Partner ID
+POCKET_PARTNER_ID = os.environ.get('POCKET_PARTNER_ID', '109386966')
 POCKET_API_TOKEN = os.environ.get('POCKET_API_TOKEN', 'Zc4X9zu0EMrqbPuLy3tN')
-REF_LINK = os.environ.get('REF_LINK', 'https://pocketoption.com/register?utm_source=team_master_vip')
+
+# Актуальная реферальная ссылка
+REF_LINK = "https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50"
 
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
-# Временное хранилище заблокированных пользователей в памяти
 BLOCKED_USERS = set()
-# ===================================================================
+LAST_REQUESTS = {}
 
+def is_rate_limited(ip_address):
+    now = time.time()
+    if ip_address in LAST_REQUESTS:
+        if now - LAST_REQUESTS[ip_address] < 1.5:
+            return True
+    LAST_REQUESTS[ip_address] = now
+    return False
+
+def send_telegram_msg(text, reply_markup=None):
+    if not TELEGRAM_BOT_TOKEN:
+        return
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": BOSS_TELEGRAM_ID,
+        "text": text,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True
+    }
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+    try:
+        requests.post(url, json=payload, timeout=5)
+    except Exception as e:
+        print(f"TG error: {e}")
 
 def check_partner_trader(user_id):
-    """ Проверка трейдера через официальный API партнерки Pocket Option """
     try:
-        # Формируем MD5 хеш: md5("{user_id}:{partner_id}:{api_token}")
         raw_hash_string = f"{user_id}:{POCKET_PARTNER_ID}:{POCKET_API_TOKEN}"
         hash_md5 = hashlib.md5(raw_hash_string.encode('utf-8')).hexdigest()
-
         url = f"https://affiliate.pocketoption.com/api/user-info/{user_id}/{POCKET_PARTNER_ID}/{hash_md5}"
-        response = requests.get(url, timeout=7)
-        
+        response = requests.get(url, timeout=5)
         if response.status_code == 200:
             return response.json()
         return None
-    except Exception as e:
-        print(f"Ошибка проверки API партнерки: {e}")
+    except Exception:
         return None
-
 
 @app.route('/')
 def index():
-    if os.path.exists('templates/index.html'):
-        with open('templates/index.html', 'r', encoding='utf-8') as f:
-            return f.read()
-    elif os.path.exists('index.html'):
-        with open('index.html', 'r', encoding='utf-8') as f:
-            return f.read()
-    return "Шаблон index.html не найден!"
+    return render_template('index.html', ref_link=REF_LINK)
 
+# --- УВЕДОМЛЕНИЕ БОССУ О ПЕРЕХОДЕ К СИГНАЛАМ ---
+@app.route('/api/notify_signals_access', methods=['POST'])
+def notify_signals_access():
+    user_ip = request.remote_addr
+    msg = f"🚀 <b>БОСС, ПОЛЬЗОВАТЕЛЬ ПЕРЕШЕЛ К СИГНАЛАМ!</b>\n\n🌐 IP: <code>{user_ip}</code>\n⏰ Время: {time.strftime('%H:%M:%S')}"
+    send_telegram_msg(msg)
+    return jsonify({"status": "ok"})
 
-# --- ПРОВЕРКА ТРЕЙДЕРА И ОТПРАВКА УВЕДОМЛЕНИЯ БОССУ С КНОПКАМИ ---
+# --- ПРОВЕРКА ТРЕЙДЕРА С КНОПКАМИ БЛОКИРОВКИ ---
 @app.route('/api/verify_trader', methods=['POST'])
 def verify_trader():
-    try:
-        trader_id = request.form.get('trader_id', '').strip()
-        if not trader_id:
-            return jsonify({"status": "error", "message": "Укажите ID трейдера"}), 400
+    ip = request.remote_addr
+    if is_rate_limited(ip):
+        return jsonify({"status": "error", "message": "Запросы слишком частые!"}), 429
 
-        if trader_id in BLOCKED_USERS:
-            return jsonify({"status": "blocked", "message": "Этот ID заблокирован в системе."}), 403
+    trader_id = request.form.get('trader_id', '').strip()
+    if not trader_id:
+        return jsonify({"status": "error", "message": "Введите ваш ID Pocket Option"}), 400
 
-        # Запрос к Pocket Option API
-        trader_data = check_partner_trader(trader_id)
+    if trader_id in BLOCKED_USERS:
+        return jsonify({"status": "blocked", "message": "⛔ Ваш ID заблокирован в системе."}), 403
 
-        # Сообщение с кнопками блокировки для Босса в Telegram
-        if TELEGRAM_BOT_TOKEN:
-            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-            
-            status_text = f"✅ <b>Найден в партнерке</b>" if trader_data else "⚠️ <b>Не найден / Ошибка API</b>"
-            
-            message_text = (
-                f"👑 <b>БОСС, НОВЫЙ ТРЕЙДЕР ЗАПРОСИЛ ДОСТУП!</b>\n\n"
-                f"🆔 ID Трейдера: <code>{trader_id}</code>\n"
-                f"📊 Статус партнерки: {status_text}\n"
-            )
+    trader_data = check_partner_trader(trader_id)
+    status_text = "✅ <b>Найден в партнерке</b>" if trader_data else "⚠️ <b>Не найден в партнерке</b>"
 
-            # Интерактивные inline-кнопки
-            inline_keyboard = {
-                "inline_keyboard": [
-                    [
-                        {"text": "⛔ Заблокировать НАВСЕГДА", "callback_data": f"block_{trader_id}"},
-                        {"text": "✅ Разблокировать", "callback_data": f"unblock_{trader_id}"}
-                    ]
-                ]
-            }
+    message_text = (
+        f"👑 <b>НОВЫЙ ТРЕЙДЕР В СИСТЕМЕ!</b>\n\n"
+        f"🆔 ID Трейдера: <code>{trader_id}</code>\n"
+        f"📊 Партнерка: {status_text}\n"
+        f"🔗 Ссылка: <a href='{REF_LINK}'>Рефералка</a>"
+    )
 
-            payload = {
-                "chat_id": BOSS_TELEGRAM_ID,
-                "text": message_text,
-                "parse_mode": "HTML",
-                "reply_markup": inline_keyboard
-            }
-            requests.post(url, json=payload, timeout=5)
+    inline_keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "⛔ Заблокировать НАВСЕГДА", "callback_data": f"block_{trader_id}"},
+                {"text": "✅ Разблокировать", "callback_data": f"unblock_{trader_id}"}
+            ]
+        ]
+    }
 
-        return jsonify({
-            "status": "success",
-            "trader_id": trader_id,
-            "partner_info": trader_data
-        })
+    send_telegram_msg(message_text, inline_keyboard)
+    return jsonify({"status": "success", "trader_id": trader_id, "partner_info": trader_data})
 
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
-# --- ВЕБХУК TELEGRAM ДЛЯ ОБРАБОТКИ НАЖАТИЙ НА КНОПКИ ---
 @app.route('/telegram_webhook', methods=['POST'])
 def telegram_webhook():
     try:
         data = request.get_json()
         if "callback_query" in data:
             callback = data["callback_query"]
-            callback_id = callback["id"]
-            action_data = callback["data"]
             chat_id = callback["message"]["chat"]["id"]
+            action_data = callback["data"]
             message_id = callback["message"]["message_id"]
 
-            # Проверяем, что кнопил именно Босс
             if str(chat_id) == str(BOSS_TELEGRAM_ID):
                 if action_data.startswith("block_"):
                     target_id = action_data.split("block_")[1]
                     BLOCKED_USERS.add(target_id)
-                    res_text = f"⛔ Трейдер ID {target_id} ЗАБЛОКИРОВАН НАВСЕГДА!"
+                    res_text = f"⛔ Трейдер ID {target_id} ЗАБЛОКИРОВАН!"
                 elif action_data.startswith("unblock_"):
                     target_id = action_data.split("unblock_")[1]
                     BLOCKED_USERS.discard(target_id)
                     res_text = f"✅ Трейдер ID {target_id} РАЗБЛОКИРОВАН!"
 
-                # Всплывающее уведомление в Telegram
                 requests.post(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/answerCallbackQuery", json={
-                    "callback_query_id": callback_id,
-                    "text": res_text,
-                    "show_alert": True
+                    "callback_query_id": callback["id"], "text": res_text, "show_alert": True
                 })
-
-                # Обновляем текст сообщения у Босса
                 requests.post(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/editMessageText", json={
-                    "chat_id": chat_id,
-                    "message_id": message_id,
-                    "text": f"👑 <b>Управление доступом</b>\n\n{res_text}",
+                    "chat_id": chat_id, "message_id": message_id,
+                    "text": f"👑 <b>Панель Управления Босса</b>\n\n{res_text}",
                     "parse_mode": "HTML"
                 })
-
         return jsonify({"status": "ok"})
     except Exception as e:
-        print(f"Webhook error: {e}")
-        return jsonify({"status": "error"}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-
-# --- ЛОГИРОВАНИЕ И ОТПРАВКА СИГНАЛОВ ---
 @app.route('/api/log_signal', methods=['POST'])
 def log_signal():
     try:
         asset = request.form.get('asset', 'EUR/USD OTC')
         direction = request.form.get('direction', 'CALL')
         timeframe = request.form.get('timeframe', 'M1')
-        is_hedge = request.form.get('is_hedge', 'false') == 'true'
+        expiration = request.form.get('expiration', '1m')
+        accuracy = request.form.get('accuracy', '92%')
 
-        hedge_text = " ⚠️ [ПЕРЕКРЫТИЕ / ДОГОН]" if is_hedge else ""
-        
-        text = f"🎯 <b>НОВЫЙ СИГНАЛ VIP ТЕРМИНАЛА</b>{hedge_text}\n\n" \
+        text = f"🎯 <b>НОВЫЙ СИГНАЛ СГЕНЕРИРОВАН!</b>\n\n" \
                f"📊 Актив: <b>{asset}</b>\n" \
                f"📈 Направление: <b>{direction}</b>\n" \
-               f"⏳ Время: <b>{timeframe}</b>\n\n" \
-               f"🔗 <a href='{REF_LINK}'>👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION</a>"
+               f"⏳ Интервал: <b>{timeframe}</b> | Экспирация: <b>{expiration}</b>\n" \
+               f"🎯 Вероятность: <b>{accuracy}</b>"
 
-        if TELEGRAM_BOT_TOKEN:
-            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-            payload = {
-                "chat_id": BOSS_TELEGRAM_ID,
-                "text": text,
-                "parse_mode": "HTML",
-                "disable_web_page_preview": True
-            }
-            requests.post(url, json=payload, timeout=5)
-
-        return jsonify({"status": "success", "message": "Signal logged"})
+        send_telegram_msg(text)
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-
-# --- ЧАТ С ИИ GROQ ---
+# --- ИИ ПОМОЩНИК С МОДЕРАЦИЕЙ И БЕЗ РЕФЕРАЛКИ ---
 @app.route('/ai_chat', methods=['POST'])
 def ai_chat():
-    try:
-        user_message = request.form.get('message', '')
-        if not user_message:
-            return jsonify({"reply": "Введите сообщение."}), 400
+    user_message = request.form.get('message', '').strip()
+    if not user_message:
+        return jsonify({"reply": "Пожалуйста, введите ваш вопрос."}), 400
 
-        if groq_client:
+    if groq_client:
+        try:
             completion = groq_client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[
                     {
                         "role": "system",
-                        "content": f"Ты ИИ-ассистент терминала TEAM MASTER VIP. Отвечай кратко и профессионально по трейдингу. Рекомендуй регистрацию по партнерке: {REF_LINK}"
+                        "content": (
+                            "Ты — вежливый и компетентный технический ИИ-консультант торгового веб-терминала TEAM MASTER VIP. "
+                            "Твоя задача: помогать пользователям решать любые проблемы с работой сайта, объяснять торговые стратегии, "
+                            "работу Pocket Option, таймфреймы, экспирацию и термины. "
+                            "СТРОГИЕ ПРАВИЛА: "
+                            "1. НЕ упоминай и НЕ вставляй никакие реферальные ссылки или промокоды! "
+                            "2. Если пользователь задает нецензурные, вульгарные, оскорбительные или неприличные вопросы — отвечай корректно: "
+                            "'Извините, я не отвечаю на неэтичные вопросы. Задайте вопрос по работе сайта или трейдингу.' "
+                            "3. Отвечай кратко, чётко и по делу на русском языке."
+                        )
                     },
                     {"role": "user", "content": user_message}
                 ],
-                temperature=0.6,
+                temperature=0.4,
                 max_tokens=350
             )
-            reply = completion.choices[0].message.content
-        else:
-            reply = f"🤖 Для торговли регистрируйтесь по нашей партнерке: {REF_LINK}"
+            return jsonify({"reply": completion.choices[0].message.content})
+        except Exception:
+            pass
 
-        return jsonify({"reply": reply})
-    except Exception as e:
-        return jsonify({"reply": f"⚠️ Регистрируйтесь по ссылке: {REF_LINK}"}), 500
-
+    return jsonify({"reply": "Сервер обработки ИИ временно занят. Попробуйте сформулировать вопрос иначе."})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
