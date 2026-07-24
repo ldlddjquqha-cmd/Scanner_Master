@@ -324,7 +324,7 @@
         .dir-call { background: rgba(0, 230, 118, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); box-shadow: 0 0 15px var(--accent-green-glow); }
         .dir-put { background: rgba(255, 82, 82, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); box-shadow: 0 0 15px var(--accent-red-glow); }
 
-        /* 📚 11 СВЯЗОК */
+        /* 📚 11 СВЯЗОК (НОВЫЙ РАЗДЕЛ С КНОПКОЙ НАЗАД) */
         .edu-item {
             background: var(--inner-bg);
             border-radius: 14px;
@@ -349,22 +349,16 @@
             line-height: 1.4;
         }
 
-        .edu-details {
+        .edu-details-view {
             display: none;
-            margin-top: 12px;
-            font-size: 11px;
-            color: #d1d5db;
-            line-height: 1.6;
-            border-top: 1px solid var(--border-color);
-            padding-top: 12px;
         }
 
-        .edu-details img {
+        .edu-details-view img {
             width: 100%;
-            height: 180px;
+            height: 190px;
             object-fit: cover;
-            border-radius: 10px;
-            margin-top: 10px;
+            border-radius: 12px;
+            margin-top: 14px;
             border: 1px solid var(--border-color);
         }
 
@@ -464,7 +458,7 @@
 
         <!-- 🎯 ВКЛАДКА: СИГНАЛЫ -->
         <div id="tabSignals" class="card nav-tab">
-            <div style="display: flex; justify-content: space-between; align-align-items: center; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <span class="badge-live">LIVE BINANCE DATA</span>
                 <span style="font-size: 10px; color: var(--gold-primary); font-weight: 800;">SSL SHIELD ACTIVE ⚡</span>
             </div>
@@ -520,28 +514,37 @@
             </div>
         </div>
 
-        <!-- 🤖 ВКЛАДКА: ИИ ПОМОЩНИК -->
+        <!-- 🤖 ВКЛАДКА: ИИ ПОМОЩНИК (ОТВЕЧАЕТ НА ЛЮБЫЕ ВОПРОСЫ) -->
         <div id="tabAI" class="card nav-tab hidden">
             <h4 class="gold-shimmer-text" style="margin-bottom: 12px;" id="aiTitle">🤖 VIP TRADING AI ASSISTANT</h4>
             <div class="chat-box" id="chatBox">
-                <div class="chat-msg msg-ai" id="aiWelcome">Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне любой вопрос по трейдингу, анализу рынка, уровням или индикаторам! 🔥</div>
+                <div class="chat-msg msg-ai" id="aiWelcome">Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне абсолютно любой вопрос по трейдингу, рынку, стратегиям, индикаторам или боту! 🔥</div>
             </div>
             <div class="chat-input-row">
-                <input type="text" id="chatInput" placeholder="Задай вопрос ИИ...">
+                <input type="text" id="chatInput" placeholder="Спроси ИИ о чем угодно...">
                 <button class="chat-btn" onclick="sendAiMessage()">➤</button>
             </div>
             <div style="display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px;">
-                <button class="cat-btn" onclick="quickAi('Дай топ индикаторы')">Дай индикаторы</button>
+                <button class="cat-btn" onclick="quickAi('Как работает этот бот?')">Как работает бот?</button>
+                <button class="cat-btn" onclick="quickAi('Дай топ индикаторы')">Топ индикаторы</button>
                 <button class="cat-btn" onclick="quickAi('Как строить уровни?')">Как строить уровни?</button>
-                <button class="cat-btn" onclick="quickAi('Стратегия от уровней')">Стратегия от уровней</button>
                 <button class="cat-btn" onclick="quickAi('Что такое мани-менеджмент?')">Мани-менеджмент</button>
             </div>
         </div>
 
-        <!-- 📚 ВКЛАДКА: ОБУЧЕНИЕ (11 СВЯЗОК) -->
+        <!-- 📚 ВКЛАДКА: ОБУЧЕНИЕ (РАЗДЕЛЫ С КНОПКОЙ НАЗАД) -->
         <div id="tabEdu" class="card nav-tab hidden">
-            <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 14px;" id="eduTitle">📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥</h3>
-            <div id="eduList"></div>
+            <!-- Список связок -->
+            <div id="eduListContainer">
+                <h3 class="gold-shimmer-text" style="text-align: center; margin-bottom: 14px;" id="eduTitle">📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥</h3>
+                <div id="eduList"></div>
+            </div>
+
+            <!-- Детальный раздел связки с кнопкой назад вверху -->
+            <div id="eduDetailContainer" class="edu-details-view">
+                <button class="btn-gold" style="margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="closeEduDetail()">⬅️ Назад к списку связок</button>
+                <div id="eduDetailContent" style="background: var(--inner-bg); padding: 16px; border-radius: 14px; border: 1px solid var(--border-gold);"></div>
+            </div>
         </div>
 
         <!-- 👑 ВКЛАДКА: О НАС -->
@@ -740,7 +743,7 @@
             btnAutoSig: "🤖 ИИ ВЫБЕРЕТ ЛУЧШИЙ СИГНАЛ ЗА ВАС 🎯",
             resTradeBtn: "👉 ОТКРЫТЬ СДЕЛКУ НА POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
-            aiWelcome: "Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне любой вопрос по трейдингу, анализу рынка, уровням или индикаторам! 🔥",
+            aiWelcome: "Привет! Я ИИ-помощник TEAM MASTER VIP. Задай мне абсолютно любой вопрос по трейдингу, рынку, стратегиям, индикаторам или боту! 🔥",
             eduTitle: "📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ 🔥",
             aboutTitle: "👑 TEAM MASTER VIP CLUB",
             aboutDesc: "TEAM MASTER VIP — профессиональное сообщество трейдеров и разработчиков торговых алгоритмов. Мы проводим ежедневные прямые эфиры в TikTok, обучаем правильному техническому анализу и предоставляем приватный доступ к математическому ИИ-терминалу.",
@@ -811,7 +814,7 @@
             resTradeBtn: "👉 ВІДКРИТИ УГОДУ НА POCKET OPTION 🚀",
             aiTitle: "🤖 VIP TRADING AI ASSISTANT",
             aiWelcome: "Привіт! Я ШІ-помічник TEAM MASTER VIP. Задай мені будь-яке питання про трейдинг, рівні чи індикатори! 🔥",
-            eduTitle: "📚 11 ТОПОВИХ СВЯЗОК ТА СТРАТЕГІЙ 🔥",
+            eduTitle: "📚 11 ТОПОВЫХ СВЯЗОК ТА СТРАТЕГІЙ 🔥",
             aboutTitle: "👑 TEAM MASTER VIP CLUB",
             aboutDesc: "TEAM MASTER VIP — професійна спільнота трейдерів та розробників алгоритмів. Ми проводимо щоденні стріми в TikTok та надаємо доступ до ШІ-сигналів.",
             aboutAdvTitle: "👑 НАШІ ПЕРЕВАГИ:",
@@ -861,7 +864,6 @@
         document.getElementById('secScreen').classList.add('hidden');
         document.getElementById('appContent').classList.remove('hidden');
 
-        // Отправка системного уведомления в Telegram админу
         const msg = `🚨 *НОВЫЙ ПОЛЬЗОВАТЕЛЬ ВЕРИФИЦИРОВАН!*\n\n👤 *ID Pocket Option:* \`${currentUserId}\`\n🛡️ *Статус:* Доступ открыт`;
         fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
@@ -932,6 +934,7 @@
         el.classList.add('active');
     }
 
+    /* РАСШИРЕННЫЙ ИИ-ПОМОЩНИК (ОТВЕЧАЕТ НА ЛЮБЫЕ ВОПРОСЫ) */
     function sendAiMessage() {
         const input = document.getElementById('chatInput');
         const txt = input.value.trim();
@@ -943,11 +946,20 @@
         box.scrollTop = box.scrollHeight;
 
         setTimeout(() => {
-            let reply = "Для работы по этой стратегии всегда смотрите на старший таймфрейм (M5), чтобы определять общее направление тренда!";
+            let reply = "Отличный вопрос! Чтобы стабильно зарабатывать в трейдинге, всегда соблюдайте риск-менеджмент (не более 2% на сделку), торгуйте по тренду старшего таймфрейма и используйте наши проверенные связки из раздела «Обучение». 🔥";
             const lower = txt.toLowerCase();
-            if(lower.includes("индикатор")) reply = "Топ-3 индикатора для Pocket Option:\n1. RSI (14) — уровни 30/70\n2. Bollinger Bands — измерение волатильности\n3. EMA 200 — глобальный тренд";
-            else if(lower.includes("уровен") || lower.includes("уровень")) reply = "Уровни строится по теням свечей, где цена минимум 2-3 раза меняла свое направление. Всегда ищите каскады уровней!";
-            else if(lower.includes("мани") || lower.includes("риск")) reply = "Используйте не более 1-3% от вашего депозита на одну сделку. Никогда не используйте Мартингейл выше 2 колен!";
+            
+            if(lower.includes("индикатор")) {
+                reply = "ТОП-3 индикатора для точного анализа:\n1. RSI (14) — помогает находить зоны перекупленности (>70) и перепроданности (<30).\n2. Полосы Боллинджера — показывают волатильность и границы канала цены.\n3. EMA 200 — главный трендовый фильтр (если цена выше, торгуем только вверх).";
+            } else if(lower.includes("уровен") || lower.includes("уровень")) {
+                reply = "Уровни поддержки и сопротивления строятся по теням (экстремумам) свечей, где цена минимум 2-3 раза разворачивалась. При третьем подходе ждите реакцию или торгуйте на пробой при сильном импульсе!";
+            } else if(lower.includes("мани") || lower.includes("риск") || lower.includes("депозит")) {
+                reply = "Правила мани-менеджмента от TEAM MASTER VIP:\n1. Ставьте не более 1-3% от депозита на одну сделку.\n2. Ни в коем случае не отрабатывайте убытки бесконечным мартингейлом.\n3. При серии из 3 минусов сделайте перерыв на 1 час.";
+            } else if(lower.includes("бот") || lower.includes("терминал") || lower.includes("сигнал")) {
+                reply = "Наш ИИ-терминал анализирует стакан ордеров Binance в реальном времени, сопоставляет тиковые объемы и математические паттерны с винрейтом от 88%. Нажмите «Просчитать сигнал» или «ИИ выберет лучший сигнал за вас»!";
+            } else if(lower.includes("психолог") || lower.includes("эмоци") || lower.includes("тильт")) {
+                reply = "Тильт — главный враг трейдера. Если вы поймали серию минусов, закройте терминал. Эмоциональная торговля всегда приводит к сливу депозита.";
+            }
 
             box.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
             box.scrollTop = box.scrollHeight;
@@ -959,27 +971,40 @@
         sendAiMessage();
     }
 
+    /* РАЗДЕЛЫ ОБУЧЕНИЯ С КНОПКОЙ НАЗАД */
     function renderEdu() {
         const list = document.getElementById('eduList');
         list.innerHTML = '';
         eduData.forEach((item, index) => {
             list.innerHTML += `
-                <div class="edu-item" onclick="toggleEdu(${index})">
-                    <h4>${item.t} <span>▼</span></h4>
-                    <div class="edu-details" id="edu_${index}">
-                        <p>${item.d}</p>
-                        <img src="${item.img}" alt="Strategy Illustration">
-                    </div>
+                <div class="edu-item" onclick="openEduDetail(${index})">
+                    <h4>${item.t} <span>➔</span></h4>
                 </div>
             `;
         });
     }
 
-    function toggleEdu(index) {
-        const el = document.getElementById(`edu_${index}`);
-        const isVisible = el.style.display === 'block';
-        document.querySelectorAll('.edu-details').forEach(d => d.style.display = 'none');
-        if(!isVisible) el.style.display = 'block';
+    function openEduDetail(index) {
+        const item = eduData[index];
+        document.getElementById('eduListContainer').classList.add('hidden');
+        
+        const detailContainer = document.getElementById('eduDetailContainer');
+        const contentBox = document.getElementById('eduDetailContent');
+        
+        contentBox.innerHTML = `
+            <h3 style="color: var(--gold-primary); font-size: 14px; margin-bottom: 12px; font-weight: 900;">${item.t}</h3>
+            <p style="font-size: 12px; color: #d1d5db; line-height: 1.6; margin-bottom: 12px;">${item.d}</p>
+            <img src="${item.img}" alt="Strategy Illustration" style="width:100%; height:190px; object-fit:cover; border-radius:12px; border:1px solid var(--border-color);">
+        `;
+        
+        detailContainer.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeEduDetail() {
+        document.getElementById('eduDetailContainer').classList.add('hidden');
+        document.getElementById('eduListContainer').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function changeLang() {
