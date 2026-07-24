@@ -1,17 +1,33 @@
+import os
 import logging
+import asyncio
+from threading import Thread
+from flask import Flask
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 
-TOKEN = "7960762468:AAEu1rItSoIL9Q7cHtY-zA5kCr3UmlDWSLQ"
-ADMIN_ID = 10201304
+TOKEN = os.getenv("TOKEN", "YOUR_BOT_TOKEN_HERE")
+ADMIN_ID = int(os.getenv("ADMIN_ID", "123456789"))
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
 users_status = {}
+
+# --- Flask server для обхода ошибки портов на Render ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
+# ------------------------------------------------------
 
 def get_ban_keyboard(user_id: int, is_banned: bool) -> InlineKeyboardMarkup:
     text = "🟢 Разблокировать" if is_banned else "🔴 Заблокировать"
@@ -56,6 +72,10 @@ async def toggle_ban(callback: CallbackQuery):
     await callback.message.edit_reply_markup(reply_markup=get_ban_keyboard(target_user_id, is_banned))
     await callback.answer("Статус обновлен")
 
+async def main():
+    # Запускаем Flask в отдельном потоке, чтобы занимать порт для Render
+    Thread(target=run_flask).start()
+    await dp.start_polling(bot)
+
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(dp.start_polling(bot))
+    asyncio.run(main())
