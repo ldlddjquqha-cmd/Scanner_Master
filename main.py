@@ -5,7 +5,8 @@ from flask import Flask, render_template, request, jsonify
 import requests
 from groq import Groq
 
-app = Flask(__name__)
+# Указываем template_folder='.', чтобы Flask искал index.html в текущей (корневой) папке
+app = Flask(__name__, template_folder='.')
 
 # ==================== НАСТРОЙКИ И ДАННЫЕ БОССА ====================
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '7960762468:AAEu1rItSoIL9Q7cHtY-zA5kCr3UmlDWSLQ')
@@ -160,7 +161,7 @@ def log_signal():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# --- ИИ ПОМОЩНИК С МОДЕРАЦИЕЙ И БЕЗ РЕФЕРАЛКИ ---
+# --- ИИ ПОМОЩНИК (С МОДЕРАЦИЕЙ И БЕЗ РЕФЕРАЛКИ ВНУТРИ) ---
 @app.route('/ai_chat', methods=['POST'])
 def ai_chat():
     user_message = request.form.get('message', '').strip()
