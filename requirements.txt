@@ -1,4 +1,4 @@
-fastapi
-uvicorn
-jinja2
-python-multipart
+Flask
+requests
+groq
+gunicorn
