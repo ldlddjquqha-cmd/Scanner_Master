@@ -8,7 +8,7 @@ from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 
-TOKEN = os.getenv("TOKEN", "YOUR_BOT_TOKEN_HERE")
+TOKEN = os.getenv("TOKEN", "7960762468:AAEu1rItSoIL9Q7cHtY-zA5kCr3UmlDWSLQ")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "123456789"))
 
 logging.basicConfig(level=logging.INFO)
