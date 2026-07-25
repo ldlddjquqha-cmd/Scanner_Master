@@ -1,19 +1,21 @@
 import hashlib
 import aiohttp
-from aiogram import types, F, Bot, Dispatcher
-import asyncio
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
 
 # Твои данные из партнерки
 API_TOKEN = "Zc4X9zu0EMrqbPuLy3tN"
-PARTNER_ID = "850173" 
+PARTNER_ID = "850173"
 
-# Токен твоего Telegram-бота (не забудь заменить на свой, если еще не вписан)
-BOT_TOKEN = "ТОКЕН_ТВОГО_ТЕЛЕГРАМ_БОТА"
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
-
-async def verify_pocket_option_user(user_id: str) -> bool:
-    global PARTNER_ID
+@app.route('/check-user', methods=['POST'])
+async def check_user():
+    data = request.get_json()
+    user_id = str(data.get("user_id", "")).strip()
+    
+    # Проверяем, что ввели только цифры
+    if not user_id.isdigit():
+        return jsonify({"success": False, "error": "Неверный формат ID"})
     
     # Формируем хэш строго по инструкции API
     raw_hash_string = f"{user_id}:{PARTNER_ID}:{API_TOKEN}"
@@ -25,44 +27,21 @@ async def verify_pocket_option_user(user_id: str) -> bool:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, timeout=5) as response:
                 if response.status != 200:
-                    return False
+                    return jsonify({"success": False, "error": "Ошибка связи с сервером брокера"})
                 
-                data = await response.json()
-                print(f"Ответ API для ID {user_id}: {data}")
+                api_data = await response.json()
+                print(f"Ответ API для ID {user_id}: {api_data}")
                 
-                if not data or "error" in data or data.get("status") == "error":
-                    return False
+                # Если сервер вернул ошибку или пустой ответ — отсекаем
+                if not api_data or "error" in api_data or api_data.get("status") == "error":
+                    return jsonify({"success": False, "error": "ID не найден или нет депозита"})
                 
-                return True
+                # Всё ок, доступ разрешен
+                return jsonify({"success": True, "message": "Доступ разрешен"})
                 
     except Exception as e:
-        print(f"Ошибка при запросе к API Pocket Option: {e}")
-        return False
+        print(f"Ошибка запроса: {e}")
+        return jsonify({"success": False, "error": "Ошибка сервера проверки"})
 
-@dp.message(F.text)
-async def handle_user_id_check(message: types.Message):
-    user_input = message.text.strip()
-    
-    if not user_input.isdigit():
-        await message.answer("❌ Неверный формат! ID должен состоять только из цифр.")
-        return
-    
-    processing_msg = await message.answer("⏳ Проверяю твой ID в системе...")
-    
-    is_valid = await verify_pocket_option_user(user_input)
-    
-    try:
-        await processing_msg.delete()
-    except:
-        pass
-    
-    if is_valid:
-        await message.answer("✅ ID успешно подтвержден! Доступ к боту и сигналам открыт 🎉")
-    else:
-        await message.answer("❌ Доступ запрещен!\n\nID не найден в партнерской программе или не выполнены условия по депозиту.")
-
-async def main():
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
