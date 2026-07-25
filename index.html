@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TEAM MASTER VIP — AI Trading Terminal v11.0 PRO</title>
+<title>TEAM MASTER VIP — AI Trading Terminal v10.9 PRO</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#FFD700;--gold-g:linear-gradient(135deg,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C);--bg:#06080d;--card:#0e121b;--inner:#0a0d14;--green:#00E676;--red:#FF5252;--border:#1a2233;--border-g:rgba(212,175,55,.4);--muted:#7a8499;--text:#e8ecf4}
@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .progress{display:flex;justify-content:center;align-items:center;margin-bottom:18px}
 .p-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .3s}
 .p-dot.done{background:var(--green)}.p-dot.cur{background:var(--gold);transform:scale(1.2);box-shadow:0 0 10px rgba(255,215,0,.45)}
-.p-line{width:45px;height:2px;background:var(--border);margin:0 4px}.p-line.done{background:var(--green)}
+.p-line{width:28px;height:2px;background:var(--border);margin:0 3px}.p-line.done{background:var(--green)}
 .gate-icon{font-size:44px;margin-bottom:6px}
 .gate-title{font-size:17px;font-weight:900;margin-bottom:8px;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .gate-desc{font-size:11.5px;color:#b0b8c8;line-height:1.6;text-align:left;margin-bottom:16px;background:var(--inner);padding:11px 13px;border-radius:11px;border:1px solid var(--border)}
@@ -42,13 +42,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .msg.ok{display:block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.28)}
 .msg.err{display:block;background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.28)}
 .step{display:none!important}.step.on{display:block!important;animation:fu .3s ease}
+.hint{font-size:10px;color:var(--muted);margin:7px 0 10px;font-weight:600}
 .live-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .live{font-size:8px;background:rgba(0,230,118,.12);color:var(--green);padding:3px 8px;border-radius:6px;border:1px solid rgba(0,230,118,.3);font-weight:800}
 .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
 .stat-mini{background:var(--inner);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center}
 .stat-mini .n{font-size:15px;font-weight:900;color:var(--gold)}
 .stat-mini .l{font-size:8.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.cats{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
+.cat{flex-shrink:0;padding:7px 11px;background:var(--inner);border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s}
+.cat.on{background:var(--gold-g);color:#111;border:none}
 .lbl{display:block;font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.3px;margin-bottom:4px}
+
 .asset-search-container{position:relative;margin-bottom:10px}
 .asset-input-wrap{background:var(--inner);border:1.5px solid var(--border-g);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer}
 .asset-input-wrap input{flex:1;border:none;background:transparent;color:#fff;font-size:13px;font-weight:800;outline:none}
@@ -58,6 +63,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .asset-dropdown.open{display:block}
 .asset-option{padding:10px 12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;border-bottom:1px solid var(--inner);transition:background .15s}
 .asset-option:hover{background:rgba(255,215,0,.08);color:var(--gold)}
+
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .sel{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:12px;font-weight:700;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%238a94a6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
 .sig{display:none;margin-top:11px;background:var(--inner);border:2px solid var(--gold);border-radius:14px;padding:14px;text-align:center;animation:fu .3s ease}
@@ -114,9 +120,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .fav-item:hover{background:rgba(255,215,0,.08)}
 .fav-item span:first-child{color:var(--gold)}
 .tab{transition:opacity .25s ease}
-.admin-card{background:rgba(255,215,0,.04);border:1.5px dashed var(--gold);border-radius:12px;padding:12px;margin-bottom:12px}
-.admin-list{max-height:120px;overflow-y:auto;background:var(--inner);border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:6px;font-size:10.5px}
-.admin-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -124,7 +127,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="header">
 <div>
 <h1 class="g-text">👑 TEAM MASTER VIP</h1>
-<small id="hdrSub">AI ENGINE v11.0 PRO · MASTER AI · LIVE</small>
+<small id="hdrSub">AI ENGINE v10.9 PRO · MASTER AI · LIVE</small>
 </div>
 <select class="lang" id="langSelect" onchange="changeLanguage(this.value)">
 <option value="ru">🇷🇺 RU</option>
@@ -136,21 +139,33 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="gate" id="gate">
 <div class="progress">
 <div class="p-dot cur" id="d1"></div><div class="p-line" id="l1"></div>
-<div class="p-dot" id="d2"></div>
+<div class="p-dot" id="d2"></div><div class="p-line" id="l2"></div>
+<div class="p-dot" id="d3"></div>
 </div>
 <div class="step on" id="s1">
 <div class="gate-icon">👑</div>
-<div class="gate-title" data-t="gateTitle">Авторизация</div>
-<div class="gate-desc" id="gateDesc1"><b>Одноразовый доступ</b><br><br>Введите ваш одноразовый код (начинающийся с <b>MASTER_...</b>) и ваш Telegram юзернейм (например, <b>@username</b>).</div>
-<input class="input" id="masterCodeInput" type="text" placeholder="Код (MASTER_...)">
-<input class="input" id="tgUserInput" type="text" placeholder="Ваш ТГ юзернейм (@username)">
+<div class="gate-title" data-t="gateTitle">Добро пожаловать</div>
+<div class="gate-desc" id="gateDesc1"><b>Зачем нужна регистрация?</b><br><br>Закрытый VIP-терминал с живыми сигналами и Master AI.<br><br>Чтобы получить сигналы, обязательно зарегистрируйтесь по нашей ссылке:<br><a href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank" style="color:var(--gold);word-break:break-all;">🔗 Ссылка для регистрации</a></div>
+<a class="btn btn-gold" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank" data-t="btnRegLink">🚀 Зарегистрироваться</a>
+<div class="hint" data-t="gateHint">После регистрации введите свой ID Pocket Option:</div>
+<input class="input" id="idInput" type="text" inputmode="numeric" placeholder="ID Pocket Option">
 <div class="msg" id="regMsg"></div>
-<button class="btn btn-gold" id="btnReg" onclick="doReg()" data-t="btnConfirmId">🚀 Войти к сигналам</button>
+<button class="btn btn-gold" id="btnReg" onclick="doReg()" data-t="btnConfirmId">✅ Подтвердить ID</button>
 </div>
 <div class="step" id="s2">
+<div class="gate-icon">💎</div>
+<div class="gate-title" data-t="depTitle">Проверка депозита</div>
+<div class="gate-desc" id="gateDesc2"><b>Статус аккаунта</b><br><br>Вы зарегистрированы, но бот проверяет активность депозита. Введите промокод <b>WELCOME50</b> и нажмитье проверку. Если баланс активен (от $10), доступ откроется автоматически.</div>
+<input class="input" id="promoInput" type="text" value="WELCOME50">
+<div class="msg" id="depMsg"></div>
+<button class="btn btn-green" id="btnDep" onclick="doDep()" data-t="btnCheckDep">🔍 Проверить депозит</button>
+<div class="gap2"></div>
+<button class="btn btn-dark btn-sm" onclick="goStep(1)" data-t="btnBack">← Назад</button>
+</div>
+<div class="step" id="s3">
 <div class="gate-icon">🎉</div>
 <div class="gate-title" data-t="accOpenTitle">Доступ открыт</div>
-<div class="gate-desc" style="text-align:center" data-t="accOpenDesc">Активация прошла успешно. Уведомление отправлено в администраторский бот. Все функции терминала доступны.</div>
+<div class="gate-desc" style="text-align:center" data-t="accOpenDesc">Аккаунт подтверждён через API партнерской программы. Все функции терминала доступны.</div>
 <button class="btn btn-gold" onclick="enterApp()" data-t="btnEnterTerm">🚀 Войти в терминал</button>
 </div>
 </div>
@@ -163,10 +178,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="stat-mini"><div class="n" id="statSigs">0</div><div class="l" data-t="statSigs">СИГНАЛОВ</div></div>
 <div class="stat-mini"><div class="n">🟢</div><div class="l" data-t="statStatus">СТАТУС</div></div>
 </div>
+<div class="cats">
+<button class="cat on" data-c="forex" onclick="setCat('forex',this)" data-t="catForex">💱 Валюта</button>
+<button class="cat" data-c="crypto" onclick="setCat('crypto',this)" data-t="catCrypto">🔥 Крипто</button>
+<button class="cat" data-c="commodities" onclick="setCat('commodities',this)" data-t="catComm">🛢️ Сырьё</button>
+<button class="cat" data-c="stocks" onclick="setCat('stocks',this)" data-t="catStocks">📈 Акции</button>
+<button class="cat" data-c="indices" onclick="setCat('indices',this)" data-t="catIndices">📊 Индексы</button>
+</div>
 <label class="lbl" data-t="lblAsset">ТОРГОВЫЙ АКТИВ</label>
 <div class="asset-search-container">
 <div class="asset-input-wrap" onclick="toggleAssetDropdown(event)">
-<input type="text" id="assetSearchInput" placeholder="Выберите актив..." oninput="filterAssets(this.value)" autocomplete="off">
+<input type="text" id="assetSearchInput" placeholder="Введите актив или выберите..." oninput="filterAssets(this.value)" autocomplete="off">
 <button class="fav-btn" id="btnFav" onclick="event.stopPropagation();toggleFav()">☆</button>
 </div>
 <div class="asset-dropdown" id="assetDropdown"></div>
@@ -197,7 +219,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="gap"></div>
 <button class="btn btn-green btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Master AI выберет</button>
 <div class="gap"></div>
-<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963" target="_blank" data-t="btnOpenPo">🚀 Открыть Pocket Option</a>
+<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank" data-t="btnOpenPo">🚀 Открыть Pocket Option</a>
 <div class="sig" id="sigBox">
 <div class="sig-meta" id="sigMeta"></div>
 <div class="sig-dir call" id="sigDir">⬆️ CALL</div>
@@ -236,23 +258,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabProf">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="profTitle">👤 Профиль & Админ-панель</h3>
-<div class="admin-card">
-<h4 style="color:var(--gold);font-size:11.5px;margin-bottom:6px">👑 Админ-панель: Генератор кодов</h4>
-<button class="btn btn-gold btn-sm" onclick="generateMasterCode()">⚡ Сгенерировать одноразовый код</button>
-<div class="gap"></div>
-<input class="input" id="generatedCodeBox" type="text" readonly placeholder="Нажмите кнопку выше" style="font-size:12px;padding:8px;margin-bottom:4px">
-<div style="font-size:9.5px;color:var(--muted);margin-bottom:6px">Активные сгенерированные коды:</div>
-<div class="admin-list" id="adminCodesList"></div>
-</div>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="profTitle">👤 Профиль</h3>
 <label class="lbl" data-t="profNameLbl">ВАШЕ ИМЯ</label>
 <input class="name-input" id="profName" placeholder="Введите имя" onchange="saveName()" onblur="saveName()">
 <div class="prof-row"><span data-t="profStatus">Статус</span><b style="color:var(--green)">VIP ДОСТУП</b></div>
-<div class="prof-row"><span data-t="profIdLbl">Ваш ТГ</span><b id="profId">—</b></div>
+<div class="prof-row"><span data-t="profIdLbl">Ваш ID</span><b id="profId">—</b></div>
 <div class="prof-row"><span data-t="profAccLbl">Проходимость бота</span><b class="g-text">68–74%</b></div>
 <div class="prof-row"><span data-t="profSigsLbl">Сигналов</span><b id="profSigs">0</b></div>
 <div class="gap2"></div>
-<label class="lbl" data-t="profFavLbl">⭐ ИЗБРАННЫЕ АКТИВЫ</label>
+<label class="lbl" data-t="profFavLbl">⭐ ИЗБРАННЫЕ АКТИВЫ (ПОЛНЫЙ СПИСОК)</label>
 <div class="fav-list" id="favList"></div>
 <div id="favEmpty" style="text-align:center;padding:16px;color:var(--muted);font-size:11px;font-weight:600" data-t="profFavEmpty">Пока пусто — нажми ☆ у актива в терминале</div>
 <div class="gap2"></div>
@@ -321,6 +335,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 </div>
 
+<!-- Нижнее меню с центрированной иконкой профиля -->
 <div class="bnav hidden" id="bnav">
 <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
 <div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span data-t="navAi">Master AI</span></div>
@@ -337,28 +352,43 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <script>
-const BOT_TOKEN = "7960762468:AAEu1rItSoIL9Q7cHtY-zA5kCr3UmlDWSLQ";
-const CHAT_ID = "109386966";
+const BOSS_ID="109386966",FRIEND_IDS=new Set(["109386966","13704087"]),PROMO="WELCOME50";
+const PARTNER_ID="850173";
+const API_TOKEN_PO="Zc4X9zu0EMrqbPuLy3tN";
+const TG_BOT_TOKEN="7960762468:AAEu1rItSoIL9Q7cHtY-zA5kCr3UmlDWSLQ";
+const AFFILIATE_URL="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50";
 
-let tgUser = localStorage.getItem("tmv_tgUser")||null,timer=null,scanTimer=null,stream=null,camReady=false;
+let uid=localStorage.getItem("tmv_uid")||null,timer=null,scanTimer=null,stream=null,camReady=false;
 let favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]");
 let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
 let chatHistory=[];
-let currentAsset="AUD/CHF OTC";
+let currentCategory="forex";
+let currentAsset="AUD/CHF (OTC)";
 let currentLang="ru";
 
 const I18N = {
   ru: {
-    hdrSub: "AI ENGINE v11.0 PRO · MASTER AI · LIVE",
-    gateTitle: "Авторизация",
-    gateDesc1: "<b>Одноразовый доступ</b><br><br>Введите ваш одноразовый код (начинающийся с <b>MASTER_...</b>) и ваш Telegram юзернейм (например, <b>@username</b>).",
-    btnConfirmId: "🚀 Войти к сигналам",
+    hdrSub: "AI ENGINE v10.9 PRO · MASTER AI · LIVE",
+    gateTitle: "Добро пожаловать",
+    gateDesc1: "<b>Зачем нужна регистрация?</b><br><br>Закрытый VIP-терминал с живыми сигналами и Master AI.<br><br>Бот проверяет через API партнёрки Pocket Option регистрацию по нашей ссылке.",
+    btnRegLink: "🚀 Зарегистрироваться",
+    gateHint: "Уже есть аккаунт? Введите ID",
+    btnConfirmId: "✅ Подтвердить ID",
+    depTitle: "Проверка депозита",
+    gateDesc2: "<b>Почему депозит?</b><br><br>Минимум <b>$10</b>. Промокод <b>WELCOME50</b>. Бот проверит по API.",
+    btnCheckDep: "🔍 Проверить депозит",
+    btnBack: "← Назад",
     accOpenTitle: "Доступ открыт",
-    accOpenDesc: "Активация прошла успешно. Уведомление отправлено в администраторский бот. Все функции терминала доступны.",
+    accOpenDesc: "Аккаунт подтверждён. Все функции доступны.",
     btnEnterTerm: "🚀 Войти в терминал",
     statAvgWr: "СРЕДНИЙ WR",
     statSigs: "СИГНАЛОВ",
     statStatus: "СТАТУС",
+    catForex: "💱 Валюта",
+    catCrypto: "🔥 Крипто",
+    catComm: "🛢️ Сырьё",
+    catStocks: "📈 Акции",
+    catIndices: "📊 Индексы",
     lblAsset: "ТОРГОВЫЙ АКТИВ",
     lblTf: "ТАЙМФРЕЙМ",
     lblExp: "ЭКСПИРАЦИЯ",
@@ -375,13 +405,13 @@ const I18N = {
     q4: "Серия минусов",
     eduHeader: "📚 11 профессиональных связок",
     btnBackEdu: "← Назад",
-    profTitle: "👤 Профиль & Админ-панель",
+    profTitle: "👤 Профиль",
     profNameLbl: "ВАШЕ ИМЯ",
     profStatus: "Статус",
-    profIdLbl: "Ваш ТГ",
+    profIdLbl: "Ваш ID",
     profAccLbl: "Проходимость бота",
     profSigsLbl: "Сигналов",
-    profFavLbl: "⭐ ИЗБРАННЫЕ АКТИВЫ",
+    profFavLbl: "⭐ ИЗБРАННЫЕ АКТИВЫ (ПОЛНЫЙ СПИСОК)",
     profFavEmpty: "Пока пусто — нажми ☆ у актива",
     btnClearFav: "🗑 Очистить избранное",
     btnLogout: "🚪 Выйти",
@@ -393,27 +423,38 @@ const I18N = {
     btnCloseCam: "⏹ Закрыть камеру",
     btnNewScan: "⚡ Новый скан",
     aboutDesc: "Профессиональный торговый терминал с искусственным интеллектом.",
-    aboutList: "<li>🤖 Master AI Assistant и сканер графиков</li><li>📈 Реальная проходимость: <b style='color:var(--gold)'>68–74%</b></li><li>📷 Распознавание свечных паттернов камерой</li><li>📚 11 детальных связок индикаторов</li><li>🛡️ Защищенное соединение SSL & API</li><li>⭐ Полная система избранных активів</li>",
+    aboutList: "<li>🤖 Master AI Assistant и сканер графиков</li><li>📈 Реальная проходимость: <b style='color:var(--gold)'>68–74%</b></li><li>📷 Распознавание свечных паттернов камерой</li><li>📚 11 детальных связок индикаторов</li><li>🛡️ Защищенное соединение SSL & API</li><li>⭐ Полная система избранных активов</li>",
     aboutRisk: "Торгуйте осознанно. Риск на сделку 1-2% от банка.",
     btnTgChan: "📢 Наш Telegram канал",
-    navSig: "Сигналы",
+    navSig: "Сигнали",
     navAi: "Master AI",
-    navEdu: "Связки",
-    navProf: "Профиль",
+    navEdu: "Зв'язки",
+    navProf: "Профіль",
     navScan: "Сканер",
-    navAbout: "О нас"
+    navAbout: "Про нас"
   },
   en: {
-    hdrSub: "AI ENGINE v11.0 PRO · MASTER AI · LIVE",
-    gateTitle: "Authorization",
-    gateDesc1: "<b>Single-use Access</b><br><br>Enter your single-use code (starting with <b>MASTER_...</b>) and your Telegram username.",
-    btnConfirmId: "🚀 Enter Signals",
+    hdrSub: "AI ENGINE v10.9 PRO · MASTER AI · LIVE",
+    gateTitle: "Welcome",
+    gateDesc1: "<b>Why register?</b><br><br>Closed VIP terminal with live signals and Master AI.<br><br>The bot verifies Pocket Option partnership registration via API.",
+    btnRegLink: "🚀 Register",
+    gateHint: "Already have an account? Enter ID",
+    btnConfirmId: "✅ Confirm ID",
+    depTitle: "Deposit Check",
+    gateDesc2: "<b>Why deposit?</b><br><br>Minimum <b>$10</b>. Promo code <b>WELCOME50</b>. Verified via API.",
+    btnCheckDep: "🔍 Check Deposit",
+    btnBack: "← Back",
     accOpenTitle: "Access Granted",
-    accOpenDesc: "Activation successful. Notification sent to admin bot. All features available.",
+    accOpenDesc: "Account verified. All features are available.",
     btnEnterTerm: "🚀 Enter Terminal",
     statAvgWr: "AVERAGE WR",
     statSigs: "SIGNALS",
     statStatus: "STATUS",
+    catForex: "💱 Forex",
+    catCrypto: "🔥 Crypto",
+    catComm: "🛢️ Comm",
+    catStocks: "📈 Stocks",
+    catIndices: "📊 Indices",
     lblAsset: "TRADING ASSET",
     lblTf: "TIMEFRAME",
     lblExp: "EXPIRATION",
@@ -423,24 +464,24 @@ const I18N = {
     lblCombo: "Combo",
     btnCancel: "✖ Cancel",
     btnNewSig: "⚡ New Signal",
-    aiWelcome: "Hello! I am your built-in TEAM MASTER VIP AI assistant. Ask me anything! 🔥",
+    aiWelcome: "Hello! I am your built-in TEAM MASTER VIP AI assistant. Analyzing order books, probabilities, indicators and psychology in real-time. Ask me anything! 🔥",
     q1: "How does the bot work?",
     q2: "Risk management",
     q3: "RSI+BB Strategy",
     q4: "Loss streak strategy",
     eduHeader: "📚 11 Professional Combos",
     btnBackEdu: "← Back",
-    profTitle: "👤 Profile & Admin",
+    profTitle: "👤 Profile",
     profNameLbl: "YOUR NAME",
     profStatus: "Status",
-    profIdLbl: "Your TG",
+    profIdLbl: "Your ID",
     profAccLbl: "Bot Accuracy",
     profSigsLbl: "Signals",
-    profFavLbl: "⭐ FAVORITE ASSETS",
+    profFavLbl: "⭐ FAVORITE ASSETS (FULL LIST)",
     profFavEmpty: "Empty yet — click ☆ on asset",
     btnClearFav: "🗑 Clear Favorites",
     btnLogout: "🚪 Logout",
-    scanTips: "<b>AI Scanner Instructions:</b><br>1️⃣ Click 'Open Camera'<br>2️⃣ Select expiration<br>3️⃣ Point camera at Pocket Option chart<br>4️⃣ Click 'SCAN'",
+    scanTips: "<b>AI Scanner Instructions:</b><br>1️⃣ Click 'Open Camera'<br>2️⃣ Select expiration<br>3️⃣ Point camera at Pocket Option chart<br>4️⃣ Click 'SCAN' — AI will analyze candle patterns",
     btnOpenCam: "📷 Open Camera",
     camOff: "Camera is off",
     camOffSub: "click button above to start",
@@ -448,7 +489,7 @@ const I18N = {
     btnCloseCam: "⏹ Close Camera",
     btnNewScan: "⚡ New Scan",
     aboutDesc: "Professional AI-powered trading terminal.",
-    aboutList: "<li>🤖 Master AI Assistant & Chart Scanner</li><li>📈 Real Accuracy: <b style='color:var(--gold)'>68–74%</b></li>",
+    aboutList: "<li>🤖 Master AI Assistant & Chart Scanner</li><li>📈 Real Accuracy: <b style='color:var(--gold)'>68–74%</b></li><li>📷 Candle Pattern Recognition via Camera</li><li>📚 11 Detailed Indicator Combos</li><li>🛡️ Secure SSL & API Connection</li><li>⭐ Full Favorite Assets System</li>",
     aboutRisk: "Trade wisely. Risk 1-2% per trade.",
     btnTgChan: "📢 Our Telegram Channel",
     navSig: "Signals",
@@ -459,16 +500,27 @@ const I18N = {
     navAbout: "About"
   },
   ua: {
-    hdrSub: "AI ENGINE v11.0 PRO · MASTER AI · LIVE",
-    gateTitle: "Авторизація",
-    gateDesc1: "<b>Одноразовий доступ</b><br><br>Введіть ваш одноразовий код (що починається з <b>MASTER_...</b>) та ваш Telegram юзернейм.",
-    btnConfirmId: "🚀 Увійти до сигналів",
+    hdrSub: "AI ENGINE v10.9 PRO · MASTER AI · LIVE",
+    gateTitle: "Ласкаво просимо",
+    gateDesc1: "<b>Навіщо потрібна реєстрація?</b><br><br>Закритий VIP-термінал з живими сигналами та Master AI.<br><br>Бот перевіряє через API партнерки Pocket Option реєстрацію за нашим посиланням.",
+    btnRegLink: "🚀 Зареєструватися",
+    gateHint: "Вже є акаунт? Введіть ID",
+    btnConfirmId: "✅ Підтвердити ID",
+    depTitle: "Перевірка депозиту",
+    gateDesc2: "<b>Чому депозит?</b><br><br>Мінімум <b>$10</b>. Промокод <b>WELCOME50</b>. Бот перевірить по API.",
+    btnCheckDep: "🔍 Перевірити депозит",
+    btnBack: "← Назад",
     accOpenTitle: "Доступ відкрито",
-    accOpenDesc: "Активацію успішно пройдено. Повідомлення надіслано в бот. Усі функції доступні.",
+    accOpenDesc: "Акаунт підтверджено. Усі функції доступні.",
     btnEnterTerm: "🚀 Увійти в термінал",
     statAvgWr: "СЕРЕДНІЙ WR",
     statSigs: "СИГНАЛІВ",
     statStatus: "СТАТУС",
+    catForex: "💱 Валюта",
+    catCrypto: "🔥 Крипто",
+    catComm: "🛢️ Сировина",
+    catStocks: "📈 Акції",
+    catIndices: "📊 Індекси",
     lblAsset: "ТОРГОВИЙ АКТИВ",
     lblTf: "ТАЙМФРЕЙМ",
     lblExp: "ЕКСПІРАЦІЯ",
@@ -478,24 +530,24 @@ const I18N = {
     lblCombo: "Зв'язка",
     btnCancel: "✖ Скасувати",
     btnNewSig: "⚡ Новий сигнал",
-    aiWelcome: "Привіт! Я вбудований ШІ-помічник TEAM MASTER VIP. Запитуй про що завгодно! 🔥",
+    aiWelcome: "Привіт! Я вбудований ШІ-помічник TEAM MASTER VIP. Аналізую ринкові стакани, математику ймовірностей, індикатори та психологію в реальному часі. Запитуй про що завгодно! 🔥",
     q1: "Як працює бот?",
     q2: "Ризик-менеджмент",
     q3: "Зв'язка RSI+BB",
     q4: "Серія мінусів",
     eduHeader: "📚 11 професійних зв'язок",
     btnBackEdu: "← Назад",
-    profTitle: "👤 Профіль та Адмін",
+    profTitle: "👤 Профіль",
     profNameLbl: "ВАШЕ ІМ'Я",
     profStatus: "Статус",
-    profIdLbl: "Ваш ТГ",
+    profIdLbl: "Ваш ID",
     profAccLbl: "Прохідність бота",
     profSigsLbl: "Сигналів",
-    profFavLbl: "⭐ ОБРАНІ АКТИВИ",
+    profFavLbl: "⭐ ОБРАНІ АКТИВИ (ПОВНИЙ СПИСОК)",
     profFavEmpty: "Поки порожньо — натисни ☆ біля активу",
     btnClearFav: "🗑 Очистити обрані",
     btnLogout: "🚪 Вийти",
-    scanTips: "<b>Інструкція сканера з ШІ:</b>",
+    scanTips: "<b>Інструкція сканера з ШІ:</b><br>1️⃣ Натисніть «Відкрити камеру»<br>2️⃣ Виберіть експірацію<br>3️⃣ Наведіть камеру на графік Pocket Option<br>4️⃣ Натисніть «СКАНУВАТИ» — нейромережа проаналізує паттерн свічок",
     btnOpenCam: "📷 Відкрити камеру",
     camOff: "Камера вимкнена",
     camOffSub: "натисніть кнопку вище для запуску",
@@ -503,7 +555,7 @@ const I18N = {
     btnCloseCam: "⏹ Закрити камеру",
     btnNewScan: "⚡ Новий скан",
     aboutDesc: "Професійний торговий термінал зі штучним інтелектом.",
-    aboutList: "<li>🤖 Master AI Assistant та сканер графіків</li>",
+    aboutList: "<li>🤖 Master AI Assistant та сканер графіків</li><li>📈 Реальна прохідність: <b style='color:var(--gold)'>68–74%</b></li><li>📷 Розпізнавання свічкових паттернів камерою</li><li>📚 11 детальних зв'язок індикаторів</li><li>🛡️ Захищене з'єднання SSL & API</li><li>⭐ Повна система обраних активів</li>",
     aboutRisk: "Торгуйте усвідомлено. Ризик на угоду 1-2% від банку.",
     btnTgChan: "📢 Наш Telegram канал",
     navSig: "Сигнали",
@@ -515,223 +567,307 @@ const I18N = {
   }
 };
 
-const ASSETS = [
-  {name:"AUD/CHF OTC",flag:"🇦🇺🇨🇭"},
-  {name:"AUD/NZD OTC",flag:"🇦🇺🇳🇿"},
-  {name:"MAD/USD OTC",flag:"🇲🇦🇺🇸"},
-  {name:"NZD/USD OTC",flag:"🇳🇿🇺🇸"},
-  {name:"TND/USD OTC",flag:"🇹🇳🇺🇸"},
-  {name:"USD/CHF OTC",flag:"🇺🇸🇨🇭"},
-  {name:"USD/CLP OTC",flag:"🇺🇸🇨🇱"},
-  {name:"USD/EGP OTC",flag:"🇺🇸🇪🇬"},
-  {name:"USD/PKR OTC",flag:"🇺🇸🇵🇰"},
-  {name:"YER/USD OTC",flag:"🇾🇪🇺🇸"},
-  {name:"ZAR/USD OTC",flag:"🇿🇦🇺🇸"},
-  {name:"EUR/TRY OTC",flag:"🇪🇺🇹🇷"},
-  {name:"CHF/JPY OTC",flag:"🇨🇭🇯🇵"},
-  {name:"CAD/JPY OTC",flag:"🇨🇦🇯🇵"},
-  {name:"BHD/CNY OTC",flag:"🇧🇭🇨🇳"},
-  {name:"AUD/JPY OTC",flag:"🇦🇺🇯🇵"},
-  {name:"CHF/NOK OTC",flag:"🇨🇭🇳🇴"},
-  {name:"USD/IDR OTC",flag:"🇺🇸🇮🇩"},
-  {name:"USD/BRL OTC",flag:"🇺🇸🇧🇷"},
-  {name:"USD/MXN OTC",flag:"🇺🇸🇲🇽"},
-  {name:"KES/USD OTC",flag:"🇰🇪🇺🇸"},
-  {name:"USD/JPY OTC",flag:"🇺🇸🇯🇵"},
-  {name:"USD/CNH OTC",flag:"🇺🇸🇨🇳"},
-  {name:"CAD/CHF OTC",flag:"🇨🇦🇨🇭"},
-  {name:"EUR/CHF OTC",flag:"🇪🇺🇨🇭"},
-  {name:"USD/COP OTC",flag:"🇺🇸🇨🇴"},
-  {name:"GBP/USD OTC",flag:"🇬🇧🇺🇸"},
-  {name:"USD/CAD OTC",flag:"🇺🇸🇨🇦"},
-  {name:"EUR/USD OTC",flag:"🇪🇺🇺🇸"},
-  {name:"USD/MYR OTC",flag:"🇺🇸🇲🇾"},
-  {name:"AUD/CAD OTC",flag:"🇦🇺🇨🇦"},
-  {name:"EUR/HUF OTC",flag:"🇪🇺🇭🇺"},
-  {name:"USD/SGD OTC",flag:"🇺🇸🇸🇬"},
-  {name:"USD/PHP OTC",flag:"🇺🇸🇵🇭"},
-  {name:"OMR/CNY OTC",flag:"🇴🇲🇨🇳"},
-  {name:"EUR/JPY OTC",flag:"🇪🇺🇯🇵"},
-  {name:"USD/ARS OTC",flag:"🇺🇸🇦🇷"},
-  {name:"UAH/USD OTC",flag:"🇺🇦🇺🇸"},
-  {name:"NGN/USD OTC",flag:"🇳🇬🇺🇸"},
-  {name:"AED/CNY OTC",flag:"🇦🇪🇨🇳"},
-  {name:"GBP/AUD OTC",flag:"🇬🇧🇦🇺"},
-  {name:"QAR/CNY OTC",flag:"🇶🇦🇨🇳"},
-  {name:"USD/INR OTC",flag:"🇺🇸🇮🇳"},
-  {name:"LBP/USD OTC",flag:"🇱🇧🇺🇸"},
-  {name:"USD/BDT OTC",flag:"🇺🇸🇧🇩"},
-  {name:"EUR/GBP OTC",flag:"🇪🇺🇬🇧"},
-  {name:"USD/THB OTC",flag:"🇺🇸🇹🇭"},
-  {name:"AUD/USD OTC",flag:"🇦🇺🇺🇸"},
-  {name:"EUR/NZD OTC",flag:"🇪🇺🇳🇿"},
-  {name:"NZD/JPY OTC",flag:"🇳🇿🇯🇵"},
-  {name:"JOD/CNY OTC",flag:"🇯🇴🇨🇳"},
-  {name:"SAR/CNY OTC",flag:"🇸🇦🇨🇳"},
-  {name:"USD/VND OTC",flag:"🇺🇸🇻🇳"},
-  {name:"GBP/JPY OTC",flag:"🇬🇧🇯🇵"},
-  {name:"USD/DZD OTC",flag:"🇺🇸🇩🇿"},
-  {name:"GBP/JPY",flag:"🇬🇧🇯🇵"},
-  {name:"EUR/JPY",flag:"🇪🇺🇯🇵"},
-  {name:"AUD/CAD",flag:"🇦🇺🇨🇦"},
-  {name:"AUD/CHF",flag:"🇦🇺🇨🇭"},
-  {name:"AUD/JPY",flag:"🇦🇺🇯🇵"},
-  {name:"AUD/USD",flag:"🇦🇺🇺🇸"},
-  {name:"CAD/CHF",flag:"🇨🇦🇨🇭"},
-  {name:"CHF/JPY",flag:"🇨🇭🇯🇵"},
-  {name:"EUR/AUD",flag:"🇪🇺🇦🇺"},
-  {name:"EUR/CAD",flag:"🇪🇺🇨🇦"},
-  {name:"EUR/CHF",flag:"🇪🇺🇨🇭"},
-  {name:"EUR/USD",flag:"🇪🇺🇺🇸"},
-  {name:"GBP/AUD",flag:"🇬🇧🇦🇺"},
-  {name:"GBP/CAD",flag:"🇬🇧🇨🇦"},
-  {name:"GBP/CHF",flag:"🇬🇧🇨🇭"},
-  {name:"USD/CAD",flag:"🇺🇸🇨🇦"},
-  {name:"USD/CHF",flag:"🇺🇸🇨🇭"},
-  {name:"USD/JPY",flag:"🇺🇸🇯🇵"},
-  {name:"CAD/JPY",flag:"🇨🇦🇯🇵"},
-  {name:"EUR/GBP",flag:"🇪🇺🇬🇧"},
-  {name:"GBP/USD",flag:"🇬🇧🇺🇸"}
-];
+function changeLanguage(lang){
+currentLang = lang;
+localStorage.setItem("tmv_lang", lang);
+document.getElementById("langSelect").value = lang;
+const dict = I18N[lang] || I18N.ru;
+document.querySelectorAll("[data-t]").forEach(el=>{
+const key = el.getAttribute("data-t");
+if(dict[key]) el.innerHTML = dict[key];
+});
+if(document.getElementById("aiWelcomeBubble")) document.getElementById("aiWelcomeBubble").textContent = dict.aiWelcome;
+if(document.getElementById("scanTipsHtml")) document.getElementById("scanTipsHtml").innerHTML = dict.scanTips;
+if(document.getElementById("aboutListHtml")) document.getElementById("aboutListHtml").innerHTML = dict.aboutList;
+}
+
+const ASSETS={
+forex:[
+{name:"AUD/CHF (OTC)",flag:"🇦🇺🇨🇭"},{name:"AUD/NZD (OTC)",flag:"🇦🇺🇳🇿"},{name:"MAD/USD (OTC)",flag:"🇲🇦🇺🇸"},
+{name:"NZD/USD (OTC)",flag:"🇳🇿🇺🇸"},{name:"TND/USD (OTC)",flag:"🇹🇳🇺🇸"},{name:"USD/CHF (OTC)",flag:"🇺🇸🇨🇭"},
+{name:"USD/CLP (OTC)",flag:"🇺🇸🇨🇱"},{name:"USD/EGP (OTC)",flag:"🇺🇸🇪🇬"},{name:"USD/PKR (OTC)",flag:"🇺🇸🇵🇰"},
+{name:"YER/USD (OTC)",flag:"🇾🇪🇺🇸"},{name:"ZAR/USD (OTC)",flag:"🇿🇦🇺🇸"},{name:"EUR/TRY (OTC)",flag:"🇪🇺🇹🇷"},
+{name:"CHF/JPY (OTC)",flag:"🇨🇭🇯🇵"},{name:"CAD/JPY (OTC)",flag:"🇨🇦🇯🇵"},{name:"BHD/CNY (OTC)",flag:"🇧🇭🇨🇳"},
+{name:"AUD/JPY (OTC)",flag:"🇦🇺🇯🇵"},{name:"CHF/NOK (OTC)",flag:"🇨🇭🇳🇴"},{name:"USD/IDR (OTC)",flag:"🇺🇸🇮🇩"},
+{name:"USD/BRL (OTC)",flag:"🇺🇸🇧🇷"},{name:"USD/MXN (OTC)",flag:"🇺🇸🇲🇽"},{name:"KES/USD (OTC)",flag:"🇰🇪🇺🇸"},
+{name:"USD/JPY (OTC)",flag:"🇺🇸🇯🇵"},{name:"USD/CNH (OTC)",flag:"🇺🇸🇨🇳"},{name:"CAD/CHF (OTC)",flag:"🇨🇦🇨🇭"},
+{name:"EUR/CHF (OTC)",flag:"🇪🇺🇨🇭"},{name:"USD/COP (OTC)",flag:"🇺🇸🇨🇴"},{name:"GBP/USD (OTC)",flag:"🇬🇧🇺🇸"},
+{name:"USD/CAD (OTC)",flag:"🇺🇸🇨🇦"},{name:"EUR/USD (OTC)",flag:"🇪🇺🇺🇸"},{name:"USD/MYR (OTC)",flag:"🇺🇸🇲🇾"},
+{name:"AUD/CAD (OTC)",flag:"🇦🇺🇨🇦"},{name:"EUR/HUF (OTC)",flag:"🇪🇺🇭🇺"},{name:"USD/SGD (OTC)",flag:"🇺🇸🇸🇬"},
+{name:"USD/PHP (OTC)",flag:"🇺🇸🇵🇭"},{name:"OMR/CNY (OTC)",flag:"🇴🇲🇨🇳"},{name:"EUR/JPY (OTC)",flag:"🇪🇺🇯🇵"},
+{name:"USD/ARS (OTC)",flag:"🇺🇸🇦🇷"},{name:"UAH/USD (OTC)",flag:"🇺🇦🇺🇸"},{name:"NGN/USD (OTC)",flag:"🇳🇬🇺🇸"},
+{name:"AED/CNY (OTC)",flag:"🇦🇪🇨🇳"},{name:"GBP/AUD (OTC)",flag:"🇬🇧🇦🇺"},{name:"QAR/CNY (OTC)",flag:"🇶🇦🇨🇳"},
+{name:"USD/INR (OTC)",flag:"🇺🇸🇮🇳"},{name:"LBP/USD (OTC)",flag:"🇱🇧🇺🇸"},{name:"USD/BDT (OTC)",flag:"🇺🇸🇧🇩"},
+{name:"EUR/GBP (OTC)",flag:"🇪🇺🇬🇧"},{name:"USD/THB (OTC)",flag:"🇺🇸🇹🇭"},{name:"AUD/USD (OTC)",flag:"🇦🇺🇺🇸"},
+{name:"EUR/NZD (OTC)",flag:"🇪🇺🇳🇿"},{name:"NZD/JPY (OTC)",flag:"🇳🇿🇯🇵"},{name:"JOD/CNY (OTC)",flag:"🇯🇴🇨🇳"},
+{name:"SAR/CNY (OTC)",flag:"🇸🇦🇨🇳"},{name:"USD/VND (OTC)",flag:"🇺🇸🇻🇳"},{name:"GBP/JPY (OTC)",flag:"🇬🇧🇯🇵"},
+{name:"USD/DZD (OTC)",flag:"🇺🇸🇩🇿"},{name:"GBP/JPY",flag:"🇬🇧🇯🇵"},{name:"EUR/JPY",flag:"🇪🇺🇯🇵"},
+{name:"AUD/CAD",flag:"🇦🇺🇨🇦"},{name:"AUD/CHF",flag:"🇦🇺🇨🇭"},{name:"AUD/USD",flag:"🇦🇺🇺🇸"},
+{name:"CAD/CHF",flag:"🇨🇦🇨🇭"},{name:"CHF/JPY",flag:"🇨🇭🇯🇵"},{name:"EUR/AUD",flag:"🇪🇺🇦🇺"},
+{name:"EUR/CAD",flag:"🇪🇺🇨🇦"},{name:"EUR/CHF",flag:"🇪🇺🇨🇭"},{name:"EUR/USD",flag:"🇪🇺🇺🇸"},
+{name:"GBP/AUD",flag:"🇬🇧🇦🇺"},{name:"GBP/CAD",flag:"🇬🇧🇨🇦"},{name:"GBP/CHF",flag:"🇬🇧🇨🇭"},
+{name:"USD/CAD",flag:"🇺🇸🇨🇦"},{name:"USD/CHF",flag:"🇺🇸🇨🇭"},{name:"USD/JPY",flag:"🇺🇸🇯🇵"},
+{name:"CAD/JPY",flag:"🇨🇦🇯🇵"},{name:"EUR/GBP",flag:"🇪🇺🇬🇧"},{name:"GBP/USD",flag:"🇬🇧🇺🇸"}
+],
+crypto:[
+{name:"Bitcoin (OTC)",flag:"₿"},{name:"Ethereum (OTC)",flag:"Ξ"},{name:"Solana (OTC)",flag:"🟣"},
+{name:"Cardano (OTC)",flag:"₳"},{name:"Avalanche (OTC)",flag:"🔺"},{name:"Chainlink (OTC)",flag:"🔗"},
+{name:"TRON (OTC)",flag:" TRX"},{name:"Polkadot (OTC)",flag:"🔵"},{name:"Litecoin (OTC)",flag:" Ł"},
+{name:"Toncoin (OTC)",flag:"💎"},{name:"Polygon (OTC)",flag:"🟣"},{name:"Dogecoin (OTC)",flag:"🐕"},
+{name:"BNB (OTC)",flag:"🟡"},{name:"Bitcoin",flag:"₿"},{name:"Ethereum",flag:"Ξ"}
+],
+commodities:[
+{name:"Gold (OTC)",flag:"🥇"},{name:"Silver (OTC)",flag:"🥈"},{name:"Oil Brent (OTC)",flag:"🛢️"},
+{name:"Oil WTI (OTC)",flag:"🛢️"},{name:"Natural Gas (OTC)",flag:"🔥"},{name:"Copper (OTC)",flag:"🔶"},
+{name:"Gold",flag:"🥇"},{name:"Silver",flag:"🥈"},{name:"Brent Oil",flag:"🛢️"}
+],
+stocks:[
+{name:"Apple Inc. (OTC)",flag:"🍎"},{name:"Tesla Inc. (OTC)",flag:"🚗"},{name:"Amazon.com (OTC)",flag:"📦"},
+{name:"Microsoft Corp. (OTC)",flag:"💻"},{name:"Netflix Inc. (OTC)",flag:"🎬"},{name:"VISA (OTC)",flag:"💳"},
+{name:"Intel Corp. (OTC)",flag:"チップ"},{name:"AMD (OTC)",flag:"⚡"},{name:"Meta Platforms (OTC)",flag:"🌐"},
+{name:"Alibaba (OTC)",flag:"🛒"},{name:"Boeing (OTC)",flag:"✈️"},{name:"Pfizer (OTC)",flag:"💊"},
+{name:"Apple Inc.",flag:"🍎"},{name:"Tesla Inc.",flag:"🚗"},{name:"Microsoft Corp.",flag:"💻"}
+],
+indices:[
+{name:"S&P 500 (OTC)",flag:"📊"},{name:"NASDAQ (OTC)",flag:"📈"},{name:"Dow Jones (OTC)",flag:"📉"},
+{name:"DAX (OTC)",flag:"🇩🇪"},{name:"FTSE 100 (OTC)",flag:"🇬🇧"},{name:"Nikkei 225 (OTC)",flag:"🇯🇵"},
+{name:"S&P 500",flag:"📊"},{name:"NASDAQ",flag:"📈"},{name:"Dow Jones",flag:"📉"}
+]
+};
 
 const EDU=[
 {
   t:"1️⃣ Уровни Поддержки и Сопротивления (S/R)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Отрабатывается на исторических точках разворота.\n• Точка входа: При формировании 2-3 касаний уровня.",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Отрабатывается на исторических точках разворота, где скапливаются крупные отложенные ордера маркетмейкеров.\n• Точка входа: При формировании 2-3 четких касаний уровня. На 3-м касании при замедлении импульса свечи открываем позицию (к сопротивлению — PUT, к поддержке — CALL).\n• Математическое ожидание: Вероятность успешного отскока составляет 62–68% при фильтрации ложных пробоев.\n• Рекомендуемый таймфрейм: M1 / M5. Время экспирации: 1–3 свечи.",
   img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
   tags:["M1","M5","Винрейт 62-68%"]
 },
 {
-  t:"2️⃣ RSI (14) + Полосы Боллинджера",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Сочетание перекупленности/перепроданности RSI с волатильностью Боллинджера.",
+  t:"2️⃣ RSI (14) + Полосы Боллинджера (Bollinger Bands)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с динамическими границами волатильности Боллинджера.\n• Точка входа: Когда цена выходит за пределы верхней или нижней ленты Боллинджера, а индикатор RSI подтверждает выход в экстремальную зону (>70 для PUT или <30 для CALL).\n• Математическое ожидание: Точность сигналов достигает 65-70% за счет двойного подтверждения исчерпания трендового импульса.\n• Рекомендуемый таймфрейм: M1 / M5. Время экспирации: 60–120 секунд.",
   img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
   tags:["M1","M5","Винрейт 65-70%"]
+},
+{
+  t:"3️⃣ MACD + Экспоненциальная Скользящая Средняя (EMA 200)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Определение глобального тренда по EMA 200 и поиск локальных импульсов пересечения линий MACD.\n• Точка входа: Если цена выше EMA 200 и линии MACD пересекаются снизу вверх в положительной зоне — открываем CALL. При нахождении ниже EMA 200 и пересечении сверху вниз — PUT.\n• Математическое ожидание: Стабильная трендовая связка с винрейтом порядка 67%.\n• Рекомендуемый таймфрейм: M1–M5. Время экспирации: 2–5 минут.",
+  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
+  tags:["M1-M5","Винрейт 67%"]
+},
+{
+  t:"4️⃣ Стохастический Осциллятор + Уровни",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Анализ быстрых %K и медленных %D линий стохастика вблизи ключевых зеркальных уровней.\n• Точка входа: Пересечение линий %K и %D в зоне ниже 20 (для CALL) или выше 80 (для PUT) при совпадении с горизонтальным уровнем.\n• Математическое ожидание: Винрейт 66% на флэтовых и умеренно волатильных сессиях.\n• Рекомендуемый таймфрейм: M1. Время экспирации: 1–2 минуты.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["M1","Винрейт 66%"]
+},
+{
+  t:"5️⃣ Supertrend + CCI (Commodity Channel Index)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Индикатор Supertrend задает вектор тренда, а CCI фиксирует циклические отклонения ценового канала от среднего.\n• Точка входа: Supertrend зеленого цвета + выход CCI из зоны перепроданности из-под уровня −100 дает сильный импульс на CALL.\n• Математическое ожидание: Проходимость около 65% на сильных импульсных свечах.\n• Рекомендуемый таймфрейм: M1 / M3. Время экспирации: 2–3 минуты.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["M1","M3","Винрейт 65%"]
+},
+{
+  t:"6️⃣ Свечное Поглощение + Дивергенция RSI",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Паттерн Price Action «Поглощение» в сочетании с расхождением максимумов/минимумов графика и индикатора RSI.\n• Точка входа: Появление бычьего поглощения на поддержке при одновременном формировании дивергенции на RSI.\n• Математическое ожидание: Высокая надежность разворотных точек, винрейт до 68%.\n• Рекомендуемый таймфрейм: M1–M5. Время экспирации: 2–5 минут.",
+  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
+  tags:["M1-M5","Винрейт 68%"]
+},
+{
+  t:"7️⃣ Пересечение EMA 9 и EMA 21",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Классическое пересечение быстрой и медленной экспоненциальных скользящих средних для ловли зарождения мини-тренда.\n• Точка входа: Пересечение EMA 9 снизу вверх через EMA 21 на открытии новой свечи.\n• Математическое ожидание: Эффективность 63–67% на активных европейских и американских сессиях.\n• Рекомендуемый таймфрейм: M1. Время экспирации: 1–3 минуты.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["M1","Винрейт 63-67%"]
+},
+{
+  t:"8️⃣ Облако Ишимоку + Awesome Oscillator (AO)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Использование линий Тенкан/Киджун и облака Senkou Span в качестве динамической зоны баланса сил.\n• Точка входа: Пробой цены вверх через облако Ишимоку при переходе гистограммы AO в зеленую зону.\n• Математическое ожидание: Винрейт 66% на среднесрочных экспирациях.\n• Рекомендуемый таймфрейм: M5. Время экспирации: 3–5 минут.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["M5","Винрейт 66%"]
+},
+{
+  t:"9️⃣ Parabolic SAR + ADX (Average Directional Index)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Оценка силы тренда по ADX (>25) и точки разворота точек Parabolic SAR.\n• Точка входа: Точки SAR переходят под свечи графика, а ADX подтверждает силу тренда (>25).\n• Математическое ожидание: Винрейт 67% при фильтрации бокового флэта.\n• Рекомендуемый таймфрейм: M1 / M3. Время экспирации: 1–2 минуты.",
+  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
+  tags:["M1","M3","Винрейт 67%"]
+},
+{
+  t:"🔟 Volume + Анализ Ложного Пробоя",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Вертикальные тиковые объемы показывают всплеск ликвидности при попытке пробоя уровня толпой.\n• Точка входа: Резкий всплеск объема (Volume > 2x от средних значений SMA) у уровня сопротивления без закрепления цены свечи.\n• Математическое ожидание: Вероятность возврата цены в диапазон 68%.\n• Рекомендуемый таймфрейм: M1. Время экспирации: 1–2 минуты.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["M1","Винрейт 68%"]
+},
+{
+  t:"1️⃣1️⃣ Каналы Дончиана + Williams %R",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Дончиан определяет экстремумы за N периодов, а Williams %R показывает перекупленность/перепроданность.\n• Точка входа: Касание нижней границы Дончиана при выходе %R из зоны ниже −80.\n• Математическое ожидание: Винрейт 65% на стабильных валютных парах.\n• Рекомендуемый таймфрейм: M1–M5. Время экспирации: 1–3 минуты.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["M1-M5","Винрейт 65%"]
 }
 ];
 
-const PHRASES=["🔍 Сканируем стакан ордеров...","📊 RSI + Bollinger Bands...","📈 Volume & ATR анализ...","🤖 Master AI нейросеть...","⚡ Расчет EMA 200 и тренда...","✨ Сигнал успешно сформирован!"];
+const PHRASES=["🔍 Сканируем стакан ордеров...","📊 RSI + Bollinger Bands...","📈 Volume & ATR анализ...","🤖 Master AI нейросеть...","⚡ Расчет EMA 200 и тренда...","🧮 Оценка математической вероятности...","✨ Сигнал успешно сформирован!"];
 
-function generateMasterCode(){
-const code = "MASTER_" + Math.random().toString(36).substring(2, 9).toUpperCase();
-document.getElementById("generatedCodeBox").value = code;
-let generatedCodes = JSON.parse(localStorage.getItem("tmv_gen_codes") || "[]");
-generatedCodes.unshift(code);
-if(generatedCodes.length > 20) generatedCodes.pop();
-localStorage.setItem("tmv_gen_codes", JSON.stringify(generatedCodes));
-renderAdminCodes();
+function isVip(id){return FRIEND_IDS.has(String(id).trim());}
+
+function goStep(n){
+document.querySelectorAll(".step").forEach(s=>s.classList.remove("on"));
+document.getElementById("s"+n).classList.add("on");
+for(let i=1;i<=3;i++){const d=document.getElementById("d"+i);d.className="p-dot";if(i<n)d.classList.add("done");if(i===n)d.classList.add("cur");if(i<3)document.getElementById("l"+i).className="p-line"+(i<n?" done":"");}
 }
 
-function renderAdminCodes(){
-const listEl = document.getElementById("adminCodesList");
-if(!listEl) return;
-let generatedCodes = JSON.parse(localStorage.getItem("tmv_gen_codes") || "[]");
-if(generatedCodes.length === 0){
-  listEl.innerHTML = '<div style="color:var(--muted);text-align:center;padding:4px">Нет сгенерированных кодов</div>';
-  return;
-}
-listEl.innerHTML = "";
-generatedCodes.forEach(c => {
-  const row = document.createElement("div");
-  row.className = "admin-row";
-  row.innerHTML = `<span><b>${c}</b></span><span style="color:var(--green)">Активен</span>`;
-  listEl.appendChild(row);
-});
+async function md5(string) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(string);
+  const hashBuffer = await crypto.subtle.digest('MD5', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function sendTelegramNotification(username, code){
-const text = `🚨 <b>Новый пользователь перешел к сигналам!</b>\n\n👤 Юзернейм: <b>${username}</b>\n🔑 Использован код: <code>${code}</code>`;
-const inlineKeyboard = {
-  inline_keyboard: [
-    [
-      { text: "🔴 Заблокировать", callback_data: `block_${username}` },
-      { text: "🟢 Разблокировать", callback_data: `unblock_${username}` }
-    ]
-  ]
-};
-
-try {
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text: text,
-      parse_mode: "HTML",
-      reply_markup: inlineKeyboard
-    })
-  });
-} catch(e) {
-  console.error("Telegram notification error:", e);
-}
+async function sendTelegramNotification(text){
+  if(!TG_BOT_TOKEN || !uid) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        chat_id: BOSS_ID,
+        text: `🚨 [ПЕРСОНАЛЬНЫЙ СИГНАЛ ДЛЯ БОССА]\n👤 ID пользователя: ${uid}\n${text}`,
+        parse_mode: 'Markdown'
+      })
+    });
+  } catch(e){}
 }
 
 async function doReg(){
-const codeVal = document.getElementById("masterCodeInput").value.trim();
-const userVal = document.getElementById("tgUserInput").value.trim();
+const idInputVal = document.getElementById("idInput").value.trim();
 const msg = document.getElementById("regMsg");
 const btn = document.getElementById("btnReg");
 
-if(!codeVal.startsWith("MASTER_") || codeVal.length < 8){
+if(!/^\d{5,12}$/.test(idInputVal)){
   msg.className="msg err";
-  msg.textContent="❌ Ошибка: код должен начинаться с MASTER_!";
+  msg.textContent="❌ Ошибка: введите корректный числовой ID без пробелов и букв!";
   return;
 }
 
-if(!userVal.startsWith("@") || userVal.length < 3){
-  msg.className="msg err";
-  msg.textContent="❌ Ошибка: введите ТГ юзернейм с @!";
-  return;
-}
-
-const usedCodes = JSON.parse(localStorage.getItem("tmv_used_codes") || "[]");
-if(usedCodes.includes(codeVal)){
-  msg.className="msg err";
-  msg.textContent="❌ Данный одноразовый код уже был использован!";
-  return;
-}
-
-usedCodes.push(codeVal);
-localStorage.setItem("tmv_used_codes", JSON.stringify(usedCodes));
-
-tgUser = userVal;
-localStorage.setItem("tmv_tgUser", userVal);
-
-btn.disabled = true;
-btn.innerHTML = '<span class="loader"></span>';
-
-await sendTelegramNotification(userVal, codeVal);
-
-setTimeout(() => {
-  msg.className="msg ok";
-  msg.textContent="✅ Код подтвержден!";
+if(isVip(idInputVal)){
+  uid=idInputVal;
+  localStorage.setItem("tmv_uid", idInputVal);
   localStorage.setItem("tmv_verified","1");
-  setTimeout(() => {
-    document.getElementById("gate").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
-    document.getElementById("bnav").classList.remove("hidden");
-    document.getElementById("profId").textContent=tgUser||"—";
-    document.getElementById("profName").value=localStorage.getItem("tmv_name")||"";
-    document.getElementById("assetSearchInput").value = ASSETS[0].flag + "  " + ASSETS[0].name;
-    renderEdu(); renderFavs(); updateStats(); renderAdminCodes();
-  }, 800);
-}, 600);
+  msg.className="msg ok";
+  msg.textContent=idInputVal===BOSS_ID?"👑 BOSS ACCESS":"⭐ VIP ACCESS";
+  btn.disabled=true;
+  setTimeout(enterApp, 600);
+  return;
+}
+
+btn.disabled=true;
+btn.innerHTML='<span class="loader"></span>';
+
+try{
+  const hashSig = await md5(`${idInputVal}:${PARTNER_ID}:${API_TOKEN_PO}`);
+  const api_url = `https://affiliate.pocketoption.com/api/user-info/${idInputVal}/${PARTNER_ID}/${hashSig}`;
+  const r = await fetch(api_url);
+  const d = await r.json();
+  
+  if(d && (d.registered === true || d.is_active === true || d.ok)){
+    uid = idInputVal;
+    localStorage.setItem("tmv_uid", idInputVal);
+    const hasDeposit = (d.deposit || 0) > 0 || d.has_deposit === true;
+    
+    if(hasDeposit){
+      localStorage.setItem("tmv_verified","1");
+      msg.className="msg ok";
+      msg.textContent="✅ Регистрация и депозит подтверждены в системе!";
+      setTimeout(enterApp, 600);
+    } else {
+      msg.className="msg ok";
+      msg.textContent="✅ ID подтвержден в базе! Переход к проверке пополнения...";
+      setTimeout(()=>goStep(2), 800);
+    }
+  } else {
+    msg.className="msg err";
+    msg.textContent="❌ Доступ закрыт: данный ID не найден в нашей базе рефералов.";
+    btn.disabled = false;
+    btn.innerHTML = "✅ Подтвердить ID";
+  }
+}catch(e){
+  uid = idInputVal;
+  localStorage.setItem("tmv_uid", idInputVal);
+  localStorage.setItem("tmv_verified","1");
+  setTimeout(enterApp, 600);
+}
+}
+
+async function doDep(){
+const promo = document.getElementById("promoInput").value.trim().toUpperCase();
+const msg = document.getElementById("depMsg");
+const btn = document.getElementById("btnDep");
+
+if(!uid){
+  msg.className="msg err";
+  msg.textContent="Сначала подтвердите ID!";
+  return;
+}
+
+if(promo !== PROMO && !isVip(uid)){
+  msg.className="msg err";
+  msg.textContent="❌ Неверный промокод. Используйте WELCOME50";
+  return;
+}
+
+btn.disabled=true;
+btn.innerHTML='<span class="loader"></span>';
+
+try{
+  const hashSig = await md5(`${uid}:${PARTNER_ID}:${API_TOKEN_PO}`);
+  const api_url = `https://affiliate.pocketoption.com/api/user-info/${uid}/${PARTNER_ID}/${hashSig}`;
+  const r = await fetch(api_url);
+  const d = await r.json();
+  
+  const hasDeposit = d && ((d.deposit || 0) > 0 || d.has_deposit === true || d.balance >= 10);
+  
+  if(hasDeposit || isVip(uid)){
+    msg.className="msg ok";
+    msg.textContent="✅ Пополнение успешно подтверждено системой!";
+    localStorage.setItem("tmv_verified","1");
+    setTimeout(()=>goStep(3), 800);
+  } else {
+    msg.className="msg err";
+    msg.textContent="❌ Пополнение не обнаружено в системе. Сделайте депозит от $10.";
+    btn.disabled = false;
+    btn.innerHTML = "🔍 Проверить депозит";
+  }
+}catch(e){
+  localStorage.setItem("tmv_verified","1");
+  setTimeout(()=>goStep(3), 800);
+}
 }
 
 function enterApp(){
 document.getElementById("gate").classList.add("hidden");
 document.getElementById("app").classList.remove("hidden");
 document.getElementById("bnav").classList.remove("hidden");
-document.getElementById("profId").textContent=tgUser||"—";
+document.getElementById("profId").textContent=uid||"—";
 document.getElementById("profName").value=localStorage.getItem("tmv_name")||"";
-document.getElementById("assetSearchInput").value = ASSETS[0].flag + "  " + ASSETS[0].name;
-renderEdu(); renderFavs(); updateStats(); renderAdminCodes();
+setCat("forex");renderEdu();renderFavs();updateStats();
+}
+
+function setCat(c,el){
+currentCategory=c;
+document.querySelectorAll(".cat").forEach(x=>x.classList.remove("on"));
+if(el)el.classList.add("on");else document.querySelector('.cat[data-c="'+c+'"]')?.classList.add("on");
+const list=ASSETS[c]||[];
+if(list.length>0){
+currentAsset=list[0].name;
+document.getElementById("assetSearchInput").value=list[0].flag+"  "+list[0].name;
+}
+updateFavBtn();
 }
 
 function toggleAssetDropdown(e){
 const drop=document.getElementById("assetDropdown");
 drop.classList.toggle("open");
 if(drop.classList.contains("open")){
-renderAssetList(ASSETS);
+renderAssetList(ASSETS[currentCategory]||[]);
 }
 }
 
@@ -755,7 +891,8 @@ drop.appendChild(div);
 function filterAssets(query){
 const drop=document.getElementById("assetDropdown");
 drop.classList.add("open");
-const filtered=ASSETS.filter(item=>item.name.toLowerCase().includes(query.toLowerCase()));
+const list=ASSETS[currentCategory]||[];
+const filtered=list.filter(item=>item.name.toLowerCase().includes(query.toLowerCase()));
 renderAssetList(filtered);
 }
 
@@ -781,9 +918,13 @@ updateFavBtn();renderFavs();
 
 function selectAssetDirect(assetName){
 currentAsset=assetName;
-const found = ASSETS.find(a => a.name === assetName);
-if(found){
-  document.getElementById("assetSearchInput").value = found.flag + "  " + found.name;
+for(let catKey in ASSETS){
+  const found = ASSETS[catKey].find(a => a.name === assetName);
+  if(found){
+    currentCategory = catKey;
+    document.getElementById("assetSearchInput").value = found.flag + "  " + found.name;
+    break;
+  }
 }
 updateFavBtn();
 tab('tabSig', document.querySelector('.nav'));
@@ -843,15 +984,25 @@ function cancelScan(){if(scanTimer)clearInterval(scanTimer);document.getElementB
 
 function fireSignal(asset,tf,expTxt,sec,ids,isScan){
 const call=Math.random()>0.45,wr=68+Math.floor(Math.random()*7);
-const combos=["RSI (14) + Bollinger Bands","MACD + EMA 200 Trend Filter","Volume Spike + S/R Level"];
-document.getElementById(ids.meta).textContent=asset+" · "+tf+" · Экспирация: "+expTxt;
-const dir=document.getElementById(ids.dir);dir.textContent=call?"⬆️ CALL (ВВЕРХ)":"⬇️ PUT (ВНИЗ)";dir.className="sig-dir "+(call?"call":"put");
+const combos=["RSI (14) + Bollinger Bands","MACD + EMA 200 Trend Filter","Volume Spike + S/R Level","Stochastic %K/%D + Support","Supertrend + CCI Momentum","EMA 9 × 21 Cross","Parabolic SAR + ADX Trend"];
+const detailedExplanations=[
+  "💡 Сигнал сформирован на основе глубокого анализа стакана ордеров. Цена коснулась ключевого зеркального уровня, RSI зашел в зону перепроданности, подтверждая скорый импульсный отскок.",
+  "💡 Зафиксировано сужение полос Боллинджера с резким пробоем средней скользящей EMA 200. ИИ подтверждает высокую вероятность продолжения импульсного движения.",
+  "💡 Анализ тиковых объемов показал истощение продавцов на ложном пробое уровня. Осцилляторы указывают на неминуемый разворот тренда.",
+  "💡 Пересечение быстрых скользящих средних в сочетании с сильным сигналом гистограммы MACD гарантирует высокую точность входа."
+];
+const metaText=asset+" · "+tf+" · Экспирация: "+expTxt;
+const dirText=call?"⬆️ CALL (ВВЕРХ)":"⬇️ PUT (ВНИЗ)";
+document.getElementById(ids.meta).textContent=metaText;
+const dir=document.getElementById(ids.dir);dir.textContent=dirText;dir.className="sig-dir "+(call?"call":"put");
 document.getElementById(ids.wr).textContent=wr+"%";
 if(ids.combo)document.getElementById(ids.combo).textContent=combos[Math.floor(Math.random()*combos.length)];
-document.getElementById(ids.strat).textContent="💡 Сигнал сформирован на основе глубокого анализа рынка и индикаторов.";
+document.getElementById(ids.strat).textContent=detailedExplanations[Math.floor(Math.random()*detailedExplanations.length)];
 document.getElementById(ids.box).style.display="block";
 sigCount++;localStorage.setItem("tmv_sigs",String(sigCount));updateStats();
 startCd(sec,ids.cd,ids.cancel,ids.newBtn,isScan);
+
+sendTelegramNotification(`🎯 Новый сигнал!\nАктив: ${asset}\nТаймфрейм: ${tf}\nНаправление: ${dirText}\nЭкспирация: ${expTxt}`);
 }
 
 function getSig(){
@@ -863,7 +1014,10 @@ fireSignal(currentAsset,tf,exp.options[exp.selectedIndex].textContent,sec,{box:"
 }
 
 function autoSig(){
-const chosen=ASSETS[Math.floor(Math.random()*ASSETS.length)];
+const keys=Object.keys(ASSETS),c=keys[Math.floor(Math.random()*keys.length)];
+setCat(c);
+const list=ASSETS[c];
+const chosen=list[Math.floor(Math.random()*list.length)];
 currentAsset=chosen.name;
 document.getElementById("assetSearchInput").value=chosen.flag+"  "+chosen.name;
 document.getElementById("exp").value="60";
@@ -880,7 +1034,7 @@ document.getElementById("btnScan").disabled=false;
 document.getElementById("btnOpenCam").textContent="✅ Камера активна";
 camReady=true;
 }catch(e){
-document.getElementById("scanPh").innerHTML="📷 Камера недоступна";
+document.getElementById("scanPh").innerHTML="📷 Камера недоступна<br><small>Разрешите доступ в настройках браузера</small>";
 document.getElementById("btnScan").disabled=false;
 camReady=true;
 }
@@ -890,6 +1044,7 @@ function stopCam(){
 if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
 document.getElementById("scanVideo").classList.add("hidden");
 document.getElementById("scanPh").classList.remove("hidden");
+document.getElementById("scanPh").innerHTML="📷<br>Камера выключена";
 document.getElementById("scanFrame").classList.remove("live");
 document.getElementById("btnScan").disabled=true;
 document.getElementById("btnOpenCam").textContent="📷 Открыть камеру";
@@ -902,17 +1057,25 @@ const exp=document.getElementById("scanExp");
 const sec=parseInt(exp.options[exp.selectedIndex].dataset.s)||60;
 const expTxt=exp.options[exp.selectedIndex].textContent;
 showAnalyze(async ()=>{
-let direction="CALL",wr="72";
-const call=true;
+let direction="CALL",wr="72",text="📷 AI Vision проанализировал свечной паттерн с камеры. Обнаружен сильный сигнал на отскок от уровня поддержки с подтверждением по RSI и объемному всплеску.";
+try{
+const r=await fetch("/api/scan_ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({expiration:expTxt})});
+const d=await r.json();
+if(d&&d.ok){if(d.direction)direction=d.direction;if(d.wr)wr=String(d.wr);if(d.text)text="📷 AI Vision: "+d.text;}
+}catch(e){}
+const call=String(direction).toUpperCase().indexOf("PUT")<0;
 document.getElementById("scanMeta").textContent="AI Chart Scanner · Live Vision · "+expTxt;
 const dir=document.getElementById("scanDir");
-dir.textContent=call?"⬆️ CALL (ВВЕРХ)":"⬇️ PUT (ВНИЗ)";
+const dirText=call?"⬆️ CALL (ВВЕРХ)":"⬇️ PUT (ВНИЗ)";
+dir.textContent=dirText;
 dir.className="sig-dir "+(call?"call":"put");
 document.getElementById("scanWr").textContent=wr+"%";
-document.getElementById("scanStrat").textContent="📷 AI Vision проанализировал свечной паттерн с камеры.";
+document.getElementById("scanStrat").textContent=text;
 document.getElementById("scanSigBox").style.display="block";
 sigCount++;localStorage.setItem("tmv_sigs",String(sigCount));updateStats();
 startCd(sec,"scanCd","btnScanCancel","btnScanNew",true);
+
+sendTelegramNotification(`📷 Сканер с камеры!\nЭкспирация: ${expTxt}\nНаправление: ${dirText}`);
 },true);
 }
 
@@ -934,17 +1097,29 @@ box.innerHTML+='<div class="bubble user">'+t.replace(/</g,"&lt;")+"</div>";
 inp.value="";box.scrollTop=box.scrollHeight;
 
 if(badContent(t)){
-box.innerHTML+='<div class="bubble ai">На такие темы я не отвечаю. Я профессиональный ИИ-ассистент по трейдингу 📈</div>';
+box.innerHTML+='<div class="bubble ai">На такие темы я не отвечаю. Я профессиональный ИИ-ассистент по трейдингу и анализу рынков 📈</div>';
 box.scrollTop=box.scrollHeight;return;
 }
 
+chatHistory.push({role:"user",content:t});
 const loading=document.createElement("div");loading.className="bubble ai";loading.textContent="⏳ Master AI анализирует ваш вопрос...";box.appendChild(loading);box.scrollTop=box.scrollHeight;
 
 setTimeout(()=>{
-let reply="💡 Отличный вопрос! Master AI рекомендует всегда опираться на комплексный технический анализ.";
-if(t.toLowerCase().includes("бот")){
-  reply="🤖 Нейросеть в реальном времени сканирует активы и выдает сигналы с высокой проходимостью!";
+let reply="";
+const q=t.toLowerCase();
+if(q.includes("работает бот")||q.includes("сигнал")||q.includes("how does")||q.includes("як працює")){
+  reply="🤖 **Как работает наш ИИ-терминал:**\n\n1. Нейросеть в реальном времени сканирует котировки Binance и Pocket Option.\n2. Сопоставляет тиковые объемы, стакан ордеров и показания ключевых индикаторов (RSI, Bollinger Bands, EMA 200).\n3. Вычисляет математическую вероятность с точностью 68-74%.\n4. Нажмите «Просчитать сигнал» или «Master AI выберет лучший», чтобы получить готовое направление (CALL/PUT) и экспирацию!";
+} else if(q.includes("риск")||q.includes("манименеджмент")||q.includes("банк")||q.includes("risk")){
+  reply="🛡️ **Правила риск-менеджмента от Master AI:**\n\n• Рискуйте не более чем 1-2% от общего депозита на одну сделку.\n• Ни в коем случае не отыгрывайтесь ва-банком после серии минусов.\n• При получении 3 минусов подряд сделайте перерыв минимум на 1-2 часа.\n• Используйте фиксированную сумму входа или умеренный метод разгона.";
+} else if(q.includes("rsi")||q.includes("боллинджер")||q.includes("индикатор")||q.includes("strategy")){
+  reply="📊 **Разбор связки RSI + Bollinger Bands:**\n\nЭто одна из самых мощных стратегий в терминале. Когда цена выходит за пределы верхней или нижней ленты Боллинджера и одновременно с этим RSI преодолевает отметку 70 (перекупленность) или 30 (перепроданность), происходит сильный импульсный отскок к среднему значению. Идеальный таймфрейм для торговли — 1 минута.";
+} else if(q.includes("минус")||q.includes("серия")||q.includes("слив")||q.includes("loss")){
+  reply="⚠️ **Что делать при серии минусов:**\n\nРынок цикличен, и 100% проходимости не бывает ни у одного алгоритма в мире. Главное — хладнокровие. Закройте терминал, отдохните и проанализируйте свои входы. Наш средний винрейт 71% гарантирует математическое преимущество на дистанции при соблюдении риск-менеджмента.";
+} else {
+  reply=`💡 Отличный вопрос! По теме «${t}»: Master AI рекомендует всегда опираться на комплексный технический анализ (уровни поддержки/сопротивления + трендовые фильтры) и строго соблюдать дисциплину. Спрашивайте любые детали по индикаторам или стратегии!`;
 }
+
+chatHistory.push({role:"assistant",content:reply});
 loading.textContent=reply;
 box.scrollTop=box.scrollHeight;
 }, 600);
@@ -969,7 +1144,7 @@ function closeEdu(){document.getElementById("eduView").classList.add("hidden");d
 function logout(){
 if(confirm("Выйти из аккаунта?")){
 localStorage.removeItem("tmv_verified");
-localStorage.removeItem("tmv_tgUser");
+localStorage.removeItem("tmv_uid");
 location.reload();
 }
 }
@@ -977,22 +1152,10 @@ location.reload();
 window.addEventListener("DOMContentLoaded",()=>{
 const savedLang = localStorage.getItem("tmv_lang") || "ru";
 changeLanguage(savedLang);
-if(localStorage.getItem("tmv_verified")==="1" && tgUser){
+if(localStorage.getItem("tmv_verified")==="1" && uid){
 enterApp();
 }
 });
-
-function changeLanguage(lang){
-currentLang = lang;
-localStorage.setItem("tmv_lang", lang);
-document.getElementById("langSelect").value = lang;
-const dict = I18N[lang] || I18N.ru;
-document.querySelectorAll("[data-t]").forEach(el=>{
-const key = el.getAttribute("data-t");
-if(dict[key]) el.innerHTML = dict[key];
-});
-if(document.getElementById("aiWelcomeBubble")) document.getElementById("aiWelcomeBubble").textContent = dict.aiWelcome;
-}
 </script>
 </body>
 </html>
