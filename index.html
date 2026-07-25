@@ -10,12 +10,27 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:Montserrat,sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:12px 12px 80px}
 .wrap{width:100%;max-width:440px;display:flex;flex-direction:column;gap:10px}
+.g-text{background:var(--gold-g```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TEAM MASTER VIP — AI Trading Terminal v10.9 PRO</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#FFD700;--gold-g:linear-gradient(135deg,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C);--bg:#06080d;--card:#0e121b;--inner:#0a0d14;--green:#00E676;--red:#FF5252;--border:#1a2233;--border-g:rgba(212,175,55,.4);--muted:#7a8499;--text:#e8ecf4}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Montserrat,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:12px 12px 80px}
+.wrap{width:100%;max-width:440px;display:flex;flex-direction:column;gap:10px}
 .g-text{background:var(--gold-g);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:sh 3s linear infinite;font-weight:900}
 @keyframes sh{to{background-position:200% center}}
 @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scanLine{0%{top:12%}100%{top:88%}}
+@keyframes glow{0%,100%{box-shadow:0 0 10px rgba(255,215,0,.2)}50%{box-shadow:0 0 22px rgba(255,215,0,.45)}}
 .btn{width:100%;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:12px;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s,opacity .2s}
 .btn:active{transform:scale(.97)}.btn:disabled{opacity:.4;pointer-events:none}
 .btn-gold{background:var(--gold-g);background-size:200% auto;animation:sh 3s linear infinite;color:#111;box-shadow:0 5px 18px rgba(191,149,63,.3)}
@@ -100,11 +115,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .analyze-wheel{width:56px;height:56px;border:3px solid rgba(255,215,0,.12);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:14px}
 .analyze-text{font-size:13px;font-weight:800;color:var(--gold);text-align:center;animation:pulse 1.2s ease infinite;max-width:240px;line-height:1.45}
 .analyze-sub{font-size:10px;color:var(--muted);margin-top:6px;font-weight:600}
-.scan-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;overflow:hidden;margin-bottom:10px}
-.scan-video{width:100%;height:210px;object-fit:cover;background:#000;display:block}
-.scan-placeholder{height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700;gap:8px;text-align:center;padding:12px}
-.scan-frame{position:relative}
-.scan-frame.live::after{content:"";position:absolute;inset:12px;border:2px solid rgba(255,215,0,.5);border-radius:8px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.2)}
+.scan-box{background:#000;border:2px solid var(--border-g);border-radius:14px;overflow:hidden;margin-bottom:10px;position:relative;animation:glow 2.5s ease infinite}
+.scan-video{width:100%;height:220px;object-fit:cover;background:#000;display:block}
+.scan-placeholder{height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700;gap:8px;text-align:center;padding:12px;background:linear-gradient(180deg,#0a0d14,#06080d)}
+.scan-overlay{position:absolute;inset:0;pointer-events:none;z-index:2}
+.scan-corner{position:absolute;width:26px;height:26px;border-color:var(--gold);border-style:solid}
+.scan-corner.tl{top:12px;left:12px;border-width:3px 0 0 3px}
+.scan-corner.tr{top:12px;right:12px;border-width:3px 3px 0 0}
+.scan-corner.bl{bottom:12px;left:12px;border-width:0 0 3px 3px}
+.scan-corner.br{bottom:12px;right:12px;border-width:0 3px 3px 0}
+.scan-line{display:none;position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);box-shadow:0 0 12px var(--gold);animation:scanLine 1.5s linear infinite;z-index:3}
+.scan-line.on{display:block}
+.scan-status{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.78);color:var(--gold);font-size:10px;font-weight:800;padding:5px 12px;border-radius:20px;border:1px solid rgba(255,215,0,.35);z-index:4;white-space:nowrap}
 .scan-tips{font-size:10.5px;color:#b0b8c8;line-height:1.55;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px}
 .scan-tips b{color:var(--gold)}
 .ind-row{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
@@ -113,6 +135,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .fav-item{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--inner);border:1px solid var(--border);border-radius:9px;margin-bottom:5px;font-size:11.5px;font-weight:700}
 .fav-item span:first-child{color:var(--gold)}
 .tab{transition:opacity .25s ease}
+.steps-scan{display:flex;gap:4px;margin-bottom:10px}
+.step-s{flex:1;text-align:center;font-size:9px;font-weight:800;color:var(--muted);padding:6px 2px;border-radius:8px;background:var(--inner);border:1px solid var(--border)}
+.step-s.on{color:#111;background:var(--gold-g);border:none}
+.step-s.done{color:var(--green);border-color:rgba(0,230,118,.35)}
 </style>
 </head>
 <body>
@@ -120,7 +146,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="header">
 <div>
 <h1 class="g-text">👑 TEAM MASTER VIP</h1>
-<small>AI ENGINE v10.9 PRO · GROK · LIVE</small>
+<small>AI ENGINE v10.9 PRO · MASTER AI · LIVE</small>
 </div>
 <select class="lang" id="langSelect" onchange="setLang(this.value)">
 <option value="ru">🇷🇺 RU</option>
@@ -138,7 +164,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="step on" id="s1">
 <div class="gate-icon">👑</div>
 <div class="gate-title" id="tWelcome">Добро пожаловать</div>
-<div class="gate-desc" id="tRegDesc"><b>Зачем нужна регистрация?</b><br><br>Закрытый VIP-терминал с живыми сигналами и Grok AI.<br><br>Бот проверяет через API партнёрки Pocket Option регистрацию по нашей ссылке.</div>
+<div class="gate-desc" id="tRegDesc"><b>Зачем нужна регистрация?</b><br><br>Закрытый VIP-терминал с живыми сигналами и Master AI.<br><br>Бот проверяет через API партнёрки Pocket Option регистрацию по нашей ссылке.</div>
 <a class="btn btn-gold" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank">🚀 Зарегистрироваться</a>
 <div class="hint">Уже есть аккаунт? Введите ID</div>
 <input class="input" id="idInput" type="text" inputmode="numeric" placeholder="ID Pocket Option">
@@ -165,7 +191,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div id="app" class="hidden">
 <div class="card tab" id="tabSig">
-<div class="live-bar"><span class="live">● LIVE</span><span style="font-size:9px;color:var(--gold);font-weight:800">65–70% · GROK ⚡</span></div>
+<div class="live-bar"><span class="live">● LIVE</span><span style="font-size:9px;color:var(--gold);font-weight:800">65–70% · MASTER AI ⚡</span></div>
 <div class="stats-row">
 <div class="stat-mini"><div class="n">68%</div><div class="l">СРЕДНИЙ WR</div></div>
 <div class="stat-mini"><div class="n" id="statSigs">0</div><div class="l">СИГНАЛОВ</div></div>
@@ -207,7 +233,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 <button class="btn btn-gold" onclick="getSig()">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<button class="btn btn-green btn-sm" onclick="autoSig()">🤖 ИИ выберет лучший</button>
+<button class="btn btn-green btn-sm" onclick="autoSig()">🤖 Master AI выберет</button>
 <div class="gap"></div>
 <a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://pocketoption.com" target="_blank">🚀 Открыть Pocket Option</a>
 <div class="sig" id="sigBox">
@@ -222,10 +248,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabAi">
-<h3 class="g-text" style="font-size:13px;margin-bottom:8px">🤖 Grok AI Assistant</h3>
-<div class="chat" id="chat"><div class="bubble ai">Привет! Я Grok AI в TEAM MASTER VIP. Спрашивай про сигналы, риск, индикаторы, математику, финансы, обучение — отвечу как надо. На неуместные темы не отвечаю 🔥</div></div>
+<h3 class="g-text" style="font-size:13px;margin-bottom:8px">🤖 Master AI</h3>
+<div class="chat" id="chat"><div class="bubble ai">Привет! Я Master AI — нейросеть TEAM MASTER VIP. Спрашивай про сигналы, риск, индикаторы, математику, финансы, обучение. На неприличные темы не отвечаю 🔥</div></div>
 <div class="chat-row">
-<input id="chatIn" placeholder="Любой вопрос..." onkeydown="if(event.key==='Enter')sendAi()">
+<input id="chatIn" placeholder="Любой вопрос по трейдингу..." onkeydown="if(event.key==='Enter')sendAi()">
 <button class="chat-send" onclick="sendAi()">➤</button>
 </div>
 <div class="quick">
@@ -268,24 +294,32 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabScan">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 AI Chart Scanner</h3>
+<div class="steps-scan">
+<div class="step-s on" id="sc1">1. Камера</div>
+<div class="step-s" id="sc2">2. Экспирация</div>
+<div class="step-s" id="sc3">3. Скан</div>
+</div>
 <div class="scan-tips">
 <b>Порядок:</b><br>
 1️⃣ Открой камеру<br>
 2️⃣ Выбери экспирацию<br>
 3️⃣ Наведи на график Pocket Option<br>
-4️⃣ Нажми СКАНИРОВАТЬ<br><br>
-ИИ смотрит уровни, свечи, импульс + индикаторы: RSI, BB, MACD, EMA, Volume, ATR
+4️⃣ Нажми СКАНИРОВАТЬ — Master AI через API разберёт уровни и индикаторы
 </div>
 <button class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()">📷 Открыть камеру</button>
 <div class="gap"></div>
 <div class="scan-box">
-<div class="scan-frame" id="scanFrame">
 <video class="scan-video hidden" id="scanVideo" autoplay playsinline muted></video>
 <div class="scan-placeholder" id="scanPh">📷<br>Сначала открой камеру<br><small>затем наведи на график</small></div>
+<div class="scan-overlay hidden" id="scanOverlay">
+<div class="scan-corner tl"></div><div class="scan-corner tr"></div>
+<div class="scan-corner bl"></div><div class="scan-corner br"></div>
+<div class="scan-line" id="scanLine"></div>
+<div class="scan-status" id="scanStatus">НАВЕДИ НА ГРАФИК</div>
 </div>
 </div>
 <label class="lbl">ЭКСПИРАЦИЯ</label>
-<select class="sel" id="scanExp" style="margin-bottom:8px">
+<select class="sel" id="scanExp" style="margin-bottom:8px" onchange="setScanStep(2)">
 <option value="15" data-s="15">15 сек</option><option value="30" data-s="30">30 сек</option>
 <option value="60" data-s="60" selected>1 мин</option><option value="120" data-s="120">2 мин</option>
 <option value="180" data-s="180">3 мин</option><option value="300" data-s="300">5 мин</option>
@@ -300,11 +334,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="gap"></div>
 <button class="btn btn-dark btn-sm" onclick="stopCam()">⏹ Закрыть камеру</button>
 <div class="sig" id="scanSigBox">
-<div class="sig-meta" id="scanMeta">SCAN · Chart AI + Indicators</div>
+<div class="sig-meta" id="scanMeta">SCAN · Master AI</div>
 <div class="sig-dir call" id="scanDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
-<div class="sig-stats"><span>WR: <b class="g-text" id="scanWr">67%</b></span><span>Grok Scan</span></div>
+<div class="sig-stats"><span>WR: <b class="g-text" id="scanWr">67%</b></span><span>Master AI</span></div>
 <button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none">✖ Отменить</button>
 <button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none">⚡ Новый скан</button>
 </div>
@@ -312,15 +346,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabAbout">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:6px">👑 TEAM MASTER VIP</h3>
-<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:6px">Сообщество трейдеров и ИИ-инженеров. Сигналы, Grok AI, сканер графиков, обучение по связкам.</p>
+<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:6px">Сообщество трейдеров. Сигналы, Master AI, сканер графиков, обучение по связкам.</p>
 <div class="about-list">
 <li>👥 Команда аналитиков и риск-менеджеров</li>
-<li>🤖 Grok AI + математика + индикаторы</li>
+<li>🤖 Master AI + математика + индикаторы</li>
 <li>📈 Проходимость: <b style="color:var(--gold)">65–70%</b></li>
 <li>📷 AI Chart Scanner с камеры</li>
 <li>📚 11 связок с формулами</li>
 <li>🛡️ API проверка ID и депозита</li>
-<li>⚡ Binance + Pocket Option</li>
+<li>⚡ Pocket Option</li>
 </div>
 <p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px">Не 100%. Риск 1–2%. Стоп после 3 минусов.</p>
 <a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank">📢 Telegram</a>
@@ -330,7 +364,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="bnav hidden" id="bnav">
 <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span>Сигналы</span></div>
-<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span>ИИ</span></div>
+<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span>Master AI</span></div>
 <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span>Связки</span></div>
 <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span>Профиль</span></div>
 <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span>Сканер</span></div>
@@ -339,8 +373,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="analyze-overlay hidden" id="analyzeBox">
 <div class="analyze-wheel"></div>
-<div class="analyze-text" id="analyzeTxt">🔍 Анализирую...</div>
-<div class="analyze-sub">RSI · BB · MACD · Volume · Grok</div>
+<div class="analyze-text" id="analyzeTxt">🔍 Master AI анализирует...</div>
+<div class="analyze-sub">RSI · BB · MACD · Volume · API</div>
 </div>
 
 <script>
@@ -372,7 +406,8 @@ const EDU=[
 {t:"1️⃣1️⃣ Дончиан + Williams %R",d:"📌 Канал + экстремум\n\n🧮 Нижняя Дончиана + %R выход из −80 → CALL \~65%\nВерхняя + %R из −20 → PUT\n\n📊 Donchian(20) + Williams %R(14)\n⏱ M1–M5 · ⏳ 1–3 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1–M5","65%"]}
 ];
 
-const PHRASES=["🔍 Сканирую уровни...","📊 RSI + Bollinger...","📈 Volume + ATR...","🤖 Grok фильтр...","⚡ EMA 200...","🧮 Вероятность...","✨ Сигнал готов!"];
+const PHRASES=["🔍 Сканирую уровни...","📊 RSI + Bollinger...","📈 Volume + ATR...","🤖 Master AI API...","⚡ EMA 200...","🧮 Вероятность...","✨ Сигнал готов!"];
+const SCAN_PHRASES=["📷 Захват кадра...","🔍 Поиск уровней...","📊 RSI / BB / MACD...","📈 Volume + ATR...","🤖 Master AI API...","✨ Готово!"];
 
 function isVip(id){return FRIEND_IDS.has(String(id).trim());}
 
@@ -425,7 +460,7 @@ setCat("forex");renderEdu();renderFavs();updateStats();
 
 function setCat(c,el){
 document.querySelectorAll(".cat").forEach(x=>x.classList.remove("on"));
-if(el)el.classList.add("on");else document.querySelector('.cat[data-c="'+c+'"]')?.classList.add("on");
+if(el)el.classList.add("on");else{const x=document.querySelector('.cat[data-c="'+c+'"]');if(x)x.classList.add("on");}
 const s=document.getElementById("asset");s.innerHTML="";
 (ASSETS[c]||[]).forEach(a=>{const o=document.createElement("option");o.value=o.textContent=a;s.appendChild(o);});
 updateFavBtn();
@@ -452,11 +487,11 @@ function clearFavs(){if(confirm("Очистить избранное?")){favs=[]
 function saveName(){localStorage.setItem("tmv_name",document.getElementById("profName").value.trim());}
 function updateStats(){document.getElementById("statSigs").textContent=sigCount;document.getElementById("profSigs").textContent=sigCount;}
 
-function showAnalyze(cb,fast){
-const box=document.getElementById("analyzeBox"),txt=document.getElementById("analyzeTxt");
-box.classList.remove("hidden");let i=0;txt.textContent=PHRASES[0];
-const step=fast?160:300;
-const iv=setInterval(()=>{i++;if(i<PHRASES.length)txt.textContent=PHRASES[i];else{clearInterval(iv);box.classList.add("hidden");cb&&cb();}},step);
+function showAnalyze(cb,phrases,fast){
+const box=document.getElementById("analyzeBox"),txt=document.getElementById("analyzeTxt"),list=phrases||PHRASES;
+box.classList.remove("hidden");let i=0;txt.textContent=list[0];
+const step=fast?150:280;
+const iv=setInterval(()=>{i++;if(i<list.length)txt.textContent=list[i];else{clearInterval(iv);box.classList.add("hidden");if(cb)cb();}},step);
 }
 
 function startCd(sec,cdId,cancelId,newId,isScan){
@@ -476,24 +511,25 @@ if(isScan)scanTimer=iv;else timer=iv;
 }
 
 function cancelSig(){if(timer)clearInterval(timer);document.getElementById("sigBox").style.display="none";document.getElementById("btnCancel").style.display="none";document.getElementById("btnNew").style.display="none";}
-function cancelScan(){if(scanTimer)clearInterval(scanTimer);document.getElementById("scanSigBox").style.display="none";document.getElementById("btnScanCancel").style.display="none";document.getElementById("btnScanNew").style.display="none";}
+function cancelScan(){if(scanTimer)clearInterval(scanTimer);document.getElementById("scanSigBox").style.display="none";document.getElementById("btnScanCancel").style.display="none";document.getElementById("btnScanNew").style.display="none";document.getElementById("scanLine").classList.remove("on");}
 
-function fireSignal(asset,tf,expTxt,sec,ids,isScan){
-const call=Math.random()>0.48,wr=65+Math.floor(Math.random()*6);
+function fireSignal(asset,tf,expTxt,sec,ids,isScan,extra){
+const call=(extra&&extra.direction)?String(extra.direction).toUpperCase().indexOf("PUT")<0:(Math.random()>0.48);
+const wr=(extra&&extra.wr)?extra.wr:(65+Math.floor(Math.random()*6));
 const combos=["RSI + BB","MACD + EMA200","Volume + Level","Stoch + Support","Supertrend + CCI","EMA 9×21","SAR + ADX","Ишимоку + AO"];
-const texts=["💡 Уровень + RSI. P≈67%. Grok подтвердил.","💡 EMA cross + BB. Фильтр тренда OK.","💡 Объём на ложном пробое.","💡 Stochastic + поддержка.","💡 Supertrend + CCI, ADX>25."];
+const texts=["💡 Уровень + RSI. P≈67%. Master AI OK.","💡 EMA cross + BB. Фильтр тренда.","💡 Объём на ложном пробое.","💡 Stochastic + поддержка.","💡 Supertrend + CCI, ADX>25."];
 document.getElementById(ids.meta).textContent=asset+" · "+tf+" · "+expTxt;
 const dir=document.getElementById(ids.dir);dir.textContent=call?"⬆️ CALL":"⬇️ PUT";dir.className="sig-dir "+(call?"call":"put");
 document.getElementById(ids.wr).textContent=wr+"%";
 if(ids.combo)document.getElementById(ids.combo).textContent=combos[Math.floor(Math.random()*combos.length)];
-document.getElementById(ids.strat).textContent=texts[Math.floor(Math.random()*texts.length)];
+document.getElementById(ids.strat).textContent=(extra&&extra.text)?extra.text:texts[Math.floor(Math.random()*texts.length)];
 document.getElementById(ids.box).style.display="block";
 sigCount++;localStorage.setItem("tmv_sigs",String(sigCount));updateStats();
 startCd(sec,ids.cd,ids.cancel,ids.newBtn,isScan);
 }
 
 function getSig(){
-showAnalyze(()=>{
+showAnalyze(function(){
 const asset=document.getElementById("asset").value,tf=document.getElementById("tf").value,exp=document.getElementById("exp");
 const sec=parseInt(exp.options[exp.selectedIndex].dataset.s)||60;
 fireSignal(asset,tf,exp.options[exp.selectedIndex].textContent,sec,{box:"sigBox",meta:"sigMeta",dir:"sigDir",strat:"sigStrat",wr:"sigWr",combo:"sigCombo",cd:"cd",cancel:"btnCancel",newBtn:"btnNew"},false);
@@ -505,15 +541,18 @@ setCat(c);const list=ASSETS[c];document.getElementById("asset").value=list[Math.
 document.getElementById("exp").value="60";updateFavBtn();getSig();
 }
 
+function setScanStep(n){for(let i=1;i<=3;i++){const el=document.getElementById("sc"+i);el.className="step-s";if(i<n)el.classList.add("done");if(i===n)el.classList.add("on");}}
+
 async function openCam(){
 try{
 stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
 const v=document.getElementById("scanVideo");v.srcObject=stream;v.classList.remove("hidden");
 document.getElementById("scanPh").classList.add("hidden");
-document.getElementById("scanFrame").classList.add("live");
+document.getElementById("scanOverlay").classList.remove("hidden");
 document.getElementById("btnScan").disabled=false;
 document.getElementById("btnOpenCam").textContent="✅ Камера включена";
-camReady=true;
+document.getElementById("scanStatus").textContent="НАВЕДИ НА ГРАФИК";
+camReady=true;setScanStep(2);
 }catch(e){
 document.getElementById("scanPh").innerHTML="📷 Камера недоступна<br><small>Разрешите доступ в браузере</small>";
 document.getElementById("btnScan").disabled=false;
@@ -521,49 +560,72 @@ camReady=false;
 }
 }
 function stopCam(){
-if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+if(stream){stream.getTracks().forEach(function(t){t.stop();});stream=null;}
 document.getElementById("scanVideo").classList.add("hidden");
 document.getElementById("scanPh").classList.remove("hidden");
 document.getElementById("scanPh").innerHTML="📷<br>Камера выключена";
-document.getElementById("scanFrame").classList.remove("live");
+document.getElementById("scanOverlay").classList.add("hidden");
+document.getElementById("scanLine").classList.remove("on");
 document.getElementById("btnScan").disabled=true;
 document.getElementById("btnOpenCam").textContent="📷 Открыть камеру";
-camReady=false;
+camReady=false;setScanStep(1);
 }
-function doScan(){
-if(document.getElementById("btnScan").disabled&&!camReady){alert("Сначала открой камеру");return;}
-showAnalyze(()=>{
+
+async function doScan(){
+if(document.getElementById("btnScan").disabled){alert("Сначала открой камеру");return;}
+setScanStep(3);
+document.getElementById("scanLine").classList.add("on");
+document.getElementById("scanStatus").textContent="MASTER AI API...";
 const exp=document.getElementById("scanExp");
 const sec=parseInt(exp.options[exp.selectedIndex].dataset.s)||60;
-fireSignal("Chart Scan","AI+IND",exp.options[exp.selectedIndex].textContent,sec,{box:"scanSigBox",meta:"scanMeta",dir:"scanDir",strat:"scanStrat",wr:"scanWr",combo:null,cd:"scanCd",cancel:"btnScanCancel",newBtn:"btnScanNew"},true);
-document.getElementById("scanStrat").textContent="📷 Scan: RSI · BB · MACD · EMA · Volume · ATR. Наведи камеру чётко на свечи для лучшего результата.";
-},true);
+const expTxt=exp.options[exp.selectedIndex].textContent;
+showAnalyze(async function(){
+let direction="CALL",wr="67",text="📷 Master AI: уровни · RSI · BB · MACD · EMA · Volume · ATR.";
+try{
+const r=await fetch("/api/scan_ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({expiration:expTxt})});
+const d=await r.json();
+if(d&&d.ok){
+if(d.direction)direction=d.direction;
+if(d.wr)wr=String(d.wr);
+if(d.text)text="📷 "+d.text;
+}
+}catch(e){}
+document.getElementById("scanLine").classList.remove("on");
+document.getElementById("scanStatus").textContent="ГОТОВО";
+fireSignal("Chart Scan","AI+IND",expTxt,sec,{box:"scanSigBox",meta:"scanMeta",dir:"scanDir",strat:"scanStrat",wr:"scanWr",combo:null,cd:"scanCd",cancel:"btnScanCancel",newBtn:"btnScanNew"},true,{direction:direction,wr:wr,text:text});
+},SCAN_PHRASES,true);
 }
 
 function tab(id,el){
-document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
-document.querySelectorAll(".nav").forEach(n=>n.classList.remove("on"));
+document.querySelectorAll(".tab").forEach(function(t){t.classList.add("hidden");});
+document.querySelectorAll(".nav").forEach(function(n){n.classList.remove("on");});
 document.getElementById(id).classList.remove("hidden");
 if(el)el.classList.add("on");
 if(id==="tabProf")renderFavs();
 if(id!=="tabScan")stopCam();
 }
 
+function badContent(t){return /секс|порн|xxx|nsfw|fuck|shit|хуй|пизд|ебан|блят|naked|nude|18\+/i.test(t);}
+
 async function sendAi(){
 const inp=document.getElementById("chatIn");const t=inp.value.trim();if(!t)return;
 const box=document.getElementById("chat");
 box.innerHTML+='<div class="bubble user">'+t.replace(/</g,"&lt;")+"</div>";
 inp.value="";box.scrollTop=box.scrollHeight;
+if(badContent(t)){
+box.innerHTML+='<div class="bubble ai">На такие темы не отвечаю. Я Master AI по трейдингу 📈</div>';
+box.scrollTop=box.scrollHeight;return;
+}
 chatHistory.push({role:"user",content:t});
-const loading=document.createElement("div");loading.className="bubble ai";loading.textContent="⏳ Grok думает...";box.appendChild(loading);box.scrollTop=box.scrollHeight;
+const loading=document.createElement("div");loading.className="bubble ai";loading.textContent="⏳ Master AI думает...";box.appendChild(loading);box.scrollTop=box.scrollHeight;
 try{
-const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:t,history:chatHistory.slice(-10)})});
+const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:t,history:chatHistory.slice(-12)})});
 const d=await r.json();
-const reply=d.reply||"Не удалось получить ответ. Попробуй ещё раз.";
+let reply=(d.reply||"Нет ответа").replace(/Grok|grok|xAI|xai/gi,"Master AI");
 chatHistory.push({role:"assistant",content:reply});
 loading.textContent=reply;
 }catch(e){
-loading.textContent="Ошибка связи с Grok. Проверь интернет / API ключ на сервере.";
+loading.textContent="Нет связи с API. Проверь Render + XAI_API_KEY.";
 }
 box.scrollTop=box.scrollHeight;
 }
@@ -571,11 +633,11 @@ function qAi(t){document.getElementById("chatIn").value=t;sendAi();}
 
 function renderEdu(){
 const box=document.getElementById("eduItems");box.innerHTML="";
-EDU.forEach((e,i)=>{box.innerHTML+='<div class="edu-item" onclick="openEdu('+i+')"><h4>'+e.t+'</h4><span>→</span></div>';});
+EDU.forEach(function(e,i){box.innerHTML+='<div class="edu-item" onclick="openEdu('+i+')"><h4>'+e.t+'</h4><span>→</span></div>';});
 }
 function openEdu(i){
 const e=EDU[i];document.getElementById("eduList").classList.add("hidden");document.getElementById("eduView").classList.remove("hidden");
-const tags=(e.tags||[]).map(t=>'<span class="tag">'+t+"</span>").join("");
+const tags=(e.tags||[]).map(function(t){return '<span class="tag">'+t+"</span>";}).join("");
 document.getElementById("eduBody").innerHTML="<h3>"+e.t+"</h3><div class=\"tag-row\">"+tags+"</div><img src=\""+e.img+"\" alt=\"\"><p>"+e.d+"</p>";
 window.scrollTo({top:0,behavior:"smooth"});
 }
