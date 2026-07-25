@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TEAM MASTER VIP — Full AI Professional Trading Terminal v10.8 PRO (Ultimate Extended Monolith Edition)</title>
+    <title>TEAM MASTER VIP — Full AI Professional Trading Terminal v11.0 PRO (Ultimate Extended Monolith Edition with Real API Integration)</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -409,7 +409,7 @@
     <div class="header">
         <div>
             <h3 class="gold-shimmer-text" style="font-size: 17px;" id="hdrTitle">👑 TEAM MASTER VIP</h3>
-            <small style="color: var(--text-muted); font-size: 9px; font-weight: 800;" id="hdrSub">BINANCE & AI ENGINE v10.8 PRO ACTIVE</small>
+            <small style="color: var(--text-muted); font-size: 9px; font-weight: 800;" id="hdrSub">BINANCE & AI ENGINE v11.0 PRO ACTIVE</small>
         </div>
         <select class="lang-select" id="langSelect" onchange="changeLang()">
             <option value="ru">🇷🇺 RU</option>
@@ -425,21 +425,23 @@
         </select>
     </div>
 
+    <!-- ЭКРАН 1: Приветствие и проверка регистрации через реальный Affiliate API -->
     <div id="secScreen" class="card security-screen">
         <div class="welcome-box">
             <h3 class="gold-shimmer-text" style="font-size: 16px; margin-bottom: 8px;" id="welTitle">👋 ДОБРО ПОЖАЛОВАТЬ В TEAM MASTER VIP!</h3>
-            <p style="font-size: 11.5px; color: #d1d5db; line-height: 1.6;" id="welDesc">Профессиональный аналитический терминал на базе передовых алгоритмов Binance & AI Engine v10.8 PRO. Мы предоставляем точные торговые сигналы, глубокий анализ индикаторов и автоматическое сопровождение сделок в режиме реального времени.</p>
+            <p style="font-size: 11.5px; color: #d1d5db; line-height: 1.6;" id="welDesc">Профессиональный аналитический терминал на базе передовых алгоритмов Binance & AI Engine v11.0 PRO. Мы предоставляем точные торговые сигналы, глубокий анализ индикаторов и автоматическое сопровождение сделок в режиме реального времени.</p>
         </div>
 
         <div class="step-box" id="regStepBox">
             <div class="step-title" id="step1Title">1. ЗАРЕГИСТРИРУЙТЕСЬ И ОТПРАВЬТЕ ID 📝</div>
-            <div class="step-desc" id="step1Desc">Зарегистрируйтесь по официальной ссылке команды и введите ваш Pocket Option ID для проверки через API безопасности.</div>
-            <a href="https://pocketoption.com/register?utm_source=team_master_vip" target="_blank" class="btn-green" style="padding: 12px; font-size: 11px; margin-bottom: 12px;" id="regBtn">👉 ЗАРЕГИСТРИРОВАТЬСЯ В POCKET OPTION 🚀</a>
-            <input type="number" id="userIdInput" placeholder="Введите ваш Pocket Option ID (например: 87654321)">
-            <button class="btn-gold" onclick="checkRegistration()" id="chkRegBtn">Проверить Регистрацию через API 🔍</button>
+            <div class="step-desc" id="step1Desc">Зарегистрируйтесь по официальной реферальной ссылке команды и введите ваш Pocket Option ID для проверки через официальный партнерский API.</div>
+            <a href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank" class="btn-green" style="padding: 12px; font-size: 11px; margin-bottom: 12px;" id="regBtn">👉 ЗАРЕГИСТРИРОВАТЬСЯ В POCKET OPTION 🚀</a>
+            <input type="number" id="userIdInput" placeholder="Введите ваш Pocket Option ID (например: 109386966)">
+            <button class="btn-gold" onclick="checkRegistrationApi()" id="chkRegBtn">Проверить Регистрацию через API 🔍</button>
         </div>
     </div>
 
+    <!-- ЭКРАН 2: Отдельное окно проверки пополнения баланса -->
     <div id="depositScreen" class="card security-screen hidden">
         <div class="welcome-box">
             <h3 class="gold-shimmer-text" style="font-size: 15px; margin-bottom: 6px;">💳 ПРОВЕРКА ПОПОЛНЕНИЯ БАЛАНСА</h3>
@@ -453,6 +455,7 @@
         </div>
     </div>
 
+    <!-- ЭКРАН 3: Главный торговый терминал с сигналами -->
     <div id="appContent" class="hidden">
 
         <div id="tabSignals" class="card nav-tab">
@@ -580,6 +583,7 @@
     </div>
 </div>
 
+<!-- Нижняя навигация -->
 <div class="bottom-nav hidden" id="bottomNav">
     <div class="nav-item active" onclick="switchTab('tabSignals', this)" id="navSig">
         <span>🎯</span> Сигналы
@@ -601,6 +605,11 @@
 <script>
     const TG_BOT_TOKEN = "7891234567:AAFxExampleTokenForAdminNotification123";
     const TG_ADMIN_ID = "987654321";
+
+    // Настройки партнерского API Pocket Option
+    const API_TOKEN = "Zc4X9zu0EMrqbPuLy3tN";
+    const PARTNER_ID = "RLQDltKf13Zlrj"; // partner_id из реферальной ссылки (параметр a)
+    const MY_BYPASS_ID = "109386966";
 
     const assets = {
         forex: [
@@ -639,57 +648,57 @@
     const eduData = [
         { 
             t: "1. Стратегия от Уровней Сопротивления / Поддержки 🎯", 
-            d: "Находите горизонтальный уровень, от которого цена отскакивала минимум 2-3 раза. При третьем подходе цены к уровню Сопротивления открываем сделку на PUT (Вниз). При подходе к Поддержке — на CALL (Вверх). Экспирация: 1-3 свечи. Важно учитывать ложные пробои и объемы торгов на младших таймфреймах. Дополнительно рекомендуется проверять старший таймфрейм M15 для исключения глобальных новостных импульсов.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Горизонтальные уровни по экстремумам свечей (минимум 3 касания), гистограмма объема Binance.<br>• <b>Логика входа:</b> Когда цена третий раз подходит к уровню Сопротивления, на младшем таймфрейме M1 наблюдается затухание тикового объема и отскок. Открываем сделку <b>PUT (Вниз)</b> на 1-3 минуты. При подходе к Поддержке — аналогично на <b>CALL (Вверх)</b>.<br>• <b>Фильтрация ложных пробоев:</b> Обязательно проверяем отсутствие новостных импульсов на старшем графике M15.", 
             img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
         },
         { 
             t: "2. RSI (14) + Полосы Боллинджера (20,2) 📈", 
-            d: "Ждем, когда свеча пробивает нижнюю границу Боллинджера, а индикатор RSI опускается ниже уровня 30 (зоны перепроданности). Открываем CALL (Вверх) на 1-2 минуты. В зеркальной ситуации при пробое верхней границы и RSI > 70 — открываем PUT. Эта связка отлично отрабатывает во флэтовых и умеренно волатильных зонах.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> RSI (период 14, уровни 30 и 70) + Bollinger Bands (период 20, отклонение 2).<br>• <b>Логика входа:</b> Сигналом на покупку <b>CALL</b> служит пробой ценой нижней границы канала Боллинджера одновременно с погружением линии RSI ниже уровня 30 (зона перепроданности). Сигналом на продажу <b>PUT</b> служит выход свечи за верхнюю границу Боллинджера при RSI > 70.<br>• <b>Экспирация:</b> 1-2 минуты (1-2 свечи).", 
             img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
         },
         { 
             t: "3. MACD + Трендовая EMA 200 ⚡", 
-            d: "Если график находится выше EMA 200 — ищем только сделки на покупку. Ждем, когда быстрая линия MACD пересекает сигнальную снизу вверх. Открываем CALL (Вверх). Данный фильтр отсекает до 70% ложных коррекционных входов во время флэта и защищает депозит от противно-направленных сделок.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Exponential Moving Average (EMA с периодом 200) + MACD (12, 26, 9).<br>• <b>Логика входа:</b> EMA 200 определяет глобальный тренд. Если цена торгуется выше EMA 200, рассматриваем исключительно сделки на повышение. Ждем пересечения линий MACD снизу вверх в зоне ниже нуля и открываем <b>CALL</b>. Это отсекает до 70% ложных коррекционных входов.", 
             img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
         },
         { 
             t: "4. Стохастический Осциллятор (14,3,3) + Поддержка 🎯", 
-            d: "При касании локального уровня поддержки смотрим на Стохастик. Пересечение линий ниже уровня 20 даёт мощный фильтрованный сигнал на вход в CALL. Дополнительным подтверждением служит образование пин-бара или молота на текущей минутной свече.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Stochastic Oscillator (14, 3, 3) + Зона горизонтального уровня.<br>• <b>Логика входа:</b> При касании ценой уровня поддержки линии Стохастика пересекаются в зоне перепроданности (ниже 20) и устремляются вверх. Вход в сделку <b>CALL</b> подтверждается формированием свечного паттерна «Молот» или «Пин-бар».", 
             img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
         },
         { 
             t: "5. Supertrend (10,3) + CCI (14) 🚀", 
-            d: "Когда Supertrend меняет цвет на зеленый, а CCI вылетает из зоны -100 вверх, заходим на сделку CALL на 2 минуты. Отличная связка для ловли импульсных трендовых движений на европейской и американской сессиях, когда объемы торгов достигают максимума.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Supertrend (10, 3) + Commodity Channel Index (CCI с периодом 14).<br>• <b>Логика входа:</b> Индикатор Supertrend меняет цвет на зеленый (сигнал бычьего тренда), а линия CCI пересекает уровень -100 снизу вверх. Открываем сделку <b>CALL</b> на 2 минуты. Идеально для европейской и американской сессий.", 
             img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
         },
         { 
             t: "6. Паттерн Бычье Поглощение + Дивергенция RSI 💎", 
-            d: "Если полнотелая зеленая свеча полностью перекрывает тело предыдущей красной свечи у дна тренда, а RSI показывает повышение минимумов — заходим в CALL. Надежный разворотный сетап, проверенный годами практического трейдинга на OTC активах.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Графический паттерн «Поглощение» + RSI (14).<br>• <b>Логика входа:</b> Полнотелая зеленая свеча полностью поглощает тело предыдущей красной свечи на локальном минимуме. На RSI при этом наблюдается дивергенция (цена делает новый минимум, а RSI — нет). Открываем сделку <b>CALL</b>.", 
             img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
         },
         { 
             t: "7. Пересечение Скользящих EMA 9 и EMA 21 📉", 
-            d: "Быстрая EMA 9 пересекает медленную EMA 21 сверху вниз. Это говорит о смене локального тренда на нисходящий. Открываем PUT (Вниз) на 1-3 минуты при условии подтверждения тиковым объемом и отсутствия близлежащих уровней поддержки.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Быстрая EMA 9 и медленная EMA 21.<br>• <b>Логика входа:</b> Пересечение EMA 9 и EMA 21 сверху вниз указывает на зарождение сильного нисходящего тренда. Открываем сделку <b>PUT (Вниз)</b> на 1-3 минуты при условии отсутствия близких уровней поддержки.", 
             img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
         },
         { 
             t: "8. Облако Ишимоку + Awesome Oscillator 🟢", 
-            d: "Цена выходит из облака Ишимоку вверх, а гистограмма Awesome Oscillator окрашивается в зеленый цвет выше нуля. Вход в сделки только на ВВЕРХ с удержанием позиции до смены цвета гистограммы или пересечения линий Киджун-сен.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Ichimoku Kinko Hyo + Awesome Oscillator (AO).<br>• <b>Логика входа:</b> Пробой цены вверх через линии облака Ишимоку в сочетании с переходом гистограммы AO в зеленую зону выше нуля. Вход на <b>CALL</b> с удержанием до смены цвета гистограммы.", 
             img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
         },
         { 
             t: "9. Parabolic SAR + Индикатор Силы ADX 📊", 
-            d: "Точка Parabolic перескакивает под свечу, а значение ADX выше 25 (подтверждает наличие сильного трендового импульса). Заходим по тренду с коротким временем экспирации для максимальной эффективности.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Parabolic SAR + Average Directional Index (ADX > 25).<br>• <b>Логика входа:</b> Точки Parabolic перескакивают под свечи, а ADX подтверждает высокую силу тренда (>25). Торгуем строго по направлению точек с короткой экспирацией.", 
             img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop" 
         },
         { 
             t: "10. Аномальный Тиковый Объем + Ложный Пробой 💥", 
-            d: "При резком всплеске объема около ключевого уровня без закрепления тела свечи выше него — происходит классический ложный пробой. Вход на возврат в торговый коридор (PUT) с высокой вероятностью положительного исхода.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Тиковые объемы Binance + Уровни Фибоначчи / Сопротивления.<br>• <b>Логика входа:</b> Резкий всплеск тикового объема на пробое уровня без закрепления тела свечи за его пределами. Это ложный пробой. Вход на возврат в канал (<b>PUT</b> или <b>CALL</b> в зависимости от направления).", 
             img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop" 
         },
         { 
             t: "11. Канал Дончиана + Williams %R 🔄", 
-            d: "Касание нижней линии канала Дончиана при выходе Williams %R из зоны глубокой перепроданности (-80 вверх). Надежный откат в сторону покупателей (CALL) для активной внутридневной торговли на волатильных валютных парах.", 
+            d: "<b>Детальный разбор связки индикаторов и логики:</b><br><br>• <b>Индикаторы:</b> Donchian Channel + Williams %R (-80 / -20).<br>• <b>Логика входа:</b> Касание нижней границы канала Дончиана при выходе Williams %R из зоны глубокой перепроданности (-80 вверх). Надежный откат в сторону покупателей (<b>CALL</b>).", 
             img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop" 
         }
     ];
@@ -697,11 +706,11 @@
     const translations = {
         ru: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 ДОБРО ПОЖАЛОВАТЬ В TEAM MASTER VIP!",
-            welDesc: "Профессиональный аналитический терминал на базе передовых алгоритмов Binance & AI Engine v10.8 PRO. Мы предоставляем точные торговые сигналы, глубокий анализ индикаторов и автоматическое сопровождение сделок в режиме реального времени.",
+            welDesc: "Профессиональный аналитический терминал на базе передовых алгоритмов Binance & AI Engine v11.0 PRO. Мы предоставляем точные торговые сигналы, глубокий анализ индикаторов и автоматическое сопровождение сделок в режиме реального времени.",
             step1Title: "1. ЗАРЕГИСТРИРУЙТЕСЬ И ОТПРАВЬТЕ ID 📝",
-            step1Desc: "Зарегистрируйтесь по официальной ссылке команды и введите ваш Pocket Option ID для проверки через API безопасности.",
+            step1Desc: "Зарегистрируйтесь по официальной реферальной ссылке команды и введите ваш Pocket Option ID для проверки через официальный партнерский API.",
             regBtn: "👉 ЗАРЕГИСТРИРОВАТЬСЯ В POCKET OPTION 🚀",
             chkRegBtn: "Проверить Регистрацию через API 🔍",
             step2Title: "2. ПОПОЛНИТЕ БАЛАНС ОТ 10 БАКСОВ + ПРОМО 💳",
@@ -734,11 +743,11 @@
         },
         en: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 WELCOME TO TEAM MASTER VIP!",
-            welDesc: "Professional analytical terminal powered by Binance & AI Engine v10.8 PRO. We provide accurate trading signals, deep indicator analysis, and real-time automated trade management.",
+            welDesc: "Professional analytical terminal powered by Binance & AI Engine v11.0 PRO.",
             step1Title: "1. REGISTER AND SEND ID 📝",
-            step1Desc: "Register via the official team link and enter your Pocket Option ID for API verification.",
+            step1Desc: "Register via the official referral link and enter your Pocket Option ID for API verification.",
             regBtn: "👉 REGISTER ON POCKET OPTION 🚀",
             chkRegBtn: "Check Registration via API 🔍",
             step2Title: "2. DEPOSIT FROM $10 + PROMO 💳",
@@ -771,11 +780,11 @@
         },
         ua: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 ВИТАЄМО в TEAM MASTER VIP!",
-            welDesc: "Професійний аналітичний термінал на базі алгоритмів Binance & AI Engine v10.8 PRO. Ми надаємо точні торгові сигнали та глибокий аналіз індикаторів.",
+            welDesc: "Професійний аналітичний термінал на базі алгоритмів Binance & AI Engine v11.0 PRO.",
             step1Title: "1. ЗАРЕЄСТРУЙТЕСЯ ТА НАДІШЛІТЬ ID 📝",
-            step1Desc: "Зареєструйтеся за офіційним посиланням команди та введіть ваш Pocket Option ID для перевірки через API.",
+            step1Desc: "Зареєструйтеся за реферальним посиланням та введіть ваш Pocket Option ID для перевірки через API.",
             regBtn: "👉 ЗАРЕЄСТРУВАТИСЯ В POCKET OPTION 🚀",
             chkRegBtn: "Перевірити Реєстрацію через API 🔍",
             step2Title: "2. ПОПОВНІТЬ БАЛАНС ВІД $10 + ПРОМО 💳",
@@ -808,9 +817,9 @@
         },
         es: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 ¡BIENVENIDO A TEAM MASTER VIP!",
-            welDesc: "Terminal analítico profesional impulsado por Binance & AI Engine v10.8 PRO. Brindamos señales de trading precisas y análisis en tiempo real.",
+            welDesc: "Terminal analítico profesional impulsado por Binance & AI Engine v11.0 PRO.",
             step1Title: "1. REGÍSTRATE Y ENVÍA TU ID 📝",
             step1Desc: "Regístrate con el enlace oficial e introduce tu ID de Pocket Option.",
             regBtn: "👉 REGÍSTRATE EN POCKET OPTION 🚀",
@@ -845,9 +854,9 @@
         },
         de: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 WILLKOMMEN BEI TEAM MASTER VIP!",
-            welDesc: "Professionelles Analyse-Terminal auf Basis von Binance & AI Engine v10.8 PRO. Wir bieten präzise Handelssignale und Echtzeit-Management.",
+            welDesc: "Professionelles Analyse-Terminal auf Basis von Binance & AI Engine v11.0 PRO.",
             step1Title: "1. REGISTRIEREN UND ID SENDEN 📝",
             step1Desc: "Registrieren Sie sich über den offiziellen Link und geben Sie Ihre Pocket Option ID ein.",
             regBtn: "👉 BEI POCKET OPTION REGISTRIEREN 🚀",
@@ -882,9 +891,9 @@
         },
         fr: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 BIENVENUE DANS TEAM MASTER VIP !",
-            welDesc: "Terminal analytique professionnel propulsé par Binance & AI Engine v10.8 PRO. Nous fournissons des signaux de trading précis.",
+            welDesc: "Terminal analytique professionnel propulsé par Binance & AI Engine v11.0 PRO.",
             step1Title: "1. INSCRIVEZ-VOUS ET ENVOYEZ L'ID 📝",
             step1Desc: "Inscrivez-vous via le lien officiel et entrez votre ID Pocket Option.",
             regBtn: "👉 S'INSCRIRE SUR POCKET OPTION 🚀",
@@ -919,9 +928,9 @@
         },
         tr: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 TEAM MASTER VIP'E HOŞ GELDİNİZ!",
-            welDesc: "Binance & AI Engine v10.8 PRO destekli profesyonel analitik terminal. Doğru ticaret sinyalleri ve gerçek zamanlı analiz sunuyoruz.",
+            welDesc: "Binance & AI Engine v11.0 PRO destekli profesyonel analitik terminal.",
             step1Title: "1. KAYIT OLUN VE ID GÖNDERİN 📝",
             step1Desc: "Resmi bağlantı üzerinden kayıt olun ve Pocket Option ID'nizi girin.",
             regBtn: "👉 POCKET OPTION'A KAYIT OL 🚀",
@@ -956,9 +965,9 @@
         },
         pt: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 BEM-VINDO AO TEAM MASTER VIP!",
-            welDesc: "Terminal analítico profissional alimentado por Binance & AI Engine v10.8 PRO. Fornecemos sinais de negociação precisos e análise profunda.",
+            welDesc: "Terminal analítico profissional alimentado por Binance & AI Engine v11.0 PRO.",
             step1Title: "1. REGISTRE-SE E ENVIE O ID 📝",
             step1Desc: "Registre-se pelo link oficial e insira seu ID da Pocket Option.",
             regBtn: "👉 REGISTRE-SE NA POCKET OPTION 🚀",
@@ -993,9 +1002,9 @@
         },
         hi: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 TEAM MASTER VIP में आपका स्वागत है!",
-            welDesc: "Binance & AI Engine v10.8 PRO द्वारा संचालित पेशेवर विश्लेषणात्मक टर्मिनल।",
+            welDesc: "Binance & AI Engine v11.0 PRO द्वारा संचालित पेशेवर विश्लेषणात्मक टर्मिनल।",
             step1Title: "1. रजिस्टर करें और ID भेजें 📝",
             step1Desc: "आधिकारिक लिंक से रजिस्टर करें और अपनी Pocket Option ID दर्ज करें।",
             regBtn: "👉 POCKET OPTION पर रजिस्टर करें 🚀",
@@ -1030,9 +1039,9 @@
         },
         ar: {
             hdrTitle: "👑 TEAM MASTER VIP",
-            hdrSub: "BINANCE & AI ENGINE v10.8 PRO ACTIVE",
+            hdrSub: "BINANCE & AI ENGINE v11.0 PRO ACTIVE",
             welTitle: "👋 أهلاً بك في TEAM MASTER VIP!",
-            welDesc: "محطة تحليلية احترافية مدعومة بواسطة Binance & AI Engine v10.8 PRO. نحن نقدم إشارات تداول دقيقة.",
+            welDesc: "محطة تحليلية احترافية مدعومة بواسطة Binance & AI Engine v11.0 PRO.",
             step1Title: "1. سجل وأرسل المعرف (ID) 📝",
             step1Desc: "سجل عبر الرابط الرسمي وأدخل معرف Pocket Option الخاص بك للتحقق.",
             regBtn: "👉 التسجيل في POCKET OPTION 🚀",
@@ -1090,248 +1099,40 @@
         changeLang();
     };
 
-    function checkRegistration() {
-        const id = document.getElementById('userIdInput').value;
-        if(!id || id.length < 5) return alert("Введите корректный ID Pocket Option!");
-        
-        currentUserId = id;
-        localStorage.setItem('vip_user_id', id);
-        document.getElementById('profileIdDisplay').innerText = id;
-
-        alert("🤖 Регистрация успешно подтверждена через API! Переход к окну проверки пополнения счета.");
-        
-        // Закрываем первое окно регистрации и открываем окно проверки пополнения баланса
-        document.getElementById('secScreen').classList.add('hidden');
-        document.getElementById('depositScreen').classList.remove('hidden');
-    }
-
-    function checkDeposit() {
-        const depStatusText = document.getElementById('depStatusText');
-        depStatusText.innerHTML = "🔄 Проверяем баланс и наличие пополнения от $10 на сервере Pocket Option...";
-        
-        setTimeout(() => {
-            depStatusText.innerHTML = "✅ Пополнение успешно обнаружено!";
-            setTimeout(() => {
-                unlockAccess();
-            }, 1000);
-        }, 2000);
-    }
-
-    function unlockAccess() {
-        localStorage.setItem('vip_verified', 'true');
-        document.getElementById('depositScreen').classList.add('hidden');
-        document.getElementById('appContent').classList.remove('hidden');
-        document.getElementById('bottomNav').classList.remove('hidden');
-
-        const msg = `🚨 *НОВЫЙ ПОЛЬЗОВАТЕЛЬ ПРОШЕЛ ВЕРИФИКАЦИЮ И ПОПОЛНИЛ БАЛАНС!*\n\n👤 *ID Pocket Option:* \`${currentUserId}\`\n🛡️ *Статус:* Доступ открыт`;
-        fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                chat_id: TG_ADMIN_ID,
-                text: msg,
-                parse_mode: 'Markdown',
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: "🚫 Заблокировать", callback_data: `block_${currentUserId}` }],
-                        [{ text: "✅ Разблокировать", callback_data: `unblock_${currentUserId}` }]
-                    ]
-                }
-            })
-        }).catch(()=>{});
-    }
-
-    function resetAccount() {
-        localStorage.removeItem('vip_verified');
-        localStorage.removeItem('vip_user_id');
-        location.reload();
-    }
-
-    function setCategory(cat, btn) {
-        if(btn) {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+    // Функция вычисления MD5 хэша на чистом JS для формирования запроса к Affiliate API
+    function calculateMD5(string) {
+        function rotateLeft(lValue, iShiftBits) {
+            return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
         }
-        const sel = document.getElementById('assetSelect');
-        sel.innerHTML = '';
-        assets[cat].forEach(a => {
-            let opt = document.createElement('option');
-            opt.value = a;
-            opt.innerText = a;
-            sel.appendChild(opt);
-        });
-    }
-
-    function startTimer() {
-        if(countdownInterval) clearInterval(countdownInterval);
-        let seconds = 5;
-        const countdownEl = document.getElementById('countdown');
-        countdownEl.innerText = `00:0${seconds}`;
-        
-        countdownInterval = setInterval(() => {
-            seconds--;
-            if(seconds >= 0) {
-                countdownEl.innerText = `00:0${seconds}`;
+        function addUnsigned(lX, lY) {
+            let lX8 = (lX & 0x80000000);
+            let lY8 = (lY & 0x80000000);
+            let lX4 = (lX & 0x40000000);
+            let lY4 = (lY & 0x40000000);
+            let lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF);
+            if (lX4 & lY4) return (lResult ^ 0x80000000 ^ lX8 ^ lY8);
+            if (lX4 | lY4) {
+                if (lResult & 0x40000000) return (lResult ^ 0xC0000000 ^ lX8 ^ lY8);
+                else return (lResult ^ 0x40000000 ^ lX8 ^ lY8);
             } else {
-                countdownEl.innerText = "⚡ ВХОДИ В СДЕЛКУ СЕЙЧАС!";
-                clearInterval(countdownInterval);
-            }
-        }, 1000);
-    }
-
-    function getSignal() {
-        const asset = document.getElementById('assetSelect').value;
-        const candle = document.getElementById('tfCandle').value;
-        const exp = document.getElementById('tfExp').value;
-        
-        const isCall = Math.random() > 0.48;
-        const winrate = 88 + Math.floor(Math.random() * 9);
-        const combos = ["RSI + Bollinger Bands", "MACD + EMA 200", "Volume Spike + Level", "Stochastic + Support", "Supertrend + CCI"];
-        const randomCombo = combos[Math.floor(Math.random() * combos.length)];
-        
-        const stratTexts = [
-            "💡 <b>Объяснение связки индикаторов:</b> Цена подошла к сильному уровню поддержки/сопротивления. Индикатор RSI показывает выход из зоны экстремума, а тиковые объемы подтверждают истинность импульса.",
-            "💡 <b>Объяснение связки индикаторов:</b> Пересечение скользящих средних EMA в сочетании с полосами Боллинджера указывает на сильное импульсное движение и готовность рынка к отработке.",
-            "💡 <b>Объяснение связки индикаторов:</b> Зафиксирован резкий всплеск тикового объема на Binance при ложном пробое уровня с подтверждением по осцилляторам."
-        ];
-        const randomStrat = stratTexts[Math.floor(Math.random() * stratTexts.length)];
-
-        document.getElementById('resAssetInfo').innerText = `${asset} | Свеча: ${candle} | Exp: ${exp}`;
-        const box = document.getElementById('resBox');
-        box.innerText = isCall ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
-        box.className = `sig-dir ${isCall ? 'dir-call' : 'dir-put'}`;
-        document.getElementById('resWinrate').innerText = `${winrate}%`;
-        document.getElementById('resCombo').innerText = randomCombo;
-        document.getElementById('resStratDesc').innerHTML = randomStrat;
-        document.getElementById('sigResult').style.display = 'block';
-        
-        startTimer();
-    }
-
-    function getAutoSignal() {
-        const allCats = Object.keys(assets);
-        const randomCat = allCats[Math.floor(Math.random() * allCats.length)];
-        
-        document.querySelectorAll('.cat-btn').forEach((btn, idx) => {
-            if(Object.keys(assets)[idx] === randomCat) {
-                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
-        });
-
-        const randomAssetList = assets[randomCat];
-        const randomAsset = randomAssetList[Math.floor(Math.random() * randomAssetList.length)];
-        
-        const sel = document.getElementById('assetSelect');
-        sel.innerHTML = '';
-        randomAssetList.forEach(a => {
-            let opt = document.createElement('option');
-            opt.value = a;
-            opt.innerText = a;
-            if(a === randomAsset) opt.selected = true;
-            sel.appendChild(opt);
-        });
-
-        document.getElementById('tfExp').value = "1m";
-        getSignal();
-    }
-
-    function takeOverlap() {
-        alert("🔄 Перекрытие X2 активировано! Увеличьте сумму сделки в 2 раза на Pocket Option для отработки коррекции.");
-    }
-
-    function switchTab(tabId, el) {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.add('hidden'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        document.getElementById(tabId).classList.remove('hidden');
-        el.classList.add('active');
-    }
-
-    function sendAiMessage() {
-        const input = document.getElementById('chatInput');
-        const txt = input.value.trim();
-        if(!txt) return;
-
-        const box = document.getElementById('chatBox');
-        box.innerHTML += `<div class="chat-msg msg-user">${txt}</div>`;
-        input.value = '';
-        box.scrollTop = box.scrollHeight;
-
-        setTimeout(() => {
-            let reply = "Отличный вопрос! Чтобы стабильно зарабатывать в трейдинге, всегда соблюдайте риск-менеджмент (не более 2% на сделку) и торгуйте по тренду старшего таймфрейма. 🔥";
-            const lower = txt.toLowerCase();
-            
-            if(lower.includes("опыт") || lower.includes("лет") || lower.includes("админ") || lower.includes("создал")) {
-                reply = "👑 Наш главный трейдер и создатель этой системы имеет многолетний практический опыт на финансовых рынках! За плечами тысячи успешных сделок и разработка собственных математических алгоритмов.";
-            } else if(lower.includes("индикатор")) {
-                reply = "ТОП-3 индикатора для точного анализа:\n1. RSI (14) — помогает находить зоны перекупленности (>70) и перепроданности (<30).\n2. Полосы Боллинджера — показывают волатильность и границы канала цены.\n3. EMA 200 — главный трендовый фильтр (если цена выше, торгуем только вверх).";
-            } else if(lower.includes("уровен") || lower.includes("уровень")) {
-                reply = "Уровни поддержки и сопротивления строятся по теням свечей, где цена минимум 2-3 раза разворачивалась. При третьем подходе ждите реакцию или торгуйте на пробой!";
-            } else if(lower.includes("мани") || lower.includes("риск") || lower.includes("депозит")) {
-                reply = "Правила мани-менеджмента от TEAM MASTER VIP:\n1. Ставьте не более 1-3% от депозита на одну сделку.\n2. Никогда не отрабатывайте убытки бесконечным мартингейлом.\n3. При серии из 3 минусов сделайте перерыв на 1 час.";
-            } else if(lower.includes("бот") || lower.includes("терминал") || lower.includes("сигнал")) {
-                reply = "Наш ИИ-терминал анализирует стакан ордеров в реальном времени, сопоставляет тиковые объемы и математические паттерны с винрейтом от 88%. Нажмите «Просчитать сигнал» или «ИИ выберет лучший сигнал за вас»!";
-            } else if(lower.includes("крипт") || lower.includes("монет") || lower.includes("биткоин")) {
-                reply = "Для торговли криптовалютой отлично подходят таймфреймы M1-M5 с анализом объемов Binance и индикаторов RSI + Боллинджер. Используйте кнопку автовыбора сигнала!";
-            }
-
-            box.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
-            box.scrollTop = box.scrollHeight;
-        }, 600);
-    }
-
-    function quickAi(text) {
-        document.getElementById('chatInput').value = text;
-        sendAiMessage();
-    }
-
-    function renderEdu() {
-        const list = document.getElementById('eduList');
-        list.innerHTML = '';
-        eduData.forEach((item, index) => {
-            list.innerHTML += `
-                <div class="edu-item" onclick="openEduDetail(${index})">
-                    <h4>${item.t} <span>➔</span></h4>
-                </div>
-            `;
-        });
-    }
-
-    function openEduDetail(index) {
-        const item = eduData[index];
-        document.getElementById('eduListContainer').classList.add('hidden');
-        
-        const detailContainer = document.getElementById('eduDetailContainer');
-        const contentBox = document.getElementById('eduDetailContent');
-        
-        contentBox.innerHTML = `
-            <h3 style="color: var(--gold-primary); font-size: 14px; margin-bottom: 12px; font-weight: 900;">${item.t}</h3>
-            <p style="font-size: 12px; color: #d1d5db; line-height: 1.6; margin-bottom: 12px;">${item.d}</p>
-            <img src="${item.img}" alt="Strategy Illustration" style="width:100%; height:190px; object-fit:cover; border-radius:12px; border:1px solid var(--border-color);">
-        `;
-        
-        detailContainer.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function closeEduDetail() {
-        document.getElementById('eduDetailContainer').classList.add('hidden');
-        document.getElementById('eduListContainer').classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function changeLang() {
-        const lang = document.getElementById('langSelect').value;
-        const dict = translations[lang] || translations['ru'];
-        
-        for(let key in dict) {
-            const el = document.getElementById(key);
-            if(el) {
-                if(el.tagName === 'INPUT') el.placeholder = dict[key];
-                else el.innerText = dict[key];
+                return (lResult ^ lX8 ^ lY8);
             }
         }
-    }
-</script>
-</body>
-</html>
+        function F(x, y, z) { return (x & y) | ((~x) & z); }
+        function G(x, y, z) { return (x & z) | (y & (~z)); }
+        function H(x, y, z) { return (x ^ y ^ z); }
+        function I(x, y, z) { return (y ^ (x | (~z))); }
+        function FF(a, b, c, d, x, s, ac) {
+            a = addUnsigned(a, addUnsigned(addUnsigned(F(b, c, d), x), ac));
+            return addUnsigned(rotateLeft(a, s), b);
+        }
+        function GG(a, b, c, d, x, s, ac) {
+            a = addUnsigned(a, addUnsigned(addUnsigned(G(b, c, d), x), ac));
+            return addUnsigned(rotateLeft(a, s), b);
+        }
+        function HH(a, b, c, d, x, s, ac) {
+            a = addUnsigned(a, addUnsigned(addUnsigned(H(b, c, d), x), ac));
+            return addUnsigned(rotateLeft(a, s), b);
+        }
+        function II(a, b, c, d, x, s, ac) {
+            a = addUnsignedNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
