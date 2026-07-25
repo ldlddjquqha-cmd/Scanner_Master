@@ -1,187 +1,68 @@
-import os
-import sys
-import logging
-import sqlite3
+import hashlib
+import aiohttp
+from aiogram import types, F, Bot, Dispatcher
 import asyncio
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
-from pydantic import BaseModel
-import uvicorn
 
-from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+# Твои данные из партнерки
+API_TOKEN = "Zc4X9zu0EMrqbPuLy3tN"
+PARTNER_ID = "850173" 
 
-# ==========================================
-# 1. НАСТРОЙКИ (ИЗ ПЕРЕМЕННЫХ ОКРУЖЕНИЯ ИЛИ ДЕФОЛТНЫЕ)
-# ==========================================
-TOKEN = os.getenv("TOKEN", "7891234567:AAFxExampleTokenForAdminNotification123")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "987654321"))
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-logger = logging.getLogger("TradingApp")
-
-bot = Bot(token=TOKEN)
+# Токен твоего Telegram-бота (не забудь заменить на свой, если еще не вписан)
+BOT_TOKEN = "ТОКЕН_ТВОГО_ТЕЛЕГРАМ_БОТА"
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-app = FastAPI(title="TEAM MASTER VIP Security Core", version="10.8")
 
-# ==========================================
-# 2. БАЗА ДАННЫХ (SQLite)
-# ==========================================
-DB_FILE = "vip_terminal.db"
-
-def init_db():
-    logger.info("Инициализация локальной базы данных SQLite...")
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            telegram_id INTEGER PRIMARY KEY,
-            pocket_id TEXT,
-            is_verified BOOLEAN DEFAULT 0,
-            is_banned BOOLEAN DEFAULT 0,
-            registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    conn.commit()
-    conn.close()
-
-init_db()
-
-def db_exec(query, params=(), fetchone=False, fetchall=False):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute(query, params)
-    res = None
-    if fetchone:
-        res = cursor.fetchone()
-    elif fetchall:
-        res = cursor.fetchall()
-    else:
-        conn.commit()
-    conn.close()
-    return res
-
-# ==========================================
-# 3. PYDANTIC МОДЕЛИ ДАННЫХ
-# ==========================================
-class VerifyPayload(BaseModel):
-    pocket_id: str
-    telegram_id: int = None
-
-# ==========================================
-# 4. API МАРШРУТЫ (FASTAPI)
-# ==========================================
-@app.post("/api/v1/verify")
-async def api_verify(payload: VerifyPayload, request: Request):
-    pocket_id = payload.pocket_id
-    client_ip = request.client.host
-
-    if not pocket_id:
-        raise HTTPException(status_code=400, detail="Не указан Pocket Option ID")
-
-    # Ищем пользователя в БД по pocket_id
-    user_row = db_exec("SELECT telegram_id, is_banned FROM users WHERE pocket_id = ?", (pocket_id,), fetchone=True)
+async def verify_pocket_option_user(user_id: str) -> bool:
+    global PARTNER_ID
     
-    if user_row and user_row[1] == 1:
-        raise HTTPException(status_code=403, detail="Доступ заблокирован администратором.")
-
-    # Сохраняем или обновляем запись
-    db_exec(
-        "INSERT OR REPLACE INTO users (pocket_id, is_verified, is_banned) VALUES (?, 1, 0)",
-        (pocket_id,)
-    )
-
-    # Отправляем уведомление администратору в Telegram с кнопками управления
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🚫 Заблокировать", callback_data=f"block_{pocket_id}")],
-        [InlineKeyboardButton(text="✅ Разблокировать", callback_data=f"unblock_{pocket_id}")]
-    ])
+    # Формируем хэш строго по инструкции API
+    raw_hash_string = f"{user_id}:{PARTNER_ID}:{API_TOKEN}"
+    api_hash = hashlib.md5(raw_hash_string.encode('utf-8')).hexdigest()
+    
+    url = f"https://affiliate.pocketoption.com/api/user-info/{user_id}/{PARTNER_ID}/{api_hash}"
     
     try:
-        await bot.send_message(
-            ADMIN_ID,
-            f"🚨 *НОВЫЙ ПОЛЬЗОВАТЕЛЬ ПРОШЕЛ ВЕРИФИКАЦИЮ!*\n\n"
-            f"👤 *ID Pocket Option:* `{pocket_id}`\n"
-            f"🌐 *IP Адрес:* `{client_ip}`\n"
-            f"🛡️ *Статус:* Доступ открыт",
-            reply_markup=keyboard,
-            parse_mode="Markdown"
-        )
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, timeout=5) as response:
+                if response.status != 200:
+                    return False
+                
+                data = await response.json()
+                print(f"Ответ API для ID {user_id}: {data}")
+                
+                if not data or "error" in data or data.get("status") == "error":
+                    return False
+                
+                return True
+                
     except Exception as e:
-        logger.error(f"Не удалось отправить уведомление администратору: {e}")
+        print(f"Ошибка при запросе к API Pocket Option: {e}")
+        return False
 
-    return {"status": "success", "message": "Верификация успешно пройдена"}
-
-@app.get("/api/v1/status/{pocket_id}")
-async def api_status(pocket_id: str):
-    row = db_exec("SELECT is_verified, is_banned FROM users WHERE pocket_id = ?", (pocket_id,), fetchone=True)
-    if not row:
-        return {"access": False, "banned": False}
-    return {"access": bool(row[0]), "banned": bool(row[1])}
-
-# Отдача фронтенда (index.html должен лежать в той же папке)
-@app.get("/", response_class=HTMLResponse)
-async def serve_index():
-    if os.path.exists("index.html"):
-        with open("index.html", "r", encoding="utf-8") as f:
-            return f.read()
-    return "<h1>404: Файл index.html не найден на сервере</h1>"
-
-# ==========================================
-# 5. TELEGRAM БОТ И КОЛЛБЭКИ АДМИНА
-# ==========================================
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    await message.answer(
-        "👑 *TEAM MASTER VIP Terminal Bot*\n\n"
-        "Бот запущен и обслуживает систему авторизации веб-терминала.",
-        parse_mode="Markdown"
-    )
-
-@dp.callback_query(F.data.startswith("block_") | F.data.startswith("unblock_"))
-async def handle_admin_action(callback: CallbackQuery):
-    if callback.from_user.id != ADMIN_ID:
-        await callback.answer("⛔ У вас нет прав администратора.", show_alert=True)
+@dp.message(F.text)
+async def handle_user_id_check(message: types.Message):
+    user_input = message.text.strip()
+    
+    if not user_input.isdigit():
+        await message.answer("❌ Неверный формат! ID должен состоять только из цифр.")
         return
-
-    action, pocket_id = callback.data.split("_")
-    is_banned = 1 if action == "block" else 0
-
-    db_exec("UPDATE users SET is_banned = ? WHERE pocket_id = ?", (is_banned, pocket_id))
-
-    status_text = "ЗАБЛОКИРОВАН 🔴" if is_banned == 1 else "РАЗБЛОКИРОВАН 🟢"
     
-    # Меняем инлайн-кнопки местами / обновляем интерфейс у админа
-    opposite_action = "unblock" if is_banned == 1 else "block"
-    opposite_label = "✅ Разблокировать" if is_banned == 1 else "🚫 Заблокировать"
+    processing_msg = await message.answer("⏳ Проверяю твой ID в системе...")
     
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=opposite_label, callback_data=f"{opposite_action}_{pocket_id}")]
-    ])
+    is_valid = await verify_pocket_option_user(user_input)
     
     try:
-        await callback.message.edit_reply_markup(reply_markup=keyboard)
-    except Exception:
+        await processing_msg.delete()
+    except:
         pass
+    
+    if is_valid:
+        await message.answer("✅ ID успешно подтвержден! Доступ к боту и сигналам открыт 🎉")
+    else:
+        await message.answer("❌ Доступ запрещен!\n\nID не найден в партнерской программе или не выполнены условия по депозиту.")
 
-    await callback.answer(f"Статус для ID {pocket_id} изменен: {status_text}")
+async def main():
+    await dp.start_polling(bot)
 
-async def start_telegram_polling():
-    logger.info("Запуск фонового пуллинга Telegram бота...")
-    await dp.start_polling(bot, skip_updates=True)
-
-@app.on_event("startup")
-async def on_startup():
-    asyncio.create_task(start_telegram_polling())
-
-# ==========================================
-# 6. ЗАПУСК СЕРВЕРА
-# ==========================================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="info")
+    asyncio.run(main())
