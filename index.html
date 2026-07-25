@@ -3,722 +3,663 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TEAM MASTER VIP — Full AI Professional Trading Terminal v10.9 PRO</title>
+<title>TEAM MASTER VIP — AI Trading Terminal v10.9 PRO</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root {
---gold-primary: #FFD700;
---gold-gradient: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
---dark-bg: #06080d;
---card-bg: #0e121b;
---inner-bg: #0a0d14;
---accent-green: #00E676;
---accent-green-glow: rgba(0, 230, 118, 0.35);
---accent-red: #FF5252;
---accent-red-glow: rgba(255, 82, 82, 0.35);
---border-color: #1a2233;
---border-gold: rgba(212, 175, 55, 0.45);
---text-muted: #7a8499;
---text-main: #e8ecf4;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background-color: var(--dark-bg); color: var(--text-main); padding: 14px; padding-bottom: 100px; display: flex; justify-content: center; min-height: 100vh; }
-.container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; }
-.gold-shimmer-text { background: var(--gold-gradient); background-size: 200% auto; color: #000; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: goldShimmer 3s linear infinite; font-weight: 900; }
-@keyframes goldShimmer { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
-.btn-gold { background: var(--gold-gradient); background-size: 200% auto; animation: goldShimmer 3s linear infinite; color: #111; font-weight: 900; border: none; border-radius: 14px; padding: 16px; cursor: pointer; text-transform: uppercase; width: 100%; box-shadow: 0 6px 24px rgba(191, 149, 63, 0.35); font-size: 13px; letter-spacing: 0.5px; transition: all 0.2s ease; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
-.btn-gold:active { transform: scale(0.97); }
-.btn-gold:disabled { opacity: 0.45; pointer-events: none; }
-.btn-green { background: linear-gradient(135deg, #00C853, #00E676, #69F0AE); color: #063; font-weight: 900; border: none; border-radius: 14px; padding: 16px; cursor: pointer; text-transform: uppercase; width: 100%; box-shadow: 0 6px 20px var(--accent-green-glow); font-size: 13px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; letter-spacing: 0.5px; }
-.btn-green:active { transform: scale(0.97); }
-.btn-dark { background: var(--inner-bg); color: var(--text-muted); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; font-weight: 800; font-size: 13px; width: 100%; cursor: pointer; text-transform: uppercase; }
-.btn-red { background: linear-gradient(135deg, #FF1744, #FF5252); color: #fff; font-weight: 900; border: none; border-radius: 12px; padding: 12px; cursor: pointer; text-transform: uppercase; width: 100%; box-shadow: 0 4px 16px var(--accent-red-glow); font-size: 12px; }
-.header { background: var(--card-bg); border-radius: 18px; padding: 14px 16px; border: 1px solid var(--border-gold); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 30px rgba(212, 175, 55, 0.08); }
-.header h1 { font-size: 16px; }
-.header small { font-size: 9px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.3px; }
-.lang-select { background: var(--inner-bg); color: #fff; border: 1px solid var(--border-color); padding: 7px 10px; border-radius: 10px; font-weight: 700; font-size: 11px; outline: none; cursor: pointer; }
-.card { background: var(--card-bg); border-radius: 18px; padding: 18px; border: 1px solid var(--border-color); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45); }
-.gate-card { background: var(--card-bg); border: 1px solid var(--border-gold); border-radius: 22px; padding: 28px 20px; text-align: center; box-shadow: 0 0 50px rgba(212, 175, 55, 0.12); animation: fadeUp 0.5s ease; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-.progress-bar { display: flex; justify-content: center; align-items: center; margin-bottom: 24px; }
-.progress-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--border-color); transition: all 0.35s; }
-.progress-dot.done { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green-glow); }
-.progress-dot.current { background: var(--gold-primary); box-shadow: 0 0 14px rgba(255, 215, 0, 0.55); transform: scale(1.25); }
-.progress-line { width: 36px; height: 2px; background: var(--border-color); margin: 0 4px; }
-.progress-line.done { background: var(--accent-green); }
-.gate-icon { font-size: 52px; margin-bottom: 10px; line-height: 1; }
-.gate-title { font-size: 19px; font-weight: 900; margin-bottom: 12px; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.gate-desc { font-size: 12.5px; color: #b0b8c8; line-height: 1.7; text-align: left; margin-bottom: 22px; background: var(--inner-bg); padding: 14px 16px; border-radius: 14px; border: 1px solid var(--border-color); }
-.gate-desc b { color: var(--gold-primary); }
-.gate-input { width: 100%; padding: 15px; border-radius: 14px; border: 1.5px solid var(--border-gold); background: var(--inner-bg); color: #fff; font-size: 15px; font-weight: 700; text-align: center; outline: none; margin-bottom: 12px; letter-spacing: 1px; transition: border-color 0.2s, box-shadow 0.2s; }
-.gate-input:focus { border-color: var(--gold-primary); box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.12); }
-.gate-input::placeholder { color: var(--text-muted); font-weight: 600; letter-spacing: 0; }
-.gate-msg { font-size: 12px; font-weight: 700; padding: 11px 14px; border-radius: 12px; margin-bottom: 12px; display: none; line-height: 1.4; }
-.gate-msg.ok { display: block; background: rgba(0, 230, 118, 0.1); color: var(--accent-green); border: 1px solid rgba(0, 230, 118, 0.35); }
-.gate-msg.err { display: block; background: rgba(255, 82, 82, 0.1); color: var(--accent-red); border: 1px solid rgba(255, 82, 82, 0.35); }
-.gate-step { display: none; }
-.gate-step.active { display: block; animation: fadeUp 0.4s ease; }
-.gate-hint { font-size: 11px; color: var(--text-muted); margin: 10px 0 14px; font-weight: 600; }
-.security-check-card { background: var(--inner-bg); border: 1px solid var(--border-gold); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
-.sec-head { font-size: 11px; font-weight: 900; color: var(--gold-primary); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.live-badge { font-size: 9px; background: rgba(0, 230, 118, 0.15); color: var(--accent-green); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(0, 230, 118, 0.4); font-weight: 800; }
-.sec-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
-.sec-row:last-child { border-bottom: none; padding-bottom: 0; }
-.sec-ok { color: var(--accent-green); font-weight: 900; }
-.cat-scroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px; scrollbar-width: none; }
-.cat-scroll::-webkit-scrollbar { display: none; }
-.cat-btn { flex-shrink: 0; padding: 9px 14px; background: var(--inner-bg); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-muted); font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.cat-btn.active { background: var(--gold-gradient); color: #111; border: none; box-shadow: 0 3px 12px rgba(191, 149, 63, 0.3); }
-label.field-label { display: block; font-size: 10px; color: var(--text-muted); font-weight: 800; letter-spacing: 0.4px; margin-bottom: 6px; }
-select.field-select { width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--inner-bg); color: #fff; font-size: 13px; font-weight: 700; outline: none; margin-bottom: 12px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a94a6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
-.signal-result { display: none; margin-top: 14px; background: var(--inner-bg); border: 2px solid var(--gold-primary); border-radius: 18px; padding: 18px; text-align: center; animation: fadeUp 0.35s ease; box-shadow: 0 0 28px rgba(255, 215, 0, 0.12); }
-.sig-meta { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
-.sig-direction { font-size: 22px; font-weight: 900; padding: 14px; border-radius: 14px; margin: 12px 0; letter-spacing: 1px; }
-.dir-call { background: rgba(0, 230, 118, 0.12); color: var(--accent-green); border: 1px solid rgba(0, 230, 118, 0.4); box-shadow: 0 0 18px var(--accent-green-glow); }
-.dir-put { background: rgba(255, 82, 82, 0.12); color: var(--accent-red); border: 1px solid rgba(255, 82, 82, 0.4); box-shadow: 0 0 18px var(--accent-red-glow); }
-.signal-timer { font-size: 14px; font-weight: 900; color: var(--gold-primary); background: rgba(255, 215, 0, 0.07); border: 1px dashed var(--gold-primary); border-radius: 12px; padding: 10px; margin-bottom: 12px; letter-spacing: 0.5px; }
-.strat-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; font-size: 11.5px; color: #c5cdd8; text-align: left; line-height: 1.55; margin-bottom: 12px; }
-.sig-stats { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 12px; }
-.chat-box { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: var(--inner-bg); border-radius: 14px; border: 1px solid var(--border-color); margin-bottom: 10px; }
-.chat-msg { max-width: 86%; padding: 11px 14px; border-radius: 14px; font-size: 12.5px; line-height: 1.55; word-wrap: break-word; white-space: pre-line; }
-.msg-ai { background: #131a28; color: #dce3ef; align-self: flex-start; border: 1px solid #1e2a3d; border-bottom-left-radius: 4px; }
-.msg-user { background: var(--gold-gradient); color: #111; font-weight: 800; align-self: flex-end; border-bottom-right-radius: 4px; }
-.chat-input-row { display: flex; gap: 8px; }
-.chat-input-row input { flex: 1; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--inner-bg); color: #fff; font-size: 13px; font-weight: 700; outline: none; }
-.chat-send-btn { width: 50px; background: var(--gold-gradient); border: none; border-radius: 12px; font-size: 18px; font-weight: 900; color: #111; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.quick-btns { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 2px; scrollbar-width: none; }
-.quick-btns::-webkit-scrollbar { display: none; }
-.quick-btn { flex-shrink: 0; padding: 8px 12px; background: var(--inner-bg); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-muted); font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.edu-item { background: var(--inner-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.2s, transform 0.15s; display: flex; justify-content: space-between; align-items: center; }
-.edu-item:active { transform: scale(0.98); }
-.edu-item:hover { border-color: var(--gold-primary); }
-.edu-item h4 { font-size: 12.5px; color: var(--gold-primary); font-weight: 800; line-height: 1.35; }
-.edu-arrow { color: var(--text-muted); font-size: 16px; }
-.edu-detail-box { background: var(--inner-bg); border: 1px solid var(--border-gold); border-radius: 16px; padding: 18px; }
-.edu-detail-box h3 { color: var(--gold-primary); font-size: 15px; font-weight: 900; margin-bottom: 12px; line-height: 1.35; }
-.edu-detail-box p { font-size: 12.5px; color: #c5cdd8; line-height: 1.7; white-space: pre-line; margin-bottom: 14px; }
-.edu-detail-box img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border-color); }
-.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-.tag { font-size: 10px; font-weight: 800; padding: 5px 10px; border-radius: 8px; background: rgba(255, 215, 0, 0.1); color: var(--gold-primary); border: 1px solid rgba(255, 215, 0, 0.25); }
-.profile-row { font-size: 12.5px; margin-bottom: 10px; display: flex; justify-content: space-between; }
-.profile-row:last-child { margin-bottom: 0; }
-.profile-row b { color: #fff; }
-.about-list { background: var(--inner-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 16px; margin: 12px 0 16px; }
-.about-list li { font-size: 12px; color: #c5cdd8; line-height: 2; list-style: none; }
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #080b12; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0 14px; z-index: 100; box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.7); }
-.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-muted); font-size: 10px; font-weight: 800; cursor: pointer; transition: color 0.2s; min-width: 56px; }
-.nav-item.active { color: var(--gold-primary); }
-.nav-item span { font-size: 20px; }
-.hidden { display: none !important; }
-.loader { width: 16px; height: 16px; border: 2px solid rgba(0, 0, 0, 0.2); border-top-color: #111; border-radius: 50%; animation: spin 0.65s linear infinite; display: inline-block; vertical-align: middle; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.gap { height: 8px; }
-.gap2 { height: 12px; }
+:root{--gold:#FFD700;--gold-g:linear-gradient(135deg,#BF953F 0%,#FCF6BA 25%,#B38728 50%,#FBF5B7 75%,#AA771C 100%);--bg:#06080d;--card:#0e121b;--inner:#0a0d14;--green:#00E676;--green-g:rgba(0,230,118,.3);--red:#FF5252;--red-g:rgba(255,82,82,.3);--border:#1a2233;--border-g:rgba(212,175,55,.45);--muted:#7a8499;--text:#e8ecf4}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Montserrat,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:14px 14px 100px}
+.wrap{width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px}
+.g-text{background:var(--gold-g);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:sh 3s linear infinite;font-weight:900}
+@keyframes sh{to{background-position:200% center}}
+.btn{width:100%;padding:15px;border:none;border-radius:14px;font-weight:800;font-size:13px;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.45;pointer-events:none}
+.btn-gold{background:var(--gold-g);background-size:200% auto;animation:sh 3s linear infinite;color:#111;box-shadow:0 6px 24px rgba(191,149,63,.35)}
+.btn-green{background:linear-gradient(135deg,#00C853,#00E676,#69F0AE);color:#063;box-shadow:0 6px 20px var(--green-g)}
+.btn-dark{background:var(--inner);color:var(--muted);border:1px solid var(--border)}
+.btn-red{background:linear-gradient(135deg,#FF1744,#FF5252);color:#fff;box-shadow:0 4px 16px var(--red-g);font-size:12px;padding:12px}
+.header{background:var(--card);border:1px solid var(--border-g);border-radius:18px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 0 30px rgba(212,175,55,.08)}
+.header h1{font-size:16px}.header small{font-size:9px;color:var(--muted);font-weight:700}
+.lang{background:var(--inner);color:#fff;border:1px solid var(--border);padding:7px 10px;border-radius:10px;font-weight:700;font-size:11px;outline:none}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:0 4px 24px rgba(0,0,0,.45)}
+.gate{background:var(--card);border:1px solid var(--border-g);border-radius:22px;padding:28px 20px;text-align:center;box-shadow:0 0 50px rgba(212,175,55,.12);animation:fu .5s ease}
+@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.progress{display:flex;justify-content:center;align-items:center;margin-bottom:24px}
+.p-dot{width:12px;height:12px;border-radius:50%;background:var(--border);transition:all .35s}
+.p-dot.done{background:var(--green);box-shadow:0 0 10px var(--green-g)}
+.p-dot.cur{background:var(--gold);box-shadow:0 0 14px rgba(255,215,0,.55);transform:scale(1.25)}
+.p-line{width:36px;height:2px;background:var(--border);margin:0 4px}.p-line.done{background:var(--green)}
+.gate-icon{font-size:52px;margin-bottom:10px}
+.gate-title{font-size:19px;font-weight:900;margin-bottom:12px;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.gate-desc{font-size:12.5px;color:#b0b8c8;line-height:1.7;text-align:left;margin-bottom:22px;background:var(--inner);padding:14px 16px;border-radius:14px;border:1px solid var(--border)}
+.gate-desc b{color:var(--gold)}
+.input{width:100%;padding:15px;border-radius:14px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:15px;font-weight:700;text-align:center;outline:none;margin-bottom:12px;letter-spacing:1px}
+.input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.12)}
+.input::placeholder{color:var(--muted);font-weight:600;letter-spacing:0}
+.msg{font-size:12px;font-weight:700;padding:11px 14px;border-radius:12px;margin-bottom:12px;display:none;line-height:1.4}
+.msg.ok{display:block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.35)}
+.msg.err{display:block;background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.35)}
+.step{display:none}.step.on{display:block;animation:fu .4s ease}
+.hint{font-size:11px;color:var(--muted);margin:10px 0 14px;font-weight:600}
+.sec-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.sec-head{font-size:11px;font-weight:900;color:var(--gold);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.live{font-size:9px;background:rgba(0,230,118,.15);color:var(--green);padding:3px 8px;border-radius:6px;border:1px solid rgba(0,230,118,.4);font-weight:800}
+.sec-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.sec-row:last-child{border-bottom:none}.ok{color:var(--green);font-weight:900}
+.cats{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;margin-bottom:12px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
+.cat{flex-shrink:0;padding:9px 14px;background:var(--inner);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.cat.on{background:var(--gold-g);color:#111;border:none;box-shadow:0 3px 12px rgba(191,149,63,.3)}
+.lbl{display:block;font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.4px;margin-bottom:6px}
+.sel{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:13px;font-weight:700;outline:none;margin-bottom:12px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%238a94a6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sig{display:none;margin-top:14px;background:var(--inner);border:2px solid var(--gold);border-radius:18px;padding:18px;text-align:center;animation:fu .35s ease;box-shadow:0 0 28px rgba(255,215,0,.12)}
+.sig-meta{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px}
+.sig-dir{font-size:22px;font-weight:900;padding:14px;border-radius:14px;margin:12px 0;letter-spacing:1px}
+.call{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.4);box-shadow:0 0 18px var(--green-g)}
+.put{background:rgba(255,82,82,.12);color:var(--red);border:1px solid rgba(255,82,82,.4);box-shadow:0 0 18px var(--red-g)}
+.timer{font-size:14px;font-weight:900;color:var(--gold);background:rgba(255,215,0,.07);border:1px dashed var(--gold);border-radius:12px;padding:10px;margin-bottom:12px}
+.strat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:11.5px;color:#c5cdd8;text-align:left;line-height:1.55;margin-bottom:12px}
+.sig-stats{display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:12px}
+.chat{height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--inner);border-radius:14px;border:1px solid var(--border);margin-bottom:10px}
+.bubble{max-width:86%;padding:11px 14px;border-radius:14px;font-size:12.5px;line-height:1.55;white-space:pre-line}
+.ai{background:#131a28;color:#dce3ef;align-self:flex-start;border:1px solid #1e2a3d;border-bottom-left-radius:4px}
+.user{background:var(--gold-g);color:#111;font-weight:800;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-row{display:flex;gap:8px}
+.chat-row input{flex:1;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:13px;font-weight:700;outline:none}
+.chat-send{width:50px;background:var(--gold-g);border:none;border-radius:12px;font-size:18px;font-weight:900;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.quick{display:flex;gap:7px;overflow-x:auto;margin-top:10px;scrollbar-width:none}.quick::-webkit-scrollbar{display:none}
+.qbtn{flex-shrink:0;padding:8px 12px;background:var(--inner);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.edu-item{background:var(--inner);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.edu-item:active{transform:scale(.98)}.edu-item h4{font-size:12.5px;color:var(--gold);font-weight:800}
+.edu-detail{background:var(--inner);border:1px solid var(--border-g);border-radius:16px;padding:18px}
+.edu-detail h3{color:var(--gold);font-size:15px;font-weight:900;margin-bottom:12px}
+.edu-detail p{font-size:12.5px;color:#c5cdd8;line-height:1.7;white-space:pre-line;margin-bottom:14px}
+.edu-detail img{width:100%;height:180px;object-fit:cover;border-radius:12px;border:1px solid var(--border)}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tag{font-size:10px;font-weight:800;padding:5px 10px;border-radius:8px;background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.25)}
+.prof-row{font-size:12.5px;margin-bottom:10px;display:flex;justify-content:space-between}.prof-row b{color:#fff}
+.about-list{background:var(--inner);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:12px 0 16px}
+.about-list li{font-size:12px;color:#c5cdd8;line-height:2;list-style:none}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#080b12;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 14px;z-index:100;box-shadow:0 -8px 30px rgba(0,0,0,.7)}
+.nav{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:800;cursor:pointer;min-width:56px}
+.nav.on{color:var(--gold)}.nav span{font-size:20px}
+.hidden{display:none!important}
+.loader{width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:#111;border-radius:50%;animation:spin .65s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gap{height:8px}.gap2{height:12px}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 <div class="header">
 <div>
-<h1 class="gold-shimmer-text">👑 TEAM MASTER VIP</h1>
-<small>AI ENGINE v10.9 PRO · LIVE · BINANCE DATA</small>
+<h1 class="g-text">👑 TEAM MASTER VIP</h1>
+<small id="tHeaderSub">AI ENGINE v10.9 PRO · LIVE · BINANCE DATA</small>
 </div>
-<select class="lang-select" id="langSelect">
+<select class="lang" id="langSelect" onchange="setLang(this.value)">
 <option value="ru">🇷🇺 RU</option>
 <option value="en">🇺🇸 EN</option>
 <option value="ua">🇺🇦 UA</option>
 </select>
 </div>
 
-<div class="gate-card" id="securityGate">
-<div class="progress-bar">
-<div class="progress-dot current" id="dot1"></div>
-<div class="progress-line" id="line1"></div>
-<div class="progress-dot" id="dot2"></div>
-<div class="progress-line" id="line2"></div>
-<div class="progress-dot" id="dot3"></div>
+<div class="gate" id="gate">
+<div class="progress">
+<div class="p-dot cur" id="d1"></div><div class="p-line" id="l1"></div>
+<div class="p-dot" id="d2"></div><div class="p-line" id="l2"></div>
+<div class="p-dot" id="d3"></div>
 </div>
 
-<div class="gate-step active" id="step1">
+<div class="step on" id="s1">
 <div class="gate-icon">👑</div>
-<div class="gate-title">Добро пожаловать</div>
-<div class="gate-desc">
+<div class="gate-title" id="tWelcome">Добро пожаловать</div>
+<div class="gate-desc" id="tRegDesc">
 <b>Зачем нужна регистрация?</b><br><br>
 Это закрытый VIP-терминал с живыми сигналами и ИИ-анализом.<br><br>
 Бот проверяет через официальный API партнёрки Pocket Option, что вы зарегистрировались именно по нашей ссылке. Без регистрации доступ закрыт.
 </div>
-<a class="btn-gold" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank">🚀 Зарегистрироваться</a>
-<div class="gate-hint">Уже есть аккаунт? Введите ID — бот проверит регистрацию по API</div>
-<input class="gate-input" id="idInput" type="text" inputmode="numeric" placeholder="ID Pocket Option" autocomplete="off">
-<div class="gate-msg" id="regMsg"></div>
-<button class="btn-gold" id="btnReg" onclick="confirmRegistration()">✅ Подтвердить ID</button>
+<a class="btn btn-gold" id="btnRegLink" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank">🚀 Зарегистрироваться</a>
+<div class="hint" id="tRegHint">Уже есть аккаунт? Введите ID — бот проверит регистрацию по API</div>
+<input class="input" id="idInput" type="text" inputmode="numeric" placeholder="ID Pocket Option">
+<div class="msg" id="regMsg"></div>
+<button class="btn btn-gold" id="btnReg" onclick="doReg()">✅ Подтвердить ID</button>
 </div>
 
-<div class="gate-step" id="step2">
+<div class="step" id="s2">
 <div class="gate-icon">💎</div>
-<div class="gate-title">Проверка депозита</div>
-<div class="gate-desc">
+<div class="gate-title" id="tDepTitle">Проверка депозита</div>
+<div class="gate-desc" id="tDepDesc">
 <b>Почему нужен депозит?</b><br><br>
-Терминал открыт только для реальных трейдеров. Минимальный депозит — <b>$10</b>.<br><br>
+Терминал только для реальных трейдеров. Минимум <b>$10</b>.<br><br>
 1. Пополните счёт в Pocket Option<br>
 2. Активируйте промокод <b>WELCOME50</b><br>
-3. Нажмите кнопку — бот проверит депозит через API партнёрки
+3. Нажмите кнопку — бот проверит депозит по API
 </div>
-<input class="gate-input" id="promoInput" type="text" value="WELCOME50" placeholder="Промокод">
-<div class="gate-msg" id="depMsg"></div>
-<button class="btn-green" id="btnDep" onclick="checkDeposit()">🔍 Проверить депозит</button>
+<input class="input" id="promoInput" type="text" value="WELCOME50" placeholder="Промокод">
+<div class="msg" id="depMsg"></div>
+<button class="btn btn-green" id="btnDep" onclick="doDep()">🔍 Проверить депозит</button>
 <div class="gap2"></div>
-<button class="btn-dark" onclick="goToStep(1)">← Назад</button>
+<button class="btn btn-dark" id="btnBack" onclick="goStep(1)">← Назад</button>
 </div>
 
-<div class="gate-step" id="step3">
+<div class="step" id="s3">
 <div class="gate-icon">🎉</div>
-<div class="gate-title">Доступ открыт</div>
-<div class="gate-desc" style="text-align:center;">
-Аккаунт и депозит успешно подтверждены через API партнёрки.<br>
-Все сигналы, ИИ-помощник и обучающие связки доступны.
-</div>
-<button class="btn-gold" onclick="enterTerminal()">🚀 Войти в терминал</button>
+<div class="gate-title" id="tOpenTitle">Доступ открыт</div>
+<div class="gate-desc" id="tOpenDesc" style="text-align:center">Аккаунт и депозит подтверждены через API.<br>Все сигналы, ИИ и связки доступны.</div>
+<button class="btn btn-gold" id="btnEnter" onclick="enterApp()">🚀 Войти в терминал</button>
 </div>
 </div>
 
-<div id="appContent" class="hidden">
-<div id="tabSignals" class="card nav-tab">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-<span class="live-badge">● LIVE BINANCE & POCKET OPTION</span>
-<span style="font-size:10px;color:var(--gold-primary);font-weight:800;">SSL SHIELD ACTIVE ⚡</span>
+<div id="app" class="hidden">
+<div class="card tab" id="tabSig">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<span class="live" id="tLive">● LIVE DATA</span>
+<span style="font-size:10px;color:var(--gold);font-weight:800">SSL ACTIVE ⚡</span>
 </div>
-<div class="security-check-card">
-<div class="sec-head">
-<span>🛡️ Система безопасности</span>
-<span class="live-badge">ОНЛАЙН</span>
+<div class="sec-box">
+<div class="sec-head"><span id="tSecTitle">🛡️ Система безопасности</span><span class="live" id="tOnline">ОНЛАЙН</span></div>
+<div class="sec-row"><span id="tSecReg">Регистрация (API)</span><span class="ok" id="stReg">✅</span></div>
+<div class="sec-row"><span id="tSecDep">Депозит ≥ $10</span><span class="ok" id="stDep">✅</span></div>
+<div class="sec-row"><span>API Pocket Option</span><span class="ok">🟢 SSL Secure</span></div>
 </div>
-<div class="sec-row"><span>1. Регистрация (API)</span><span class="sec-ok" id="statusReg">✅ Подтверждено</span></div>
-<div class="sec-row"><span>2. Депозит ≥ $10</span><span class="sec-ok" id="statusDep">✅ Подтверждено</span></div>
-<div class="sec-row"><span>3. API Pocket Option</span><span class="sec-ok">🟢 SSL Secure</span></div>
+<div class="cats">
+<button class="cat on" data-c="forex" onclick="setCat('forex',this)" id="catForex">💱 Валютные</button>
+<button class="cat" data-c="crypto" onclick="setCat('crypto',this)" id="catCrypto">🔥 Крипто</button>
+<button class="cat" data-c="stocks" onclick="setCat('stocks',this)" id="catStocks">📈 Акции</button>
 </div>
-<div class="cat-scroll" id="catScroll">
-<button class="cat-btn active" data-cat="forex" onclick="setCategory('forex', this)">💱 Валютные</button>
-<button class="cat-btn" data-cat="crypto" onclick="setCategory('crypto', this)">🔥 Крипто</button>
-<button class="cat-btn" data-cat="stocks" onclick="setCategory('stocks', this)">📈 Акции</button>
-</div>
-<label class="field-label">ТОРГОВЫЙ АКТИВ</label>
-<select class="field-select" id="assetSelect"></select>
-<div class="grid-2">
+<label class="lbl" id="tAsset">ТОРГОВЫЙ АКТИВ</label>
+<select class="sel" id="asset"></select>
+<div class="grid2">
 <div>
-<label class="field-label">ТАЙМФРЕЙМ</label>
-<select class="field-select" id="tfCandle">
-<option value="S5">5 Секунд (S5)</option>
-<option value="S15">15 Секунд (S15)</option>
-<option value="S30">30 Секунд (S30)</option>
-<option value="M1" selected>1 Минута (M1)</option>
-<option value="M3">3 Минуты (M3)</option>
-<option value="M5">5 Минут (M5)</option>
+<label class="lbl" id="tTf">ТАЙМФРЕЙМ</label>
+<select class="sel" id="tf">
+<option value="S5">5 сек</option><option value="S15">15 сек</option><option value="S30">30 сек</option>
+<option value="M1" selected>1 мин</option><option value="M3">3 мин</option><option value="M5">5 мин</option>
 </select>
 </div>
 <div>
-<label class="field-label">ЭКСПИРАЦИЯ</label>
-<select class="field-select" id="tfExp">
-<option value="5" data-sec="5">5 Секунд</option>
-<option value="15" data-sec="15">15 Секунд</option>
-<option value="30" data-sec="30">30 Секунд</option>
-<option value="60" data-sec="60" selected>1 Минута</option>
-<option value="120" data-sec="120">2 Минуты</option>
-<option value="180" data-sec="180">3 Минуты</option>
-<option value="300" data-sec="300">5 Минут</option>
+<label class="lbl" id="tExp">ЭКСПИРАЦИЯ</label>
+<select class="sel" id="exp">
+<option value="5" data-s="5">5 сек</option><option value="15" data-s="15">15 сек</option>
+<option value="30" data-s="30">30 сек</option><option value="60" data-s="60" selected>1 мин</option>
+<option value="120" data-s="120">2 мин</option><option value="180" data-s="180">3 мин</option>
+<option value="300" data-s="300">5 мин</option>
 </select>
 </div>
 </div>
-<button class="btn-gold" onclick="getSignal()">⚡ Просчитать сигнал</button>
+<button class="btn btn-gold" id="btnSig" onclick="getSig()">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<button class="btn-green" onclick="getAutoSignal()">🤖 ИИ выберет лучший сигнал</button>
+<button class="btn btn-green" id="btnAuto" onclick="autoSig()">🤖 ИИ выберет лучший</button>
 <div class="gap"></div>
-<a class="btn-gold" style="background:linear-gradient(135deg,#FFD700,#FFA000);" href="https://pocketoption.com" target="_blank">🚀 Открыть Pocket Option</a>
-<div id="sigResult" class="signal-result">
-<div class="sig-meta" id="resAssetInfo">EUR/USD OTC · M1 · 1 мин</div>
-<div id="resBox" class="sig-direction dir-call">⬆️ CALL (ВВЕРХ)</div>
-<div class="signal-timer">⏱ ОБРАТНЫЙ ОТСЧЁТ: <span id="countdown">01:00</span></div>
-<div class="strat-box" id="resStratDesc"></div>
+<a class="btn btn-gold" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://pocketoption.com" target="_blank" id="btnPO">🚀 Открыть Pocket Option</a>
+<div class="sig" id="sigBox">
+<div class="sig-meta" id="sigMeta">EUR/USD OTC · M1 · 1 мин</div>
+<div class="sig-dir call" id="sigDir">⬆️ CALL</div>
+<div class="timer">⏱ <span id="cd">01:00</span></div>
+<div class="strat" id="sigStrat"></div>
 <div class="sig-stats">
-<span>Винрейт ИИ: <b class="gold-shimmer-text" id="resWinrate">92%</b></span>
-<span>Связка: <b id="resCombo">RSI + BB</b></span>
+<span id="tWr">Винрейт: <b class="g-text" id="sigWr">92%</b></span>
+<span id="tCombo">Связка: <b id="sigCombo">RSI + BB</b></span>
 </div>
-<button class="btn-red" onclick="takeOverlap()">🔄 Взять перекрытие ×2</button>
-</div>
-</div>
-
-<div id="tabAI" class="card nav-tab hidden">
-<h3 class="gold-shimmer-text" style="font-size:15px;margin-bottom:12px;">🤖 VIP TRADING AI ASSISTANT</h3>
-<div class="chat-box" id="chatBox">
-<div class="chat-msg msg-ai">Привет! Я ИИ-помощник TEAM MASTER VIP. Готов ответить на любые вопросы по трейдингу, стратегиям, индикаторам, риск-менеджменту, психологии и работе терминала 24/7! 🔥</div>
-</div>
-<div class="chat-input-row">
-<input type="text" id="chatInput" placeholder="Спроси ИИ о чём угодно..." onkeydown="if(event.key==='Enter')sendAiMessage()">
-<button class="chat-send-btn" onclick="sendAiMessage()">➤</button>
-</div>
-<div class="quick-btns">
-<button class="quick-btn" onclick="quickAi('Как работают сигналы?')">Как сигналы?</button>
-<button class="quick-btn" onclick="quickAi('Риск-менеджмент правила')">Риск-менеджмент</button>
-<button class="quick-btn" onclick="quickAi('Топ индикаторы для M1')">Топ индикаторы</button>
-<button class="quick-btn" onclick="quickAi('Что делать после 3 минусов?')">После минусов</button>
-<button class="quick-btn" onclick="quickAi('Как работает проверка ID?')">Проверка ID</button>
-<button class="quick-btn" onclick="quickAi('Сколько лет опыта у админа?')">Опыт админа</button>
+<button class="btn btn-red" id="btnOver" onclick="overlap()">🔄 Перекрытие ×2</button>
 </div>
 </div>
 
-<div id="tabEdu" class="card nav-tab hidden">
-<div id="eduListContainer">
-<h3 class="gold-shimmer-text" style="text-align:center;font-size:15px;margin-bottom:14px;">📚 11 ТОПОВЫХ СВЯЗОК И СТРАТЕГИЙ</h3>
-<div id="eduList"></div>
+<div class="card tab hidden" id="tabAi">
+<h3 class="g-text" style="font-size:15px;margin-bottom:12px" id="tAiTitle">🤖 VIP AI Assistant</h3>
+<div class="chat" id="chat"><div class="bubble ai" id="aiHello">Привет! Я ИИ-помощник TEAM MASTER VIP. Спрашивай о трейдинге 🔥</div></div>
+<div class="chat-row">
+<input id="chatIn" placeholder="Задай вопрос..." onkeydown="if(event.key==='Enter')sendAi()">
+<button class="chat-send" onclick="sendAi()">➤</button>
 </div>
-<div id="eduDetailContainer" class="hidden">
-<button class="btn-gold" style="margin-bottom:14px;" onclick="closeEduDetail()">← Назад к списку связок</button>
-<div class="edu-detail-box" id="eduDetailContent"></div>
-</div>
-</div>
-
-<div id="tabProfile" class="card nav-tab hidden">
-<h3 class="gold-shimmer-text" style="text-align:center;font-size:15px;margin-bottom:14px;">👤 ПРОФИЛЬ ТРЕЙДЕРА</h3>
-<div class="security-check-card">
-<div class="profile-row"><span>Статус терминала</span><b style="color:var(--accent-green);">ПОЛНЫЙ VIP ДОСТУП</b></div>
-<div class="profile-row"><span>Ваш ID</span><b id="profileId">—</b></div>
-<div class="profile-row"><span>Подключение</span><b>Binance / Pocket Option API</b></div>
-<div class="profile-row"><span>Средний винрейт</span><b class="gold-shimmer-text">89.4%</b></div>
-<div class="profile-row"><span>Версия терминала</span><b>v10.9 PRO</b></div>
+<div class="quick">
+<button class="qbtn" onclick="qAi('Как работают сигналы?')" id="q1">Сигналы</button>
+<button class="qbtn" onclick="qAi('Риск-менеджмент')" id="q2">Риск</button>
+<button class="qbtn" onclick="qAi('Топ индикаторы M1')" id="q3">Индикаторы</button>
+<button class="qbtn" onclick="qAi('После 3 минусов')" id="q4">После минусов</button>
+<button class="qbtn" onclick="qAi('Как проверить ID?')" id="q5">Проверка ID</button>
 </div>
 </div>
 
-<div id="tabAbout" class="card nav-tab hidden">
-<h3 class="gold-shimmer-text" style="text-align:center;font-size:15px;margin-bottom:10px;">👑 TEAM MASTER VIP CLUB</h3>
-<p style="font-size:12px;color:#b0b8c8;line-height:1.7;margin-bottom:4px;">
-Профессиональное сообщество под руководством опытных трейдеров. Прямые эфиры, обучение анализу и приватный доступ к ИИ-терминалу.
-</p>
-<div class="about-list">
-<li>📈 Профессиональный анализ рынков</li>
-<li>🎥 Прямые стримы и онлайн-торговля каждый день</li>
-<li>🎯 Винрейт сигналов по математической модели 88%+</li>
-<li>⚡ Прямая интеграция с котировками Binance</li>
-<li>🛡️ Проверка аккаунта через официальный API партнёрки</li>
+<div class="card tab hidden" id="tabEdu">
+<div id="eduList">
+<h3 class="g-text" style="text-align:center;font-size:15px;margin-bottom:14px" id="tEduTitle">📚 11 топ-связок</h3>
+<div id="eduItems"></div>
 </div>
-<a class="btn-gold" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank">📢 НАШ TELEGRAM КАНАЛ</a>
+<div id="eduView" class="hidden">
+<button class="btn btn-gold" style="margin-bottom:14px" id="btnEduBack" onclick="closeEdu()">← Назад</button>
+<div class="edu-detail" id="eduBody"></div>
+</div>
+</div>
+
+<div class="card tab hidden" id="tabProf">
+<h3 class="g-text" style="text-align:center;font-size:15px;margin-bottom:14px" id="tProfTitle">👤 Профиль</h3>
+<div class="sec-box">
+<div class="prof-row"><span id="tStatus">Статус</span><b style="color:var(--green)" id="tVip">VIP ДОСТУП</b></div>
+<div class="prof-row"><span id="tYourId">Ваш ID</span><b id="profId">—</b></div>
+<div class="prof-row"><span id="tQuotes">Котировки</span><b>Binance / PO</b></div>
+<div class="prof-row"><span id="tAvgWr">Средний винрейт</span><b class="g-text">89.4%</b></div>
+</div>
+</div>
+
+<div class="card tab hidden" id="tabAbout">
+<h3 class="g-text" style="text-align:center;font-size:15px;margin-bottom:10px">👑 TEAM MASTER VIP</h3>
+<p style="font-size:12px;color:#b0b8c8;line-height:1.7;margin-bottom:4px" id="tAboutDesc">Профессиональное сообщество. Прямые эфиры, обучение и приватный ИИ-терминал.</p>
+<div class="about-list" id="aboutList">
+<li>📈 Профессиональный анализ</li>
+<li>🎥 Ежедневные стримы</li>
+<li>🎯 Винрейт сигналов 88%+</li>
+<li>⚡ Интеграция Binance</li>
+</div>
+<a class="btn btn-gold" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" id="btnTg">📢 Telegram канал</a>
 </div>
 </div>
 </div>
 
-<div class="bottom-nav hidden" id="bottomNav">
-<div class="nav-item active" onclick="switchTab('tabSignals', this)"><span>🎯</span>Сигналы</div>
-<div class="nav-item" onclick="switchTab('tabAI', this)"><span>🤖</span>ИИ Чат</div>
-<div class="nav-item" onclick="switchTab('tabEdu', this)"><span>📚</span>Связки</div>
-<div class="nav-item" onclick="switchTab('tabProfile', this)"><span>👤</span>Профиль</div>
-<div class="nav-item" onclick="switchTab('tabAbout', this)"><span>👑</span>О Нас</div>
+<div class="bnav hidden" id="bnav">
+<div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span id="n1">Сигналы</span></div>
+<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span id="n2">ИИ</span></div>
+<div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span id="n3">Связки</span></div>
+<div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span id="n4">Профиль</span></div>
+<div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span id="n5">О нас</span></div>
 </div>
 
 <script>
-const API_TOKEN = "Zc4X9zu0EMrqbPuLy3tN";
-const PARTNER_ID = "1771346";
 const BOSS_ID = "109386966";
-const MIN_DEPOSIT = 10;
-const PROMO_CODE = "WELCOME50";
-const REF_LINK = "https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50";
+const PROMO = "WELCOME50";
+const MIN_DEP = 10;
 
-function md5cycle(x, k) {
-var a = x[0], b = x[1], c = x[2], d = x[3];
-a = ff(a, b, c, d, k[0], 7, -680876936); d = ff(d, a, b, c, k[1], 12, -389564586); c = ff(c, d, a, b, k[2], 17, 606105819); b = ff(b, c, d, a, k[3], 22, -1044525330);
-a = ff(a, b, c, d, k[4], 7, -176418897); d = ff(d, a, b, c, k[5], 12, 1200080426); c = ff(c, d, a, b, k[6], 17, -1473231341); b = ff(b, c, d, a, k[7], 22, -45705983);
-a = ff(a, b, c, d, k[8], 7, 1770035416); d = ff(d, a, b, c, k[9], 12, -1958414417); c = ff(c, d, a, b, k[10], 17, -42063); b = ff(b, c, d, a, k[11], 22, -1990404162);
-a = ff(a, b, c, d, k[12], 7, 1804603682); d = ff(d, a, b, c, k[13], 12, -40341101); c = ff(c, d, a, b, k[14], 17, -1502002290); b = ff(b, c, d, a, k[15], 22, 1236535329);
-a = gg(a, b, c, d, k[1], 5, -165796510); d = gg(d, a, b, c, k[6], 9, -1069501632); c = gg(c, d, a, b, k[11], 14, 643717713); b = gg(b, c, d, a, k[0], 20, -373897302);
-a = gg(a, b, c, d, k[5], 5, -701558691); d = gg(d, a, b, c, k[10], 9, 38016083); c = gg(c, d, a, b, k[15], 14, -660478335); b = gg(b, c, d, a, k[4], 20, -405537848);
-a = gg(a, b, c, d, k[9], 5, 568446438); d = gg(d, a, b, c, k[14], 9, -1019803690); c = gg(c, d, a, b, k[3], 14, -187363961); b = gg(b, c, d, a, k[8], 20, 1163531501);
-a = gg(a, b, c, d, k[13], 5, -1444681467); d = gg(d, a, b, c, k[2], 9, -51403784); c = gg(c, d, a, b, k[7], 14, 1735328473); b = gg(b, c, d, a, k[12], 20, -1926607734);
-a = hh(a, b, c, d, k[5], 4, -378558); d = hh(d, a, b, c, k[8], 11, -2022574463); c = hh(c, d, a, b, k[11], 16, 1839030562); b = hh(b, c, d, a, k[14], 23, -35309556);
-a = hh(a, b, c, d, k[1], 4, -1530992060); d = hh(d, a, b, c, k[4], 11, 1272893353); c = hh(c, d, a, b, k[7], 16, -155497632); b = hh(b, c, d, a, k[10], 23, -1094730640);
-a = hh(a, b, c, d, k[13], 4, 681279174); d = hh(d, a, b, c, k[0], 11, -358537222); c = hh(c, d, a, b, k[3], 16, -722521979); b = hh(b, c, d, a, k[6], 23, 76029189);
-a = hh(a, b, c, d, k[9], 4, -640364487); d = hh(d, a, b, c, k[12], 11, -421815835); c = hh(c, d, a, b, k[15], 16, 530742520); b = hh(b, c, d, a, k[2], 23, -995338651);
-a = ii(a, b, c, d, k[0], 6, -198630844); d = ii(d, a, b, c, k[7], 10, 1126891415); c = ii(c, d, a, b, k[14], 15, -1416354905); b = ii(b, c, d, a, k[5], 21, -57434055);
-a = ii(a, b, c, d, k[12], 6, 1700485571); d = ii(d, a, b, c, k[3], 10, -1894986606); c = ii(c, d, a, b, k[10], 15, -1051523); b = ii(b, c, d, a, k[1], 21, -2054922799);
-a = ii(a, b, c, d, k[8], 6, 1873313359); d = ii(d, a, b, c, k[15], 10, -30611744); c = ii(c, d, a, b, k[6], 15, -1560198380); b = ii(b, c, d, a, k[13], 21, 1309151649);
-a = ii(a, b, c, d, k[4], 6, -145523070); d = ii(d, a, b, c, k[11], 10, -1120210379); c = ii(c, d, a, b, k[2], 15, 718787259); b = ii(b, c, d, a, k[9], 21, -343485551);
-x[0] = add32(a, x[0]); x[1] = add32(b, x[1]); x[2] = add32(c, x[2]); x[3] = add32(d, x[3]);
+const LANG = {
+ru: {
+tWelcome:"Добро пожаловать",
+tRegDesc:"<b>Зачем нужна регистрация?</b><br><br>Это закрытый VIP-терминал с живыми сигналами и ИИ-анализом.<br><br>Бот проверяет через официальный API партнёрки Pocket Option, что вы зарегистрировались именно по нашей ссылке. Без регистрации доступ закрыт.",
+btnRegLink:"🚀 Зарегистрироваться", tRegHint:"Уже есть аккаунт? Введите ID — бот проверит регистрацию по API",
+btnReg:"✅ Подтвердить ID", idPh:"ID Pocket Option",
+tDepTitle:"Проверка депозита",
+tDepDesc:"<b>Почему нужен депозит?</b><br><br>Терминал только для реальных трейдеров. Минимум <b>$10</b>.<br><br>1. Пополните счёт в Pocket Option<br>2. Активируйте промокод <b>WELCOME50</b><br>3. Нажмите кнопку — бот проверит депозит по API",
+btnDep:"🔍 Проверить депозит", btnBack:"← Назад",
+tOpenTitle:"Доступ открыт", tOpenDesc:"Аккаунт и депозит подтверждены через API.<br>Все сигналы, ИИ и связки доступны.",
+btnEnter:"🚀 Войти в терминал",
+tLive:"● LIVE DATA", tSecTitle:"🛡️ Система безопасности", tOnline:"ОНЛАЙН",
+tSecReg:"Регистрация (API)", tSecDep:"Депозит ≥ $10",
+catForex:"💱 Валютные", catCrypto:"🔥 Крипто", catStocks:"📈 Акции",
+tAsset:"ТОРГОВЫЙ АКТИВ", tTf:"ТАЙМФРЕЙМ", tExp:"ЭКСПИРАЦИЯ",
+btnSig:"⚡ Просчитать сигнал", btnAuto:"🤖 ИИ выберет лучший", btnPO:"🚀 Открыть Pocket Option",
+tWr:"Винрейт:", tCombo:"Связка:", btnOver:"🔄 Перекрытие ×2",
+tAiTitle:"🤖 VIP AI Assistant", aiHello:"Привет! Я ИИ-помощник TEAM MASTER VIP. Спрашивай о трейдинге 🔥",
+chatPh:"Задай вопрос...", q1:"Сигналы", q2:"Риск", q3:"Индикаторы", q4:"После минусов", q5:"Проверка ID",
+tEduTitle:"📚 11 топ-связок", btnEduBack:"← Назад",
+tProfTitle:"👤 Профиль", tStatus:"Статус", tVip:"VIP ДОСТУП", tYourId:"Ваш ID", tQuotes:"Котировки", tAvgWr:"Средний винрейт",
+tAboutDesc:"Профессиональное сообщество. Прямые эфиры, обучение и приватный ИИ-терминал.",
+btnTg:"📢 Telegram канал",
+n1:"Сигналы", n2:"ИИ", n3:"Связки", n4:"Профиль", n5:"О нас",
+errId:"Введите корректный числовой ID",
+errApi:"Ошибка связи с сервером. Проверьте интернет.",
+errNotFound:"ID не найден в партнёрской системе. Зарегистрируйтесь по нашей ссылке.",
+okReg:"✅ Регистрация подтверждена!",
+okBoss:"👑 BOSS ACCESS — полный доступ",
+errPromo:"Неверный промокод. Используйте WELCOME50",
+okDep:"✅ Депозит подтверждён! Доступ открыт.",
+errDep:"Депозит не найден (нужно от $10). Пополните счёт."
+},
+en: {
+tWelcome:"Welcome",
+tRegDesc:"<b>Why registration?</b><br><br>This is a closed VIP terminal with live signals and AI analysis.<br><br>The bot checks via official Pocket Option partner API that you registered via our link. No registration = no access.",
+btnRegLink:"🚀 Register", tRegHint:"Already have an account? Enter ID — bot will verify via API",
+btnReg:"✅ Confirm ID", idPh:"Pocket Option ID",
+tDepTitle:"Deposit Check",
+tDepDesc:"<b>Why deposit?</b><br><br>Terminal is for real traders only. Minimum <b>$10</b>.<br><br>1. Fund your Pocket Option account<br>2. Activate promo <b>WELCOME50</b><br>3. Press button — bot checks deposit via API",
+btnDep:"🔍 Check Deposit", btnBack:"← Back",
+tOpenTitle:"Access Granted", tOpenDesc:"Account and deposit verified via API.<br>All signals, AI and strategies are available.",
+btnEnter:"🚀 Enter Terminal",
+tLive:"● LIVE DATA", tSecTitle:"🛡️ Security System", tOnline:"ONLINE",
+tSecReg:"Registration (API)", tSecDep:"Deposit ≥ $10",
+catForex:"💱 Forex", catCrypto:"🔥 Crypto", catStocks:"📈 Stocks",
+tAsset:"TRADING ASSET", tTf:"TIMEFRAME", tExp:"EXPIRATION",
+btnSig:"⚡ Calculate Signal", btnAuto:"🤖 AI picks best", btnPO:"🚀 Open Pocket Option",
+tWr:"Winrate:", tCombo:"Setup:", btnOver:"🔄 Overlap ×2",
+tAiTitle:"🤖 VIP AI Assistant", aiHello:"Hi! I'm TEAM MASTER VIP AI. Ask me about trading 🔥",
+chatPh:"Ask a question...", q1:"Signals", q2:"Risk", q3:"Indicators", q4:"After losses", q5:"ID check",
+tEduTitle:"📚 11 Top Setups", btnEduBack:"← Back",
+tProfTitle:"👤 Profile", tStatus:"Status", tVip:"VIP ACCESS", tYourId:"Your ID", tQuotes:"Quotes", tAvgWr:"Avg winrate",
+tAboutDesc:"Professional community. Live streams, education and private AI terminal.",
+btnTg:"📢 Telegram channel",
+n1:"Signals", n2:"AI", n3:"Setups", n4:"Profile", n5:"About",
+errId:"Enter a valid numeric ID",
+errApi:"Server connection error. Check internet.",
+errNotFound:"ID not found in partner system. Register via our link.",
+okReg:"✅ Registration confirmed!",
+okBoss:"👑 BOSS ACCESS — full access",
+errPromo:"Wrong promo. Use WELCOME50",
+okDep:"✅ Deposit confirmed! Access granted.",
+errDep:"Deposit not found (min $10). Fund your account."
+},
+ua: {
+tWelcome:"Ласкаво просимо",
+tRegDesc:"<b>Навіщо реєстрація?</b><br><br>Це закритий VIP-термінал з живими сигналами та ІІ-аналізом.<br><br>Бот перевіряє через офіційний API партнерки Pocket Option, що ви зареєструвались саме за нашим посиланням.",
+btnRegLink:"🚀 Зареєструватися", tRegHint:"Вже є акаунт? Введіть ID — бот перевірить реєстрацію по API",
+btnReg:"✅ Підтвердити ID", idPh:"ID Pocket Option",
+tDepTitle:"Перевірка депозиту",
+tDepDesc:"<b>Чому потрібен депозит?</b><br><br>Термінал лише для реальних трейдерів. Мінімум <b>$10</b>.<br><br>1. Поповніть рахунок<br>2. Активуйте промокод <b>WELCOME50</b><br>3. Натисніть кнопку — бот перевірить депозит",
+btnDep:"🔍 Перевірити депозит", btnBack:"← Назад",
+tOpenTitle:"Доступ відкрито", tOpenDesc:"Акаунт і депозит підтверджені через API.<br>Усі сигнали, ІІ та зв'язки доступні.",
+btnEnter:"🚀 Увійти в термінал",
+tLive:"● LIVE DATA", tSecTitle:"🛡️ Система безпеки", tOnline:"ОНЛАЙН",
+tSecReg:"Реєстрація (API)", tSecDep:"Депозит ≥ $10",
+catForex:"💱 Валютні", catCrypto:"🔥 Крипто", catStocks:"📈 Акції",
+tAsset:"ТОРГОВИЙ АКТИВ", tTf:"ТАЙМФРЕЙМ", tExp:"ЕКСПІРАЦІЯ",
+btnSig:"⚡ Розрахувати сигнал", btnAuto:"🤖 ІІ обере найкращий", btnPO:"🚀 Відкрити Pocket Option",
+tWr:"Вінрейт:", tCombo:"Зв'язка:", btnOver:"🔄 Перекриття ×2",
+tAiTitle:"🤖 VIP AI Assistant", aiHello:"Привіт! Я ІІ-помічник TEAM MASTER VIP. Питай про трейдинг 🔥",
+chatPh:"Задай питання...", q1:"Сигнали", q2:"Ризик", q3:"Індикатори", q4:"Після мінусів", q5:"Перевірка ID",
+tEduTitle:"📚 11 топ-зв'язок", btnEduBack:"← Назад",
+tProfTitle:"👤 Профіль", tStatus:"Статус", tVip:"VIP ДОСТУП", tYourId:"Ваш ID", tQuotes:"Котирування", tAvgWr:"Середній вінрейт",
+tAboutDesc:"Професійна спільнота. Прямі ефіри, навчання та приватний ІІ-термінал.",
+btnTg:"📢 Telegram канал",
+n1:"Сигнали", n2:"ІІ", n3:"Зв'язки", n4:"Профіль", n5:"Про нас",
+errId:"Введіть коректний числовий ID",
+errApi:"Помилка зв'язку з сервером. Перевірте інтернет.",
+errNotFound:"ID не знайдено в партнерській системі. Зареєструйтесь за нашим посиланням.",
+okReg:"✅ Реєстрацію підтверджено!",
+okBoss:"👑 BOSS ACCESS — повний доступ",
+errPromo:"Невірний промокод. Використовуйте WELCOME50",
+okDep:"✅ Депозит підтверджено! Доступ відкрито.",
+errDep:"Депозит не знайдено (потрібно від $10). Поповніть рахунок."
 }
-function cmn(q, a, b, x, s, t) { a = add32(add32(a, q), add32(x, t)); return add32((a << s) | (a >>> (32 - s)), b); }
-function ff(a, b, c, d, x, s, t) { return cmn((b & c) | ((\~b) & d), a, b, x, s, t); }
-function gg(a, b, c, d, x, s, t) { return cmn((b & d) | (c & (\~d)), a, b, x, s, t); }
-function hh(a, b, c, d, x, s, t) { return cmn(b ^ c ^ d, a, b, x, s, t); }
-function ii(a, b, c, d, x, s, t) { return cmn(c ^ (b | (\~d)), a, b, x, s, t); }
-function md51(s) {
-var n = s.length, state = [1732584193, -271733879, -1732584194, 271733878], i;
-for (i = 64; i <= s.length; i += 64) md5cycle(state, md5blk(s.substring(i - 64, i)));
-s = s.substring(i - 64); var tail = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-for (i = 0; i < s.length; i++) tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
-tail[i >> 2] |= 0x80 << ((i % 4) << 3);
-if (i > 55) { md5cycle(state, tail); for (i = 0; i < 16; i++) tail[i] = 0; }
-tail[14] = n * 8; md5cycle(state, tail); return state;
-}
-function md5blk(s) { var md5blks = [], i; for (i = 0; i < 64; i += 4) md5blks[i >> 2] = s.charCodeAt(i) + (s.charCodeAt(i + 1) << 8) + (s.charCodeAt(i + 2) << 16) + (s.charCodeAt(i + 3) << 24); return md5blks; }
-var hex_chr = "0123456789abcdef".split("");
-function rhex(n) { var s = "", j = 0; for (; j < 4; j++) s += hex_chr[(n >> (j * 8 + 4)) & 0x0F] + hex_chr[(n >> (j * 8)) & 0x0F]; return s; }
-function hex(x) { for (var i = 0; i < x.length; i++) x[i] = rhex(x[i]); return x.join(""); }
-function md5(s) { return hex(md51(s)); }
-function add32(a, b) { return (a + b) & 0xFFFFFFFF; }
+};
 
-async function checkAffiliateAPI(userId) {
-userId = String(userId).trim();
-if (userId === BOSS_ID) {
-return { success: true, registered: true, deposited: true, amount: 99999, isBoss: true, raw: { boss: true } };
+let L = LANG.ru;
+let uid = localStorage.getItem("tmv_uid") || null;
+let timer = null;
+
+function setLang(code) {
+L = LANG[code] || LANG.ru;
+localStorage.setItem("tmv_lang", code);
+const map = {
+tWelcome:L.tWelcome, tRegDesc:L.tRegDesc, btnRegLink:L.btnRegLink, tRegHint:L.tRegHint, btnReg:L.btnReg,
+tDepTitle:L.tDepTitle, tDepDesc:L.tDepDesc, btnDep:L.btnDep, btnBack:L.btnBack,
+tOpenTitle:L.tOpenTitle, tOpenDesc:L.tOpenDesc, btnEnter:L.btnEnter,
+tLive:L.tLive, tSecTitle:L.tSecTitle, tOnline:L.tOnline, tSecReg:L.tSecReg, tSecDep:L.tSecDep,
+catForex:L.catForex, catCrypto:L.catCrypto, catStocks:L.catStocks,
+tAsset:L.tAsset, tTf:L.tTf, tExp:L.tExp, btnSig:L.btnSig, btnAuto:L.btnAuto, btnPO:L.btnPO,
+btnOver:L.btnOver, tAiTitle:L.tAiTitle, aiHello:L.aiHello,
+q1:L.q1, q2:L.q2, q3:L.q3, q4:L.q4, q5:L.q5,
+tEduTitle:L.tEduTitle, btnEduBack:L.btnEduBack,
+tProfTitle:L.tProfTitle, tStatus:L.tStatus, tVip:L.tVip, tYourId:L.tYourId, tQuotes:L.tQuotes, tAvgWr:L.tAvgWr,
+tAboutDesc:L.tAboutDesc, btnTg:L.btnTg,
+n1:L.n1, n2:L.n2, n3:L.n3, n4:L.n4, n5:L.n5
+};
+for (const id in map) {
+const el = document.getElementById(id);
+if (!el) continue;
+if (id === "tRegDesc" || id === "tDepDesc" || id === "tOpenDesc") el.innerHTML = map[id];
+else el.textContent = map[id];
 }
-var hash = md5(userId + ":" + PARTNER_ID + ":" + API_TOKEN);
-var url = "https://affiliate.pocketoption.com/api/user-info/" + userId + "/" + PARTNER_ID + "/" + hash;
-try {
-var resp = await fetch(url, { method: "GET", mode: "cors", cache: "no-store" });
-var data = {};
-try { data = await resp.json(); } catch (e) { data = {}; }
-var registered = !!(
-data.status === "active" || data.status === "registered" || data.status === 1 || data.status === true ||
-data.user_id || data.id || data.success === true || data.registered === true ||
-data.is_registered || data.email || data.login || (typeof data === "object" && Object.keys(data).length > 2)
-);
-var amount = 0;
-var keys = ["deposit", "deposits", "ftd", "first_deposit", "balance", "total_deposit", "sum", "amount", "deposit_sum", "total", "ftd_amount"];
-for (var i = 0; i < keys.length; i++) {
-if (data[keys[i]] != null) {
-var v = parseFloat(data[keys[i]]);
-if (!isNaN(v) && v > 0) { amount = v; break; }
-}
-}
-var deposited = amount >= MIN_DEPOSIT || data.is_ftd === true || data.ftd === true || data.has_deposit === true;
-return { success: true, registered: registered || deposited, deposited: deposited, amount: amount, isBoss: false, raw: data };
-} catch (err) {
-return { success: false, registered: false, deposited: false, amount: 0, isBoss: false, error: String(err), raw: {} };
-}
+document.getElementById("idInput").placeholder = L.idPh;
+document.getElementById("chatIn").placeholder = L.chatPh;
+document.getElementById("langSelect").value = code;
 }
 
 const ASSETS = {
-forex: [
-"AUD/NZD OTC","BHD/CNY OTC","CAD/CHF OTC","EUR/GBP OTC","EUR/JPY OTC","EUR/TRY OTC","EUR/USD OTC",
-"GBP/AUD OTC","GBP/JPY OTC","NZD/USD OTC","USD/BDT OTC","USD/COP OTC","USD/IDR OTC","USD/INR OTC",
-"USD/MXN OTC","USD/PKR OTC","USD/THB OTC","USD/VND OTC","USD/JPY OTC","NGN/USD OTC","AUD/USD OTC",
-"CHF/NOK OTC","UAH/USD OTC","CAD/JPY OTC","EUR/CHF OTC","AUD/JPY OTC","JOD/CNY OTC","USD/SGD OTC",
-"LBP/USD OTC","YER/USD OTC","USD/CHF OTC","OMR/CNY OTC","USD/CNH OTC","AED/CNY OTC","USD/EGP OTC",
-"CHF/JPY OTC","GBP/USD OTC","USD/PHP OTC","USD/CAD OTC","ZAR/USD OTC","USD/CLP OTC","NZD/JPY OTC",
-"TND/USD OTC","AUD/CHF OTC","USD/ARS OTC","EUR/NZD OTC","SAR/CNY OTC","USD/MYR OTC","KES/USD OTC",
-"QAR/CNY OTC","EUR/HUF OTC","USD/DZD OTC","USD/BRL OTC","AUD/CAD OTC","MAD/USD OTC",
-"GBP/JPY","EUR/JPY","AUD/CAD","AUD/CHF","AUD/JPY","AUD/USD","CAD/CHF","CHF/JPY","EUR/AUD",
-"EUR/CAD","EUR/CHF","EUR/USD","GBP/AUD","GBP/CAD","GBP/CHF","USD/CAD","USD/CHF","USD/JPY",
-"CAD/JPY","EUR/GBP","GBP/USD"
-],
-crypto: [
-"Cardano OTC","Avalanche OTC","Bitcoin OTC","Ethereum OTC","Chainlink OTC","TRON OTC",
-"Polkadot OTC","Solana OTC","Bitcoin ETF OTC","Litecoin OTC","Toncoin OTC","Polygon OTC",
-"Dogecoin OTC","BNB OTC","Ethereum"
-],
-stocks: [
-"Johnson & Johnson OTC","Advanced Micro Devices OTC","VISA OTC","Cisco OTC","Netflix OTC",
-"FACEBOOK INC OTC","VIX OTC","Amazon OTC","American Express OTC","Pfizer Inc OTC","Alibaba OTC",
-"GameStop Corp OTC","Microsoft OTC","Boeing Company OTC","Apple OTC","Intel OTC","McDonald's OTC",
-"Coinbase Global OTC","ExxonMobil OTC","Palantir Technologies OTC","FedEx OTC","Tesla OTC",
-"Marathon Digital Holdings OTC","Citigroup Inc OTC",
-"Apple","American Express","Boeing Company","FACEBOOK INC","Johnson & Johnson",
-"JPMorgan Chase & Co","McDonald's","Microsoft","Pfizer Inc","Tesla","Alibaba",
-"Citigroup Inc","Cisco","ExxonMobil","Intel","Netflix"
-]
+forex:["AUD/NZD OTC","BHD/CNY OTC","CAD/CHF OTC","EUR/GBP OTC","EUR/JPY OTC","EUR/TRY OTC","EUR/USD OTC","GBP/AUD OTC","GBP/JPY OTC","NZD/USD OTC","USD/BDT OTC","USD/COP OTC","USD/IDR OTC","USD/INR OTC","USD/MXN OTC","USD/PKR OTC","USD/THB OTC","USD/VND OTC","USD/JPY OTC","NGN/USD OTC","AUD/USD OTC","CHF/NOK OTC","UAH/USD OTC","CAD/JPY OTC","EUR/CHF OTC","AUD/JPY OTC","JOD/CNY OTC","USD/SGD OTC","LBP/USD OTC","YER/USD OTC","USD/CHF OTC","OMR/CNY OTC","USD/CNH OTC","AED/CNY OTC","USD/EGP OTC","CHF/JPY OTC","GBP/USD OTC","USD/PHP OTC","USD/CAD OTC","ZAR/USD OTC","USD/CLP OTC","NZD/JPY OTC","TND/USD OTC","AUD/CHF OTC","USD/ARS OTC","EUR/NZD OTC","SAR/CNY OTC","USD/MYR OTC","KES/USD OTC","QAR/CNY OTC","EUR/HUF OTC","USD/DZD OTC","USD/BRL OTC","AUD/CAD OTC","MAD/USD OTC","GBP/JPY","EUR/JPY","AUD/CAD","AUD/CHF","AUD/JPY","AUD/USD","CAD/CHF","CHF/JPY","EUR/AUD","EUR/CAD","EUR/CHF","EUR/USD","GBP/AUD","GBP/CAD","GBP/CHF","USD/CAD","USD/CHF","USD/JPY","CAD/JPY","EUR/GBP","GBP/USD"],
+crypto:["Cardano OTC","Avalanche OTC","Bitcoin OTC","Ethereum OTC","Chainlink OTC","TRON OTC","Polkadot OTC","Solana OTC","Bitcoin ETF OTC","Litecoin OTC","Toncoin OTC","Polygon OTC","Dogecoin OTC","BNB OTC","Ethereum"],
+stocks:["Johnson & Johnson OTC","Advanced Micro Devices OTC","VISA OTC","Cisco OTC","Netflix OTC","FACEBOOK INC OTC","VIX OTC","Amazon OTC","American Express OTC","Pfizer Inc OTC","Alibaba OTC","GameStop Corp OTC","Microsoft OTC","Boeing Company OTC","Apple OTC","Intel OTC","McDonald's OTC","Coinbase Global OTC","ExxonMobil OTC","Palantir Technologies OTC","FedEx OTC","Tesla OTC","Marathon Digital Holdings OTC","Citigroup Inc OTC","Apple","American Express","Boeing Company","FACEBOOK INC","Johnson & Johnson","JPMorgan Chase & Co","McDonald's","Microsoft","Pfizer Inc","Tesla","Alibaba","Citigroup Inc","Cisco","ExxonMobil","Intel","Netflix"]
 };
 
-const EDU_DATA = [
-{ t: "1. Уровни Поддержки / Сопротивления 🎯", d: "Находите горизонтальный уровень, от которого цена отскакивала минимум 2–3 раза.\nПри третьем подходе к сопротивлению открываем PUT (Вниз).\nПри подходе к поддержке — CALL (Вверх).\n\n⏱ Таймфрейм свечи: M1 или M5\n⏳ Экспирация: 1–3 минуты (1–3 свечи)\n📌 Лучше всего работает во флэте и на европейской сессии\n⚠️ Избегайте сильных новостей (NFP, FOMC, CPI)\n💡 Дополнительно проверяйте старший ТФ M15", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags: ["M1", "M5", "1–3 мин", "Флэт"] },
-{ t: "2. RSI (14) + Полосы Боллинджера (20,2) 📈", d: "Ждём, когда свеча пробивает нижнюю границу Боллинджера, а RSI опускается ниже 30 (перепроданность).\nОткрываем CALL на 1–2 минуты.\nЗеркально: верхняя граница + RSI > 70 → PUT.\n\n⏱ Таймфрейм: M1 / M5\n⏳ Экспирация: 60–120 секунд\n📌 Отлично работает во флэте и умеренной волатильности\n💡 Подтверждение: тиковый объём на Binance", img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags: ["M1", "M5", "1–2 мин", "RSI"] },
-{ t: "3. MACD + Трендовая EMA 200 ⚡", d: "Если график находится выше EMA 200 — ищем только сделки на покупку.\nЖдём, когда быстрая линия MACD пересекает сигнальную снизу вверх → CALL.\n\n⏱ Таймфрейм: M1–M5\n⏳ Экспирация: 2–5 минут\n📌 Фильтрует до 70% ложных входов\n💡 На нисходящем тренде (цена ниже EMA 200) ищем только PUT", img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags: ["M1–M5", "2–5 мин", "Тренд"] },
-{ t: "4. Стохастик (14,3,3) + Поддержка 🎯", d: "При касании локального уровня поддержки смотрим на Стохастик.\nПересечение линий ниже уровня 20 даёт мощный сигнал на CALL.\nДополнительно: пин-бар или молот на минутной свече.\n\n⏱ Таймфрейм: M1\n⏳ Экспирация: 1–2 минуты\n📌 Лучшие часы: 09:00–12:00 и 15:00–18:00 МСК", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags: ["M1", "1–2 мин", "Поддержка"] },
-{ t: "5. Supertrend (10,3) + CCI (14) 🚀", d: "Когда Supertrend меняет цвет на зелёный, а CCI вылетает из зоны −100 вверх → CALL на 2 минуты.\n\n⏱ Таймфрейм: M1 / M3\n⏳ Экспирация: 2–3 минуты\n📌 Идеально для импульсных движений европейской и американской сессий", img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags: ["M1", "M3", "2–3 мин"] },
-{ t: "6. Бычье Поглощение + Дивергенция RSI 💎", d: "Если полнотелая зелёная свеча полностью перекрывает тело предыдущей красной у дна тренда, а RSI показывает рост минимумов → CALL.\n\n⏱ Таймфрейм: M1–M5\n⏳ Экспирация: 2–5 минут\n📌 Классический разворотный сетап, особенно на OTC активах", img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags: ["M1–M5", "2–5 мин", "Разворот"] },
-{ t: "7. Пересечение EMA 9 и EMA 21 📉", d: "Быстрая EMA 9 пересекает медленную EMA 21 сверху вниз → смена локального тренда на нисходящий.\nОткрываем PUT на 1–3 минуты при подтверждении объёмом.\n\n⏱ Таймфрейм: M1\n⏳ Экспирация: 1–3 минуты\n📌 Хорошо в тренде, плохо во флэте", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags: ["M1", "1–3 мин", "Тренд"] },
-{ t: "8. Облако Ишимоку + Awesome Oscillator 🟢", d: "Цена выходит из облака Ишимоку вверх, а гистограмма AO окрашивается в зелёный цвет выше нуля → только CALL.\n\n⏱ Таймфрейм: M5\n⏳ Экспирация: 3–5 минут\n📌 Держим до смены цвета AO или пересечения Киджун-сен", img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags: ["M5", "3–5 мин"] },
-{ t: "9. Parabolic SAR + ADX 📊", d: "Точка Parabolic перескакивает под свечу, а значение ADX выше 25 (сильный тренд) → вход по тренду с короткой экспирацией.\n\n⏱ Таймфрейм: M1 / M3\n⏳ Экспирация: 1–2 минуты\n📌 Без ADX сигнал слабый — не входим", img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags: ["M1", "M3", "1–2 мин"] },
-{ t: "10. Аномальный объём + Ложный пробой 💥", d: "При резком всплеске объёма около ключевого уровня без закрепления тела свечи выше него — классический ложный пробой.\nВход на возврат в торговый коридор (PUT) с высокой вероятностью.\n\n⏱ Таймфрейм: M1\n⏳ Экспирация: 1–2 минуты\n📌 Особенно хорошо на крипте и ликвидных валютных парах", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags: ["M1", "1–2 мин", "Объём"] },
-{ t: "11. Канал Дончиана + Williams %R 🔄", d: "Касание нижней линии канала Дончиана при выходе Williams %R из зоны глубокой перепроданности (−80 вверх) → CALL.\n\n⏱ Таймфрейм: M1–M5\n⏳ Экспирация: 1–3 минуты\n📌 Надёжный откат для волатильных валютных пар", img: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags: ["M1–M5", "1–3 мин"] }
+const EDU = [
+{t:"1. Уровни Поддержки / Сопротивления",d:"Найдите уровень, от которого цена отскакивала 2–3 раза.\nПри 3-м подходе к сопротивлению → PUT\nК поддержке → CALL\n\n⏱ Свеча: M1 / M5\n⏳ Экспирация: 1–3 мин\n📌 Лучше во флэте\n⚠️ Избегайте NFP и FOMC",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1","M5","1–3 мин"]},
+{t:"2. RSI (14) + Bollinger Bands",d:"Нижняя BB + RSI < 30 → CALL 1–2 мин.\nВерхняя BB + RSI > 70 → PUT.\n\n⏱ M1 / M5\n⏳ 60–120 сек",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1","M5"]},
+{t:"3. MACD + EMA 200",d:"Цена выше EMA 200 → только CALL.\nПересечение MACD снизу вверх → вход.\n\n⏱ M1–M5\n⏳ 2–5 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1–M5"]},
+{t:"4. Stochastic + Поддержка",d:"Касание поддержки + Stochastic ниже 20 → CALL.\n\n⏱ M1\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1"]},
+{t:"5. Supertrend + CCI",d:"Supertrend зелёный + CCI из −100 → CALL.\n\n⏱ M1 / M3\n⏳ 2–3 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1","M3"]},
+{t:"6. Бычье поглощение + RSI",d:"Зелёная свеча перекрывает красную + RSI растущие минимумы → CALL.\n\n⏱ M1–M5\n⏳ 2–5 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1–M5"]},
+{t:"7. EMA 9 × EMA 21",d:"EMA 9 пересекает EMA 21 сверху вниз → PUT.\n\n⏱ M1\n⏳ 1–3 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1"]},
+{t:"8. Ишимоку + AO",d:"Цена из облака вверх + AO зелёный → CALL.\n\n⏱ M5\n⏳ 3–5 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M5"]},
+{t:"9. Parabolic SAR + ADX",d:"SAR под свечой + ADX > 25 → по тренду.\n\n⏱ M1 / M3\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1","M3"]},
+{t:"10. Объём + ложный пробой",d:"Всплеск объёма у уровня без закрепления → ложный пробой.\n\n⏱ M1\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1"]},
+{t:"11. Дончиан + Williams %R",d:"Нижняя линия Дончиана + %R из −80 → CALL.\n\n⏱ M1–M5\n⏳ 1–3 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1–M5"]}
 ];
 
-let verifiedUserId = localStorage.getItem("tmv_uid") || null;
-let countdownInterval = null;
-
-function goToStep(n) {
-document.querySelectorAll(".gate-step").forEach(function(s) { s.classList.remove("active"); });
-document.getElementById("step" + n).classList.add("active");
-for (var i = 1; i <= 3; i++) {
-var d = document.getElementById("dot" + i);
-d.className = "progress-dot";
+function goStep(n) {
+document.querySelectorAll(".step").forEach(s => s.classList.remove("on"));
+document.getElementById("s" + n).classList.add("on");
+for (let i = 1; i <= 3; i++) {
+const d = document.getElementById("d" + i);
+d.className = "p-dot";
 if (i < n) d.classList.add("done");
-if (i === n) d.classList.add("current");
+if (i === n) d.classList.add("cur");
 if (i < 3) {
-var l = document.getElementById("line" + i);
-l.className = "progress-line" + (i < n ? " done" : "");
+const l = document.getElementById("l" + i);
+l.className = "p-line" + (i < n ? " done" : "");
 }
 }
 }
 
-async function confirmRegistration() {
-var id = document.getElementById("idInput").value.trim();
-var msg = document.getElementById("regMsg");
-var btn = document.getElementById("btnReg");
+async function doReg() {
+const id = document.getElementById("idInput").value.trim();
+const msg = document.getElementById("regMsg");
+const btn = document.getElementById("btnReg");
 if (!/^\d+$/.test(id)) {
-msg.className = "gate-msg err";
-msg.textContent = "Введите корректный числовой ID аккаунта Pocket Option";
+msg.className = "msg err";
+msg.textContent = L.errId;
+return;
+}
+if (id === BOSS_ID) {
+uid = id;
+localStorage.setItem("tmv_uid", id);
+localStorage.setItem("tmv_verified", "1");
+msg.className = "msg ok";
+msg.textContent = L.okBoss;
+btn.disabled = true;
+setTimeout(() => enterApp(), 700);
 return;
 }
 btn.disabled = true;
-btn.innerHTML = '<span class="loader"></span> Проверяем API партнёрки...';
-var result = await checkAffiliateAPI(id);
-if (result.isBoss) {
-verifiedUserId = id;
+btn.innerHTML = '<span class="loader"></span> ...';
+try {
+const r = await fetch("/api/check_registration", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ user_id: id })
+});
+const d = await r.json();
+if (d.ok) {
+uid = id;
 localStorage.setItem("tmv_uid", id);
+msg.className = "msg ok";
+msg.textContent = d.message || L.okReg;
+if (d.is_boss) {
 localStorage.setItem("tmv_verified", "1");
-msg.className = "gate-msg ok";
-msg.textContent = "👑 BOSS ACCESS — полный доступ без проверок";
-setTimeout(function() { enterTerminal(); }, 800);
-btn.disabled = false;
-btn.innerHTML = "✅ Подтвердить ID";
-return;
-}
-if (!result.success) {
-msg.className = "gate-msg err";
-msg.textContent = "Ошибка связи с API партнёрки. Проверьте интернет и попробуйте снова.";
-btn.disabled = false;
-btn.innerHTML = "✅ Подтвердить ID";
-return;
-}
-if (result.registered) {
-verifiedUserId = id;
-localStorage.setItem("tmv_uid", id);
-msg.className = "gate-msg ok";
-msg.textContent = "✅ Регистрация подтверждена через API партнёрки!";
-setTimeout(function() { goToStep(2); }, 900);
+setTimeout(() => enterApp(), 700);
 } else {
-msg.className = "gate-msg err";
-msg.textContent = "ID не найден в партнёрской системе. Зарегистрируйтесь по нашей ссылке и попробуйте снова.";
+setTimeout(() => goStep(2), 900);
+}
+} else {
+msg.className = "msg err";
+msg.textContent = d.message || L.errNotFound;
+}
+} catch (e) {
+msg.className = "msg err";
+msg.textContent = L.errApi;
 }
 btn.disabled = false;
-btn.innerHTML = "✅ Подтвердить ID";
+btn.innerHTML = L.btnReg;
 }
 
-async function checkDeposit() {
-var promo = document.getElementById("promoInput").value.trim().toUpperCase();
-var msg = document.getElementById("depMsg");
-var btn = document.getElementById("btnDep");
-if (!verifiedUserId) {
-msg.className = "gate-msg err";
-msg.textContent = "Сначала подтвердите ID на предыдущем шаге";
+async function doDep() {
+const promo = document.getElementById("promoInput").value.trim().toUpperCase();
+const msg = document.getElementById("depMsg");
+const btn = document.getElementById("btnDep");
+if (!uid) {
+msg.className = "msg err";
+msg.textContent = L.errId;
 return;
 }
-if (promo !== PROMO_CODE) {
-msg.className = "gate-msg err";
-msg.textContent = "Неверный промокод. Используйте " + PROMO_CODE;
+if (promo !== PROMO) {
+msg.className = "msg err";
+msg.textContent = L.errPromo;
 return;
 }
 btn.disabled = true;
-btn.innerHTML = '<span class="loader"></span> Проверяем депозит по API...';
-var result = await checkAffiliateAPI(verifiedUserId);
-if (result.isBoss) {
-msg.className = "gate-msg ok";
-msg.textContent = "👑 BOSS — депозит не требуется";
-localStorage.setItem("tmv_verified", "1");
-setTimeout(function() { goToStep(3); }, 800);
-btn.disabled = false;
-btn.innerHTML = "🔍 Проверить депозит";
-return;
-}
-if (!result.success) {
-msg.className = "gate-msg err";
-msg.textContent = "Ошибка связи с API. Попробуйте через минуту.";
-btn.disabled = false;
-btn.innerHTML = "🔍 Проверить депозит";
-return;
-}
-if (result.deposited) {
-msg.className = "gate-msg ok";
-msg.textContent = "✅ Депозит подтверждён ($" + result.amount + ")! Доступ к VIP-терминалу открыт.";
-localStorage.setItem("tmv_verified", "1");
-setTimeout(function() { goToStep(3); }, 900);
-} else {
-msg.className = "gate-msg err";
-msg.textContent = "Депозит не обнаружен (минимум $" + MIN_DEPOSIT + "). Пополните счёт и активируйте промокод " + PROMO_CODE + ".";
-}
-btn.disabled = false;
-btn.innerHTML = "🔍 Проверить депозит";
-}
-
-function enterTerminal() {
-document.getElementById("securityGate").classList.add("hidden");
-document.getElementById("appContent").classList.remove("hidden");
-document.getElementById("bottomNav").classList.remove("hidden");
-document.getElementById("profileId").textContent = verifiedUserId || "—";
-document.getElementById("statusReg").textContent = "✅ ID " + (verifiedUserId || "—");
-setCategory("forex");
-renderEduList();
-}
-
-function setCategory(cat, btn) {
-if (btn) {
-document.querySelectorAll(".cat-btn").forEach(function(b) { b.classList.remove("active"); });
-btn.classList.add("active");
-} else {
-document.querySelectorAll(".cat-btn").forEach(function(b) {
-b.classList.toggle("active", b.getAttribute("data-cat") === cat);
+btn.innerHTML = '<span class="loader"></span> ...';
+try {
+const r = await fetch("/api/check_deposit", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ user_id: uid, promo: promo })
 });
+const d = await r.json();
+if (d.ok) {
+msg.className = "msg ok";
+msg.textContent = d.message || L.okDep;
+localStorage.setItem("tmv_verified", "1");
+setTimeout(() => goStep(3), 900);
+} else {
+msg.className = "msg err";
+msg.textContent = d.message || L.errDep;
 }
-var sel = document.getElementById("assetSelect");
-sel.innerHTML = "";
-ASSETS[cat].forEach(function(a) {
-var opt = document.createElement("option");
-opt.value = a;
-opt.textContent = a;
-sel.appendChild(opt);
+} catch (e) {
+msg.className = "msg err";
+msg.textContent = L.errApi;
+}
+btn.disabled = false;
+btn.innerHTML = L.btnDep;
+}
+
+function enterApp() {
+document.getElementById("gate").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+document.getElementById("bnav").classList.remove("hidden");
+document.getElementById("profId").textContent = uid || "—";
+document.getElementById("stReg").textContent = "✅ ID " + (uid || "—");
+setCat("forex");
+renderEdu();
+}
+
+function setCat(c, el) {
+document.querySelectorAll(".cat").forEach(x => x.classList.remove("on"));
+if (el) el.classList.add("on");
+else document.querySelector('.cat[data-c="' + c + '"]')?.classList.add("on");
+const s = document.getElementById("asset");
+s.innerHTML = "";
+ASSETS[c].forEach(a => {
+const o = document.createElement("option");
+o.value = o.textContent = a;
+s.appendChild(o);
 });
 }
 
-function startCountdown(seconds) {
-if (countdownInterval) clearInterval(countdownInterval);
-var left = seconds;
-var el = document.getElementById("countdown");
-function update() {
-var m = Math.floor(left / 60);
-var s = left % 60;
+function startCd(sec) {
+if (timer) clearInterval(timer);
+let t = sec;
+const el = document.getElementById("cd");
+const tick = () => {
+const m = Math.floor(t / 60), s = t % 60;
 el.textContent = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
-}
-update();
-countdownInterval = setInterval(function() {
-left--;
-if (left >= 0) update();
-else {
-el.textContent = "⚡ СДЕЛКА ЗАВЕРШЕНА!";
-clearInterval(countdownInterval);
-}
+};
+tick();
+timer = setInterval(() => {
+t--;
+if (t >= 0) tick();
+else { el.textContent = "DONE"; clearInterval(timer); }
 }, 1000);
 }
 
-function getSignal() {
-var asset = document.getElementById("assetSelect").value;
-var candle = document.getElementById("tfCandle").value;
-var expSelect = document.getElementById("tfExp");
-var durationSec = parseInt(expSelect.options[expSelect.selectedIndex].getAttribute("data-sec")) || 60;
-var expText = expSelect.options[expSelect.selectedIndex].textContent;
-var isCall = Math.random() > 0.47;
-var winrate = 87 + Math.floor(Math.random() * 10);
-var combos = ["RSI + Bollinger Bands", "MACD + EMA 200", "Volume Spike + Level", "Stochastic + Support", "Supertrend + CCI", "Ichimoku + AO", "EMA 9 + EMA 21"];
-var randomCombo = combos[Math.floor(Math.random() * combos.length)];
-var stratTexts = [
-"💡 <b>Объяснение связки:</b> Цена подошла к сильному уровню поддержки/сопротивления. RSI показывает выход из зоны экстремума, тиковые объёмы подтверждают истинность импульса.",
-"💡 <b>Объяснение связки:</b> Пересечение скользящих средних EMA в сочетании с полосами Боллинджера указывает на сильное импульсное движение.",
-"💡 <b>Объяснение связки:</b> Зафиксирован резкий всплеск тикового объёма на Binance при ложном пробое уровня с подтверждением по осцилляторам."
+function getSig() {
+const asset = document.getElementById("asset").value;
+const tf = document.getElementById("tf").value;
+const exp = document.getElementById("exp");
+const sec = parseInt(exp.options[exp.selectedIndex].dataset.s) || 60;
+const expTxt = exp.options[exp.selectedIndex].textContent;
+const call = Math.random() > 0.47;
+const wr = 87 + Math.floor(Math.random() * 10);
+const combos = ["RSI + Bollinger", "MACD + EMA 200", "Volume + Level", "Stochastic + Support", "Supertrend + CCI"];
+const texts = [
+"💡 Цена у сильного уровня. RSI выходит из экстремума.",
+"💡 Пересечение EMA + полосы Боллинджера.",
+"💡 Всплеск объёма при ложном пробое."
 ];
-var randomStrat = stratTexts[Math.floor(Math.random() * stratTexts.length)];
-document.getElementById("resAssetInfo").textContent = asset + " · " + candle + " · " + expText;
-var box = document.getElementById("resBox");
-box.textContent = isCall ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
-box.className = "sig-direction " + (isCall ? "dir-call" : "dir-put");
-document.getElementById("resWinrate").textContent = winrate + "%";
-document.getElementById("resCombo").textContent = randomCombo;
-document.getElementById("resStratDesc").innerHTML = randomStrat;
-document.getElementById("sigResult").style.display = "block";
-startCountdown(durationSec);
+document.getElementById("sigMeta").textContent = asset + " · " + tf + " · " + expTxt;
+const dir = document.getElementById("sigDir");
+dir.textContent = call ? "⬆️ CALL" : "⬇️ PUT";
+dir.className = "sig-dir " + (call ? "call" : "put");
+document.getElementById("sigWr").textContent = wr + "%";
+document.getElementById("sigCombo").textContent = combos[Math.floor(Math.random() * combos.length)];
+document.getElementById("sigStrat").textContent = texts[Math.floor(Math.random() * texts.length)];
+document.getElementById("sigBox").style.display = "block";
+startCd(sec);
 }
 
-function getAutoSignal() {
-var cats = Object.keys(ASSETS);
-var randomCat = cats[Math.floor(Math.random() * cats.length)];
-setCategory(randomCat);
-var list = ASSETS[randomCat];
-var randomAsset = list[Math.floor(Math.random() * list.length)];
-document.getElementById("assetSelect").value = randomAsset;
-document.getElementById("tfExp").value = "60";
-getSignal();
+function autoSig() {
+const keys = Object.keys(ASSETS);
+const c = keys[Math.floor(Math.random() * keys.length)];
+setCat(c);
+const list = ASSETS[c];
+document.getElementById("asset").value = list[Math.floor(Math.random() * list.length)];
+document.getElementById("exp").value = "60";
+getSig();
 }
 
-function takeOverlap() {
-alert("🔄 Перекрытие ×2 активировано!\nУвеличьте сумму сделки в 2 раза на Pocket Option для отработки коррекции.");
+function overlap() { alert("🔄 ×2\nУвеличьте сумму ×2 на Pocket Option."); }
+
+function tab(id, el) {
+document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
+document.querySelectorAll(".nav").forEach(n => n.classList.remove("on"));
+document.getElementById(id).classList.remove("hidden");
+el.classList.add("on");
 }
 
-function switchTab(tabId, el) {
-document.querySelectorAll(".nav-tab").forEach(function(t) { t.classList.add("hidden"); });
-document.querySelectorAll(".nav-item").forEach(function(i) { i.classList.remove("active"); });
-document.getElementById(tabId).classList.remove("hidden");
-el.classList.add("active");
-}
-
-function sendAiMessage() {
-var input = document.getElementById("chatInput");
-var txt = input.value.trim();
-if (!txt) return;
-var box = document.getElementById("chatBox");
-box.innerHTML += '<div class="chat-msg msg-user">' + txt + "</div>";
-input.value = "";
+function sendAi() {
+const inp = document.getElementById("chatIn");
+const t = inp.value.trim();
+if (!t) return;
+const box = document.getElementById("chat");
+box.innerHTML += '<div class="bubble user">' + t + "</div>";
+inp.value = "";
 box.scrollTop = box.scrollHeight;
-setTimeout(function() {
-var reply = "Отличный вопрос! Всегда соблюдайте риск-менеджмент (не более 1–2% на сделку) и торгуйте по тренду старшего таймфрейма. 🔥";
-var lower = txt.toLowerCase();
-if (lower.indexOf("живые сигнал") !== -1 || lower.indexOf("сигнал") !== -1) {
-reply = "🟢 Да! В терминале реализована генерация сигналов в реальном времени с винрейтом от 87%. Используйте кнопку «ИИ выберет лучший сигнал» или просчитывайте активы вручную.";
-} else if (lower.indexOf("опыт") !== -1 || lower.indexOf("лет") !== -1 || lower.indexOf("админ") !== -1) {
-reply = "👑 Создатель системы имеет более 7 лет практического опыта на финансовых рынках. За плечами тысячи успешных сделок и собственные математические алгоритмы.";
-} else if (lower.indexOf("индикатор") !== -1 || lower.indexOf("топ") !== -1) {
-reply = "ТОП-5 индикаторов для M1/M5:\n1. RSI (14) — зоны перекупленности/перепроданности\n2. Полосы Боллинджера (20,2)\n3. EMA 9 + EMA 21\n4. Stochastic (14,3,3)\n5. Volume + Levels\n\nГотовые связки — в разделе «Связки».";
-} else if (lower.indexOf("уровен") !== -1 || lower.indexOf("строить") !== -1) {
-reply = "Уровни поддержки и сопротивления строятся по теням свечей, где цена минимум 2–3 раза разворачивалась. При третьем подходе ждите реакцию или торгуйте на пробой.";
-} else if (lower.indexOf("мани") !== -1 || lower.indexOf("риск") !== -1 || lower.indexOf("депозит") !== -1) {
-reply = "Правила риск-менеджмента TEAM MASTER VIP:\n1. Не более 1–3% депозита на одну сделку\n2. Никогда не отрабатывайте убытки бесконечным мартингейлом\n3. При серии из 3 минусов — перерыв 60–90 минут\n4. Фиксируйте прибыль частями";
-} else if (lower.indexOf("бот") !== -1 || lower.indexOf("терминал") !== -1 || lower.indexOf("работает") !== -1) {
-reply = "ИИ-терминал анализирует котировки в реальном времени, сопоставляет тиковые объёмы и математические паттерны. Нажмите «Просчитать сигнал» или «ИИ выберет лучший».";
-} else if (lower.indexOf("крипт") !== -1 || lower.indexOf("биткоин") !== -1 || lower.indexOf("btc") !== -1) {
-reply = "Для крипты лучшие ТФ — M1–M5 с анализом объёмов Binance + RSI + Боллинджер. Избегайте сильных новостей. Используйте авто-сигнал.";
-} else if (lower.indexOf("регистрац") !== -1 || lower.indexOf("аккаунт") !== -1 || lower.indexOf("проверк") !== -1 || lower.indexOf("id") !== -1) {
-reply = "🛡️ Бот проверяет ваш ID через официальный API партнёрки Pocket Option. Сначала регистрация по нашей ссылке, затем депозит от $10 + промокод WELCOME50. После этого доступ открывается навсегда.";
-} else if (lower.indexOf("привет") !== -1 || lower.indexOf("здравств") !== -1 || lower.indexOf("hello") !== -1) {
-reply = "Привет! 👋 Я ваш VIP ИИ-помощник. Спрашивайте всё, что касается трейдинга, стратегий, психологии и работы терминала!";
-} else if (lower.indexOf("минус") !== -1 || lower.indexOf("убыток") !== -1 || lower.indexOf("проигрыш") !== -1) {
-reply = "После 2–3 минусов подряд:\n• Остановитесь минимум на 1 час\n• Проверьте, не торгуете ли против тренда M15\n• Уменьшите лот\n• Не пытайтесь «отыграться» — это главный враг депозита.";
-}
-box.innerHTML += '<div class="chat-msg msg-ai">' + reply + "</div>";
+setTimeout(() => {
+let r = "Соблюдайте риск-менеджмент 1–2% на сделку. 🔥";
+const l = t.toLowerCase();
+if (l.includes("сигнал") || l.includes("signal")) r = "Сигналы на комбинации индикаторов и объёмов. Винрейт 87–96%.";
+else if (l.includes("риск") || l.includes("risk") || l.includes("мани")) r = "1. 1–3% на сделку\n2. После 3 минусов — пауза\n3. Без мартингейла";
+else if (l.includes("индикатор") || l.includes("indicator")) r = "ТОП: RSI, Bollinger, EMA 9+21, Stochastic, Volume";
+else if (l.includes("минус") || l.includes("loss")) r = "После 2–3 минусов — стоп на 1 час.";
+else if (l.includes("id") || l.includes("проверк") || l.includes("депозит") || l.includes("deposit")) r = "Бот проверяет ID и депозит через API партнёрки Pocket Option на сервере.";
+else if (l.includes("привет") || l.includes("hello") || l.includes("hi")) r = "Привет! 👋 Спрашивай о трейдинге.";
+box.innerHTML += '<div class="bubble ai">' + r + "</div>";
 box.scrollTop = box.scrollHeight;
-}, 600);
+}, 500);
 }
+function qAi(t) { document.getElementById("chatIn").value = t; sendAi(); }
 
-function quickAi(text) {
-document.getElementById("chatInput").value = text;
-sendAiMessage();
-}
-
-function renderEduList() {
-var list = document.getElementById("eduList");
-list.innerHTML = "";
-EDU_DATA.forEach(function(item, index) {
-list.innerHTML += '<div class="edu-item" onclick="openEduDetail(' + index + ')"><h4>' + item.t + '</h4><span class="edu-arrow">→</span></div>';
+function renderEdu() {
+const box = document.getElementById("eduItems");
+box.innerHTML = "";
+EDU.forEach((e, i) => {
+box.innerHTML += '<div class="edu-item" onclick="openEdu(' + i + ')"><h4>' + e.t + '</h4><span>→</span></div>';
 });
 }
-
-function openEduDetail(index) {
-var item = EDU_DATA[index];
-document.getElementById("eduListContainer").classList.add("hidden");
-document.getElementById("eduDetailContainer").classList.remove("hidden");
-var tagsHtml = (item.tags || []).map(function(t) { return '<span class="tag">' + t + "</span>"; }).join("");
-document.getElementById("eduDetailContent").innerHTML =
-"<h3>" + item.t + "</h3>" +
-'<div class="tag-row">' + tagsHtml + "</div>" +
-"<p>" + item.d + "</p>" +
-'<img src="' + item.img + '" alt="Strategy Illustration">';
+function openEdu(i) {
+const e = EDU[i];
+document.getElementById("eduList").classList.add("hidden");
+document.getElementById("eduView").classList.remove("hidden");
+const tags = (e.tags || []).map(t => '<span class="tag">' + t + "</span>").join("");
+document.getElementById("eduBody").innerHTML = "<h3>" + e.t + "</h3><div class=\"tag-row\">" + tags + "</div><p>" + e.d + "</p><img src=\"" + e.img + "\" alt=\"\">";
 window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
-function closeEduDetail() {
-document.getElementById("eduDetailContainer").classList.add("hidden");
-document.getElementById("eduListContainer").classList.remove("hidden");
+function closeEdu() {
+document.getElementById("eduView").classList.add("hidden");
+document.getElementById("eduList").classList.remove("hidden");
 }
 
-window.onload = function() {
+window.onload = function () {
+const savedLang = localStorage.getItem("tmv_lang") || "ru";
+setLang(savedLang);
 if (localStorage.getItem("tmv_uid") === BOSS_ID || (localStorage.getItem("tmv_verified") === "1" && localStorage.getItem("tmv_uid"))) {
-verifiedUserId = localStorage.getItem("tmv_uid") || BOSS_ID;
-enterTerminal();
+uid = localStorage.getItem("tmv_uid") || BOSS_ID;
+enterApp();
 } else {
-goToStep(1);
+goStep(1);
 }
 };
 </script>
