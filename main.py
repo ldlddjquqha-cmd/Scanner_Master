@@ -1,43 +1,41 @@
-import hashlib
-import os
-import requests
-from flask import Flask, request, jsonify
+import asyncio
+import logging
+import sys
+from aiogram import Bot, Dispatcher, html
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.filters import CommandStart
+from aiogram.types import Message
 
-app = Flask(__name__)
+# Замените на токен вашего бота
+TOKEN = "YOUR_BOT_TOKEN_HERE"
 
-API_TOKEN = "Zc4X9zu0EMrqbPuLy3tN"
-PARTNER_ID = "850173"
+# Инициализация диспетчера и бота
+dp = Dispatcher()
 
-@app.route('/check-user', methods=['POST'])
-def check_user():
-    data = request.get_json() or {}
-    user_id = str(data.get("user_id", "")).strip()
-    
-    if not user_id.isdigit():
-        return jsonify({"success": False, "error": "Неверный формат ID"})
-    
-    raw_hash_string = f"{user_id}:{PARTNER_ID}:{API_TOKEN}"
-    api_hash = hashlib.md5(raw_hash_string.encode('utf-8')).hexdigest()
-    
-    url = f"https://affiliate.pocketoption.com/api/user-info/{user_id}/{PARTNER_ID}/{api_hash}"
-    
-    try:
-        response = requests.get(url, timeout=5)
-        if response.status_code != 200:
-            return jsonify({"success": False, "error": "Ошибка связи с сервером брокера"})
-        
-        api_data = response.json()
-        print(f"Ответ API для ID {user_id}: {api_data}")
-        
-        if not api_data or "error" in api_data or api_data.get("status") == "error":
-            return jsonify({"success": False, "error": "ID не найден или нет депозита"})
-        
-        return jsonify({"success": True, "message": "Доступ разрешен"})
-        
-    except Exception as e:
-        print(f"Ошибка запроса: {e}")
-        return jsonify({"success": False, "error": "Ошибка сервера проверки"})
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+@dp.message(CommandStart())
+async def command_start_handler(message: Message) -> None:
+  """Этот хендлер срабатывает на команду /start."""
+  user_name = message.from_user.first_name if message.from_user else "Пользователь"
+  await message.answer(
+      f"Привет, {html.bold(html.quote(user_name))}! Бот успешно запущен и готов к работе."
+  )
+
+
+async def main() -> None:
+  # Инициализация бота с настройками по умолчанию (HTML-разметка)
+  bot = Bot(
+      token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+  )
+
+  # Запуск поллинга обновлений
+  await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+  logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+  try:
+    asyncio.run(main())
+  except KeyboardInterrupt:
+    print("Бот остановлен.")
