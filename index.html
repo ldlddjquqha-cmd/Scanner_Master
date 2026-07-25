@@ -127,9 +127,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="header">
 <div>
 <h1 class="g-text">👑 TEAM MASTER VIP</h1>
-<small>AI ENGINE v10.9 PRO · MASTER AI · LIVE</small>
+<small id="hdrSub">AI ENGINE v10.9 PRO · MASTER AI · LIVE</small>
 </div>
-<select class="lang" id="langSelect" onchange="setLang(this.value)">
+<select class="lang" id="langSelect" onchange="changeLanguage(this.value)">
 <option value="ru">🇷🇺 RU</option>
 <option value="en">🇺🇸 EN</option>
 <option value="ua">🇺🇦 UA</option>
@@ -144,29 +144,29 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 <div class="step on" id="s1">
 <div class="gate-icon">👑</div>
-<div class="gate-title">Добро пожаловать</div>
-<div class="gate-desc"><b>Зачем нужна регистрация?</b><br><br>Закрытый VIP-терминал с живыми сигналами и Master AI.<br><br>Бот проверяет через API партнёрки Pocket Option регистрацию по нашей ссылке.</div>
-<a class="btn btn-gold" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank">🚀 Зарегистрироваться</a>
-<div class="hint">Уже есть аккаунт? Введите ID</div>
+<div class="gate-title" data-t="gateTitle">Добро пожаловать</div>
+<div class="gate-desc" id="gateDesc1"><b>Зачем нужна регистрация?</b><br><br>Закрытый VIP-терминал с живыми сигналами и Master AI.<br><br>Бот проверяет через API партнёрки Pocket Option регистрацию по нашей ссылке.</div>
+<a class="btn btn-gold" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank" data-t="btnRegLink">🚀 Зарегистрироваться</a>
+<div class="hint" data-t="gateHint">Уже есть аккаунт? Введите ID</div>
 <input class="input" id="idInput" type="text" inputmode="numeric" placeholder="ID Pocket Option">
 <div class="msg" id="regMsg"></div>
-<button class="btn btn-gold" id="btnReg" onclick="doReg()">✅ Подтвердить ID</button>
+<button class="btn btn-gold" id="btnReg" onclick="doReg()" data-t="btnConfirmId">✅ Подтвердить ID</button>
 </div>
 <div class="step" id="s2">
 <div class="gate-icon">💎</div>
-<div class="gate-title">Проверка депозита</div>
-<div class="gate-desc"><b>Почему депозит?</b><br><br>Минимум <b>$10</b>. Промокод <b>WELCOME50</b>. Бот проверит по API.</div>
+<div class="gate-title" data-t="depTitle">Проверка депозита</div>
+<div class="gate-desc" id="gateDesc2"><b>Почему депозит?</b><br><br>Минимум <b>$10</b>. Промокод <b>WELCOME50</b>. Бот проверит по API.</div>
 <input class="input" id="promoInput" type="text" value="WELCOME50">
 <div class="msg" id="depMsg"></div>
-<button class="btn btn-green" id="btnDep" onclick="doDep()">🔍 Проверить депозит</button>
+<button class="btn btn-green" id="btnDep" onclick="doDep()" data-t="btnCheckDep">🔍 Проверить депозит</button>
 <div class="gap2"></div>
-<button class="btn btn-dark btn-sm" onclick="goStep(1)">← Назад</button>
+<button class="btn btn-dark btn-sm" onclick="goStep(1)" data-t="btnBack">← Назад</button>
 </div>
 <div class="step" id="s3">
 <div class="gate-icon">🎉</div>
-<div class="gate-title">Доступ открыт</div>
-<div class="gate-desc" style="text-align:center">Аккаунт подтверждён. Все функции доступны.</div>
-<button class="btn btn-gold" onclick="enterApp()">🚀 Войти в терминал</button>
+<div class="gate-title" data-t="accOpenTitle">Доступ открыт</div>
+<div class="gate-desc" style="text-align:center" data-t="accOpenDesc">Аккаунт подтверждён. Все функции доступны.</div>
+<button class="btn btn-gold" onclick="enterApp()" data-t="btnEnterTerm">🚀 Войти в терминал</button>
 </div>
 </div>
 
@@ -174,18 +174,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="card tab" id="tabSig">
 <div class="live-bar"><span class="live">● LIVE</span><span style="font-size:9px;color:var(--gold);font-weight:800">68–74% · MASTER AI ⚡</span></div>
 <div class="stats-row">
-<div class="stat-mini"><div class="n">71%</div><div class="l">СРЕДНИЙ WR</div></div>
-<div class="stat-mini"><div class="n" id="statSigs">0</div><div class="l">СИГНАЛОВ</div></div>
-<div class="stat-mini"><div class="n">🟢</div><div class="l">СТАТУС</div></div>
+<div class="stat-mini"><div class="n">71%</div><div class="l" data-t="statAvgWr">СРЕДНИЙ WR</div></div>
+<div class="stat-mini"><div class="n" id="statSigs">0</div><div class="l" data-t="statSigs">СИГНАЛОВ</div></div>
+<div class="stat-mini"><div class="n">🟢</div><div class="l" data-t="statStatus">СТАТУС</div></div>
 </div>
 <div class="cats">
-<button class="cat on" data-c="forex" onclick="setCat('forex',this)">💱 Валюта</button>
-<button class="cat" data-c="crypto" onclick="setCat('crypto',this)">🔥 Крипто</button>
-<button class="cat" data-c="commodities" onclick="setCat('commodities',this)">🛢️ Сырьё</button>
-<button class="cat" data-c="stocks" onclick="setCat('stocks',this)">📈 Акции</button>
-<button class="cat" data-c="indices" onclick="setCat('indices',this)">📊 Индексы</button>
+<button class="cat on" data-c="forex" onclick="setCat('forex',this)" data-t="catForex">💱 Валюта</button>
+<button class="cat" data-c="crypto" onclick="setCat('crypto',this)" data-t="catCrypto">🔥 Крипто</button>
+<button class="cat" data-c="commodities" onclick="setCat('commodities',this)" data-t="catComm">🛢️ Сырьё</button>
+<button class="cat" data-c="stocks" onclick="setCat('stocks',this)" data-t="catStocks">📈 Акции</button>
+<button class="cat" data-c="indices" onclick="setCat('indices',this)" data-t="catIndices">📊 Индексы</button>
 </div>
-<label class="lbl">ТОРГОВЫЙ АКТИВ</label>
+<label class="lbl" data-t="lblAsset">ТОРГОВЫЙ АКТИВ</label>
 <div class="asset-search-container">
 <div class="asset-input-wrap" onclick="toggleAssetDropdown(event)">
 <input type="text" id="assetSearchInput" placeholder="Введите актив или выберите..." oninput="filterAssets(this.value)" autocomplete="off">
@@ -195,7 +195,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 <div class="grid2" style="margin-bottom:10px">
 <div>
-<label class="lbl">ТАЙМФРЕЙМ</label>
+<label class="lbl" data-t="lblTf">ТАЙМФРЕЙМ</label>
 <select class="sel" id="tf">
 <option value="S5">5 сек</option><option value="S15">15 сек</option><option value="S30">30 сек</option>
 <option value="M1" selected>1 мин</option><option value="M2">2 мин</option><option value="M3">3 мин</option>
@@ -203,7 +203,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </select>
 </div>
 <div>
-<label class="lbl">ЭКСПИРАЦИЯ</label>
+<label class="lbl" data-t="lblExp">ЭКСПИРАЦИЯ</label>
 <select class="sel" id="exp">
 <option value="15" data-s="15">15 сек</option><option value="30" data-s="30">30 сек</option>
 <option value="60" data-s="60" selected>1 мин</option><option value="120" data-s="120">2 мин</option>
@@ -215,84 +215,84 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </select>
 </div>
 </div>
-<button class="btn btn-gold" onclick="getSig()">⚡ Просчитать сигнал</button>
+<button class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<button class="btn btn-green btn-sm" onclick="autoSig()">🤖 Master AI выберет</button>
+<button class="btn btn-green btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Master AI выберет</button>
 <div class="gap"></div>
-<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://pocketoption.com" target="_blank">🚀 Открыть Pocket Option</a>
+<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://pocketoption.com" target="_blank" data-t="btnOpenPo">🚀 Открыть Pocket Option</a>
 <div class="sig" id="sigBox">
 <div class="sig-meta" id="sigMeta"></div>
 <div class="sig-dir call" id="sigDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="cd">01:00</span></div>
 <div class="strat" id="sigStrat"></div>
-<div class="sig-stats"><span>WR: <b class="g-text" id="sigWr">71%</b></span><span>Связка: <b id="sigCombo">RSI+BB</b></span></div>
-<button class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none">✖ Отменить</button>
-<button class="btn btn-gold btn-sm" id="btnNew" onclick="getSig()" style="display:none">⚡ Новый сигнал</button>
+<div class="sig-stats"><span>WR: <b class="g-text" id="sigWr">71%</b></span><span><span data-t="lblCombo">Связка</span>: <b id="sigCombo">RSI+BB</b></span></div>
+<button class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none" data-t="btnCancel">✖ Отменить</button>
+<button class="btn btn-gold btn-sm" id="btnNew" onclick="getSig()" style="display:none" data-t="btnNewSig">⚡ Новый сигнал</button>
 </div>
 </div>
 
 <div class="card tab hidden" id="tabAi">
 <h3 class="g-text" style="font-size:13px;margin-bottom:8px">🤖 Master AI Assistant</h3>
-<div class="chat" id="chat"><div class="bubble ai">Привет! Я встроенный ИИ-помощник TEAM MASTER VIP. Анализирую рыночные стаканы, математику вероятностей, индикаторы и психологию в реальном времени. Спрашивай о чем угодно! 🔥</div></div>
+<div class="chat" id="chat"><div class="bubble ai" id="aiWelcomeBubble">Привет! Я встроенный ИИ-помощник TEAM MASTER VIP. Анализирую рыночные стаканы, математику вероятностей, индикаторы и психологию в реальном времени. Спрашивай о чем угодно! 🔥</div></div>
 <div class="chat-row">
 <input id="chatIn" placeholder="Задай вопрос ИИ..." onkeydown="if(event.key==='Enter')sendAi()">
 <button class="chat-send" onclick="sendAi()">➤</button>
 </div>
 <div class="quick">
-<button class="qbtn" onclick="qAi('Как работает бот?')">Как работает бот?</button>
-<button class="qbtn" onclick="qAi('Как правильно использовать риск-менеджмент?')">Риск-менеджмент</button>
-<button class="qbtn" onclick="qAi('Объясни связку RSI + Bollinger')">Связка RSI+BB</button>
-<button class="qbtn" onclick="qAi('Что делать при серии минусов?')">Серия минусов</button>
+<button class="qbtn" onclick="qAi(this.textContent)" data-t="q1">Как работает бот?</button>
+<button class="qbtn" onclick="qAi(this.textContent)" data-t="q2">Риск-менеджмент</button>
+<button class="qbtn" onclick="qAi(this.textContent)" data-t="q3">Связка RSI+BB</button>
+<button class="qbtn" onclick="qAi(this.textContent)" data-t="q4">Серия минусов</button>
 </div>
 </div>
 
 <div class="card tab hidden" id="tabEdu">
 <div id="eduList">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px">📚 11 профессиональных связок</h3>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="eduHeader">📚 11 профессиональных связок</h3>
 <div id="eduItems"></div>
 </div>
 <div id="eduView" class="hidden">
-<button class="btn btn-gold btn-sm" style="margin-bottom:10px" onclick="closeEdu()">← Назад</button>
+<button class="btn btn-gold btn-sm" style="margin-bottom:10px" onclick="closeEdu()" data-t="btnBackEdu">← Назад</button>
 <div class="edu-detail" id="eduBody"></div>
 </div>
 </div>
 
 <div class="card tab hidden" id="tabProf">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px">👤 Профиль</h3>
-<label class="lbl">ВАШЕ ИМЯ</label>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="profTitle">👤 Профиль</h3>
+<label class="lbl" data-t="profNameLbl">ВАШЕ ИМЯ</label>
 <input class="name-input" id="profName" placeholder="Введите имя" onchange="saveName()" onblur="saveName()">
-<div class="prof-row"><span>Статус</span><b style="color:var(--green)">VIP ДОСТУП</b></div>
-<div class="prof-row"><span>Ваш ID</span><b id="profId">—</b></div>
-<div class="prof-row"><span>Проходимость бота</span><b class="g-text">68–74%</b></div>
-<div class="prof-row"><span>Сигналов</span><b id="profSigs">0</b></div>
+<div class="prof-row"><span data-t="profStatus">Статус</span><b style="color:var(--green)">VIP ДОСТУП</b></div>
+<div class="prof-row"><span data-t="profIdLbl">Ваш ID</span><b id="profId">—</b></div>
+<div class="prof-row"><span data-t="profAccLbl">Проходимость бота</span><b class="g-text">68–74%</b></div>
+<div class="prof-row"><span data-t="profSigsLbl">Сигналов</span><b id="profSigs">0</b></div>
 <div class="gap2"></div>
-<label class="lbl">⭐ ИЗБРАННЫЕ АКТИВЫ</label>
+<label class="lbl" data-t="profFavLbl">⭐ ИЗБРАННЫЕ АКТИВЫ</label>
 <div class="fav-list" id="favList"></div>
-<div id="favEmpty" style="text-align:center;padding:16px;color:var(--muted);font-size:11px;font-weight:600">Пока пусто — нажми ☆ у актива</div>
+<div id="favEmpty" style="text-align:center;padding:16px;color:var(--muted);font-size:11px;font-weight:600" data-t="profFavEmpty">Пока пусто — нажми ☆ у актива</div>
 <div class="gap2"></div>
-<button class="btn btn-dark btn-sm" onclick="clearFavs()">🗑 Очистить избранное</button>
+<button class="btn btn-dark btn-sm" onclick="clearFavs()" data-t="btnClearFav">🗑 Очистить избранное</button>
 <div class="gap"></div>
-<button class="btn btn-red btn-sm" onclick="logout()">🚪 Выйти</button>
+<button class="btn btn-red btn-sm" onclick="logout()" data-t="btnLogout">🚪 Выйти</button>
 </div>
 
 <div class="card tab hidden" id="tabScan">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 AI Chart Scanner</h3>
-<div class="scan-tips">
+<div class="scan-tips" id="scanTipsHtml">
 <b>Инструкция сканера с ИИ:</b><br>
 1️⃣ Нажмите «Открыть камеру»<br>
 2️⃣ Выберите экспирацию<br>
 3️⃣ Наведите камеру на график Pocket Option<br>
 4️⃣ Нажмите «СКАНИРОВАТЬ» — нейросеть проанализирует паттерн свечей
 </div>
-<button class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()">📷 Открыть камеру</button>
+<button class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
 <div class="gap"></div>
 <div class="scan-box">
 <div class="scan-frame" id="scanFrame">
 <video class="scan-video hidden" id="scanVideo" autoplay playsinline muted></video>
-<div class="scan-placeholder" id="scanPh">📷<br>Камера отключена<br><small>нажмите кнопку выше для запуска</small></div>
+<div class="scan-placeholder" id="scanPh">📷<br><span data-t="camOff">Камера отключена</span><br><small data-t="camOffSub">нажмите кнопку выше для запуска</small></div>
 </div>
 </div>
-<label class="lbl">ЭКСПИРАЦИЯ</label>
+<label class="lbl" data-t="lblExp">ЭКСПИРАЦИЯ</label>
 <select class="sel" id="scanExp" style="margin-bottom:8px">
 <option value="15" data-s="15">15 сек</option><option value="30" data-s="30">30 сек</option>
 <option value="60" data-s="60" selected>1 мин</option><option value="120" data-s="120">2 мин</option>
@@ -304,24 +304,24 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <span class="ind-chip">EMA 200</span><span class="ind-chip">Volume</span><span class="ind-chip">ATR</span>
 <span class="ind-chip">Stochastic</span><span class="ind-chip">ADX</span>
 </div>
-<button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled>📡 СКАНИРОВАТЬ ГРАФИК</button>
+<button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled data-t="btnScanNow">📡 СКАНИРОВАТЬ ГРАФИК</button>
 <div class="gap"></div>
-<button class="btn btn-dark btn-sm" onclick="stopCam()">⏹ Закрыть камеру</button>
+<button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру</button>
 <div class="sig" id="scanSigBox">
 <div class="sig-meta" id="scanMeta">SCAN · AI Vision</div>
 <div class="sig-dir call" id="scanDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
 <div class="sig-stats"><span>WR: <b class="g-text" id="scanWr">72%</b></span><span>AI Computer Vision</span></div>
-<button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none">✖ Отменить</button>
-<button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none">⚡ Новый скан</button>
+<button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
+<button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
 </div>
 </div>
 
 <div class="card tab hidden" id="tabAbout">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:6px">👑 TEAM MASTER VIP</h3>
-<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:6px">Профессиональный торговый терминал с искусственным интеллектом.</p>
-<div class="about-list">
+<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:6px" data-t="aboutDesc">Профессиональный торговый терминал с искусственным интеллектом.</p>
+<div class="about-list" id="aboutListHtml">
 <li>🤖 Master AI Assistant и сканер графиков</li>
 <li>📈 Реальная проходимость: <b style="color:var(--gold)">68–74%</b></li>
 <li>📷 Распознавание свечных паттернов камерой</li>
@@ -329,19 +329,19 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <li>🛡️ Защищенное соединение SSL & API</li>
 <li>⭐ Система избранных активов и флажков</li>
 </div>
-<p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px">Торгуйте осознанно. Риск на сделку 1-2% от банка.</p>
-<a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank">📢 Наш Telegram канал</a>
+<p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px" data-t="aboutRisk">Торгуйте осознанно. Риск на сделку 1-2% от банка.</p>
+<a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" data-t="btnTgChan">📢 Наш Telegram канал</a>
 </div>
 </div>
 </div>
 
 <div class="bnav hidden" id="bnav">
-<div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span>Сигналы</span></div>
-<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span>Master AI</span></div>
-<div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span>Связки</span></div>
-<div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span>Профиль</span></div>
-<div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span>Сканер</span></div>
-<div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span>О нас</span></div>
+<div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
+<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span data-t="navAi">Master AI</span></div>
+<div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
+<div class="nav" onclick="tab('navProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
+<div class="nav" onclick="tab('navScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
+<div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span data-t="navAbout">О нас</span></div>
 </div>
 
 <div class="analyze-overlay hidden" id="analyzeBox">
@@ -358,6 +358,223 @@ let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
 let chatHistory=[];
 let currentCategory="forex";
 let currentAsset="EUR/USD (OTC)";
+let currentLang="ru";
+
+// Локализация интерфейса (RU, EN, UA)
+const I18N = {
+  ru: {
+    hdrSub: "AI ENGINE v10.9 PRO · MASTER AI · LIVE",
+    gateTitle: "Добро пожаловать",
+    gateDesc1: "<b>Зачем нужна регистрация?</b><br><br>Закрытый VIP-терминал с живыми сигналами и Master AI.<br><br>Бот проверяет через API партнёрки Pocket Option регистрацию по нашей ссылке.",
+    btnRegLink: "🚀 Зарегистрироваться",
+    gateHint: "Уже есть аккаунт? Введите ID",
+    btnConfirmId: "✅ Подтвердить ID",
+    depTitle: "Проверка депозита",
+    gateDesc2: "<b>Почему депозит?</b><br><br>Минимум <b>$10</b>. Промокод <b>WELCOME50</b>. Бот проверит по API.",
+    btnCheckDep: "🔍 Проверить депозит",
+    btnBack: "← Назад",
+    accOpenTitle: "Доступ открыт",
+    accOpenDesc: "Аккаунт подтверждён. Все функции доступны.",
+    btnEnterTerm: "🚀 Войти в терминал",
+    statAvgWr: "СРЕДНИЙ WR",
+    statSigs: "СИГНАЛОВ",
+    statStatus: "СТАТУС",
+    catForex: "💱 Валюта",
+    catCrypto: "🔥 Крипто",
+    catComm: "🛢️ Сырьё",
+    catStocks: "📈 Акции",
+    catIndices: "📊 Индексы",
+    lblAsset: "ТОРГОВЫЙ АКТИВ",
+    lblTf: "ТАЙМФРЕЙМ",
+    lblExp: "ЭКСПИРАЦИЯ",
+    btnCalcSig: "⚡ Просчитать сигнал",
+    btnAutoSig: "🤖 Master AI выберет",
+    btnOpenPo: "🚀 Открыть Pocket Option",
+    lblCombo: "Связка",
+    btnCancel: "✖ Отменить",
+    btnNewSig: "⚡ Новый сигнал",
+    aiWelcome: "Привет! Я встроенный ИИ-помощник TEAM MASTER VIP. Анализирую рыночные стаканы, математику вероятностей, индикаторы и психологию в реальном времени. Спрашивай о чем угодно! 🔥",
+    q1: "Как работает бот?",
+    q2: "Риск-менеджмент",
+    q3: "Связка RSI+BB",
+    q4: "Серия минусов",
+    eduHeader: "📚 11 профессиональных связок",
+    btnBackEdu: "← Назад",
+    profTitle: "👤 Профиль",
+    profNameLbl: "ВАШЕ ИМЯ",
+    profStatus: "Статус",
+    profIdLbl: "Ваш ID",
+    profAccLbl: "Проходимость бота",
+    profSigsLbl: "Сигналов",
+    profFavLbl: "⭐ ИЗБРАННЫЕ АКТИВЫ",
+    profFavEmpty: "Пока пусто — нажми ☆ у актива",
+    btnClearFav: "🗑 Очистить избранное",
+    btnLogout: "🚪 Выйти",
+    scanTips: "<b>Инструкция сканера с ИИ:</b><br>1️⃣ Нажмите «Открыть камеру»<br>2️⃣ Выберите экспирацию<br>3️⃣ Наведите камеру на график Pocket Option<br>4️⃣ Нажмите «СКАНИРОВАТЬ» — нейросеть проанализирует паттерн свечей",
+    btnOpenCam: "📷 Открыть камеру",
+    camOff: "Камера отключена",
+    camOffSub: "нажмите кнопку выше для запуска",
+    btnScanNow: "📡 СКАНИРОВАТЬ ГРАФИК",
+    btnCloseCam: "⏹ Закрыть камеру",
+    btnNewScan: "⚡ Новый скан",
+    aboutDesc: "Профессиональный торговый терминал с искусственным интеллектом.",
+    aboutList: "<li>🤖 Master AI Assistant и сканер графиков</li><li>📈 Реальная проходимость: <b style='color:var(--gold)'>68–74%</b></li><li>📷 Распознавание свечных паттернов камерой</li><li>📚 11 детальных связок индикаторов</li><li>🛡️ Защищенное соединение SSL & API</li><li>⭐ Система избранных активов и флажков</li>",
+    aboutRisk: "Торгуйте осознанно. Риск на сделку 1-2% от банка.",
+    btnTgChan: "📢 Наш Telegram канал",
+    navSig: "Сигналы",
+    navAi: "Master AI",
+    navEdu: "Связки",
+    navProf: "Профиль",
+    navScan: "Сканер",
+    navAbout: "О нас"
+  },
+  en: {
+    hdrSub: "AI ENGINE v10.9 PRO · MASTER AI · LIVE",
+    gateTitle: "Welcome",
+    gateDesc1: "<b>Why register?</b><br><br>Closed VIP terminal with live signals and Master AI.<br><br>The bot verifies Pocket Option partnership registration via API.",
+    btnRegLink: "🚀 Register",
+    gateHint: "Already have an account? Enter ID",
+    btnConfirmId: "✅ Confirm ID",
+    depTitle: "Deposit Check",
+    gateDesc2: "<b>Why deposit?</b><br><br>Minimum <b>$10</b>. Promo code <b>WELCOME50</b>. Verified via API.",
+    btnCheckDep: "🔍 Check Deposit",
+    btnBack: "← Back",
+    accOpenTitle: "Access Granted",
+    accOpenDesc: "Account verified. All features are available.",
+    btnEnterTerm: "🚀 Enter Terminal",
+    statAvgWr: "AVERAGE WR",
+    statSigs: "SIGNALS",
+    statStatus: "STATUS",
+    catForex: "💱 Forex",
+    catCrypto: "🔥 Crypto",
+    catComm: "🛢️ Comm",
+    catStocks: "📈 Stocks",
+    catIndices: "📊 Indices",
+    lblAsset: "TRADING ASSET",
+    lblTf: "TIMEFRAME",
+    lblExp: "EXPIRATION",
+    btnCalcSig: "⚡ Calculate Signal",
+    btnAutoSig: "🤖 Master AI Choose",
+    btnOpenPo: "🚀 Open Pocket Option",
+    lblCombo: "Combo",
+    btnCancel: "✖ Cancel",
+    btnNewSig: "⚡ New Signal",
+    aiWelcome: "Hello! I am your built-in TEAM MASTER VIP AI assistant. Analyzing order books, probabilities, indicators and psychology in real-time. Ask me anything! 🔥",
+    q1: "How does the bot work?",
+    q2: "Risk management",
+    q3: "RSI+BB Strategy",
+    q4: "Loss streak strategy",
+    eduHeader: "📚 11 Professional Combos",
+    btnBackEdu: "← Back",
+    profTitle: "👤 Profile",
+    profNameLbl: "YOUR NAME",
+    profStatus: "Status",
+    profIdLbl: "Your ID",
+    profAccLbl: "Bot Accuracy",
+    profSigsLbl: "Signals",
+    profFavLbl: "⭐ FAVORITE ASSETS",
+    profFavEmpty: "Empty yet — click ☆ on asset",
+    btnClearFav: "🗑 Clear Favorites",
+    btnLogout: "🚪 Logout",
+    scanTips: "<b>AI Scanner Instructions:</b><br>1️⃣ Click 'Open Camera'<br>2️⃣ Select expiration<br>3️⃣ Point camera at Pocket Option chart<br>4️⃣ Click 'SCAN' — AI will analyze candle patterns",
+    btnOpenCam: "📷 Open Camera",
+    camOff: "Camera is off",
+    camOffSub: "click button above to start",
+    btnScanNow: "📡 SCAN CHART",
+    btnCloseCam: "⏹ Close Camera",
+    btnNewScan: "⚡ New Scan",
+    aboutDesc: "Professional AI-powered trading terminal.",
+    aboutList: "<li>🤖 Master AI Assistant & Chart Scanner</li><li>📈 Real Accuracy: <b style='color:var(--gold)'>68–74%</b></li><li>📷 Candle Pattern Recognition via Camera</li><li>📚 11 Detailed Indicator Combos</li><li>🛡️ Secure SSL & API Connection</li><li>⭐ Favorite Assets & Flags System</li>",
+    aboutRisk: "Trade wisely. Risk 1-2% per trade.",
+    btnTgChan: "📢 Our Telegram Channel",
+    navSig: "Signals",
+    navAi: "Master AI",
+    navEdu: "Combos",
+    navProf: "Profile",
+    navScan: "Scanner",
+    navAbout: "About"
+  },
+  ua: {
+    hdrSub: "AI ENGINE v10.9 PRO · MASTER AI · LIVE",
+    gateTitle: "Ласкаво просимо",
+    gateDesc1: "<b>Навіщо потрібна реєстрація?</b><br><br>Закритий VIP-термінал з живими сигналами та Master AI.<br><br>Бот перевіряє через API партнерки Pocket Option реєстрацію за нашим посиланням.",
+    btnRegLink: "🚀 Зареєструватися",
+    gateHint: "Вже є акаунт? Введіть ID",
+    btnConfirmId: "✅ Підтвердити ID",
+    depTitle: "Перевірка депозиту",
+    gateDesc2: "<b>Чому депозит?</b><br><br>Мінімум <b>$10</b>. Промокод <b>WELCOME50</b>. Бот перевірить по API.",
+    btnCheckDep: "🔍 Перевірити депозит",
+    btnBack: "← Назад",
+    accOpenTitle: "Доступ відкрито",
+    accOpenDesc: "Акаунт підтверджено. Усі функції доступні.",
+    btnEnterTerm: "🚀 Увійти в термінал",
+    statAvgWr: "СЕРЕДНІЙ WR",
+    statSigs: "СИГНАЛІВ",
+    statStatus: "СТАТУС",
+    catForex: "💱 Валюта",
+    catCrypto: "🔥 Крипто",
+    catComm: "🛢️ Сировина",
+    catStocks: "📈 Акції",
+    catIndices: "📊 Індекси",
+    lblAsset: "ТОРГОВИЙ АКТИВ",
+    lblTf: "ТАЙМФРЕЙМ",
+    lblExp: "ЕКСПІРАЦІЯ",
+    btnCalcSig: "⚡ Прорахувати сигнал",
+    btnAutoSig: "🤖 Master AI обере",
+    btnOpenPo: "🚀 Відкрити Pocket Option",
+    lblCombo: "Зв'язка",
+    btnCancel: "✖ Скасувати",
+    btnNewSig: "⚡ Новий сигнал",
+    aiWelcome: "Привіт! Я вбудований ШІ-помічник TEAM MASTER VIP. Аналізую ринкові стакани, математику ймовірностей, індикатори та психологію в реальному часі. Запитуй про що завгодно! 🔥",
+    q1: "Як працює бот?",
+    q2: "Ризик-менеджмент",
+    q3: "Зв'язка RSI+BB",
+    q4: "Серія мінусів",
+    eduHeader: "📚 11 професійних зв'язок",
+    btnBackEdu: "← Назад",
+    profTitle: "👤 Профіль",
+    profNameLbl: "ВАШЕ ІМ'Я",
+    profStatus: "Статус",
+    profIdLbl: "Ваш ID",
+    profAccLbl: "Прохідність бота",
+    profSigsLbl: "Сигналів",
+    profFavLbl: "⭐ ОБРАНІ АКТИВИ",
+    profFavEmpty: "Поки порожньо — натисни ☆ біля активу",
+    btnClearFav: "🗑 Очистити обрані",
+    btnLogout: "🚪 Вийти",
+    scanTips: "<b>Інструкція сканера з ШІ:</b><br>1️⃣ Натисніть «Відкрити камеру»<br>2️⃣ Виберіть експірацію<br>3️⃣ Наведіть камеру на графік Pocket Option<br>4️⃣ Натисніть «СКАНУВАТИ» — нейромережа проаналізує паттерн свічок",
+    btnOpenCam: "📷 Відкрити камеру",
+    camOff: "Камера вимкнена",
+    camOffSub: "натисніть кнопку вище для запуску",
+    btnScanNow: "📡 СКАНУВАТИ ГРАФІК",
+    btnCloseCam: "⏹ Закрити камеру",
+    btnNewScan: "⚡ Новий скан",
+    aboutDesc: "Професійний торговий термінал зі штучним інтелектом.",
+    aboutList: "<li>🤖 Master AI Assistant та сканер графіків</li><li>📈 Реальна прохідність: <b style='color:var(--gold)'>68–74%</b></li><li>📷 Розпізнавання свічкових паттернів камерою</li><li>📚 11 детальних зв'язок індикаторів</li><li>🛡️ Захищене з'єднання SSL & API</li><li>⭐ Система обраних активів та прапорців</li>",
+    aboutRisk: "Торгуйте усвідомлено. Ризик на угоду 1-2% від банку.",
+    btnTgChan: "📢 Наш Telegram канал",
+    navSig: "Сигнали",
+    navAi: "Master AI",
+    navEdu: "Зв'язки",
+    navProf: "Профіль",
+    navScan: "Сканер",
+    navAbout: "Про нас"
+  }
+};
+
+function changeLanguage(lang){
+currentLang = lang;
+localStorage.setItem("tmv_lang", lang);
+document.getElementById("langSelect").value = lang;
+const dict = I18N[lang] || I18N.ru;
+document.querySelectorAll("[data-t]").forEach(el=>{
+const key = el.getAttribute("data-t");
+if(dict[key]) el.innerHTML = dict[key];
+});
+if(document.getElementById("aiWelcomeBubble")) document.getElementById("aiWelcomeBubble").textContent = dict.aiWelcome;
+if(document.getElementById("scanTipsHtml")) document.getElementById("scanTipsHtml").innerHTML = dict.scanTips;
+if(document.getElementById("aboutListHtml")) document.getElementById("aboutListHtml").innerHTML = dict.aboutList;
+}
 
 // Полные списки активов с флагами / значками
 const ASSETS={
@@ -452,7 +669,7 @@ const EDU=[
 },
 {
   t:"9️⃣ Parabolic SAR + ADX (Average Directional Index)",
-  d:"📌 ДЕТ/АЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Оценка силы тренда по ADX (>25) и точки разворота точек Parabolic SAR.\n• Точка входа: Точки SAR переходят под свечи графика, а ADX подтверждает силу тренда (>25).\n• Математическое ожидание: Винрейт 67% при фильтрации бокового флэта.\n• Рекомендуемый таймфрейм: M1 / M3. Время экспирации: 1–2 минуты.",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Оценка силы тренда по ADX (>25) и точки разворота точек Parabolic SAR.\n• Точка входа: Точки SAR переходят под свечи графика, а ADX подтверждает силу тренда (>25).\n• Математическое ожидание: Винрейт 67% при фильтрации бокового флэта.\n• Рекомендуемый таймфрейм: M1 / M3. Время экспирации: 1–2 минуты.",
   img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
   tags:["M1","M3","Винрейт 67%"]
 },
@@ -690,7 +907,7 @@ camReady=true;
 }catch(e){
 document.getElementById("scanPh").innerHTML="📷 Камера недоступна<br><small>Разрешите доступ в настройках браузера</small>";
 document.getElementById("btnScan").disabled=false;
-camReady=true; // Разрешаем симуляцию сканирования экрана для удобства
+camReady=true;
 }
 }
 
@@ -741,7 +958,6 @@ if(id!=="tabScan")stopCam();
 
 function badContent(t){return /секс|порн|xxx|nsfw|fuck|shit|хуй|пизд|ебан|блят|naked|nude|18\+/i.test(t);}
 
-// Улучшенный ИИ помощник в чате с развернутыми ответами
 async function sendAi(){
 const inp=document.getElementById("chatIn");const t=inp.value.trim();if(!t)return;
 const box=document.getElementById("chat");
@@ -756,17 +972,16 @@ box.scrollTop=box.scrollHeight;return;
 chatHistory.push({role:"user",content:t});
 const loading=document.createElement("div");loading.className="bubble ai";loading.textContent="⏳ Master AI анализирует ваш вопрос...";box.appendChild(loading);box.scrollTop=box.scrollHeight;
 
-// Интеллектуальный генератор ответов ИИ
 setTimeout(()=>{
 let reply="";
 const q=t.toLowerCase();
-if(q.includes("работает бот")||q.includes("сигнал")||q.includes("как работают")){
+if(q.includes("работает бот")||q.includes("сигнал")||q.includes("how does")||q.includes("як працює")){
   reply="🤖 **Как работает наш ИИ-терминал:**\n\n1. Нейросеть в реальном времени сканирует котировки Binance и Pocket Option.\n2. Сопоставляет тиковые объемы, стакан ордеров и показания ключевых индикаторов (RSI, Bollinger Bands, EMA 200).\n3. Вычисляет математическую вероятность с точностью 68-74%.\n4. Нажмите «Просчитать сигнал» или «Master AI выберет лучший», чтобы получить готовое направление (CALL/PUT) и экспирацию!";
-} else if(q.includes("риск")||q.includes("манименеджмент")||q.includes("банк")){
+} else if(q.includes("риск")||q.includes("манименеджмент")||q.includes("банк")||q.includes("risk")){
   reply="🛡️ **Правила риск-менеджмента от Master AI:**\n\n• Рискуйте не более чем 1-2% от общего депозита на одну сделку.\n• Ни в коем случае не отыгрывайтесь ва-банком после серии минусов.\n• При получении 3 минусов подряд сделайте перерыв минимум на 1-2 часа.\n• Используйте фиксированную сумму входа или умеренный метод разгона.";
-} else if(q.includes("rsi")||q.includes("боллинджер")||q.includes("индикатор")){
+} else if(q.includes("rsi")||q.includes("боллинджер")||q.includes("индикатор")||q.includes("strategy")){
   reply="📊 **Разбор связки RSI + Bollinger Bands:**\n\nЭто одна из самых мощных стратегий в терминале. Когда цена выходит за пределы верхней или нижней ленты Боллинджера и одновременно с этим RSI преодолевает отметку 70 (перекупленность) или 30 (перепроданность), происходит сильный импульсный отскок к среднему значению. Идеальный таймфрейм для торговли — 1 минута.";
-} else if(q.includes("минус")||q.includes("серия")||q.includes("слив")){
+} else if(q.includes("минус")||q.includes("серия")||q.includes("слив")||q.includes("loss")){
   reply="⚠️ **Что делать при серии минусов:**\n\nРынок цикличен, и 100% проходимости не бывает ни у одного алгоритма в мире. Главное — хладнокровие. Закройте терминал, отдохните и проанализируйте свои входы. Наш средний винрейт 71% гарантирует математическое преимущество на дистанции при соблюдении риск-менеджмента.";
 } else {
   reply=`💡 Отличный вопрос! По теме «${t}»: Master AI рекомендует всегда опираться на комплексный технический анализ (уровни поддержки/сопротивления + трендовые фильтры) и строго соблюдать дисциплину. Спрашивайте любые детали по индикаторам или стратегии!`;
@@ -794,11 +1009,11 @@ window.scrollTo({top:0,behavior:"smooth"});
 
 function closeEdu(){document.getElementById("eduView").classList.add("hidden");document.getElementById("eduList").classList.remove("hidden");}
 function logout(){if(confirm("Выйти из системы?")){localStorage.removeItem("tmv_uid");localStorage.removeItem("tmv_verified");location.reload();}}
-function setLang(c){localStorage.setItem("tmv_lang",c);document.getElementById("langSelect").value=c;}
 
 window.onload=function(){
 goStep(1);
-const lang=localStorage.getItem("tmv_lang")||"ru";setLang(lang);
+const lang=localStorage.getItem("tmv_lang")||"ru";
+changeLanguage(lang);
 if(isVip(localStorage.getItem("tmv_uid"))||(localStorage.getItem("tmv_verified")==="1"&&localStorage.getItem("tmv_uid"))){
 uid=localStorage.getItem("tmv_uid");enterApp();
 }
