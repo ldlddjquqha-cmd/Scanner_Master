@@ -8,85 +8,106 @@
 <style>
 :root{--gold:#FFD700;--gold-g:linear-gradient(135deg,#BF953F 0%,#FCF6BA 25%,#B38728 50%,#FBF5B7 75%,#AA771C 100%);--bg:#06080d;--card:#0e121b;--inner:#0a0d14;--green:#00E676;--green-g:rgba(0,230,118,.3);--red:#FF5252;--red-g:rgba(255,82,82,.3);--border:#1a2233;--border-g:rgba(212,175,55,.45);--muted:#7a8499;--text:#e8ecf4}
 *{box-sizing:border-box;margin:0;padding:0;font-family:Montserrat,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:14px 14px 100px}
-.wrap{width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px}
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:12px 12px 78px}
+.wrap{width:100%;max-width:440px;display:flex;flex-direction:column;gap:10px}
 .g-text{background:var(--gold-g);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:sh 3s linear infinite;font-weight:900}
 @keyframes sh{to{background-position:200% center}}
-.btn{width:100%;padding:15px;border:none;border-radius:14px;font-weight:800;font-size:13px;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s}
-.btn:active{transform:scale(.97)}.btn:disabled{opacity:.45;pointer-events:none}
-.btn-gold{background:var(--gold-g);background-size:200% auto;animation:sh 3s linear infinite;color:#111;box-shadow:0 6px 24px rgba(191,149,63,.35)}
-.btn-green{background:linear-gradient(135deg,#00C853,#00E676,#69F0AE);color:#063;box-shadow:0 6px 20px var(--green-g)}
-.btn-dark{background:var(--inner);color:var(--muted);border:1px solid var(--border)}
-.btn-red{background:linear-gradient(135deg,#FF1744,#FF5252);color:#fff;box-shadow:0 4px 16px var(--red-g);font-size:12px;padding:12px}
-.header{background:var(--card);border:1px solid var(--border-g);border-radius:18px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 0 30px rgba(212,175,55,.08)}
-.header h1{font-size:16px}.header small{font-size:9px;color:var(--muted);font-weight:700}
-.lang{background:var(--inner);color:#fff;border:1px solid var(--border);padding:7px 10px;border-radius:10px;font-weight:700;font-size:11px;outline:none}
-.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:0 4px 24px rgba(0,0,0,.45)}
-.gate{background:var(--card);border:1px solid var(--border-g);border-radius:22px;padding:28px 20px;text-align:center;box-shadow:0 0 50px rgba(212,175,55,.12);animation:fu .5s ease}
-@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.progress{display:flex;justify-content:center;align-items:center;margin-bottom:24px}
-.p-dot{width:12px;height:12px;border-radius:50%;background:var(--border);transition:all .35s}
-.p-dot.done{background:var(--green);box-shadow:0 0 10px var(--green-g)}
-.p-dot.cur{background:var(--gold);box-shadow:0 0 14px rgba(255,215,0,.55);transform:scale(1.25)}
-.p-line{width:36px;height:2px;background:var(--border);margin:0 4px}.p-line.done{background:var(--green)}
-.gate-icon{font-size:52px;margin-bottom:10px}
-.gate-title{font-size:19px;font-weight:900;margin-bottom:12px;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.gate-desc{font-size:12.5px;color:#b0b8c8;line-height:1.7;text-align:left;margin-bottom:22px;background:var(--inner);padding:14px 16px;border-radius:14px;border:1px solid var(--border)}
-.gate-desc b{color:var(--gold)}
-.input{width:100%;padding:15px;border-radius:14px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:15px;font-weight:700;text-align:center;outline:none;margin-bottom:12px;letter-spacing:1px}
-.input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.12)}
-.input::placeholder{color:var(--muted);font-weight:600;letter-spacing:0}
-.msg{font-size:12px;font-weight:700;padding:11px 14px;border-radius:12px;margin-bottom:12px;display:none;line-height:1.4}
-.msg.ok{display:block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.35)}
-.msg.err{display:block;background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.35)}
-.step{display:none}.step.on{display:block;animation:fu .4s ease}
-.hint{font-size:11px;color:var(--muted);margin:10px 0 14px;font-weight:600}
-.sec-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:14px 16px;margin-bottom:14px}
-.sec-head{font-size:11px;font-weight:900;color:var(--gold);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.live{font-size:9px;background:rgba(0,230,118,.15);color:var(--green);padding:3px 8px;border-radius:6px;border:1px solid rgba(0,230,118,.4);font-weight:800}
-.sec-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.sec-row:last-child{border-bottom:none}.ok{color:var(--green);font-weight:900}
-.cats{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;margin-bottom:12px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
-.cat{flex-shrink:0;padding:9px 14px;background:var(--inner);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
-.cat.on{background:var(--gold-g);color:#111;border:none;box-shadow:0 3px 12px rgba(191,149,63,.3)}
-.lbl{display:block;font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.4px;margin-bottom:6px}
-.sel{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:13px;font-weight:700;outline:none;margin-bottom:12px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%238a94a6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sig{display:none;margin-top:14px;background:var(--inner);border:2px solid var(--gold);border-radius:18px;padding:18px;text-align:center;animation:fu .35s ease;box-shadow:0 0 28px rgba(255,215,0,.12)}
-.sig-meta{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px}
-.sig-dir{font-size:22px;font-weight:900;padding:14px;border-radius:14px;margin:12px 0;letter-spacing:1px}
-.call{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.4);box-shadow:0 0 18px var(--green-g)}
-.put{background:rgba(255,82,82,.12);color:var(--red);border:1px solid rgba(255,82,82,.4);box-shadow:0 0 18px var(--red-g)}
-.timer{font-size:14px;font-weight:900;color:var(--gold);background:rgba(255,215,0,.07);border:1px dashed var(--gold);border-radius:12px;padding:10px;margin-bottom:12px}
-.strat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:11.5px;color:#c5cdd8;text-align:left;line-height:1.55;margin-bottom:12px}
-.sig-stats{display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:12px}
-.chat{height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--inner);border-radius:14px;border:1px solid var(--border);margin-bottom:10px}
-.bubble{max-width:86%;padding:11px 14px;border-radius:14px;font-size:12.5px;line-height:1.55;white-space:pre-line}
-.ai{background:#131a28;color:#dce3ef;align-self:flex-start;border:1px solid #1e2a3d;border-bottom-left-radius:4px}
-.user{background:var(--gold-g);color:#111;font-weight:800;align-self:flex-end;border-bottom-right-radius:4px}
-.chat-row{display:flex;gap:8px}
-.chat-row input{flex:1;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:13px;font-weight:700;outline:none}
-.chat-send{width:50px;background:var(--gold-g);border:none;border-radius:12px;font-size:18px;font-weight:900;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.quick{display:flex;gap:7px;overflow-x:auto;margin-top:10px;scrollbar-width:none}.quick::-webkit-scrollbar{display:none}
-.qbtn{flex-shrink:0;padding:8px 12px;background:var(--inner);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
-.edu-item{background:var(--inner);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.edu-item:active{transform:scale(.98)}.edu-item h4{font-size:12.5px;color:var(--gold);font-weight:800}
-.edu-detail{background:var(--inner);border:1px solid var(--border-g);border-radius:16px;padding:18px}
-.edu-detail h3{color:var(--gold);font-size:15px;font-weight:900;margin-bottom:12px}
-.edu-detail p{font-size:12.5px;color:#c5cdd8;line-height:1.7;white-space:pre-line;margin-bottom:14px}
-.edu-detail img{width:100%;height:180px;object-fit:cover;border-radius:12px;border:1px solid var(--border)}
-.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.tag{font-size:10px;font-weight:800;padding:5px 10px;border-radius:8px;background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.25)}
-.prof-row{font-size:12.5px;margin-bottom:10px;display:flex;justify-content:space-between}.prof-row b{color:#fff}
-.about-list{background:var(--inner);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:12px 0 16px}
-.about-list li{font-size:12px;color:#c5cdd8;line-height:2;list-style:none}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#080b12;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 14px;z-index:100;box-shadow:0 -8px 30px rgba(0,0,0,.7)}
-.nav{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:800;cursor:pointer;min-width:56px}
-.nav.on{color:var(--gold)}.nav span{font-size:20px}
-.hidden{display:none!important}
-.loader{width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:#111;border-radius:50%;animation:spin .65s linear infinite;display:inline-block}
+@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.gap{height:8px}.gap2{height:12px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.btn{width:100%;padding:14px;border:none;border-radius:13px;font-weight:800;font-size:12.5px;letter-spacing:.35px;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4;pointer-events:none}
+.btn-gold{background:var(--gold-g);background-size:200% auto;animation:sh 3s linear infinite;color:#111;box-shadow:0 5px 20px rgba(191,149,63,.32)}
+.btn-green{background:linear-gradient(135deg,#00C853,#00E676,#69F0AE);color:#063;box-shadow:0 5px 18px var(--green-g)}
+.btn-dark{background:var(--inner);color:var(--muted);border:1px solid var(--border)}
+.btn-red{background:linear-gradient(135deg,#FF1744,#FF5252);color:#fff;box-shadow:0 4px 14px var(--red-g);font-size:12px;padding:12px}
+.btn-sm{padding:11px;font-size:11.5px}
+.header{background:var(--card);border:1px solid var(--border-g);border-radius:16px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 0 26px rgba(212,175,55,.07)}
+.header h1{font-size:15px}.header small{font-size:8.5px;color:var(--muted);font-weight:700}
+.lang{background:var(--inner);color:#fff;border:1px solid var(--border);padding:6px 9px;border-radius:9px;font-weight:700;font-size:10.5px;outline:none}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:fu .35s ease}
+.gate{background:var(--card);border:1px solid var(--border-g);border-radius:20px;padding:24px 18px;text-align:center;box-shadow:0 0 44px rgba(212,175,55,.1);animation:fu .45s ease}
+.progress{display:flex;justify-content:center;align-items:center;margin-bottom:20px}
+.p-dot{width:11px;height:11px;border-radius:50%;background:var(--border);transition:all .3s}
+.p-dot.done{background:var(--green);box-shadow:0 0 8px var(--green-g)}
+.p-dot.cur{background:var(--gold);box-shadow:0 0 12px rgba(255,215,0,.5);transform:scale(1.2)}
+.p-line{width:32px;height:2px;background:var(--border);margin:0 3px}.p-line.done{background:var(--green)}
+.gate-icon{font-size:48px;margin-bottom:8px}
+.gate-title{font-size:18px;font-weight:900;margin-bottom:10px;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.gate-desc{font-size:12px;color:#b0b8c8;line-height:1.65;text-align:left;margin-bottom:18px;background:var(--inner);padding:12px 14px;border-radius:12px;border:1px solid var(--border)}
+.gate-desc b{color:var(--gold)}
+.input{width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:14px;font-weight:700;text-align:center;outline:none;margin-bottom:10px;letter-spacing:.8px}
+.input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.1)}
+.input::placeholder{color:var(--muted);font-weight:600;letter-spacing:0}
+.msg{font-size:11.5px;font-weight:700;padding:10px 12px;border-radius:11px;margin-bottom:10px;display:none;line-height:1.4}
+.msg.ok{display:block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.3)}
+.msg.err{display:block;background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.3)}
+.step{display:none}.step.on{display:block;animation:fu .35s ease}
+.hint{font-size:10.5px;color:var(--muted);margin:8px 0 12px;font-weight:600}
+.sec-box{background:var(--inner);border:1px solid var(--border-g);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.sec-head{font-size:10.5px;font-weight:900;color:var(--gold);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.live{font-size:8.5px;background:rgba(0,230,118,.15);color:var(--green);padding:2px 7px;border-radius:5px;border:1px solid rgba(0,230,118,.35);font-weight:800}
+.sec-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.sec-row:last-child{border-bottom:none}.ok{color:var(--green);font-weight:900}
+.cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
+.cat{flex-shrink:0;padding:8px 12px;background:var(--inner);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s}
+.cat.on{background:var(--gold-g);color:#111;border:none;box-shadow:0 3px 10px rgba(191,149,63,.28)}
+.lbl{display:block;font-size:9.5px;color:var(--muted);font-weight:800;letter-spacing:.35px;margin-bottom:5px}
+.sel{width:100%;padding:12px 13px;border-radius:11px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:12.5px;font-weight:700;outline:none;margin-bottom:10px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%238a94a6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sig{display:none;margin-top:12px;background:var(--inner);border:2px solid var(--gold);border-radius:16px;padding:16px;text-align:center;animation:fu .3s ease;box-shadow:0 0 24px rgba(255,215,0,.1)}
+.sig-meta{font-size:10.5px;color:var(--muted);font-weight:700;margin-bottom:3px}
+.sig-dir{font-size:20px;font-weight:900;padding:12px;border-radius:12px;margin:10px 0;letter-spacing:.8px}
+.call{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.35);box-shadow:0 0 16px var(--green-g)}
+.put{background:rgba(255,82,82,.12);color:var(--red);border:1px solid rgba(255,82,82,.35);box-shadow:0 0 16px var(--red-g)}
+.timer{font-size:13px;font-weight:900;color:var(--gold);background:rgba(255,215,0,.07);border:1px dashed var(--gold);border-radius:11px;padding:9px;margin-bottom:10px}
+.strat{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:11px;color:#c5cdd8;text-align:left;line-height:1.55;margin-bottom:10px}
+.sig-stats{display:flex;justify-content:space-between;font-size:10.5px;font-weight:800;margin-bottom:10px}
+.chat{height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:10px;background:var(--inner);border-radius:12px;border:1px solid var(--border);margin-bottom:8px}
+.bubble{max-width:88%;padding:10px 12px;border-radius:12px;font-size:12px;line-height:1.5;white-space:pre-line}
+.ai{background:#131a28;color:#dce3ef;align-self:flex-start;border:1px solid #1e2a3d;border-bottom-left-radius:3px}
+.user{background:var(--gold-g);color:#111;font-weight:800;align-self:flex-end;border-bottom-right-radius:3px}
+.chat-row{display:flex;gap:7px}
+.chat-row input{flex:1;padding:11px 12px;border-radius:11px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:12.5px;font-weight:700;outline:none}
+.chat-send{width:46px;background:var(--gold-g);border:none;border-radius:11px;font-size:16px;font-weight:900;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.quick{display:flex;gap:6px;overflow-x:auto;margin-top:8px;scrollbar-width:none}.quick::-webkit-scrollbar{display:none}
+.qbtn{flex-shrink:0;padding:7px 11px;background:var(--inner);border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:10.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.edu-item{background:var(--inner);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:transform .15s}
+.edu-item:active{transform:scale(.98)}.edu-item h4{font-size:12px;color:var(--gold);font-weight:800}
+.edu-detail{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:16px}
+.edu-detail h3{color:var(--gold);font-size:14px;font-weight:900;margin-bottom:10px}
+.edu-detail p{font-size:12px;color:#c5cdd8;line-height:1.7;white-space:pre-line;margin-bottom:12px}
+.edu-detail img{width:100%;height:170px;object-fit:cover;border-radius:11px;border:1px solid var(--border);margin-bottom:10px}
+.tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.tag{font-size:9.5px;font-weight:800;padding:4px 9px;border-radius:7px;background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.22)}
+.prof-row{font-size:12px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center}.prof-row b{color:#fff}
+.about-list{background:var(--inner);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:10px 0 14px}
+.about-list li{font-size:11.5px;color:#c5cdd8;line-height:1.9;list-style:none}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#080b12;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 10px;z-index:100;box-shadow:0 -6px 24px rgba(0,0,0,.65)}
+.nav{display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--muted);font-size:9px;font-weight:800;cursor:pointer;min-width:48px;padding:4px 2px;transition:color .2s}
+.nav.on{color:var(--gold)}.nav span:first-child{font-size:16px}
+.hidden{display:none!important}
+.loader{width:15px;height:15px;border:2px solid rgba(0,0,0,.2);border-top-color:#111;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+.gap{height:7px}.gap2{height:10px}
+.fav-btn{background:none;border:none;font-size:18px;cursor:pointer;padding:4px;line-height:1}
+.fav-star{color:var(--gold);filter:drop-shadow(0 0 4px rgba(255,215,0,.4))}
+.analyze-overlay{position:fixed;inset:0;background:rgba(6,8,13,.92);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .25s ease}
+.analyze-wheel{width:64px;height:64px;border:4px solid rgba(255,215,0,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:18px}
+.analyze-text{font-size:14px;font-weight:800;color:var(--gold);text-align:center;animation:pulse 1.4s ease infinite;max-width:260px;line-height:1.5}
+.analyze-sub{font-size:11px;color:var(--muted);margin-top:8px;font-weight:600}
+.asset-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.asset-row .sel{flex:1;margin-bottom:0}
+.name-input{width:100%;padding:11px 12px;border-radius:11px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:13px;font-weight:700;outline:none;text-align:center}
+.name-input:focus{border-color:var(--gold)}
+.fav-list{max-height:200px;overflow-y:auto}
+.fav-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--inner);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;font-size:12px;font-weight:700}
+.fav-item span:first-child{color:var(--gold)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.stat-card{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:12px;text-align:center}
+.stat-card .num{font-size:18px;font-weight:900;color:var(--gold)}
+.stat-card .lbl2{font-size:9.5px;color:var(--muted);font-weight:700;margin-top:3px}
+.smooth{transition:opacity .3s ease,transform .3s ease}
 </style>
 </head>
 <body>
@@ -96,11 +117,14 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <h1 class="g-text">👑 TEAM MASTER VIP</h1>
 <small id="tHeaderSub">AI ENGINE v10.9 PRO · LIVE · BINANCE DATA</small>
 </div>
+<div style="display:flex;align-items:center;gap:8px">
+<button class="fav-btn" id="btnFavTop" onclick="tab('tabFav',document.getElementById('navFav'))" title="Избранное">⭐</button>
 <select class="lang" id="langSelect" onchange="setLang(this.value)">
 <option value="ru">🇷🇺 RU</option>
 <option value="en">🇺🇸 EN</option>
 <option value="ua">🇺🇦 UA</option>
 </select>
+</div>
 </div>
 
 <div class="gate" id="gate">
@@ -109,7 +133,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="p-dot" id="d2"></div><div class="p-line" id="l2"></div>
 <div class="p-dot" id="d3"></div>
 </div>
-
 <div class="step on" id="s1">
 <div class="gate-icon">👑</div>
 <div class="gate-title" id="tWelcome">Добро пожаловать</div>
@@ -124,7 +147,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="msg" id="regMsg"></div>
 <button class="btn btn-gold" id="btnReg" onclick="doReg()">✅ Подтвердить ID</button>
 </div>
-
 <div class="step" id="s2">
 <div class="gate-icon">💎</div>
 <div class="gate-title" id="tDepTitle">Проверка депозита</div>
@@ -139,9 +161,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="msg" id="depMsg"></div>
 <button class="btn btn-green" id="btnDep" onclick="doDep()">🔍 Проверить депозит</button>
 <div class="gap2"></div>
-<button class="btn btn-dark" id="btnBack" onclick="goStep(1)">← Назад</button>
+<button class="btn btn-dark btn-sm" id="btnBack" onclick="goStep(1)">← Назад</button>
 </div>
-
 <div class="step" id="s3">
 <div class="gate-icon">🎉</div>
 <div class="gate-title" id="tOpenTitle">Доступ открыт</div>
@@ -152,515 +173,522 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div id="app" class="hidden">
 <div class="card tab" id="tabSig">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
 <span class="live" id="tLive">● LIVE DATA</span>
-<span style="font-size:10px;color:var(--gold);font-weight:800">SSL ACTIVE ⚡</span>
+<span style="font-size:9.5px;color:var(--gold);font-weight:800">SSL ACTIVE ⚡</span>
 </div>
 <div class="sec-box">
 <div class="sec-head"><span id="tSecTitle">🛡️ Система безопасности</span><span class="live" id="tOnline">ОНЛАЙН</span></div>
 <div class="sec-row"><span id="tSecReg">Регистрация (API)</span><span class="ok" id="stReg">✅</span></div>
 <div class="sec-row"><span id="tSecDep">Депозит ≥ $10</span><span class="ok" id="stDep">✅</span></div>
 <div class="sec-row"><span>API Pocket Option</span><span class="ok">🟢 SSL Secure</span></div>
+<div class="sec-row"><span id="tAccLabel">Проходимость бота</span><span class="ok" style="color:var(--gold)">65–70%</span></div>
 </div>
-<div class="cats">
-<button class="cat on" data-c="forex" onclick="setCat('forex',this)" id="catForex">💱 Валютные</button>
-<button class="cat" data-c="crypto" onclick="setCat('crypto',this)" id="catCrypto">🔥 Крипто</button>
-<button class="cat" data-c="stocks" onclick="setCat('stocks',this)" id="catStocks">📈 Акции</button>
+<div class="cats" id="catBox">
+<button class="cat on" data-c="forex" onclick="setCat('forex',this)">💱 Валюта</button>
+<button class="cat" data-c="crypto" onclick="setCat('crypto',this)">🔥 Крипто</button>
+<button class="cat" data-c="commodities" onclick="setCat('commodities',this)">🛢️ Сырьё</button>
+<button class="cat" data-c="stocks" onclick="setCat('stocks',this)">📈 Акции</button>
+<button class="cat" data-c="indices" onclick="setCat('indices',this)">📊 Индексы</button>
 </div>
 <label class="lbl" id="tAsset">ТОРГОВЫЙ АКТИВ</label>
+<div class="asset-row">
 <select class="sel" id="asset"></select>
+<button class="fav-btn" id="btnAddFav" onclick="toggleFav()" title="В избранное">☆</button>
+</div>
 <div class="grid2">
 <div>
 <label class="lbl" id="tTf">ТАЙМФРЕЙМ</label>
 <select class="sel" id="tf">
-<option value="S5">5 сек</option><option value="S15">15 сек</option><option value="S30">30 сек</option>
-<option value="M1" selected>1 мин</option><option value="M3">3 мин</option><option value="M5">5 мин</option>
+<option value="S5">5 сек</option>
+<option value="S15">15 сек</option>
+<option value="S30">30 сек</option>
+<option value="M1" selected>1 мин</option>
+<option value="M2">2 мин</option>
+<option value="M3">3 мин</option>
+<option value="M5">5 мин</option>
+<option value="M10">10 мин</option>
+<option value="M15">15 мин</option>
 </select>
 </div>
 <div>
 <label class="lbl" id="tExp">ЭКСПИРАЦИЯ</label>
 <select class="sel" id="exp">
-<option value="5" data-s="5">5 сек</option><option value="15" data-s="15">15 сек</option>
-<option value="30" data-s="30">30 сек</option><option value="60" data-s="60" selected>1 мин</option>
-<option value="120" data-s="120">2 мин</option><option value="180" data-s="180">3 мин</option>
+<option value="15" data-s="15">15 сек</option>
+<option value="30" data-s="30">30 сек</option>
+<option value="60" data-s="60" selected>1 мин</option>
+<option value="120" data-s="120">2 мин</option>
+<option value="180" data-s="180">3 мин</option>
+<option value="240" data-s="240">4 мин</option>
 <option value="300" data-s="300">5 мин</option>
+<option value="360" data-s="360">6 мин</option>
+<option value="420" data-s="420">7 мин</option>
+<option value="480" data-s="480">8 мин</option>
+<option value="540" data-s="540">9 мин</option>
+<option value="600" data-s="600">10 мин</option>
+<option value="720" data-s="720">12 мин</option>
+<option value="900" data-s="900">15 мин</option>
 </select>
 </div>
 </div>
 <button class="btn btn-gold" id="btnSig" onclick="getSig()">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<button class="btn btn-green" id="btnAuto" onclick="autoSig()">🤖 ИИ выберет лучший</button>
+<button class="btn btn-green btn-sm" id="btnAuto" onclick="autoSig()">🤖 ИИ выберет лучший</button>
 <div class="gap"></div>
-<a class="btn btn-gold" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://pocketoption.com" target="_blank" id="btnPO">🚀 Открыть Pocket Option</a>
+<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://pocketoption.com" target="_blank" id="btnPO">🚀 Открыть Pocket Option</a>
 <div class="sig" id="sigBox">
 <div class="sig-meta" id="sigMeta">EUR/USD OTC · M1 · 1 мин</div>
 <div class="sig-dir call" id="sigDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="cd">01:00</span></div>
 <div class="strat" id="sigStrat"></div>
 <div class="sig-stats">
-<span id="tWr">Винрейт: <b class="g-text" id="sigWr">92%</b></span>
-<span id="tCombo">Связка: <b id="sigCombo">RSI + BB</b></span>
+<span>Винрейт: <b class="g-text" id="sigWr">68%</b></span>
+<span>Связка: <b id="sigCombo">RSI + BB</b></span>
 </div>
-<button class="btn btn-red" id="btnOver" onclick="overlap()">🔄 Перекрытие ×2</button>
+<button class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none">✖ Отменить сигнал</button>
+<button class="btn btn-red btn-sm" id="btnOver" onclick="overlap()" style="display:none">🔄 Перекрытие ×2</button>
 </div>
 </div>
 
 <div class="card tab hidden" id="tabAi">
-<h3 class="g-text" style="font-size:15px;margin-bottom:12px" id="tAiTitle">🤖 VIP AI Assistant</h3>
-<div class="chat" id="chat"><div class="bubble ai" id="aiHello">Привет! Я ИИ-помощник TEAM MASTER VIP. Спрашивай о трейдинге 🔥</div></div>
+<h3 class="g-text" style="font-size:14px;margin-bottom:10px" id="tAiTitle">🤖 VIP AI Assistant</h3>
+<div class="chat" id="chat"><div class="bubble ai" id="aiHello">Привет! Я ИИ-помощник TEAM MASTER VIP. Задавай любой вопрос о трейдинге, рисках, стратегиях, индикаторах — отвечу подробно 🔥</div></div>
 <div class="chat-row">
-<input id="chatIn" placeholder="Задай вопрос..." onkeydown="if(event.key==='Enter')sendAi()">
+<input id="chatIn" placeholder="Задай любой вопрос..." onkeydown="if(event.key==='Enter')sendAi()">
 <button class="chat-send" onclick="sendAi()">➤</button>
 </div>
 <div class="quick">
-<button class="qbtn" onclick="qAi('Как работают сигналы?')" id="q1">Сигналы</button>
-<button class="qbtn" onclick="qAi('Риск-менеджмент')" id="q2">Риск</button>
-<button class="qbtn" onclick="qAi('Топ индикаторы M1')" id="q3">Индикаторы</button>
-<button class="qbtn" onclick="qAi('После 3 минусов')" id="q4">После минусов</button>
-<button class="qbtn" onclick="qAi('Как проверить ID?')" id="q5">Проверка ID</button>
+<button class="qbtn" onclick="qAi('Как работают сигналы?')">Сигналы</button>
+<button class="qbtn" onclick="qAi('Риск-менеджмент')">Риск</button>
+<button class="qbtn" onclick="qAi('Топ индикаторы')">Индикаторы</button>
+<button class="qbtn" onclick="qAi('После 3 минусов')">После минусов</button>
+<button class="qbtn" onclick="qAi('Математика вероятностей')">Математика</button>
+<button class="qbtn" onclick="qAi('Что такое перекрытие?')">Перекрытие</button>
 </div>
 </div>
 
 <div class="card tab hidden" id="tabEdu">
 <div id="eduList">
-<h3 class="g-text" style="text-align:center;font-size:15px;margin-bottom:14px" id="tEduTitle">📚 11 топ-связок</h3>
+<h3 class="g-text" style="text-align:center;font-size:14px;margin-bottom:12px" id="tEduTitle">📚 11 топ-связок + математика</h3>
 <div id="eduItems"></div>
 </div>
 <div id="eduView" class="hidden">
-<button class="btn btn-gold" style="margin-bottom:14px" id="btnEduBack" onclick="closeEdu()">← Назад</button>
+<button class="btn btn-gold btn-sm" style="margin-bottom:12px" onclick="closeEdu()">← Назад</button>
 <div class="edu-detail" id="eduBody"></div>
 </div>
 </div>
 
+<div class="card tab hidden" id="tabFav">
+<h3 class="g-text" style="text-align:center;font-size:14px;margin-bottom:12px">⭐ Избранное</h3>
+<p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px;font-weight:600">Добавляй активы звёздочкой рядом с выбором</p>
+<div class="fav-list" id="favList"></div>
+<div id="favEmpty" style="text-align:center;padding:30px 10px;color:var(--muted);font-size:12px;font-weight:600">Пока пусто. Выбери актив и нажми ☆</div>
+</div>
+
 <div class="card tab hidden" id="tabProf">
-<h3 class="g-text" style="text-align:center;font-size:15px;margin-bottom:14px" id="tProfTitle">👤 Профиль</h3>
+<h3 class="g-text" style="text-align:center;font-size:14px;margin-bottom:12px" id="tProfTitle">👤 Профиль</h3>
 <div class="sec-box">
+<label class="lbl">ВАШЕ ИМЯ</label>
+<input class="name-input" id="profName" placeholder="Введите имя" onchange="saveName()" onblur="saveName()">
+<div class="gap2"></div>
 <div class="prof-row"><span id="tStatus">Статус</span><b style="color:var(--green)" id="tVip">VIP ДОСТУП</b></div>
 <div class="prof-row"><span id="tYourId">Ваш ID</span><b id="profId">—</b></div>
-<div class="prof-row"><span id="tQuotes">Котировки</span><b>Binance / PO</b></div>
-<div class="prof-row"><span id="tAvgWr">Средний винрейт</span><b class="g-text">89.4%</b></div>
+<div class="prof-row"><span>Котировки</span><b>Binance / PO</b></div>
+<div class="prof-row"><span>Проходимость бота</span><b class="g-text">65–70%</b></div>
 </div>
+<div class="stat-grid">
+<div class="stat-card"><div class="num" id="statSigs">0</div><div class="lbl2">Сигналов</div></div>
+<div class="stat-card"><div class="num" id="statFavs">0</div><div class="lbl2">В избранном</div></div>
+</div>
+<div class="gap2"></div>
+<button class="btn btn-dark btn-sm" onclick="clearFavs()">🗑 Очистить избранное</button>
+<div class="gap"></div>
+<button class="btn btn-red btn-sm" onclick="logout()">🚪 Выйти из аккаунта</button>
 </div>
 
 <div class="card tab hidden" id="tabAbout">
-<h3 class="g-text" style="text-align:center;font-size:15px;margin-bottom:10px">👑 TEAM MASTER VIP</h3>
-<p style="font-size:12px;color:#b0b8c8;line-height:1.7;margin-bottom:4px" id="tAboutDesc">Профессиональное сообщество. Прямые эфиры, обучение и приватный ИИ-терминал.</p>
-<div class="about-list" id="aboutList">
-<li>📈 Профессиональный анализ</li>
-<li>🎥 Ежедневные стримы</li>
-<li>🎯 Винрейт сигналов 88%+</li>
-<li>⚡ Интеграция Binance</li>
+<h3 class="g-text" style="text-align:center;font-size:14px;margin-bottom:8px">👑 TEAM MASTER VIP</h3>
+<p style="font-size:11.5px;color:#b0b8c8;line-height:1.7;margin-bottom:8px">
+Профессиональное торговое сообщество. Мы объединяем трейдеров, аналитиков и ИИ-инженеров. Цель — системный подход к бинарным опционам на Pocket Option: живые сигналы, обучение и приватный терминал.
+</p>
+<div class="about-list">
+<li>👥 <b style="color:var(--gold)">Команда</b> — аналитики, риск-менеджеры, разработчики ИИ</li>
+<li>🤖 <b style="color:var(--gold)">Бот</b> — анализ индикаторов + математика + ИИ-фильтр</li>
+<li>📈 Проходимость сигналов: <b style="color:var(--gold)">65–70%</b></li>
+<li>🎥 Ежедневные стримы и разборы сделок</li>
+<li>📚 11 готовых связок индикаторов с математикой</li>
+<li>⚡ Данные: Binance + Pocket Option API</li>
+<li>🛡️ Проверка регистрации и депозита через API партнёрки</li>
+<li>🔒 Закрытый VIP-доступ только для реальных трейдеров</li>
 </div>
-<a class="btn btn-gold" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" id="btnTg">📢 Telegram канал</a>
+<p style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px">
+Бот не гарантирует 100% — это вероятностная система. Используй риск 1–2% на сделку, стоп после 3 минусов подряд. Перекрытие только при уверенном сигнале.
+</p>
+<a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank">📢 Telegram канал</a>
 </div>
 </div>
 </div>
 
 <div class="bnav hidden" id="bnav">
-<div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span id="n1">Сигналы</span></div>
-<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span id="n2">ИИ</span></div>
-<div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span id="n3">Связки</span></div>
-<div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span id="n4">Профиль</span></div>
-<div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span id="n5">О нас</span></div>
+<div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span>Сигналы</span></div>
+<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span>ИИ</span></div>
+<div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span>Связки</span></div>
+<div class="nav" id="navFav" onclick="tab('tabFav',this)"><span>⭐</span><span>Избранное</span></div>
+<div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span>Профиль</span></div>
+<div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span>О нас</span></div>
+</div>
+
+<div class="analyze-overlay hidden" id="analyzeBox">
+<div class="analyze-wheel"></div>
+<div class="analyze-text" id="analyzeTxt">🔍 Анализирую рынок...</div>
+<div class="analyze-sub" id="analyzeSub">индикаторы · объём · уровни</div>
 </div>
 
 <script>
-const BOSS_ID = "109386966";
-const PROMO = "WELCOME50";
-const MIN_DEP = 10;
+const BOSS_ID="109386966",PROMO="WELCOME50",MIN_DEP=10;
+let L={},uid=localStorage.getItem("tmv_uid")||null,timer=null,sigActive=false,favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]"),sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
 
-const LANG = {
-ru: {
-tWelcome:"Добро пожаловать",
-tRegDesc:"<b>Зачем нужна регистрация?</b><br><br>Это закрытый VIP-терминал с живыми сигналами и ИИ-анализом.<br><br>Бот проверяет через официальный API партнёрки Pocket Option, что вы зарегистрировались именно по нашей ссылке. Без регистрации доступ закрыт.",
-btnRegLink:"🚀 Зарегистрироваться", tRegHint:"Уже есть аккаунт? Введите ID — бот проверит регистрацию по API",
-btnReg:"✅ Подтвердить ID", idPh:"ID Pocket Option",
-tDepTitle:"Проверка депозита",
-tDepDesc:"<b>Почему нужен депозит?</b><br><br>Терминал только для реальных трейдеров. Минимум <b>$10</b>.<br><br>1. Пополните счёт в Pocket Option<br>2. Активируйте промокод <b>WELCOME50</b><br>3. Нажмите кнопку — бот проверит депозит по API",
-btnDep:"🔍 Проверить депозит", btnBack:"← Назад",
-tOpenTitle:"Доступ открыт", tOpenDesc:"Аккаунт и депозит подтверждены через API.<br>Все сигналы, ИИ и связки доступны.",
-btnEnter:"🚀 Войти в терминал",
-tLive:"● LIVE DATA", tSecTitle:"🛡️ Система безопасности", tOnline:"ОНЛАЙН",
-tSecReg:"Регистрация (API)", tSecDep:"Депозит ≥ $10",
-catForex:"💱 Валютные", catCrypto:"🔥 Крипто", catStocks:"📈 Акции",
-tAsset:"ТОРГОВЫЙ АКТИВ", tTf:"ТАЙМФРЕЙМ", tExp:"ЭКСПИРАЦИЯ",
-btnSig:"⚡ Просчитать сигнал", btnAuto:"🤖 ИИ выберет лучший", btnPO:"🚀 Открыть Pocket Option",
-tWr:"Винрейт:", tCombo:"Связка:", btnOver:"🔄 Перекрытие ×2",
-tAiTitle:"🤖 VIP AI Assistant", aiHello:"Привет! Я ИИ-помощник TEAM MASTER VIP. Спрашивай о трейдинге 🔥",
-chatPh:"Задай вопрос...", q1:"Сигналы", q2:"Риск", q3:"Индикаторы", q4:"После минусов", q5:"Проверка ID",
-tEduTitle:"📚 11 топ-связок", btnEduBack:"← Назад",
-tProfTitle:"👤 Профиль", tStatus:"Статус", tVip:"VIP ДОСТУП", tYourId:"Ваш ID", tQuotes:"Котировки", tAvgWr:"Средний винрейт",
-tAboutDesc:"Профессиональное сообщество. Прямые эфиры, обучение и приватный ИИ-терминал.",
-btnTg:"📢 Telegram канал",
-n1:"Сигналы", n2:"ИИ", n3:"Связки", n4:"Профиль", n5:"О нас",
-errId:"Введите корректный числовой ID",
-errApi:"Ошибка связи с сервером. Проверьте интернет.",
-errNotFound:"ID не найден в партнёрской системе. Зарегистрируйтесь по нашей ссылке.",
-okReg:"✅ Регистрация подтверждена!",
-okBoss:"👑 BOSS ACCESS — полный доступ",
-errPromo:"Неверный промокод. Используйте WELCOME50",
-okDep:"✅ Депозит подтверждён! Доступ открыт.",
-errDep:"Депозит не найден (нужно от $10). Пополните счёт."
-},
-en: {
-tWelcome:"Welcome",
-tRegDesc:"<b>Why registration?</b><br><br>This is a closed VIP terminal with live signals and AI analysis.<br><br>The bot checks via official Pocket Option partner API that you registered via our link. No registration = no access.",
-btnRegLink:"🚀 Register", tRegHint:"Already have an account? Enter ID — bot will verify via API",
-btnReg:"✅ Confirm ID", idPh:"Pocket Option ID",
-tDepTitle:"Deposit Check",
-tDepDesc:"<b>Why deposit?</b><br><br>Terminal is for real traders only. Minimum <b>$10</b>.<br><br>1. Fund your Pocket Option account<br>2. Activate promo <b>WELCOME50</b><br>3. Press button — bot checks deposit via API",
-btnDep:"🔍 Check Deposit", btnBack:"← Back",
-tOpenTitle:"Access Granted", tOpenDesc:"Account and deposit verified via API.<br>All signals, AI and strategies are available.",
-btnEnter:"🚀 Enter Terminal",
-tLive:"● LIVE DATA", tSecTitle:"🛡️ Security System", tOnline:"ONLINE",
-tSecReg:"Registration (API)", tSecDep:"Deposit ≥ $10",
-catForex:"💱 Forex", catCrypto:"🔥 Crypto", catStocks:"📈 Stocks",
-tAsset:"TRADING ASSET", tTf:"TIMEFRAME", tExp:"EXPIRATION",
-btnSig:"⚡ Calculate Signal", btnAuto:"🤖 AI picks best", btnPO:"🚀 Open Pocket Option",
-tWr:"Winrate:", tCombo:"Setup:", btnOver:"🔄 Overlap ×2",
-tAiTitle:"🤖 VIP AI Assistant", aiHello:"Hi! I'm TEAM MASTER VIP AI. Ask me about trading 🔥",
-chatPh:"Ask a question...", q1:"Signals", q2:"Risk", q3:"Indicators", q4:"After losses", q5:"ID check",
-tEduTitle:"📚 11 Top Setups", btnEduBack:"← Back",
-tProfTitle:"👤 Profile", tStatus:"Status", tVip:"VIP ACCESS", tYourId:"Your ID", tQuotes:"Quotes", tAvgWr:"Avg winrate",
-tAboutDesc:"Professional community. Live streams, education and private AI terminal.",
-btnTg:"📢 Telegram channel",
-n1:"Signals", n2:"AI", n3:"Setups", n4:"Profile", n5:"About",
-errId:"Enter a valid numeric ID",
-errApi:"Server connection error. Check internet.",
-errNotFound:"ID not found in partner system. Register via our link.",
-okReg:"✅ Registration confirmed!",
-okBoss:"👑 BOSS ACCESS — full access",
-errPromo:"Wrong promo. Use WELCOME50",
-okDep:"✅ Deposit confirmed! Access granted.",
-errDep:"Deposit not found (min $10). Fund your account."
-},
-ua: {
-tWelcome:"Ласкаво просимо",
-tRegDesc:"<b>Навіщо реєстрація?</b><br><br>Це закритий VIP-термінал з живими сигналами та ІІ-аналізом.<br><br>Бот перевіряє через офіційний API партнерки Pocket Option, що ви зареєструвались саме за нашим посиланням.",
-btnRegLink:"🚀 Зареєструватися", tRegHint:"Вже є акаунт? Введіть ID — бот перевірить реєстрацію по API",
-btnReg:"✅ Підтвердити ID", idPh:"ID Pocket Option",
-tDepTitle:"Перевірка депозиту",
-tDepDesc:"<b>Чому потрібен депозит?</b><br><br>Термінал лише для реальних трейдерів. Мінімум <b>$10</b>.<br><br>1. Поповніть рахунок<br>2. Активуйте промокод <b>WELCOME50</b><br>3. Натисніть кнопку — бот перевірить депозит",
-btnDep:"🔍 Перевірити депозит", btnBack:"← Назад",
-tOpenTitle:"Доступ відкрито", tOpenDesc:"Акаунт і депозит підтверджені через API.<br>Усі сигнали, ІІ та зв'язки доступні.",
-btnEnter:"🚀 Увійти в термінал",
-tLive:"● LIVE DATA", tSecTitle:"🛡️ Система безпеки", tOnline:"ОНЛАЙН",
-tSecReg:"Реєстрація (API)", tSecDep:"Депозит ≥ $10",
-catForex:"💱 Валютні", catCrypto:"🔥 Крипто", catStocks:"📈 Акції",
-tAsset:"ТОРГОВИЙ АКТИВ", tTf:"ТАЙМФРЕЙМ", tExp:"ЕКСПІРАЦІЯ",
-btnSig:"⚡ Розрахувати сигнал", btnAuto:"🤖 ІІ обере найкращий", btnPO:"🚀 Відкрити Pocket Option",
-tWr:"Вінрейт:", tCombo:"Зв'язка:", btnOver:"🔄 Перекриття ×2",
-tAiTitle:"🤖 VIP AI Assistant", aiHello:"Привіт! Я ІІ-помічник TEAM MASTER VIP. Питай про трейдинг 🔥",
-chatPh:"Задай питання...", q1:"Сигнали", q2:"Ризик", q3:"Індикатори", q4:"Після мінусів", q5:"Перевірка ID",
-tEduTitle:"📚 11 топ-зв'язок", btnEduBack:"← Назад",
-tProfTitle:"👤 Профіль", tStatus:"Статус", tVip:"VIP ДОСТУП", tYourId:"Ваш ID", tQuotes:"Котирування", tAvgWr:"Середній вінрейт",
-tAboutDesc:"Професійна спільнота. Прямі ефіри, навчання та приватний ІІ-термінал.",
-btnTg:"📢 Telegram канал",
-n1:"Сигнали", n2:"ІІ", n3:"Зв'язки", n4:"Профіль", n5:"Про нас",
-errId:"Введіть коректний числовий ID",
-errApi:"Помилка зв'язку з сервером. Перевірте інтернет.",
-errNotFound:"ID не знайдено в партнерській системі. Зареєструйтесь за нашим посиланням.",
-okReg:"✅ Реєстрацію підтверджено!",
-okBoss:"👑 BOSS ACCESS — повний доступ",
-errPromo:"Невірний промокод. Використовуйте WELCOME50",
-okDep:"✅ Депозит підтверджено! Доступ відкрито.",
-errDep:"Депозит не знайдено (потрібно від $10). Поповніть рахунок."
-}
+const LANG={
+ru:{tWelcome:"Добро пожаловать",tRegDesc:"<b>Зачем нужна регистрация?</b><br><br>Это закрытый VIP-терминал с живыми сигналами и ИИ-анализом.<br><br>Бот проверяет через официальный API партнёрки Pocket Option, что вы зарегистрировались именно по нашей ссылке. Без регистрации доступ закрыт.",btnRegLink:"🚀 Зарегистрироваться",tRegHint:"Уже есть аккаунт? Введите ID — бот проверит регистрацию по API",btnReg:"✅ Подтвердить ID",idPh:"ID Pocket Option",tDepTitle:"Проверка депозита",tDepDesc:"<b>Почему нужен депозит?</b><br><br>Терминал только для реальных трейдеров. Минимум <b>$10</b>.<br><br>1. Пополните счёт в Pocket Option<br>2. Активируйте промокод <b>WELCOME50</b><br>3. Нажмите кнопку — бот проверит депозит по API",btnDep:"🔍 Проверить депозит",btnBack:"← Назад",tOpenTitle:"Доступ открыт",tOpenDesc:"Аккаунт и депозит подтверждены через API.<br>Все сигналы, ИИ и связки доступны.",btnEnter:"🚀 Войти в терминал",errId:"Введите корректный числовой ID",errApi:"Ошибка связи с сервером. Проверьте интернет.",errNotFound:"ID не найден в партнёрской системе. Зарегистрируйтесь по нашей ссылке.",okReg:"✅ Регистрация подтверждена!",okBoss:"👑 BOSS ACCESS — полный доступ",errPromo:"Неверный промокод. Используйте WELCOME50",okDep:"✅ Депозит подтверждён! Доступ открыт.",errDep:"Депозит не найден (нужно от $10). Пополните счёт."},
+en:{tWelcome:"Welcome",tRegDesc:"<b>Why registration?</b><br><br>Closed VIP terminal with live signals and AI analysis.<br><br>Bot verifies via official Pocket Option partner API that you registered via our link.",btnRegLink:"🚀 Register",tRegHint:"Already have an account? Enter ID — bot verifies via API",btnReg:"✅ Confirm ID",idPh:"Pocket Option ID",tDepTitle:"Deposit Check",tDepDesc:"<b>Why deposit?</b><br><br>Terminal for real traders only. Min <b>$10</b>.<br><br>1. Fund account<br>2. Activate <b>WELCOME50</b><br>3. Press button — bot checks via API",btnDep:"🔍 Check Deposit",btnBack:"← Back",tOpenTitle:"Access Granted",tOpenDesc:"Account and deposit verified via API.",btnEnter:"🚀 Enter Terminal",errId:"Enter a valid numeric ID",errApi:"Server connection error.",errNotFound:"ID not found. Register via our link.",okReg:"✅ Registration confirmed!",okBoss:"👑 BOSS ACCESS — full access",errPromo:"Wrong promo. Use WELCOME50",okDep:"✅ Deposit confirmed!",errDep:"Deposit not found (min $10)."},
+ua:{tWelcome:"Ласкаво просимо",tRegDesc:"<b>Навіщо реєстрація?</b><br><br>Закритий VIP-термінал з живими сигналами та ІІ-аналізом.<br><br>Бот перевіряє через API партнерки Pocket Option.",btnRegLink:"🚀 Зареєструватися",tRegHint:"Вже є акаунт? Введіть ID",btnReg:"✅ Підтвердити ID",idPh:"ID Pocket Option",tDepTitle:"Перевірка депозиту",tDepDesc:"<b>Чому депозит?</b><br><br>Мінімум <b>$10</b>. Промокод <b>WELCOME50</b>.",btnDep:"🔍 Перевірити депозит",btnBack:"← Назад",tOpenTitle:"Доступ відкрито",tOpenDesc:"Акаунт і депозит підтверджені.",btnEnter:"🚀 Увійти",errId:"Введіть коректний ID",errApi:"Помилка зв'язку.",errNotFound:"ID не знайдено.",okReg:"✅ Реєстрацію підтверджено!",okBoss:"👑 BOSS ACCESS",errPromo:"Невірний промокод",okDep:"✅ Депозит підтверджено!",errDep:"Депозит не знайдено."}
 };
 
-let L = LANG.ru;
-let uid = localStorage.getItem("tmv_uid") || null;
-let timer = null;
-
-function setLang(code) {
-L = LANG[code] || LANG.ru;
-localStorage.setItem("tmv_lang", code);
-const map = {
-tWelcome:L.tWelcome, tRegDesc:L.tRegDesc, btnRegLink:L.btnRegLink, tRegHint:L.tRegHint, btnReg:L.btnReg,
-tDepTitle:L.tDepTitle, tDepDesc:L.tDepDesc, btnDep:L.btnDep, btnBack:L.btnBack,
-tOpenTitle:L.tOpenTitle, tOpenDesc:L.tOpenDesc, btnEnter:L.btnEnter,
-tLive:L.tLive, tSecTitle:L.tSecTitle, tOnline:L.tOnline, tSecReg:L.tSecReg, tSecDep:L.tSecDep,
-catForex:L.catForex, catCrypto:L.catCrypto, catStocks:L.catStocks,
-tAsset:L.tAsset, tTf:L.tTf, tExp:L.tExp, btnSig:L.btnSig, btnAuto:L.btnAuto, btnPO:L.btnPO,
-btnOver:L.btnOver, tAiTitle:L.tAiTitle, aiHello:L.aiHello,
-q1:L.q1, q2:L.q2, q3:L.q3, q4:L.q4, q5:L.q5,
-tEduTitle:L.tEduTitle, btnEduBack:L.btnEduBack,
-tProfTitle:L.tProfTitle, tStatus:L.tStatus, tVip:L.tVip, tYourId:L.tYourId, tQuotes:L.tQuotes, tAvgWr:L.tAvgWr,
-tAboutDesc:L.tAboutDesc, btnTg:L.btnTg,
-n1:L.n1, n2:L.n2, n3:L.n3, n4:L.n4, n5:L.n5
-};
-for (const id in map) {
-const el = document.getElementById(id);
-if (!el) continue;
-if (id === "tRegDesc" || id === "tDepDesc" || id === "tOpenDesc") el.innerHTML = map[id];
-else el.textContent = map[id];
-}
-document.getElementById("idInput").placeholder = L.idPh;
-document.getElementById("chatIn").placeholder = L.chatPh;
-document.getElementById("langSelect").value = code;
-}
-
-const ASSETS = {
+const ASSETS={
 forex:["AUD/NZD OTC","BHD/CNY OTC","CAD/CHF OTC","EUR/GBP OTC","EUR/JPY OTC","EUR/TRY OTC","EUR/USD OTC","GBP/AUD OTC","GBP/JPY OTC","NZD/USD OTC","USD/BDT OTC","USD/COP OTC","USD/IDR OTC","USD/INR OTC","USD/MXN OTC","USD/PKR OTC","USD/THB OTC","USD/VND OTC","USD/JPY OTC","NGN/USD OTC","AUD/USD OTC","CHF/NOK OTC","UAH/USD OTC","CAD/JPY OTC","EUR/CHF OTC","AUD/JPY OTC","JOD/CNY OTC","USD/SGD OTC","LBP/USD OTC","YER/USD OTC","USD/CHF OTC","OMR/CNY OTC","USD/CNH OTC","AED/CNY OTC","USD/EGP OTC","CHF/JPY OTC","GBP/USD OTC","USD/PHP OTC","USD/CAD OTC","ZAR/USD OTC","USD/CLP OTC","NZD/JPY OTC","TND/USD OTC","AUD/CHF OTC","USD/ARS OTC","EUR/NZD OTC","SAR/CNY OTC","USD/MYR OTC","KES/USD OTC","QAR/CNY OTC","EUR/HUF OTC","USD/DZD OTC","USD/BRL OTC","AUD/CAD OTC","MAD/USD OTC","GBP/JPY","EUR/JPY","AUD/CAD","AUD/CHF","AUD/JPY","AUD/USD","CAD/CHF","CHF/JPY","EUR/AUD","EUR/CAD","EUR/CHF","EUR/USD","GBP/AUD","GBP/CAD","GBP/CHF","USD/CAD","USD/CHF","USD/JPY","CAD/JPY","EUR/GBP","GBP/USD"],
-crypto:["Cardano OTC","Avalanche OTC","Bitcoin OTC","Ethereum OTC","Chainlink OTC","TRON OTC","Polkadot OTC","Solana OTC","Bitcoin ETF OTC","Litecoin OTC","Toncoin OTC","Polygon OTC","Dogecoin OTC","BNB OTC","Ethereum"],
-stocks:["Johnson & Johnson OTC","Advanced Micro Devices OTC","VISA OTC","Cisco OTC","Netflix OTC","FACEBOOK INC OTC","VIX OTC","Amazon OTC","American Express OTC","Pfizer Inc OTC","Alibaba OTC","GameStop Corp OTC","Microsoft OTC","Boeing Company OTC","Apple OTC","Intel OTC","McDonald's OTC","Coinbase Global OTC","ExxonMobil OTC","Palantir Technologies OTC","FedEx OTC","Tesla OTC","Marathon Digital Holdings OTC","Citigroup Inc OTC","Apple","American Express","Boeing Company","FACEBOOK INC","Johnson & Johnson","JPMorgan Chase & Co","McDonald's","Microsoft","Pfizer Inc","Tesla","Alibaba","Citigroup Inc","Cisco","ExxonMobil","Intel","Netflix"]
+crypto:["Cardano OTC","Avalanche OTC","Bitcoin OTC","Ethereum OTC","Chainlink OTC","TRON OTC","Polkadot OTC","Solana OTC","Bitcoin ETF OTC","Litecoin OTC","Toncoin OTC","Polygon OTC","Dogecoin OTC","BNB OTC","Ethereum","Bitcoin","Solana","Cardano"],
+commodities:["Gold OTC","Silver OTC","Oil Brent OTC","Oil WTI OTC","Natural Gas OTC","Copper OTC","Platinum OTC","Palladium OTC","Gold","Silver","Brent Oil","WTI Oil"],
+stocks:["Johnson & Johnson OTC","Advanced Micro Devices OTC","VISA OTC","Cisco OTC","Netflix OTC","FACEBOOK INC OTC","VIX OTC","Amazon OTC","American Express OTC","Pfizer Inc OTC","Alibaba OTC","GameStop Corp OTC","Microsoft OTC","Boeing Company OTC","Apple OTC","Intel OTC","McDonald's OTC","Coinbase Global OTC","ExxonMobil OTC","Palantir Technologies OTC","FedEx OTC","Tesla OTC","Marathon Digital Holdings OTC","Citigroup Inc OTC","Apple","American Express","Boeing Company","FACEBOOK INC","Johnson & Johnson","JPMorgan Chase & Co","McDonald's","Microsoft","Pfizer Inc","Tesla","Alibaba","Citigroup Inc","Cisco","ExxonMobil","Intel","Netflix"],
+indices:["S&P 500 OTC","NASDAQ OTC","Dow Jones OTC","DAX OTC","FTSE 100 OTC","Nikkei 225 OTC","CAC 40 OTC","Euro Stoxx 50 OTC","S&P 500","NASDAQ","Dow Jones","DAX","FTSE 100"]
 };
 
-const EDU = [
-{t:"1. Уровни Поддержки / Сопротивления",d:"Найдите уровень, от которого цена отскакивала 2–3 раза.\nПри 3-м подходе к сопротивлению → PUT\nК поддержке → CALL\n\n⏱ Свеча: M1 / M5\n⏳ Экспирация: 1–3 мин\n📌 Лучше во флэте\n⚠️ Избегайте NFP и FOMC",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1","M5","1–3 мин"]},
-{t:"2. RSI (14) + Bollinger Bands",d:"Нижняя BB + RSI < 30 → CALL 1–2 мин.\nВерхняя BB + RSI > 70 → PUT.\n\n⏱ M1 / M5\n⏳ 60–120 сек",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1","M5"]},
-{t:"3. MACD + EMA 200",d:"Цена выше EMA 200 → только CALL.\nПересечение MACD снизу вверх → вход.\n\n⏱ M1–M5\n⏳ 2–5 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1–M5"]},
-{t:"4. Stochastic + Поддержка",d:"Касание поддержки + Stochastic ниже 20 → CALL.\n\n⏱ M1\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1"]},
-{t:"5. Supertrend + CCI",d:"Supertrend зелёный + CCI из −100 → CALL.\n\n⏱ M1 / M3\n⏳ 2–3 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1","M3"]},
-{t:"6. Бычье поглощение + RSI",d:"Зелёная свеча перекрывает красную + RSI растущие минимумы → CALL.\n\n⏱ M1–M5\n⏳ 2–5 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1–M5"]},
-{t:"7. EMA 9 × EMA 21",d:"EMA 9 пересекает EMA 21 сверху вниз → PUT.\n\n⏱ M1\n⏳ 1–3 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1"]},
-{t:"8. Ишимоку + AO",d:"Цена из облака вверх + AO зелёный → CALL.\n\n⏱ M5\n⏳ 3–5 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M5"]},
-{t:"9. Parabolic SAR + ADX",d:"SAR под свечой + ADX > 25 → по тренду.\n\n⏱ M1 / M3\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1","M3"]},
-{t:"10. Объём + ложный пробой",d:"Всплеск объёма у уровня без закрепления → ложный пробой.\n\n⏱ M1\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1"]},
-{t:"11. Дончиан + Williams %R",d:"Нижняя линия Дончиана + %R из −80 → CALL.\n\n⏱ M1–M5\n⏳ 1–3 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1–M5"]}
+const EDU=[
+{t:"1. Уровни Поддержки / Сопротивления + математика",d:"Найди уровень, от которого цена отскакивала ≥2 раза.\n\n📊 Математика:\nВероятность отскока после 3-го касания ≈ 62–68% во флэте.\nФормула зоны: High/Low ± 0.3×ATR(14).\n\n📈 Индикаторы:\n• Горизонтальные уровни\n• ATR для фильтра шума\n• Объём подтверждения\n\n🤖 ИИ-фильтр:\nИИ отсекает сигналы перед новостями (NFP, FOMC) и при ATR > 1.5× среднего.\n\n⏱ M1 / M5\n⏳ 1–3 мин\n📌 Лучше во флэте\n⚠️ Не входи против сильного тренда",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1","M5","1–3 мин","62–68%"]},
+{t:"2. RSI (14) + Bollinger Bands",d:"Классика mean-reversion.\n\n📊 Математика:\nRSI < 30 + касание нижней BB → вероятность разворота вверх \~65%.\nRSI > 70 + верхняя BB → вниз \~64%.\nДивергенция RSI усиливает сигнал до \~70%.\n\n📈 Индикаторы:\n• RSI(14)\n• Bollinger Bands(20, 2)\n• Опционально: Stochastic\n\n🤖 ИИ:\nИИ проверяет, что свеча закрылась за полосой и нет сильного тренда по EMA 200.\n\n⏱ M1 / M5\n⏳ 60–120 сек",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1","M5","65%"]},
+{t:"3. MACD + EMA 200",d:"Трендовая связка.\n\n📊 Математика:\nЦена выше EMA 200 → только CALL (смещение вероятности +8–12%).\nПересечение MACD histogram снизу вверх + цена выше EMA → \~67%.\n\n📈 Индикаторы:\n• EMA 200\n• MACD(12,26,9)\n• Volume\n\n🤖 ИИ:\nФильтрует ложные пересечения в боковике (ADX < 20).\n\n⏱ M1–M5\n⏳ 2–5 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1–M5","67%"]},
+{t:"4. Stochastic + Поддержка",d:"Перепроданность у уровня.\n\n📊 Математика:\nStochastic %K < 20 + касание поддержки → \~66%.\nПересечение %K и %D вверх усиливает до \~69%.\n\n📈 Индикаторы:\n• Stochastic(14,3,3)\n• Уровни S/R\n\n🤖 ИИ:\nПроверяет отсутствие сильного даунтренда.\n\n⏱ M1\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1","66%"]},
+{t:"5. Supertrend + CCI",d:"Тренд + импульс.\n\n📊 Математика:\nSupertrend зелёный + CCI выход из −100 → \~65%.\nCCI > +100 в красном Supertrend → PUT.\n\n📈 Индикаторы:\n• Supertrend(10,3)\n• CCI(20)\n\n🤖 ИИ:\nОтсекает сигналы при низком ATR.\n\n⏱ M1 / M3\n⏳ 2–3 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1","M3","65%"]},
+{t:"6. Бычье поглощение + RSI",d:"Свечной паттерн + подтверждение.\n\n📊 Математика:\nEngulfing + RSI растущие минимумы (бычья дивергенция) → \~68%.\nРазмер поглощения > 1.2× предыдущей свечи усиливает сигнал.\n\n📈 Индикаторы:\n• Свечной анализ\n• RSI(14)\n\n🤖 ИИ:\nСчитает отношение тела свечи к теням.\n\n⏱ M1–M5\n⏳ 2–5 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1–M5","68%"]},
+{t:"7. EMA 9 × EMA 21",d:"Быстрый кросс.\n\n📊 Математика:\nEMA 9 пересекает EMA 21 сверху → CALL \~63%.\nСнизу → PUT. В тренде (EMA 200) точность растёт до \~67%.\n\n📈 Индикаторы:\n• EMA 9, EMA 21, EMA 200\n\n🤖 ИИ:\nЖдёт закрытия свечи после кросса.\n\n⏱ M1\n⏳ 1–3 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1","63–67%"]},
+{t:"8. Ишимоку + AO",d:"Облако + импульс.\n\n📊 Математика:\nЦена выходит из облака вверх + AO зелёный → \~66%.\nTenkan/Kijun кросс в сторону тренда усиливает.\n\n📈 Индикаторы:\n• Ichimoku\n• Awesome Oscillator\n\n🤖 ИИ:\nФильтрует торговлю внутри облака.\n\n⏱ M5\n⏳ 3–5 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M5","66%"]},
+{t:"9. Parabolic SAR + ADX",d:"Тренд + сила.\n\n📊 Математика:\nSAR под ценой + ADX > 25 → по тренду \~67%.\nADX < 20 → не входить (флэт).\n\n📈 Индикаторы:\n• Parabolic SAR\n• ADX(14)\n\n🤖 ИИ:\nТребует ADX растущий.\n\n⏱ M1 / M3\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",tags:["M1","M3","67%"]},
+{t:"10. Объём + ложный пробой",d:"Ловушка ликвидности.\n\n📊 Математика:\nВсплеск объёма > 2× среднего у уровня без закрепления → разворот \~68%.\nВозврат в диапазон подтверждает.\n\n📈 Индикаторы:\n• Volume\n• Уровни\n• ATR\n\n🤖 ИИ:\nСравнивает текущий объём с SMA(20) объёма.\n\n⏱ M1\n⏳ 1–2 мин",img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",tags:["M1","68%"]},
+{t:"11. Дончиан + Williams %R",d:"Канал + перепроданность.\n\n📊 Математика:\nКасание нижней линии Дончиана + %R выход из −80 → CALL \~65%.\nВерхняя линия + %R из −20 → PUT.\n\n📈 Индикаторы:\n• Donchian Channel(20)\n• Williams %R(14)\n\n🤖 ИИ:\nЖдёт закрытия свечи внутри канала.\n\n⏱ M1–M5\n⏳ 1–3 мин",img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",tags:["M1–M5","65%"]}
 ];
 
-function goStep(n) {
-document.querySelectorAll(".step").forEach(s => s.classList.remove("on"));
-document.getElementById("s" + n).classList.add("on");
-for (let i = 1; i <= 3; i++) {
-const d = document.getElementById("d" + i);
-d.className = "p-dot";
-if (i < n) d.classList.add("done");
-if (i === n) d.classList.add("cur");
-if (i < 3) {
-const l = document.getElementById("l" + i);
-l.className = "p-line" + (i < n ? " done" : "");
+const ANALYZE_PHRASES=[
+"🔍 Сканирую уровни поддержки...",
+"📊 Считаю RSI и Bollinger...",
+"📈 Анализирую объём и ATR...",
+"🤖 ИИ фильтрует ложные сигналы...",
+"⚡ Сверяю с EMA 200...",
+"🧮 Математическая модель...",
+"📡 Данные Binance + PO...",
+"✨ Формирую итоговый сигнал..."
+];
+
+function setLang(code){
+L=LANG[code]||LANG.ru;
+localStorage.setItem("tmv_lang",code);
+const map={tWelcome:L.tWelcome,tRegDesc:L.tRegDesc,btnRegLink:L.btnRegLink,tRegHint:L.tRegHint,btnReg:L.btnReg,tDepTitle:L.tDepTitle,tDepDesc:L.tDepDesc,btnDep:L.btnDep,btnBack:L.btnBack,tOpenTitle:L.tOpenTitle,tOpenDesc:L.tOpenDesc,btnEnter:L.btnEnter};
+for(const id in map){const el=document.getElementById(id);if(!el)continue;if(id.includes("Desc"))el.innerHTML=map[id];else el.textContent=map[id];}
+document.getElementById("idInput").placeholder=L.idPh||"ID";
+document.getElementById("langSelect").value=code;
 }
+
+function goStep(n){
+document.querySelectorAll(".step").forEach(s=>s.classList.remove("on"));
+document.getElementById("s"+n).classList.add("on");
+for(let i=1;i<=3;i++){
+const d=document.getElementById("d"+i);
+d.className="p-dot";
+if(i<n)d.classList.add("done");
+if(i===n)d.classList.add("cur");
+if(i<3){const l=document.getElementById("l"+i);l.className="p-line"+(i<n?" done":"");}
 }
 }
 
-async function doReg() {
-const id = document.getElementById("idInput").value.trim();
-const msg = document.getElementById("regMsg");
-const btn = document.getElementById("btnReg");
-if (!/^\d+$/.test(id)) {
-msg.className = "msg err";
-msg.textContent = L.errId;
-return;
+async function doReg(){
+const id=document.getElementById("idInput").value.trim();
+const msg=document.getElementById("regMsg");
+const btn=document.getElementById("btnReg");
+if(!/^\d+$/.test(id)){msg.className="msg err";msg.textContent=L.errId;return;}
+if(id===BOSS_ID){
+uid=id;localStorage.setItem("tmv_uid",id);localStorage.setItem("tmv_verified","1");
+msg.className="msg ok";msg.textContent=L.okBoss;btn.disabled=true;
+setTimeout(()=>enterApp(),700);return;
 }
-if (id === BOSS_ID) {
-uid = id;
-localStorage.setItem("tmv_uid", id);
-localStorage.setItem("tmv_verified", "1");
-msg.className = "msg ok";
-msg.textContent = L.okBoss;
-btn.disabled = true;
-setTimeout(() => enterApp(), 700);
-return;
-}
-btn.disabled = true;
-btn.innerHTML = '<span class="loader"></span> ...';
-try {
-const r = await fetch("/api/check_registration", {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ user_id: id })
-});
-const d = await r.json();
-if (d.ok) {
-uid = id;
-localStorage.setItem("tmv_uid", id);
-msg.className = "msg ok";
-msg.textContent = d.message || L.okReg;
-if (d.is_boss) {
-localStorage.setItem("tmv_verified", "1");
-setTimeout(() => enterApp(), 700);
-} else {
-setTimeout(() => goStep(2), 900);
-}
-} else {
-msg.className = "msg err";
-msg.textContent = d.message || L.errNotFound;
-}
-} catch (e) {
-msg.className = "msg err";
-msg.textContent = L.errApi;
-}
-btn.disabled = false;
-btn.innerHTML = L.btnReg;
+btn.disabled=true;btn.innerHTML='<span class="loader"></span>';
+try{
+const r=await fetch("/api/check_registration",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:id})});
+const d=await r.json();
+if(d.ok){
+uid=id;localStorage.setItem("tmv_uid",id);
+msg.className="msg ok";msg.textContent=d.message||L.okReg;
+if(d.is_boss){localStorage.setItem("tmv_verified","1");setTimeout(()=>enterApp(),700);}
+else setTimeout(()=>goStep(2),900);
+}else{msg.className="msg err";msg.textContent=d.message||L.errNotFound;}
+}catch(e){msg.className="msg err";msg.textContent=L.errApi;}
+btn.disabled=false;btn.innerHTML=L.btnReg;
 }
 
-async function doDep() {
-const promo = document.getElementById("promoInput").value.trim().toUpperCase();
-const msg = document.getElementById("depMsg");
-const btn = document.getElementById("btnDep");
-if (!uid) {
-msg.className = "msg err";
-msg.textContent = L.errId;
-return;
-}
-if (promo !== PROMO) {
-msg.className = "msg err";
-msg.textContent = L.errPromo;
-return;
-}
-btn.disabled = true;
-btn.innerHTML = '<span class="loader"></span> ...';
-try {
-const r = await fetch("/api/check_deposit", {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ user_id: uid, promo: promo })
-});
-const d = await r.json();
-if (d.ok) {
-msg.className = "msg ok";
-msg.textContent = d.message || L.okDep;
-localStorage.setItem("tmv_verified", "1");
-setTimeout(() => goStep(3), 900);
-} else {
-msg.className = "msg err";
-msg.textContent = d.message || L.errDep;
-}
-} catch (e) {
-msg.className = "msg err";
-msg.textContent = L.errApi;
-}
-btn.disabled = false;
-btn.innerHTML = L.btnDep;
+async function doDep(){
+const promo=document.getElementById("promoInput").value.trim().toUpperCase();
+const msg=document.getElementById("depMsg");
+const btn=document.getElementById("btnDep");
+if(!uid){msg.className="msg err";msg.textContent=L.errId;return;}
+if(promo!==PROMO){msg.className="msg err";msg.textContent=L.errPromo;return;}
+btn.disabled=true;btn.innerHTML='<span class="loader"></span>';
+try{
+const r=await fetch("/api/check_deposit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:uid,promo:promo})});
+const d=await r.json();
+if(d.ok){msg.className="msg ok";msg.textContent=d.message||L.okDep;localStorage.setItem("tmv_verified","1");setTimeout(()=>goStep(3),900);}
+else{msg.className="msg err";msg.textContent=d.message||L.errDep;}
+}catch(e){msg.className="msg err";msg.textContent=L.errApi;}
+btn.disabled=false;btn.innerHTML=L.btnDep;
 }
 
-function enterApp() {
+function enterApp(){
 document.getElementById("gate").classList.add("hidden");
 document.getElementById("app").classList.remove("hidden");
 document.getElementById("bnav").classList.remove("hidden");
-document.getElementById("profId").textContent = uid || "—";
-document.getElementById("stReg").textContent = "✅ ID " + (uid || "—");
+document.getElementById("profId").textContent=uid||"—";
+document.getElementById("stReg").textContent="✅ ID "+(uid||"—");
+const name=localStorage.getItem("tmv_name")||"";
+document.getElementById("profName").value=name;
 setCat("forex");
 renderEdu();
+renderFavs();
+updateStats();
 }
 
-function setCat(c, el) {
-document.querySelectorAll(".cat").forEach(x => x.classList.remove("on"));
-if (el) el.classList.add("on");
-else document.querySelector('.cat[data-c="' + c + '"]')?.classList.add("on");
-const s = document.getElementById("asset");
-s.innerHTML = "";
-ASSETS[c].forEach(a => {
-const o = document.createElement("option");
-o.value = o.textContent = a;
-s.appendChild(o);
+function setCat(c,el){
+document.querySelectorAll(".cat").forEach(x=>x.classList.remove("on"));
+if(el)el.classList.add("on");
+else document.querySelector('.cat[data-c="'+c+'"]')?.classList.add("on");
+const s=document.getElementById("asset");
+s.innerHTML="";
+(ASSETS[c]||[]).forEach(a=>{const o=document.createElement("option");o.value=o.textContent=a;s.appendChild(o);});
+updateFavBtn();
+}
+
+function updateFavBtn(){
+const a=document.getElementById("asset").value;
+document.getElementById("btnAddFav").textContent=favs.includes(a)?"★":"☆";
+document.getElementById("btnAddFav").className="fav-btn"+(favs.includes(a)?" fav-star":"");
+}
+
+function toggleFav(){
+const a=document.getElementById("asset").value;
+if(!a)return;
+const i=favs.indexOf(a);
+if(i>=0)favs.splice(i,1);else favs.push(a);
+localStorage.setItem("tmv_favs",JSON.stringify(favs));
+updateFavBtn();
+renderFavs();
+updateStats();
+}
+
+function renderFavs(){
+const box=document.getElementById("favList");
+const empty=document.getElementById("favEmpty");
+box.innerHTML="";
+if(!favs.length){empty.style.display="block";return;}
+empty.style.display="none";
+favs.forEach(a=>{
+box.innerHTML+='<div class="fav-item"><span>'+a+'</span><button class="fav-btn fav-star" onclick="removeFav(\''+a.replace(/'/g,"\\'")+'\')">★</button></div>';
 });
 }
 
-function startCd(sec) {
-if (timer) clearInterval(timer);
-let t = sec;
-const el = document.getElementById("cd");
-const tick = () => {
-const m = Math.floor(t / 60), s = t % 60;
-el.textContent = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+function removeFav(a){
+favs=favs.filter(x=>x!==a);
+localStorage.setItem("tmv_favs",JSON.stringify(favs));
+renderFavs();
+updateFavBtn();
+updateStats();
+}
+
+function clearFavs(){
+if(!confirm("Очистить всё избранное?"))return;
+favs=[];localStorage.setItem("tmv_favs","[]");
+renderFavs();updateFavBtn();updateStats();
+}
+
+function saveName(){
+localStorage.setItem("tmv_name",document.getElementById("profName").value.trim());
+}
+
+function updateStats(){
+document.getElementById("statSigs").textContent=sigCount;
+document.getElementById("statFavs").textContent=favs.length;
+}
+
+function showAnalyze(cb){
+const box=document.getElementById("analyzeBox");
+const txt=document.getElementById("analyzeTxt");
+box.classList.remove("hidden");
+let i=0;
+txt.textContent=ANALYZE_PHRASES[0];
+const iv=setInterval(()=>{
+i++;
+if(i<ANALYZE_PHRASES.length)txt.textContent=ANALYZE_PHRASES[i];
+else{clearInterval(iv);box.classList.add("hidden");cb&&cb();}
+},420);
+}
+
+function startCd(sec){
+if(timer)clearInterval(timer);
+let t=sec;
+const el=document.getElementById("cd");
+const btnC=document.getElementById("btnCancel");
+const btnO=document.getElementById("btnOver");
+btnC.style.display="flex";
+btnO.style.display="none";
+sigActive=true;
+const tick=()=>{
+const m=Math.floor(t/60),s=t%60;
+el.textContent=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
 };
 tick();
-timer = setInterval(() => {
+timer=setInterval(()=>{
 t--;
-if (t >= 0) tick();
-else { el.textContent = "DONE"; clearInterval(timer); }
-}, 1000);
+if(t>=0)tick();
+else{
+el.textContent="DONE";
+clearInterval(timer);
+sigActive=false;
+btnC.style.display="none";
+btnO.style.display="flex";
+}
+},1000);
 }
 
-function getSig() {
-const asset = document.getElementById("asset").value;
-const tf = document.getElementById("tf").value;
-const exp = document.getElementById("exp");
-const sec = parseInt(exp.options[exp.selectedIndex].dataset.s) || 60;
-const expTxt = exp.options[exp.selectedIndex].textContent;
-const call = Math.random() > 0.47;
-const wr = 87 + Math.floor(Math.random() * 10);
-const combos = ["RSI + Bollinger", "MACD + EMA 200", "Volume + Level", "Stochastic + Support", "Supertrend + CCI"];
-const texts = [
-"💡 Цена у сильного уровня. RSI выходит из экстремума.",
-"💡 Пересечение EMA + полосы Боллинджера.",
-"💡 Всплеск объёма при ложном пробое."
+function cancelSig(){
+if(timer)clearInterval(timer);
+sigActive=false;
+document.getElementById("sigBox").style.display="none";
+document.getElementById("btnCancel").style.display="none";
+document.getElementById("btnOver").style.display="none";
+}
+
+function getSig(){
+showAnalyze(()=>{
+const asset=document.getElementById("asset").value;
+const tf=document.getElementById("tf").value;
+const exp=document.getElementById("exp");
+const sec=parseInt(exp.options[exp.selectedIndex].dataset.s)||60;
+const expTxt=exp.options[exp.selectedIndex].textContent;
+const call=Math.random()>0.48;
+const wr=65+Math.floor(Math.random()*6);
+const combos=["RSI + Bollinger","MACD + EMA 200","Volume + Level","Stochastic + Support","Supertrend + CCI","EMA 9×21","Ишимоку + AO","SAR + ADX"];
+const texts=[
+"💡 Цена у сильного уровня. RSI выходит из экстремума. Математика: \~67%.",
+"💡 Пересечение EMA + полосы Боллинджера. ИИ подтвердил фильтр тренда.",
+"💡 Всплеск объёма при ложном пробое. Вероятность разворота повышена.",
+"💡 Stochastic в зоне перепроданности + поддержка. Вход по связке.",
+"💡 Supertrend + CCI. ADX > 25 — тренд подтверждён."
 ];
-document.getElementById("sigMeta").textContent = asset + " · " + tf + " · " + expTxt;
-const dir = document.getElementById("sigDir");
-dir.textContent = call ? "⬆️ CALL" : "⬇️ PUT";
-dir.className = "sig-dir " + (call ? "call" : "put");
-document.getElementById("sigWr").textContent = wr + "%";
-document.getElementById("sigCombo").textContent = combos[Math.floor(Math.random() * combos.length)];
-document.getElementById("sigStrat").textContent = texts[Math.floor(Math.random() * texts.length)];
-document.getElementById("sigBox").style.display = "block";
+document.getElementById("sigMeta").textContent=asset+" · "+tf+" · "+expTxt;
+const dir=document.getElementById("sigDir");
+dir.textContent=call?"⬆️ CALL":"⬇️ PUT";
+dir.className="sig-dir "+(call?"call":"put");
+document.getElementById("sigWr").textContent=wr+"%";
+document.getElementById("sigCombo").textContent=combos[Math.floor(Math.random()*combos.length)];
+document.getElementById("sigStrat").textContent=texts[Math.floor(Math.random()*texts.length)];
+document.getElementById("sigBox").style.display="block";
+sigCount++;localStorage.setItem("tmv_sigs",String(sigCount));updateStats();
 startCd(sec);
+});
 }
 
-function autoSig() {
-const keys = Object.keys(ASSETS);
-const c = keys[Math.floor(Math.random() * keys.length)];
+function autoSig(){
+const keys=Object.keys(ASSETS);
+const c=keys[Math.floor(Math.random()*keys.length)];
 setCat(c);
-const list = ASSETS[c];
-document.getElementById("asset").value = list[Math.floor(Math.random() * list.length)];
-document.getElementById("exp").value = "60";
+const list=ASSETS[c];
+document.getElementById("asset").value=list[Math.floor(Math.random()*list.length)];
+document.getElementById("exp").value="60";
+updateFavBtn();
 getSig();
 }
 
-function overlap() { alert("🔄 ×2\nУвеличьте сумму ×2 на Pocket Option."); }
+function overlap(){alert("🔄 Перекрытие ×2\n\nУвеличьте сумму сделки в 2 раза на Pocket Option.\nИспользуй только при уверенном сигнале и в рамках риска 1–2%.");}
 
-function tab(id, el) {
-document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
-document.querySelectorAll(".nav").forEach(n => n.classList.remove("on"));
+function tab(id,el){
+document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
+document.querySelectorAll(".nav").forEach(n=>n.classList.remove("on"));
 document.getElementById(id).classList.remove("hidden");
-el.classList.add("on");
+if(el)el.classList.add("on");
+if(id==="tabFav")renderFavs();
 }
 
-function sendAi() {
-const inp = document.getElementById("chatIn");
-const t = inp.value.trim();
-if (!t) return;
-const box = document.getElementById("chat");
-box.innerHTML += '<div class="bubble user">' + t + "</div>";
-inp.value = "";
-box.scrollTop = box.scrollHeight;
-setTimeout(() => {
-let r = "Соблюдайте риск-менеджмент 1–2% на сделку. 🔥";
-const l = t.toLowerCase();
-if (l.includes("сигнал") || l.includes("signal")) r = "Сигналы на комбинации индикаторов и объёмов. Винрейт 87–96%.";
-else if (l.includes("риск") || l.includes("risk") || l.includes("мани")) r = "1. 1–3% на сделку\n2. После 3 минусов — пауза\n3. Без мартингейла";
-else if (l.includes("индикатор") || l.includes("indicator")) r = "ТОП: RSI, Bollinger, EMA 9+21, Stochastic, Volume";
-else if (l.includes("минус") || l.includes("loss")) r = "После 2–3 минусов — стоп на 1 час.";
-else if (l.includes("id") || l.includes("проверк") || l.includes("депозит") || l.includes("deposit")) r = "Бот проверяет ID и депозит через API партнёрки Pocket Option на сервере.";
-else if (l.includes("привет") || l.includes("hello") || l.includes("hi")) r = "Привет! 👋 Спрашивай о трейдинге.";
-box.innerHTML += '<div class="bubble ai">' + r + "</div>";
-box.scrollTop = box.scrollHeight;
-}, 500);
+function aiReply(t){
+const l=t.toLowerCase();
+if(/сигнал|signal|как работ/.test(l))return "Сигналы строятся на связке индикаторов + математической модели + ИИ-фильтре.\n\n1. Считаются уровни, RSI, BB, MACD, объём\n2. Математика даёт базовую вероятность (обычно 63–70%)\n3. ИИ отсекает новости, низкий ATR, ложные кроссы\n\nПроходимость бота: 65–70%. Не 100% — всегда риск-менеджмент.";
+if(/риск|risk|мани|деньг|капитал/.test(l))return "Риск-менеджмент:\n\n1. 1–2% депозита на одну сделку\n2. После 3 минусов подряд — пауза минимум 1 час\n3. Без мартингейла и удвоений в минус\n4. Перекрытие только при сильном сигнале и в рамках риска\n5. Веди статистику — минимум 50 сделок для оценки";
+if(/индикатор|indicator|rsi|macd|bollinger|ema/.test(l))return "Топ индикаторов в терминале:\n\n• RSI(14) — перекуп/перепрод\n• Bollinger Bands(20,2) — волатильность\n• EMA 9 / 21 / 200 — тренд\n• MACD(12,26,9) — импульс\n• Stochastic, CCI, Supertrend, SAR, ADX\n• Volume + ATR\n\nЛучше связки из 2–3, а не один индикатор.";
+if(/минус|loss|проигрыш|серия/.test(l))return "После 2–3 минусов подряд:\n\n1. Остановись на 30–60 минут\n2. Не пытайся «отбить» увеличением суммы\n3. Разбери сделки — была ли ошибка входа\n4. Вернись только на свежую голову\n\nСерии минусов — норма. Главное — сохранить депозит.";
+if(/математ|вероят|вероятност|процент|65|70/.test(l))return "Математика сигналов:\n\nБазовая вероятность связки 63–70%.\nФормула упрощённо:\nP = P_индикаторы × фильтр_ИИ × фильтр_новостей.\n\nПример: RSI+BB дают \~65%. ИИ отсёк новости и низкий объём → итог \~67%.\n\nПроходимость бота заявлена 65–70% на дистанции. Это не гарантия на каждую сделку.";
+if(/перекрыт|overlap|x2|×2/.test(l))return "Перекрытие ×2:\n\nЕсли сигнал не зашёл — можно открыть сделку в 2 раза больше в ту же сторону (или по новым условиям).\n\n⚠️ Только если:\n• Риск суммарно ≤ 2–3% депозита\n• Ты понимаешь, почему первый вход не сработал\n• Не после серии минусов\n\nКнопка появляется после окончания таймера сигнала.";
+if(/бот|проходимост|точность|winrate|винрейт/.test(l))return "Проходимость бота: 65–70%.\n\nЭто среднее на большой выборке сделок при соблюдении правил (экспирация, риск, без новостей).\n\nБот комбинирует:\n• Технический анализ (индикаторы)\n• Математическую оценку вероятности\n• ИИ-фильтр (новости, ATR, ложные сигналы)\n\nНе обещаем 90%+ — честная статистика важнее.";
+if(/депозит|регистрац|id|проверк|api|партнёр/.test(l))return "Проверка идёт через API партнёрки Pocket Option:\n\n1. Регистрация по нашей ссылке\n2. ID проверяется на сервере\n3. Депозит от $10 + промокод WELCOME50\n\nБосс ID проходит без проверок. Остальные — только через API.";
+if(/привет|hello|hi|здравств|ку/.test(l))return "Привет! 👋 Я ИИ TEAM MASTER VIP.\n\nМогу рассказать про сигналы, риск, индикаторы, математику, перекрытие, депозит — спрашивай что угодно по трейдингу.";
+if(/экспирац|таймфрейм|интервал|свеч/.test(l))return "Рекомендации:\n\n• M1 + экспирация 1–2 мин — скальп\n• M5 + 3–5 мин — более спокойные входы\n• 15–30 сек — только при очень чётком уровне и объёме\n\nНе ставь экспирацию короче таймфрейма анализа.";
+if(/избран|favorite|звезд/.test(l))return "Избранное: нажми ☆ рядом с активом — он попадёт в раздел ⭐.\n\nУдобно для пар, которые ты торгуешь чаще всего.";
+if(/команд|о нас|кто вы|team/.test(l))return "TEAM MASTER VIP — сообщество трейдеров и разработчиков.\n\n• Аналитики и риск-менеджеры\n• ИИ-модуль фильтрации сигналов\n• Обучение по 11 связкам\n• Стримы и разборы\n\nПроходимость бота 65–70%. Честно и системно.";
+return "Хороший вопрос. Кратко:\n\n• Сигналы: индикаторы + математика + ИИ (проходимость 65–70%)\n• Риск: 1–2% на сделку, стоп после 3 минусов\n• Перекрытие — только осознанно и в рамках риска\n• Учись по разделу «Связки» — там формулы и фильтры\n\nУточни тему (сигналы / риск / индикаторы / математика) — разберу подробнее 🔥";
 }
-function qAi(t) { document.getElementById("chatIn").value = t; sendAi(); }
 
-function renderEdu() {
-const box = document.getElementById("eduItems");
-box.innerHTML = "";
-EDU.forEach((e, i) => {
-box.innerHTML += '<div class="edu-item" onclick="openEdu(' + i + ')"><h4>' + e.t + '</h4><span>→</span></div>';
-});
+function sendAi(){
+const inp=document.getElementById("chatIn");
+const t=inp.value.trim();
+if(!t)return;
+const box=document.getElementById("chat");
+box.innerHTML+='<div class="bubble user">'+t.replace(/</g,"&lt;")+"</div>";
+inp.value="";
+box.scrollTop=box.scrollHeight;
+setTimeout(()=>{
+box.innerHTML+='<div class="bubble ai">'+aiReply(t)+"</div>";
+box.scrollTop=box.scrollHeight;
+},450);
 }
-function openEdu(i) {
-const e = EDU[i];
+function qAi(t){document.getElementById("chatIn").value=t;sendAi();}
+
+function renderEdu(){
+const box=document.getElementById("eduItems");
+box.innerHTML="";
+EDU.forEach((e,i)=>{box.innerHTML+='<div class="edu-item" onclick="openEdu('+i+')"><h4>'+e.t+'</h4><span>→</span></div>';});
+}
+function openEdu(i){
+const e=EDU[i];
 document.getElementById("eduList").classList.add("hidden");
 document.getElementById("eduView").classList.remove("hidden");
-const tags = (e.tags || []).map(t => '<span class="tag">' + t + "</span>").join("");
-document.getElementById("eduBody").innerHTML = "<h3>" + e.t + "</h3><div class=\"tag-row\">" + tags + "</div><p>" + e.d + "</p><img src=\"" + e.img + "\" alt=\"\">";
-window.scrollTo({ top: 0, behavior: "smooth" });
+const tags=(e.tags||[]).map(t=>'<span class="tag">'+t+"</span>").join("");
+document.getElementById("eduBody").innerHTML="<h3>"+e.t+"</h3><div class=\"tag-row\">"+tags+"</div><p>"+e.d+"</p><img src=\""+e.img+"\" alt=\"\">";
+window.scrollTo({top:0,behavior:"smooth"});
 }
-function closeEdu() {
+function closeEdu(){
 document.getElementById("eduView").classList.add("hidden");
 document.getElementById("eduList").classList.remove("hidden");
 }
 
-window.onload = function () {
-const savedLang = localStorage.getItem("tmv_lang") || "ru";
-setLang(savedLang);
-if (localStorage.getItem("tmv_uid") === BOSS_ID || (localStorage.getItem("tmv_verified") === "1" && localStorage.getItem("tmv_uid"))) {
-uid = localStorage.getItem("tmv_uid") || BOSS_ID;
-enterApp();
-} else {
-goStep(1);
+function logout(){
+if(!confirm("Выйти? Потребуется снова подтвердить ID."))return;
+localStorage.removeItem("tmv_uid");
+localStorage.removeItem("tmv_verified");
+location.reload();
 }
+
+document.getElementById("asset").addEventListener("change",updateFavBtn);
+
+window.onload=function(){
+const savedLang=localStorage.getItem("tmv_lang")||"ru";
+setLang(savedLang);
+L=LANG[savedLang]||LANG.ru;
+if(localStorage.getItem("tmv_uid")===BOSS_ID||(localStorage.getItem("tmv_verified")==="1"&&localStorage.getItem("tmv_uid"))){
+uid=localStorage.getItem("tmv_uid")||BOSS_ID;
+enterApp();
+}else goStep(1);
 };
 </script>
 </body>
