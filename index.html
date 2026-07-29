@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TEAM MASTER VIP — Trading Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#FFD700;--gold-g:linear-gradient(135deg,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C);--bg:#04060a;--card:#0b0f17;--inner:#070a10;--green:#00E676;--red:#FF5252;--border:#161e2e;--border-g:rgba(212,175,55,.45);--muted:#7a8499;--text:#e8ecf4}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Montserrat,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:10px 10px 85px}
+.wrap{width:100%;max-width:440px;display:flex;flex-direction:column;gap:10px}
+.g-text{background:var(--gold-g);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:sh 3s linear infinite;font-weight:900}
+@keyframes sh{to{background-position:200% center}}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.btn{width:100%;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:12px;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4;pointer-events:none}
+.btn-gold{background:var(--gold-g);background-size:200% auto;animation:sh 3s linear infinite;color:#111;box-shadow:0 5px 18px rgba(191,149,63,.3)}
+.btn-green{background:linear-gradient(135deg,#00C853,#00E676);color:#063;box-shadow:0 4px 14px rgba(0,230,118,.25)}
+.btn-dark{background:var(--inner);color:var(--muted);border:1px solid var(--border)}
+.btn-red{background:linear-gradient(135deg,#FF1744,#FF5252);color:#fff;font-size:11.5px;padding:11px}
+.btn-sm{padding:10px;font-size:11px}
+.header{background:var(--card);border:1px solid var(--border-g);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.header h1{font-size:15px}.header small{font-size:9px;color:var(--gold);font-weight:700}
+.lang{background:var(--inner);color:#fff;border:1px solid var(--border);padding:5px 8px;border-radius:8px;font-weight:700;font-size:10px;outline:none}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 3px 16px rgba(0,0,0,.35);animation:fu .3s ease}
+.gate{background:var(--card);border:1px solid var(--border-g);border-radius:18px;padding:22px 16px;text-align:center;animation:fu .4s ease}
+.progress{display:flex;justify-content:center;align-items:center;margin-bottom:18px}
+.p-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .3s}
+.p-dot.done{background:var(--green)}.p-dot.cur{background:var(--gold);transform:scale(1.2);box-shadow:0 0 10px rgba(255,215,0,.45)}
+.p-line{width:28px;height:2px;background:var(--border);margin:0 3px}.p-line.done{background:var(--green)}
+.gate-icon{font-size:44px;margin-bottom:6px}
+.gate-title{font-size:17px;font-weight:900;margin-bottom:8px;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.gate-desc{font-size:11.5px;color:#b0b8c8;line-height:1.6;text-align:left;margin-bottom:16px;background:var(--inner);padding:11px 13px;border-radius:11px;border:1px solid var(--border)}
+.gate-desc b{color:var(--gold)}
+.input{width:100%;padding:12px;border-radius:11px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:14px;font-weight:700;text-align:center;outline:none;margin-bottom:9px}
+.input:focus{border-color:var(--gold)}
+.msg{font-size:11px;font-weight:700;padding:9px 11px;border-radius:10px;margin-bottom:9px;display:none}
+.msg.ok{display:block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.28)}
+.msg.err{display:block;background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.28)}
+.step{display:none!important}.step.on{display:block!important;animation:fu .3s ease}
+.live-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.live{font-size:8px;background:rgba(0,230,118,.12);color:var(--green);padding:3px 8px;border-radius:6px;border:1px solid rgba(0,230,118,.3);font-weight:800}
+.cats{display:flex;gap:5px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
+.cat{flex-shrink:0;padding:7px 12px;background:var(--inner);border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s}
+.cat.on{background:var(--gold-g);color:#111;border:none}
+.lbl{display:block;font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.3px;margin-bottom:4px}
+
+.selected-asset-box{background:var(--inner);border:1.5px solid var(--gold);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.selected-asset-info span:first-child{font-size:9px;color:var(--muted);display:block;font-weight:700}
+.selected-asset-info span:last-child{font-size:14px;color:var(--gold);font-weight:900}
+
+.search-box{margin-bottom:10px}
+.search-box input{width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:13px;font-weight:700;outline:none}
+.search-box input:focus{border-color:var(--gold)}
+
+.asset-list{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;margin-bottom:12px;padding-right:2px}
+.asset-item{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--inner);border:1px solid var(--border);border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s}
+.asset-item:hover,.asset-item.active{background:rgba(255,215,0,.08);border-color:var(--border-g)}
+.asset-item .name{color:var(--text)}
+.asset-item .star{font-size:16px;padding:4px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sel{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:12px;font-weight:700;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%238a94a6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+.sig{display:none;margin-top:11px;background:var(--inner);border:2px solid var(--gold);border-radius:14px;padding:14px;text-align:center;animation:fu .3s ease}
+.sig-meta{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:6px}
+.sig-dir{font-size:22px;font-weight:900;padding:14px;border-radius:12px;margin:8px 0}
+.call{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.35)}
+.put{background:rgba(255,82,82,.12);color:var(--red);border:1px solid rgba(255,82,82,.35)}
+.timer{font-size:14px;font-weight:900;color:var(--gold);background:rgba(255,215,0,.06);border:1px dashed var(--gold);border-radius:10px;padding:10px;margin-bottom:10px}
+.sig-stats{display:flex;justify-content:center;font-size:12px;font-weight:800;margin-bottom:10px;gap:20px}
+.edu-item{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:transform .15s}
+.edu-item:active{transform:scale(.98)}.edu-item h4{font-size:11.5px;color:var(--gold);font-weight:800}
+.edu-detail{background:var(--inner);border:1px solid var(--border-g);border-radius:12px;padding:14px;animation:fu .3s ease}
+.edu-detail h3{color:var(--gold);font-size:13px;font-weight:900;margin-bottom:8px}
+.edu-detail p{font-size:11.5px;color:#c5cdd8;line-height:1.7;white-space:pre-line;margin-bottom:10px}
+.edu-detail img{width:100%;height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--border);margin-bottom:8px}
+.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.tag{font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;background:rgba(255,215,0,.08);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
+.prof-row{font-size:11.5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.name-input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:13px;font-weight:700;outline:none;text-align:center;margin-bottom:10px}
+.name-input:focus{border-color:var(--gold)}
+.about-list{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin:8px 0 12px}
+.about-list li{font-size:11px;color:#c5cdd8;line-height:1.85;list-style:none}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#05070d;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 10px;z-index:100}
+.nav{display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--muted);font-size:8.5px;font-weight:800;cursor:pointer;min-width:44px;padding:3px 1px;transition:color .2s}
+.nav.on{color:var(--gold)}.nav span:first-child{font-size:15px}
+.hidden{display:none!important}
+.gap{height:6px}.gap2{height:9px}
+.analyze-overlay{position:fixed;inset:0;background:rgba(4,6,10,.94);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+.analyze-wheel{width:56px;height:56px;border:3px solid rgba(255,215,0,.12);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:14px}
+.analyze-text{font-size:13px;font-weight:800;color:var(--gold);text-align:center;animation:pulse 1.2s ease infinite;max-width:240px;line-height:1.45}
+.fav-list{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.fav-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--inner);border:1px solid var(--border);border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s}
+.fav-item:hover{background:rgba(255,215,0,.08);border-color:var(--border-g)}
+.fav-item .name{color:var(--gold)}
+.fav-empty{text-align:center;padding:30px 16px;color:var(--muted);font-size:12px;font-weight:600;line-height:1.6}
+
+.admin-profile-box{background:var(--inner);border:2px solid var(--gold);border-radius:14px;padding:14px;margin-top:12px;animation:fu .3s ease}
+.code-gen-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px;text-align:center}
+.generated-code-display{font-size:15px;font-weight:900;color:var(--gold);margin:8px 0;letter-spacing:1px;background:rgba(255,215,0,0.08);padding:8px;border-radius:8px;border:1px dashed var(--gold)}
+.users-list{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;margin-top:8px;padding-right:4px}
+.admin-search-input{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:#fff;font-size:11.5px;font-weight:700;outline:none;margin-bottom:8px}
+.admin-search-input:focus{border-color:var(--gold)}
+.user-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);padding:9px 11px;border-radius:9px;border:1px solid var(--border);font-size:11px;font-weight:700}
+.user-status-btn{padding:5px 9px;border-radius:6px;border:none;font-size:9.5px;font-weight:800;cursor:pointer}
+.btn-block-red{background:rgba(255,82,82,0.2);color:var(--red);border:1px solid rgba(255,82,82,0.4)}
+.btn-unblock-green{background:rgba(0,230,118,0.2);color:var(--green);border:1px solid rgba(0,230,118,0.4)}
+.btn-del-user{background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3);padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;margin-left:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="header">
+<div>
+<h1 class="g-text">👑 TEAM MASTER VIP</h1>
+<small>⚡ TRADING TERMINAL</small>
+</div>
+<select class="lang" id="langSelect" onchange="changeLanguage(this.value)">
+<option value="ru">🇷🇺 RU</option>
+<option value="en">🇺🇸 EN</option>
+<option value="ua">🇺🇦 UA</option>
+</select>
+</div>
+
+<div class="gate" id="gate">
+<div class="progress">
+<div class="p-dot cur" id="d1"></div><div class="p-line" id="l1"></div>
+<div class="p-dot" id="d2"></div><div class="p-line" id="l2"></div>
+<div class="p-dot" id="d3"></div>
+</div>
+<div class="step on" id="s1">
+<div class="gate-icon">👑</div>
+<div class="gate-title">Добро пожаловать</div>
+<div class="gate-desc"><b>Авторизация в системе</b><br><br>Введите ваш ключ доступа или спецключ админа.<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).</div>
+<input class="input" id="masterCodeInput" type="text" placeholder="Введите ваш ключ доступа...">
+<input class="input" id="tgUserInput" type="text" placeholder="Ваш ТГ юзернейм (@username)">
+<div class="msg" id="regMsg"></div>
+<button class="btn btn-gold" onclick="doReg()">✅ Войти в терминал</button>
+</div>
+<div class="step" id="s2">
+<div class="gate-icon">💎</div>
+<div class="gate-title">Проверка депозита</div>
+<div class="gate-desc"><b>Статус аккаунта</b><br><br>Ключ принят. Введите промокод <b>WELCOME50</b> для подтверждения доступа.</div>
+<input class="input" id="promoInput" type="text" value="WELCOME50">
+<div class="msg" id="depMsg"></div>
+<button class="btn btn-green" onclick="doDep()">🔍 Проверить депозит</button>
+<div class="gap2"></div>
+<button class="btn btn-dark btn-sm" onclick="goStep(1)">← Назад</button>
+</div>
+<div class="step" id="s3">
+<div class="gate-icon">🎉</div>
+<div class="gate-title">Доступ открыт</div>
+<div class="gate-desc" style="text-align:center">Активация прошла успешно. Все функции терминала доступны.</div>
+<button class="btn btn-gold" onclick="enterApp()">🚀 Войти в терминал</button>
+</div>
+</div>
+
+<div id="app" class="hidden">
+<!-- ===================== СИГНАЛЫ ===================== -->
+<div class="card tab" id="tabSig">
+<div class="live-bar">
+<span class="live">● LIVE</span>
+<span style="font-size:9px;color:var(--gold);font-weight:800">TEAM MASTER</span>
+</div>
+
+<div class="selected-asset-box">
+<div class="selected-asset-info">
+<span>АКТИВ ДЛЯ АНАЛИЗА</span>
+<span id="currentAssetDisplay">EUR/USD OTC</span>
+</div>
+<span style="font-size:18px" id="currentAssetFlag">💱</span>
+</div>
+
+<div class="search-box">
+<input type="text" id="mainSearch" placeholder="🔍 Поиск актива..." oninput="renderMainAssets()">
+</div>
+
+<div class="cats" id="mainCats">
+<button class="cat on" data-cat="forex" onclick="setMainCat('forex',this)">💱 Валюта</button>
+<button class="cat" data-cat="crypto" onclick="setMainCat('crypto',this)">🔥 Крипто</button>
+<button class="cat" data-cat="commodities" onclick="setMainCat('commodities',this)">🛢️ Сырьё</button>
+<button class="cat" data-cat="stocks" onclick="setMainCat('stocks',this)">📈 Акции</button>
+<button class="cat" data-cat="indices" onclick="setMainCat('indices',this)">📊 Индексы</button>
+</div>
+
+<div class="asset-list" id="mainAssetList"></div>
+
+<div class="grid2" style="margin-bottom:10px">
+<div>
+<label class="lbl">ТАЙМФРЕЙМ</label>
+<select class="sel" id="tf">
+<option value="S5">5 сек</option>
+<option value="S15">15 сек</option>
+<option value="S30">30 сек</option>
+<option value="M1" selected>1 мин</option>
+<option value="M2">2 мин</option>
+<option value="M3">3 мин</option>
+<option value="M5">5 мин</option>
+<option value="M10">10 мин</option>
+<option value="M15">15 мин</option>
+</select>
+</div>
+<div>
+<label class="lbl">ЭКСПИРАЦИЯ</label>
+<select class="sel" id="exp">
+<option value="15">15 сек</option>
+<option value="30">30 сек</option>
+<option value="60" selected>1 мин</option>
+<option value="120">2 мин</option>
+<option value="180">3 мин</option>
+<option value="240">4 мин</option>
+<option value="300">5 мин</option>
+<option value="600">10 мин</option>
+<option value="900">15 мин</option>
+</select>
+</div>
+</div>
+
+<button class="btn btn-gold" onclick="getSig()">⚡ Просчитать сигнал</button>
+<div class="gap"></div>
+<button class="btn btn-green btn-sm" onclick="autoSig()">🎯 Случайный топ-актив</button>
+<div class="gap"></div>
+<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank">🚀 Открыть Pocket Option</a>
+
+<div class="sig" id="sigBox">
+<div class="sig-meta" id="sigMeta"></div>
+<div class="sig-dir call" id="sigDir">⬆️ CALL</div>
+<div class="timer">⏱ <span id="cd">01:00</span></div>
+<div class="sig-stats">
+<span>WR: <b class="g-text" id="sigWr">73%</b></span>
+</div>
+<button class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none">✖ Отменить</button>
+<button class="btn btn-gold btn-sm" id="btnNew" onclick="getSig()" style="display:none">⚡ Новый сигнал</button>
+</div>
+</div>
+
+<!-- ===================== ИЗБРАННОЕ ===================== -->
+<div class="card tab hidden" id="tabFav">
+<h3 class="g-text" style="text-align:center;font-size:14px;margin-bottom:12px">⭐ Избранные активы</h3>
+<div class="fav-list" id="favList"></div>
+<div class="fav-empty" id="favEmpty">Пока пусто.<br>Добавляйте активы звёздочкой в списке на главном экране.</div>
+<div class="gap2"></div>
+<button class="btn btn-dark btn-sm" onclick="clearFavs()">🗑 Очистить избранное</button>
+</div>
+
+<!-- ===================== СВЯЗКИ ===================== -->
+<div class="card tab hidden" id="tabEdu">
+<div id="eduList">
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px">📚 20 профессиональных связок</h3>
+<div id="eduItems"></div>
+</div>
+<div id="eduView" class="hidden">
+<button class="btn btn-gold btn-sm" style="margin-bottom:10px" onclick="closeEdu()">← Назад к списку</button>
+<div class="edu-detail" id="eduBody"></div>
+</div>
+</div>
+
+<!-- ===================== ПРОФИЛЬ ===================== -->
+<div class="card tab hidden" id="tabProf">
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px">👤 Профиль</h3>
+<label class="lbl">ВАШЕ ИМЯ</label>
+<input class="name-input" id="profName" placeholder="Введите имя" onchange="saveName()" onblur="saveName()">
+<div class="prof-row"><span>Статус</span><b style="color:var(--green)">VIP UNLIMITED</b></div>
+<div class="prof-row"><span>Ваш ТГ</span><b id="profId">—</b></div>
+<div class="prof-row"><span>Проходимость</span><b class="g-text">70–76%</b></div>
+<div class="prof-row"><span>Сигналов</span><b id="profSigs">0</b></div>
+<div class="gap2"></div>
+<button class="btn btn-red btn-sm" onclick="logout()">🚪 Выйти</button>
+
+<div class="admin-profile-box hidden" id="adminProfileBox">
+<h3 class="g-text" style="font-size:12px;margin-bottom:8px">👑 АДМИН-ПАНЕЛЬ</h3>
+<div class="code-gen-box">
+<label class="lbl">ГЕНЕРАТОР КЛЮЧЕЙ ДОСТУПА</label>
+<div class="generated-code-display" id="adminGenCodeDisplay">MASTER_GEN_READY</div>
+<button class="btn btn-gold btn-sm" onclick="generateNewAdminCode()">✨ Сгенерировать ключ</button>
+</div>
+<label class="lbl">ПОИСК ПОЛЬЗОВАТЕЛЕЙ</label>
+<input type="text" class="admin-search-input" id="adminSearchUserInput" placeholder="Введите @username..." oninput="renderAdminData(this.value)" autocomplete="off">
+<label class="lbl">УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ</label>
+<div class="users-list" id="adminUsersList"></div>
+</div>
+</div>
+
+<!-- ===================== О НАС ===================== -->
+<div class="card tab hidden" id="tabAbout">
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:6px">👑 О нас</h3>
+<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:6px">TEAM MASTER VIP — профессиональный торговый терминал для бинарных опционов.</p>
+<div class="about-list">
+<li>📈 Реальная проходимость: <b style="color:var(--gold)">70–76%</b></li>
+<li>📚 20 расширенных экспертных связок</li>
+<li>⭐ Полный каталог активов с разделами</li>
+<li>⭐ Удобное избранное</li>
+</div>
+<p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px">Торгуйте осознанно. Риск на сделку 1-2% от банка.</p>
+<a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank">📢 Наш Telegram канал</a>
+</div>
+</div>
+</div>
+
+<div class="bnav hidden" id="bnav">
+<div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span>Сигналы</span></div>
+<div class="nav" onclick="tab('tabFav',this)"><span>⭐</span><span>Избранное</span></div>
+<div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span>Связки</span></div>
+<div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span>Профиль</span></div>
+<div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span>О нас</span></div>
+</div>
+
+<div class="analyze-overlay hidden" id="analyzeBox">
+<div class="analyze-wheel"></div>
+<div class="analyze-text" id="analyzeTxt">Анализ рынка...</div>
+</div>
+
+<script>
+const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
+
+let tgUser = localStorage.getItem("tmv_tgUser") || null;
+let isAdmin = localStorage.getItem("tmv_isAdmin") === "true";
+let timer = null;
+let favs = JSON.parse(localStorage.getItem("tmv_favs") || "[]");
+let sigCount = parseInt(localStorage.getItem("tmv_sigs") || "0");
+let currentAsset = "EUR/USD OTC";
+let currentFlag = "💱";
+let currentCat = "forex";
+let currentLang = "ru";
+
+let activeCodesDb = JSON.parse(localStorage.getItem("tmv_codes_db") || JSON.stringify(["MASTER_7777", "MASTER_VIP99"]));
+let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.stringify([
+  {tg: "@master_admin", status: "Активен", code: ADMIN_SECRET_KEY, role: "ADMIN"}
+]));
+
+const ALL_ASSETS = [
+  // FOREX OTC
+  {name:"AUD/NZD OTC", type:"forex", flag:"💱"},
+  {name:"AUD/USD OTC", type:"forex", flag:"💱"},
+  {name:"BHD/CNY OTC", type:"forex", flag:"💱"},
+  {name:"EUR/CHF OTC", type:"forex", flag:"💱"},
+  {name:"EUR/GBP OTC", type:"forex", flag:"💱"},
+  {name:"EUR/TRY OTC", type:"forex", flag:"💱"},
+  {name:"EUR/USD OTC", type:"forex", flag:"💱"},
+  {name:"KES/USD OTC", type:"forex", flag:"💱"},
+  {name:"NGN/USD OTC", type:"forex", flag:"💱"},
+  {name:"NZD/USD OTC", type:"forex", flag:"💱"},
+  {name:"OMR/CNY OTC", type:"forex", flag:"💱"},
+  {name:"USD/BRL OTC", type:"forex", flag:"💱"},
+  {name:"USD/CHF OTC", type:"forex", flag:"💱"},
+  {name:"USD/IDR OTC", type:"forex", flag:"💱"},
+  {name:"USD/INR OTC", type:"forex", flag:"💱"},
+  {name:"USD/PHP OTC", type:"forex", flag:"💱"},
+  {name:"USD/PKR OTC", type:"forex", flag:"💱"},
+  {name:"USD/SGD OTC", type:"forex", flag:"💱"},
+  {name:"USD/THB OTC", type:"forex", flag:"💱"},
+  {name:"CHF/NOK OTC", type:"forex", flag:"💱"},
+  {name:"AUD/CAD OTC", type:"forex", flag:"💱"},
+  {name:"USD/JPY OTC", type:"forex", flag:"💱"},
+  {name:"GBP/USD OTC", type:"forex", flag:"💱"},
+  {name:"USD/COP OTC", type:"forex", flag:"💱"},
+  {name:"MAD/USD OTC", type:"forex", flag:"💱"},
+  {name:"USD/MXN OTC", type:"forex", flag:"💱"},
+  {name:"AUD/JPY OTC", type:"forex", flag:"💱"},
+  {name:"QAR/CNY OTC", type:"forex", flag:"💱"},
+  {name:"ZAR/USD OTC", type:"forex", flag:"💱"},
+  {name:"USD/EGP OTC", type:"forex", flag:"💱"},
+  {name:"NZD/JPY OTC", type:"forex", flag:"💱"},
+  {name:"USD/CNH OTC", type:"forex", flag:"💱"},
+  {name:"AUD/CHF OTC", type:"forex", flag:"💱"},
+  {name:"USD/CAD OTC", type:"forex", flag:"💱"},
+  {name:"USD/ARS OTC", type:"forex", flag:"💱"},
+  {name:"TND/USD OTC", type:"forex", flag:"💱"},
+  {name:"YER/USD OTC", type:"forex", flag:"💱"},
+  {name:"EUR/NZD OTC", type:"forex", flag:"💱"},
+  {name:"USD/CLP OTC", type:"forex", flag:"💱"},
+  {name:"EUR/JPY OTC", type:"forex", flag:"💱"},
+  {name:"SAR/CNY OTC", type:"forex", flag:"💱"},
+  {name:"JOD/CNY OTC", type:"forex", flag:"💱"},
+  {name:"USD/DZD OTC", type:"forex", flag:"💱"},
+  {name:"EUR/HUF OTC", type:"forex", flag:"💱"},
+  {name:"USD/BDT OTC", type:"forex", flag:"💱"},
+  {name:"GBP/AUD OTC", type:"forex", flag:"💱"},
+  {name:"UAH/USD OTC", type:"forex", flag:"💱"},
+  {name:"USD/MYR OTC", type:"forex", flag:"💱"},
+  {name:"AED/CNY OTC", type:"forex", flag:"💱"},
+  {name:"CHF/JPY OTC", type:"forex", flag:"💱"},
+  {name:"CAD/JPY OTC", type:"forex", flag:"💱"},
+  {name:"CAD/CHF OTC", type:"forex", flag:"💱"},
+  {name:"GBP/JPY OTC", type:"forex", flag:"💱"},
+  {name:"USD/VND OTC", type:"forex", flag:"💱"},
+  {name:"LBP/USD OTC", type:"forex", flag:"💱"},
+  // FOREX обычные (без OTC)
+  {name:"GBP/JPY", type:"forex", flag:"💱"},
+  {name:"EUR/JPY", type:"forex", flag:"💱"},
+  {name:"AUD/CAD", type:"forex", flag:"💱"},
+  {name:"AUD/CHF", type:"forex", flag:"💱"},
+  {name:"AUD/JPY", type:"forex", flag:"💱"},
+  {name:"AUD/USD", type:"forex", flag:"💱"},
+  {name:"CAD/CHF", type:"forex", flag:"💱"},
+  {name:"CHF/JPY", type:"forex", flag:"💱"},
+  {name:"EUR/AUD", type:"forex", flag:"💱"},
+  {name:"EUR/CAD", type:"forex", flag:"💱"},
+  {name:"EUR/CHF", type:"forex", flag:"💱"},
+  {name:"EUR/USD", type:"forex", flag:"💱"},
+  {name:"GBP/AUD", type:"forex", flag:"💱"},
+  {name:"GBP/CAD", type:"forex", flag:"💱"},
+  {name:"GBP/CHF", type:"forex", flag:"💱"},
+  {name:"USD/CAD", type:"forex", flag:"💱"},
+  {name:"USD/CHF", type:"forex", flag:"💱"},
+  {name:"USD/JPY", type:"forex", flag:"💱"},
+  {name:"EUR/GBP", type:"forex", flag:"💱"},
+  {name:"GBP/USD", type:"forex", flag:"💱"},
+  // CRYPTO
+  {name:"Polkadot OTC", type:"crypto", flag:"🔥"},
+  {name:"Litecoin OTC", type:"crypto", flag:"🔥"},
+  {name:"Toncoin OTC", type:"crypto", flag:"🔥"},
+  {name:"Bitcoin OTC", type:"crypto", flag:"🔥"},
+  {name:"Cardano OTC", type:"crypto", flag:"🔥"},
+  {name:"Polygon OTC", type:"crypto", flag:"🔥"},
+  {name:"Chainlink OTC", type:"crypto", flag:"🔥"},
+  {name:"Solana OTC", type:"crypto", flag:"🔥"},
+  {name:"TRON OTC", type:"crypto", flag:"🔥"},
+  {name:"Avalanche OTC", type:"crypto", flag:"🔥"},
+  {name:"Bitcoin ETF OTC", type:"crypto", flag:"🔥"},
+  {name:"Ethereum OTC", type:"crypto", flag:"🔥"},
+  {name:"Dogecoin OTC", type:"crypto", flag:"🔥"},
+  {name:"BNB OTC", type:"crypto", flag:"🔥"},
+  {name:"Bitcoin", type:"crypto", flag:"🔥"},
+  // COMMODITIES
+  {name:"Brent Oil OTC", type:"commodities", flag:"🛢️"},
+  {name:"WTI Crude Oil OTC", type:"commodities", flag:"🛢️"},
+  {name:"Silver OTC", type:"commodities", flag:"🛢️"},
+  {name:"Gold OTC", type:"commodities", flag:"🛢️"},
+  {name:"Natural Gas OTC", type:"commodities", flag:"🛢️"},
+  {name:"Palladium spot OTC", type:"commodities", flag:"🛢️"},
+  {name:"Platinum spot OTC", type:"commodities", flag:"🛢️"},
+  // STOCKS
+  {name:"American Express OTC", type:"stocks", flag:"📈"},
+  {name:"Johnson & Johnson OTC", type:"stocks", flag:"📈"},
+  {name:"McDonald's OTC", type:"stocks", flag:"📈"},
+  {name:"Intel OTC", type:"stocks", flag:"📈"},
+  {name:"Microsoft OTC", type:"stocks", flag:"📈"},
+  {name:"Cisco OTC", type:"stocks", flag:"📈"},
+  {name:"Alibaba OTC", type:"stocks", flag:"📈"},
+  {name:"Citigroup Inc OTC", type:"stocks", flag:"📈"},
+  {name:"Apple OTC", type:"stocks", flag:"📈"},
+  {name:"Pfizer Inc OTC", type:"stocks", flag:"📈"},
+  {name:"Tesla OTC", type:"stocks", flag:"📈"},
+  {name:"GameStop Corp OTC", type:"stocks", flag:"📈"},
+  {name:"VISA OTC", type:"stocks", flag:"📈"},
+  {name:"Boeing Company OTC", type:"stocks", flag:"📈"},
+  {name:"Netflix OTC", type:"stocks", flag:"📈"},
+  {name:"Coinbase Global OTC", type:"stocks", flag:"📈"},
+  {name:"ExxonMobil OTC", type:"stocks", flag:"📈"},
+  {name:"Palantir Technologies OTC", type:"stocks", flag:"📈"},
+  {name:"Advanced Micro Devices OTC", type:"stocks", flag:"📈"},
+  {name:"FACEBOOK INC OTC", type:"stocks", flag:"📈"},
+  {name:"Amazon OTC", type:"stocks", flag:"📈"},
+  {name:"FedEx OTC", type:"stocks", flag:"📈"},
+  {name:"Marathon Digital Holdings OTC", type:"stocks", flag:"📈"},
+  {name:"VIX OTC", type:"stocks", flag:"📈"},
+  // INDICES
+  {name:"AUS 200 OTC", type:"indices", flag:"📊"},
+  {name:"100GBP OTC", type:"indices", flag:"📊"},
+  {name:"D30EUR OTC", type:"indices", flag:"📊"},
+  {name:"DJI30 OTC", type:"indices", flag:"📊"},
+  {name:"E35EUR OTC", type:"indices", flag:"📊"},
+  {name:"E50EUR OTC", type:"indices", flag:"📊"},
+  {name:"F40EUR OTC", type:"indices", flag:"📊"},
+  {name:"JPN225 OTC", type:"indices", flag:"📊"},
+  {name:"US100 OTC", type:"indices", flag:"📊"},
+  {name:"SP500 OTC", type:"indices", flag:"📊"}
+];
+
+const EDU = [
+{t:"1️⃣ Уровни Поддержки и Сопротивления (S/R)", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Отрабатывается на исторических точках разворота цены при сильном скоплении лимитных ордеров крупных участников.\n• Точка входа: При формировании 2-3 касаний уровня и появлении паттерна ложного пробоя или пин-бара на M1/M5.\n• Психология трейдинга: Большинство розничных трейдеров выставляют стоп-лоссы за уровнями, что провоцирует мощнейшее импульсное движение при ретесте.", img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags:["M1","M5","Винрейт 62-68%"]},
+{t:"2️⃣ RSI (14) + Полосы Боллинджера", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с физическим выходом цены за динамические границы Полосы Боллинджера.\n• Точка входа: Когда свеча закрывается за пределами верхней или нижней линии BB, а RSI пересекает отметку 70 или 30 в обратную сторону.", img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags:["M1","M5","Винрейт 65-70%"]},
+{t:"3️⃣ MACD + EMA 200", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Определение глобального направления тренда по экспоненциальной средней EMA 200 и поиск локальных импульсов по гистограмме MACD.\n• Точка входа: Цена выше EMA 200 — ищем исключительно CALL на откатах гистограммы MACD к нулевой линии.", img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags:["M1-M5","Винрейт 67%"]},
+{t:"4️⃣ Стохастик + Фибоначчи", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Поиск глубоких коррекций по ключевым уровням Фибоначчи (0.618 / 0.5) в сочетании с пересечением линий %K и %D в зонах экстремумов.", img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags:["M5-M15","Винрейт 66%"]},
+{t:"5️⃣ EMA (9) + EMA (21)", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Быстрое реагирование на смену краткосрочного импульса при пересечении быстрой и медленной экспоненциальных средних.", img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags:["M1","M2","Винрейт 64%"]},
+{t:"6️⃣ ATR + Пробой канала", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Оценка волатильности рынка. Низкие значения ATR неизбежно сменяются резким расширением диапазона.", img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags:["M5","Винрейт 69%"]},
+{t:"7️⃣ Пин-бар + Круглые числа", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Психологические круглые уровни привлекают гигантский объем отложенных ордеров.", img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags:["M1","M5","Винрейт 68%"]},
+{t:"8️⃣ RSI (7) + Трендовая линия", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Использование сверхчувствительного RSI(7) для точных отскоков от наклонных линий тренда.", img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags:["M1","M3","Винрейт 65%"]},
+{t:"9️⃣ Ишимоку + Киджун-сен", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Комплексный анализ баланса сил быков и медведей с использованием облака Ишимоку.", img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags:["M5","M15","Винрейт 70%"]},
+{t:"🔟 Parabolic SAR + ADX", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: ADX выше 25 подтверждает сильный тренд, точки Parabolic SAR указывают точки переворота.", img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags:["M1","M5","Винрейт 67%"]},
+{t:"11️⃣ Volume Profile + Delta", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Определение максимального объема торгов (POC) и зон дисбаланса.", img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags:["M1","M5","Винрейт 71%"]},
+{t:"12️⃣ Поглощение + S/R", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Резкое перехватывание инициативы на важном ценовом уровне.", img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags:["M1","M5","Винрейт 66%"]},
+{t:"13️⃣ Williams %R + SMA 50", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Оценка перекупленности/перепроданности относительно средней линии SMA 50.", img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags:["M2","M5","Винрейт 65%"]},
+{t:"14️⃣ Три экрана Элдера", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Анализ старшего таймфрейма для глобального тренда и младшего для точной точки входа.", img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags:["M5 / M1","Винрейт 69%"]},
+{t:"15️⃣ Канал Кельтнера + RSI", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Использование экспоненциального канала волатильности на базе ATR.", img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags:["M1","M5","Винрейт 67%"]},
+{t:"16️⃣ CCI + Уровни", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Выход CCI за рамки +100 / -100 сигнализирует о сильном отклонении цены.", img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags:["M1","M3","Винрейт 66%"]},
+{t:"17️⃣ Паттерн 1-2-3 + Фибо", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Классическая разворотная формация с формированием экстремумов 1, 2 и 3.", img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags:["M5","M15","Винрейт 68%"]},
+{t:"18️⃣ ROC + Скользящая", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Измерение скорости изменения цены для выявления истощения импульса.", img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop", tags:["M1","M5","Винрейт 64%"]},
+{t:"19️⃣ Order Book Imbalance", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Анализ плотности лимитных ордеров в реальном стакане котировок.", img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop", tags:["S30","M1","Винрейт 72%"]},
+{t:"20️⃣ Multi-Factor комплекс", d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Одновременный опрос 8 индикаторов с расчетом вероятностей.\n• Точка входа: Сигнал только при совпадении минимум 6 факторов из 8.", img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop", tags:["Все ТФ","Винрейт 76%"]}
+];
+
+const PHRASES = [
+  "Сканирование рынка...",
+  "Анализ объёма и волатильности...",
+  "Проверка уровней поддержки...",
+  "Расчёт вероятности...",
+  "Формирование сигнала..."
+];
+
+function setMainCat(cat, el) {
+  currentCat = cat;
+  document.querySelectorAll("#mainCats .cat").forEach(c => c.classList.remove("on"));
+  if (el) el.classList.add("on");
+  document.getElementById("mainSearch").value = "";
+  renderMainAssets();
+}
+
+function renderMainAssets() {
+  const list = document.getElementById("mainAssetList");
+  const search = (document.getElementById("mainSearch").value || "").toLowerCase();
+  let html = "";
+  ALL_ASSETS.filter(a => a.type === currentCat).forEach(a => {
+    if (search && !a.name.toLowerCase().includes(search)) return;
+    const isFav = favs.includes(a.name);
+    const isActive = a.name === currentAsset;
+    html += `<div class="asset-item \( {isActive ? 'active' : ''}" onclick="selectAsset(' \){a.name}','${a.flag}')">
+      <span class="name">${a.flag} ${a.name}</span>
+      <span class="star" onclick="event.stopPropagation();toggleFav('\( {a.name}')"> \){isFav ? '⭐' : '☆'}</span>
+    </div>`;
+  });
+  if (!html) html = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Ничего не найдено</div>`;
+  list.innerHTML = html;
+}
+
+function selectAsset(name, flag) {
+  currentAsset = name;
+  currentFlag = flag || "💱";
+  document.getElementById("currentAssetDisplay").textContent = name;
+  document.getElementById("currentAssetFlag").textContent = currentFlag;
+  renderMainAssets();
+}
+
+function toggleFav(name) {
+  if (favs.includes(name)) {
+    favs = favs.filter(f => f !== name);
+  } else {
+    favs.push(name);
+  }
+  localStorage.setItem("tmv_favs", JSON.stringify(favs));
+  renderMainAssets();
+  renderFavs();
+}
+
+function renderFavs() {
+  const list = document.getElementById("favList");
+  const empty = document.getElementById("favEmpty");
+  if (favs.length === 0) {
+    list.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+  let html = "";
+  favs.forEach(name => {
+    const asset = ALL_ASSETS.find(a => a.name === name);
+    const flag = asset ? asset.flag : "⭐";
+    html += `<div class="fav-item" onclick="goToAssetFromFav('${name}')">
+      <span class="name">${flag} ${name}</span>
+      <span style="color:var(--gold);font-size:12px">➔</span>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function goToAssetFromFav(name) {
+  const asset = ALL_ASSETS.find(a => a.name === name);
+  if (!asset) return;
+  currentCat = asset.type;
+  // активируем нужную категорию
+  document.querySelectorAll("#mainCats .cat").forEach(c => {
+    c.classList.toggle("on", c.dataset.cat === asset.type);
+  });
+  selectAsset(name, asset.flag);
+  // переключаем на вкладку сигналов
+  document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
+  document.getElementById("tabSig").classList.remove("hidden");
+  document.querySelectorAll(".bnav .nav").forEach(n => n.classList.remove("on"));
+  document.querySelectorAll(".bnav .nav")[0].classList.add("on");
+  renderMainAssets();
+}
+
+function clearFavs() {
+  if (!confirm("Очистить всё избранное?")) return;
+  favs = [];
+  localStorage.setItem("tmv_favs", JSON.stringify(favs));
+  renderFavs();
+  renderMainAssets();
+}
+
+function goStep(n) {
+  document.querySelectorAll(".step").forEach(s => s.classList.remove("on"));
+  document.getElementById("s" + n).classList.add("on");
+  for (let i = 1; i <= 3; i++) {
+    const d = document.getElementById("d" + i);
+    d.className = "p-dot";
+    if (i < n) d.classList.add("done");
+    else if (i === n) d.classList.add("cur");
+  }
+  for (let i = 1; i <= 2; i++) {
+    const l = document.getElementById("l" + i);
+    l.className = "p-line";
+    if (i < n) l.classList.add("done");
+  }
+}
+
+function showMsg(id, txt, isErr = false) {
+  const el = document.getElementById(id);
+  el.className = "msg " + (isErr ? "err" : "ok");
+  el.innerHTML = txt;
+}
+
+function doReg() {
+  const code = document.getElementById("masterCodeInput").value.trim();
+  const user = document.getElementById("tgUserInput").value.trim();
+  const foundUser = allUsersReg.find(u => u.tg === user);
+  if (foundUser && foundUser.status === "Заблокирован") {
+    showMsg("regMsg", "❌ Ваш аккаунт заблокирован!", true);
+    return;
+  }
+  if (code === ADMIN_SECRET_KEY) {
+    isAdmin = true;
+    localStorage.setItem("tmv_isAdmin", "true");
+  } else {
+    const codeIdx = activeCodesDb.indexOf(code);
+    if (!code || codeIdx === -1) {
+      showMsg("regMsg", "❌ Неверный или использованный ключ!", true);
+      return;
+    }
+    activeCodesDb.splice(codeIdx, 1);
+    localStorage.setItem("tmv_codes_db", JSON.stringify(activeCodesDb));
+    isAdmin = false;
+    localStorage.setItem("tmv_isAdmin", "false");
+  }
+  if (!user || !user.startsWith("@")) {
+    showMsg("regMsg", "❌ Укажите Telegram юзернейм начиная с @", true);
+    return;
+  }
+  if (!foundUser) {
+    allUsersReg.push({tg: user, status: "Активен", code: code, role: isAdmin ? "ADMIN" : "USER"});
+  } else {
+    foundUser.status = "Активен";
+    if (isAdmin) foundUser.role = "ADMIN";
+  }
+  localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
+  tgUser = user;
+  localStorage.setItem("tmv_tgUser", user);
+  showMsg("regMsg", "✅ Ключ принят!");
+  setTimeout(() => goStep(2), 800);
+}
+
+function doDep() {
+  const promo = document.getElementById("promoInput").value.trim();
+  if (promo.toUpperCase() !== "WELCOME50") {
+    showMsg("depMsg", "❌ Неверный промокод! Введите WELCOME50", true);
+    return;
+  }
+  showMsg("depMsg", "✅ Депозит подтвержден!");
+  setTimeout(() => goStep(3), 800);
+}
+
+function enterApp() {
+  document.getElementById("gate").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("bnav").classList.remove("hidden");
+  renderMainAssets();
+  renderFavs();
+  renderEdu();
+  loadProfile();
+}
+
+function tab(tabId, el) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
+  document.getElementById(tabId).classList.remove("hidden");
+  document.querySelectorAll(".bnav .nav").forEach(n => n.classList.remove("on"));
+  el.classList.add("on");
+  if (tabId === "tabFav") renderFavs();
+}
+
+function getSig() {
+  runAnalyzer(() => {
+    const tf = document.getElementById("tf").value;
+    const expSec = parseInt(document.getElementById("exp").value);
+    const isOtc = currentAsset.includes("OTC");
+    let dir = Math.random() > 0.46 ? "⬆️ CALL" : "⬇️ PUT";
+    let wrVal = (70 + Math.floor(Math.random() * 7)) + "%";
+    const isCall = dir.includes("CALL");
+
+    const source = isOtc ? "OTC" : "Market Data";
+    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf} · ${expSec}с · ${source}`;
+    const dirEl = document.getElementById("sigDir");
+    dirEl.textContent = dir;
+    dirEl.className = "sig-dir " + (isCall ? "call" : "put");
+    document.getElementById("sigWr").textContent = wrVal;
+
+    document.getElementById("sigBox").style.display = "block";
+    document.getElementById("btnCancel").style.display = "block";
+    document.getElementById("btnNew").style.display = "none";
+
+    sigCount++;
+    localStorage.setItem("tmv_sigs", sigCount);
+    document.getElementById("profSigs").textContent = sigCount;
+
+    startTimer("cd", expSec, () => {
+      document.getElementById("btnCancel").style.display = "none";
+      document.getElementById("btnNew").style.display = "block";
+    });
+  });
+}
+
+function autoSig() {
+  const filtered = ALL_ASSETS.filter(a => a.type === currentCat);
+  const rnd = filtered[Math.floor(Math.random() * filtered.length)];
+  selectAsset(rnd.name, rnd.flag);
+  getSig();
+}
+
+function cancelSig() {
+  if (timer) clearInterval(timer);
+  document.getElementById("sigBox").style.display = "none";
+}
+
+function startTimer(elementId, seconds, onComplete) {
+  if (timer) clearInterval(timer);
+  let rem = seconds;
+  const el = document.getElementById(elementId);
+  updateTimerDisplay(el, rem);
+  timer = setInterval(() => {
+    rem--;
+    if (rem <= 0) {
+      clearInterval(timer);
+      el.textContent = "00:00 Готово!";
+      if (onComplete) onComplete();
+      return;
+    }
+    updateTimerDisplay(el, rem);
+  }, 1000);
+}
+
+function updateTimerDisplay(el, sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  el.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+}
+
+function runAnalyzer(callback) {
+  const overlay = document.getElementById("analyzeBox");
+  const txtEl = document.getElementById("analyzeTxt");
+  overlay.classList.remove("hidden");
+  let step = 0;
+  const interval = setInterval(() => {
+    txtEl.textContent = PHRASES[step % PHRASES.length];
+    step++;
+  }, 380);
+  setTimeout(() => {
+    clearInterval(interval);
+    overlay.classList.add("hidden");
+    if (callback) callback();
+  }, 1900);
+}
+
+function renderEdu() {
+  const itemsEl = document.getElementById("eduItems");
+  let html = "";
+  EDU.forEach((ed, i) => {
+    html += `<div class="edu-item" onclick="openEdu(${i})">
+      <h4>${ed.t}</h4>
+      <span style="color:var(--gold)">➔</span>
+    </div>`;
+  });
+  itemsEl.innerHTML = html;
+}
+
+function openEdu(idx) {
+  const ed = EDU[idx];
+  document.getElementById("eduList").classList.add("hidden");
+  document.getElementById("eduView").classList.remove("hidden");
+  let tagsHtml = "";
+  ed.tags.forEach(t => { tagsHtml += `<span class="tag">${t}</span>`; });
+  document.getElementById("eduBody").innerHTML = `
+    <h3>${ed.t}</h3>
+    <img src="${ed.img}" alt="Strategy">
+    <div class="tag-row">${tagsHtml}</div>
+    <p>${ed.d}</p>
+  `;
+}
+
+function closeEdu() {
+  document.getElementById("eduView").classList.add("hidden");
+  document.getElementById("eduList").classList.remove("hidden");
+}
+
+function loadProfile() {
+  document.getElementById("profId").textContent = tgUser || "@user";
+  document.getElementById("profName").value = localStorage.getItem("tmv_name") || "";
+  document.getElementById("profSigs").textContent = sigCount;
+  const adminBox = document.getElementById("adminProfileBox");
+  if (isAdmin) {
+    adminBox.classList.remove("hidden");
+    renderAdminData();
+  } else {
+    adminBox.classList.add("hidden");
+  }
+}
+
+function saveName() {
+  localStorage.setItem("tmv_name", document.getElementById("profName").value);
+}
+
+function logout() {
+  localStorage.removeItem("tmv_tgUser");
+  localStorage.removeItem("tmv_isAdmin");
+  location.reload();
+}
+
+function changeLanguage(lang) {
+  currentLang = lang;
+  // можно расширить при необходимости
+}
+
+function generateNewAdminCode() {
+  const rndToken = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const newCode = "MASTER_" + rndToken + "_" + Math.floor(100 + Math.random() * 900);
+  activeCodesDb.push(newCode);
+  localStorage.setItem("tmv_codes_db", JSON.stringify(activeCodesDb));
+  document.getElementById("adminGenCodeDisplay").textContent = newCode;
+  renderAdminData();
+}
+
+function renderAdminData(filter = "") {
+  const listEl = document.getElementById("adminUsersList");
+  let html = "";
+  const filteredUsers = allUsersReg.filter(u => u.tg.toLowerCase().includes(filter.toLowerCase()));
+  if (filteredUsers.length === 0) {
+    html = `<div style="text-align:center;padding:10px;color:var(--muted);font-size:11px">Пользователи не найдены</div>`;
+  } else {
+    filteredUsers.forEach(u => {
+      const originalIdx = allUsersReg.findIndex(item => item.tg === u.tg);
+      const isBlocked = u.status === "Заблокирован";
+      html += `<div class="user-row">
+        <div><b>${u.tg}</b><br><small style="color:var(--muted)">Ключ: ${u.code}</small></div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="color:\( {isBlocked ? 'var(--red)' : 'var(--green)'};margin-right:2px"> \){u.status}</span>
+          <button class="user-status-btn \( {isBlocked ? 'btn-unblock-green' : 'btn-block-red'}" onclick="toggleUserStatus( \){originalIdx})">${isBlocked ? 'Разблок.' : 'Блок.'}</button>
+          <button class="btn-del-user" onclick="deleteUser(${originalIdx})">🗑</button>
+        </div>
+      </div>`;
+    });
+  }
+  listEl.innerHTML = html;
+}
+
+function toggleUserStatus(i) {
+  allUsersReg[i].status = allUsersReg[i].status === "Активен" ? "Заблокирован" : "Активен";
+  localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
+  renderAdminData(document.getElementById("adminSearchUserInput").value);
+}
+
+function deleteUser(i) {
+  if (confirm(`Удалить ${allUsersReg[i].tg}?`)) {
+    allUsersReg.splice(i, 1);
+    localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
+    renderAdminData(document.getElementById("adminSearchUserInput").value);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (tgUser) {
+    const found = allUsersReg.find(u => u.tg === tgUser);
+    if (found && found.status === "Заблокирован") {
+      alert("⚠️ Ваш аккаунт заблокирован!");
+      logout();
+    } else {
+      enterApp();
+    }
+  }
+});
+</script>
+</body>
+</html>
