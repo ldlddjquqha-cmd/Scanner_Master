@@ -54,9 +54,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .selected-asset-info span:first-child{font-size:9px;color:var(--muted);display:block;font-weight:700}
 .selected-asset-info span:last-child{font-size:13px;color:var(--gold);font-weight:900}
 
-.search-catalog-btn{background:rgba(255,215,0,0.08);border:1.5px dashed var(--gold);border-radius:12px;padding:11px;font-size:12px;font-weight:800;color:var(--gold);text-align:center;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s}
-.search-catalog-btn:hover{background:rgba(255,215,0,0.15)}
-
 .modal-overlay{position:fixed;inset:0;background:rgba(4,6,10,.88);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease}
 .modal-content{background:var(--card);border:1.5px solid var(--border-g);border-radius:16px;width:100%;max-width:400px;max-height:85vh;display:flex;flex-direction:column;padding:16px;animation:fu .3s ease}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -184,10 +181,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <span style="font-size:16px">📋</span>
 </div>
 
-<div class="search-catalog-btn" onclick="openCatalogModal()">
-  <span>🔍</span> <span data-t="findAnyAsset">Найти любой актив (Полный каталог)</span>
-</div>
-
 <div class="cats" id="assetCatsContainer"></div>
 
 <div class="grid2" style="margin-bottom:10px">
@@ -250,10 +243,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="profTitle">👤 Профиль</h3>
 <label class="lbl" data-t="profNameLbl">ВАШЕ ИМЯ</label>
 <input class="name-input" id="profName" placeholder="Введите имя" onchange="saveName()" onblur="saveName()">
-
-<div class="gap"></div>
-<label class="lbl" data-t="profApiKeyLbl">🔑 ВАШ API КЛЮЧ (GEMINI / OPENAI / CUSTOM)</label>
-<input class="name-input" id="userApiKeyInput" type="password" placeholder="Вставьте ваш API ключ здесь..." onchange="saveApiKey()" onblur="saveApiKey()">
 
 <div class="prof-row"><span data-t="profStatus">Статус</span><b style="color:var(--green)">VIP UNLIMITED</b></div>
 <div class="prof-row"><span data-t="profIdLbl">Ваш ТГ</span><b id="profId">—</b></div>
@@ -327,9 +316,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabAbout">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:6px" data-t="aboutTitle">👑 О нас</h3>
-<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:6px" data-t="aboutDesc">TEAM MASTER VIP — это передовой профессиональный торговый терминал с интеграцией вашего API ключа для анализа рынка в реальном времени.</p>
+<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:6px" data-t="aboutDesc">TEAM MASTER VIP — это передовой профессиональный торговый терминал с анализом рынка в реальном времени.</p>
 <div class="about-list" id="aboutListHtml">
-<li>🤖 Торговый терминал со сканером камеры и вашим API</li>
+<li>🤖 Торговый терминал со сканером камеры</li>
 <li>📈 Реальная проходимость: <b style="color:var(--gold)">70–76%</b></li>
 <li>📷 Распознавание графиков через Vision AI</li>
 <li>📚 20 расширенных экспертных связок</li>
@@ -352,8 +341,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="analyze-overlay hidden" id="analyzeBox">
 <div class="analyze-wheel"></div>
-<div class="analyze-text" id="analyzeTxt">🔍 Анализ рынка через API...</div>
-<div class="analyze-sub">Custom API · RSI · Bollinger · Order Book · Vision</div>
+<div class="analyze-text" id="analyzeTxt">🔍 Анализ рынка...</div>
+<div class="analyze-sub">RSI · Bollinger · Order Book · Vision</div>
 </div>
 
 <div class="modal-overlay hidden" id="catalogModal">
@@ -380,7 +369,6 @@ const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
 
 let tgUser = localStorage.getItem("tmv_tgUser")||null;
 let isAdmin = localStorage.getItem("tmv_isAdmin") === "true";
-let userApiKey = localStorage.getItem("tmv_userApiKey")||"";
 let timer=null,scanTimer=null,stream=null,camReady=false;
 let favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]");
 let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
@@ -408,7 +396,6 @@ const I18N = {
     accOpenDesc: "Активация прошла успешно. Все функции терминала доступны.",
     btnEnterTerm: "🚀 Войти в терминал",
     lblActiveAsset: "АКТИВ ДЛЯ АНАЛИЗА",
-    findAnyAsset: "Найти любой актив (Полный каталог)",
     catAll: "🌟 Все",
     catForex: "💱 Валюта",
     catCrypto: "🔥 Крипто",
@@ -427,7 +414,6 @@ const I18N = {
     btnBackEdu: "← Назад к списку",
     profTitle: "👤 Профиль",
     profNameLbl: "ВАШЕ ИМЯ",
-    profApiKeyLbl: "🔑 ВАШ API КЛЮЧ",
     profStatus: "Статус",
     profIdLbl: "Ваш ТГ",
     profAccLbl: "Проходимость бота",
@@ -446,7 +432,7 @@ const I18N = {
     btnCloseCam: "⏹ Закрыть камеру",
     btnNewScan: "⚡ Новый скан",
     aboutTitle: "👑 О нас",
-    aboutDesc: "TEAM MASTER VIP — торговый терминал с интеграцией вашего API ключа для анализа рынка.",
+    aboutDesc: "TEAM MASTER VIP — торговый терминал для анализа рынка.",
     aboutRisk: "Торгуйте осознанно. Риск на сделку 1-2% от банка.",
     btnTgChan: "📢 Наш Telegram канал",
     navSig: "Сигналы",
@@ -455,13 +441,13 @@ const I18N = {
     navProf: "Профиль",
     navScan: "Сканер",
     navAbout: "О нас",
-    modalCatalogTitle: "📋 Полный каталог активов",
+    modalCatalogTitle: "📋 Полный каталог активów",
     modalSearchPlaceholder: "Поиск актива...",
     catHeaderForex: "💱 Валютные пары",
     catHeaderCrypto: "🔥 Криптовалюты",
     catHeaderComm: "🛢️ Сырьевые товары",
     catHeaderStocks: "📈 Акции компаний",
-    catHeaderIndices: "📊 Биржевые индексы",
+    catHeaderIndices: "📊 Биржовые индексы",
     btnChoose: "Выбрать ➔"
   },
   en: {
@@ -477,7 +463,6 @@ const I18N = {
     accOpenDesc: "Activation successful.",
     btnEnterTerm: "🚀 Enter Terminal",
     lblActiveAsset: "SELECTED ASSET",
-    findAnyAsset: "Find any asset (Full Catalog)",
     catAll: "🌟 All",
     catForex: "💱 Forex",
     catCrypto: "🔥 Crypto",
@@ -496,7 +481,6 @@ const I18N = {
     btnBackEdu: "← Back",
     profTitle: "👤 Profile",
     profNameLbl: "YOUR NAME",
-    profApiKeyLbl: "🔑 YOUR API KEY",
     profStatus: "Status",
     profIdLbl: "Your TG",
     profAccLbl: "Accuracy",
@@ -545,7 +529,6 @@ const I18N = {
     accOpenDesc: "Активацію успішно пройдено.",
     btnEnterTerm: "🚀 Увійти в термінал",
     lblActiveAsset: "АКТИВ ДЛЯ АНАЛІЗУ",
-    findAnyAsset: "Знайти будь-який актив (Повний каталог)",
     catAll: "🌟 Всі",
     catForex: "💱 Валюта",
     catCrypto: "🔥 Крипто",
@@ -564,7 +547,6 @@ const I18N = {
     btnBackEdu: "← Назад",
     profTitle: "👤 Профіль",
     profNameLbl: "ВАШЕ ІМ'Я",
-    profApiKeyLbl: "🔑 ВАШ API КЛЮЧ",
     profStatus: "Статус",
     profIdLbl: "Ваш ТГ",
     profAccLbl: "Прохідність",
@@ -859,7 +841,7 @@ const EDU=[
 }
 ];
 
-const PHRASES=["🔍 Сканирование рынка и стакана ордеров...","📊 RSI + Bollinger Bands анализ...","📈 Volume & ATR анализ котировок...","🤖 Нейросетевой расчет через API...","⚡ Расчет EMA 200 и тренда...","✨ Сигнал успешно сформирован!"];
+const PHRASES=["🔍 Сканирование рынка и стакана ордеров...","📊 RSI + Bollinger Bands анализ...","📈 Volume & ATR анализ котировок...","🤖 Нейросетевой расчет...","⚡ Расчет EMA 200 и тренда...","✨ Сигнал успешно сформирован!"];
 
 function renderAssetButtons() {
   const container = document.getElementById("assetCatsContainer");
@@ -1132,20 +1114,7 @@ async function getSig(){
       }
     }
 
-    if(userApiKey && userApiKey.length > 5){
-      try {
-        const aiRes = await callCustomAiApi(`Analyze asset ${currentAsset} with timeframe ${tf} and expiration ${expSec}s. Return strictly JSON with keys: direction (CALL or PUT), winrate (number between 70 and 76), strategy (short explanation).`);
-        if(aiRes && aiRes.direction){
-          dir = aiRes.direction.toUpperCase().includes("CALL") ? "⬆️ CALL" : "⬇️ PUT";
-          if(aiRes.winrate) wrVal = aiRes.winrate + "%";
-          if(aiRes.strategy) stratText = aiRes.strategy;
-        }
-      } catch(e){
-        if(Math.random() <= 0.46) dir = "⬇️ PUT";
-      }
-    } else {
-      if(Math.random() <= 0.46) dir = "⬇️ PUT";
-    }
+    if(Math.random() <= 0.46) dir = "⬇️ PUT";
 
     const isCall = dir.includes("CALL");
     
@@ -1229,28 +1198,6 @@ function runAnalyzer(callback){
   }, 2200);
 }
 
-async function callCustomAiApi(promptText){
-  if(!userApiKey) return null;
-  try {
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + userApiKey, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: promptText }] }]
-      })
-    });
-    const data = await response.json();
-    const textOut = data.candidates[0].content.parts[0].text;
-    let jsonMatch = textOut.match(/\{[\s\S]*\}/);
-    if(jsonMatch){
-      return JSON.parse(jsonMatch[0]);
-    }
-    return null;
-  } catch(e) {
-    return null;
-  }
-}
-
 function renderEdu(){
   const itemsEl = document.getElementById("eduItems");
   let html = "";
@@ -1285,7 +1232,6 @@ function closeEdu(){
 function loadProfile(){
   document.getElementById("profId").textContent = tgUser || "@user";
   document.getElementById("profName").value = localStorage.getItem("tmv_name") || "";
-  document.getElementById("userApiKeyInput").value = userApiKey;
   document.getElementById("profSigs").textContent = sigCount;
   renderFavs();
 
@@ -1301,11 +1247,6 @@ function loadProfile(){
 function saveName(){
   const name = document.getElementById("profName").value;
   localStorage.setItem("tmv_name", name);
-}
-
-function saveApiKey(){
-  userApiKey = document.getElementById("userApiKeyInput").value.trim();
-  localStorage.setItem("tmv_userApiKey", userApiKey);
 }
 
 function logout(){
@@ -1349,26 +1290,13 @@ function stopCam(){
 
 function doScan(){
   if(!camReady){ alert("Сначала откройте камеру!"); return; }
-  runAnalyzer(async ()=>{
+  runAnalyzer(()=>{
     const expSec = parseInt(document.getElementById("scanExp").value);
     let dir = "⬆️ CALL";
     let stratText = "Свечной паттерн успешно распознан через Vision API.";
     let wrVal = (72 + Math.floor(Math.random()*5)) + "%";
 
-    if(userApiKey && userApiKey.length > 5){
-      try {
-        const aiRes = await callCustomAiApi(`Analyze trading chart from camera frame with expiration ${expSec}s. Return strictly JSON with keys: direction (CALL or PUT), winrate (number between 72 and 78), strategy (short explanation).`);
-        if(aiRes && aiRes.direction){
-          dir = aiRes.direction.toUpperCase().includes("CALL") ? "⬆️ CALL" : "⬇️ PUT";
-          if(aiRes.winrate) wrVal = aiRes.winrate + "%";
-          if(aiRes.strategy) stratText = aiRes.strategy;
-        }
-      } catch(e){
-        if(Math.random() <= 0.44) dir = "⬇️ PUT";
-      }
-    } else {
-      if(Math.random() <= 0.44) dir = "⬇️ PUT";
-    }
+    if(Math.random() <= 0.44) dir = "⬇️ PUT";
 
     const isCall = dir.includes("CALL");
     
