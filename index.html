@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEAM MASTER VIP</title>
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --card-bg: #131823;
+            --card-border: #1f293d;
+            --accent-gold: #f3ba2f;
+            --accent-green: #0ecb81;
+            --accent-red: #f6465d;
+            --text-main: #ffffff;
+            --text-secondary: #848e9c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 30px;
+        }
+
+        header {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--accent-gold);
+            letter-spacing: 0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lang-select {
+            background: #1c2536;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .profile-btn {
+            background: #1c2536;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .live-badge {
+            background: rgba(14, 203, 129, 0.15);
+            color: var(--accent-green);
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .term-badge {
+            color: var(--accent-gold);
+            letter-spacing: 0.5px;
+        }
+
+        .asset-selector-box {
+            background: #1c2536;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .asset-selector-box:active {
+            transform: scale(0.98);
+        }
+
+        .asset-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .asset-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .setting-title {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .select-custom {
+            background: #1c2536;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            outline: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #f3ba2f 0%, #d49e1e 100%);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(243, 186, 47, 0.2);
+            transition: 0.2s;
+        }
+
+        .btn-main:active {
+            transform: scale(0.98);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #0ecb81 0%, #09945e 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(14, 203, 129, 0.2);
+        }
+
+        .btn-broker {
+            background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.2);
+        }
+
+        /* Modal Catalog */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 7, 11, 0.85);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 16px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            width: 100%;
+            max-width: 420px;
+            height: 85vh;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .search-input {
+            background: #1c2536;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+        }
+
+        .categories-scroll {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .categories-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .categories-scroll::-webkit-scrollbar-thumb {
+            background: var(--card-border);
+            border-radius: 10px;
+        }
+
+        .cat-chip {
+            background: #1c2536;
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .cat-chip.active {
+            background: var(--accent-gold);
+            color: #000;
+            border-color: var(--accent-gold);
+        }
+
+        .assets-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .asset-item {
+            background: #1c2536;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .asset-item:active {
+            transform: scale(0.98);
+        }
+
+        .asset-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .fav-star {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .fav-star.active {
+            color: var(--accent-gold);
+        }
+
+        .select-asset-btn {
+            background: rgba(243, 186, 47, 0.15);
+            color: var(--accent-gold);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Profile View */
+        .profile-view {
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .profile-view.active {
+            display: flex;
+        }
+
+        .main-view {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .main-view.hidden {
+            display: none;
+        }
+
+        .profile-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .profile-input {
+            background: #1c2536;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            width: 100%;
+        }
+
+        .profile-info-grid {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--card-border);
+            font-size: 13px;
+        }
+
+        .profile-info-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .profile-info-val {
+            font-weight: 700;
+        }
+
+        .section-divider {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="logo-area">
+            <span class="logo-title">TEAM MASTER VIP</span>
+            <span class="logo-subtitle"><span style="color:var(--accent-green)">⚡</span> <span data-i18n="terminal">TRADING TERMINAL</span></span>
+        </div>
+        <div class="top-controls">
+            <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="ru">RU</option>
+                <option value="en">EN</option>
+                <option value="uk">UA</option>
+            </select>
+            <button class="profile-btn" onclick="toggleProfile()">
+                <span id="profileBtnText" data-i18n="profile">👤 Профиль</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-view" id="mainView">
+        <!-- Terminal Card -->
+        <div class="card">
+            <div class="card-header-row">
+                <span class="live-badge" data-i18n="live_signals">🟢 LIVE СИГНАЛЫ</span>
+                <span class="term-badge">70–76% • <span data-i18n="terminal">ТЕРМИНАЛ</span> ⚡</span>
+            </div>
+
+            <!-- Asset Selector Button -->
+            <div class="section-divider" data-i18n="analysis_asset">АКТИВ ДЛЯ АНАЛИЗА</div>
+            <div class="asset-selector-box" onclick="openCatalog()">
+                <div class="asset-info">
+                    <span class="asset-name" id="currentAssetDisplay">EUR/USD OTC</span>
+                </div>
+                <span style="font-size: 16px;">📋</span>
+            </div>
+
+            <!-- Settings Grid -->
+            <div class="settings-grid">
+                <div class="setting-group">
+                    <span class="setting-title" data-i18n="timeframe">ТАЙМФРЕЙМ</span>
+                    <select class="select-custom" id="timeframeSelect">
+                        <option value="1">1 <span data-i18n="min">мин</span></option>
+                        <option value="5">5 <span data-i18n="min">мин</span></option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <span class="setting-title" data-i18n="expiration">ЭКСПИРАЦИЯ</span>
+                    <select class="select-custom" id="expirationSelect">
+                        <option value="1">1 <span data-i18n="min">мин</span></option>
+                        <option value="5">5 <span data-i18n="min">мин</span></option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <button class="btn-main" onclick="calculateSignal()">
+                ⚡ <span data-i18n="calc_signal">ПРОСЧИТАТЬ СИГНАЛ</span>
+            </button>
+            <button class="btn-main btn-green" onclick="selectTopAsset()">
+                🤖 <span data-i18n="top_asset">ВЫБРАТЬ ТОП АКТИВ</span>
+            </button>
+            <button class="btn-main btn-broker" onclick="openBroker()">
+                🚀 <span data-i18n="open_broker">ОТКРЫТЬ ROCKET OPTION</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Profile View -->
+    <div class="profile-view" id="profileView">
+        <div class="card">
+            <div class="profile-row">
+                <span class="setting-title" data-i18n="your_name">YOUR NAME</span>
+                <input type="text" class="profile-input" value="Коля">
+            </div>
+
+            <div class="profile-info-grid">
+                <span class="profile-info-label" data-i18n="status">Status</span>
+                <span class="profile-info-val" style="color: var(--accent-green);" data-i18n="vip_unlimited">VIP UNLIMITED</span>
+            </div>
+            <div class="profile-info-grid">
+                <span class="profile-info-label" data-i18n="your_tg">Your TG</span>
+                <span class="profile-info-val">@mamaj</span>
+            </div>
+            <div class="profile-info-grid">
+                <span class="profile-info-label" data-i18n="accuracy">Accuracy</span>
+                <span class="profile-info-val">70–76%</span>
+            </div>
+            <div class="profile-info-grid">
+                <span class="profile-info-label" data-i18n="signals">Signals</span>
+                <span class="profile-info-val">32</span>
+            </div>
+
+            <div class="section-divider" data-i18n="favorite_assets">⭐ FAVORITE ASSETS</div>
+            <div style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 10px 0;" data-i18n="empty_fav">
+                Пока пусто — добавь актив из полного каталога
+            </div>
+
+            <button class="btn-main" style="background: #1c2536; color: var(--text-main); border: 1px solid var(--card-border); box-shadow: none;" onclick="clearProfile()">
+                🗑️ <span data-i18n="clear">CLEAR</span>
+            </button>
+            <button class="btn-main btn-broker" onclick="logoutProfile()">
+                🚪 <span data-i18n="logout">LOGOUT</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Catalog Modal -->
+<div class="modal" id="catalogModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span data-i18n="full_catalog">📋 Полный каталог активов</span>
+            <button class="close-modal" onclick="closeCatalog()">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="text" class="search-input" id="assetSearch" data-i18n-placeholder="search_asset" placeholder="Поиск актива..." oninput="filterAssets()">
+            
+            <div class="categories-scroll">
+                <div class="cat-chip active" onclick="filterCategory('all', this)" data-i18n="cat_all">Все</div>
+                <div class="cat-chip" onclick="filterCategory('crypto', this)" data-i18n="cat_crypto">Крипта</div>
+                <div class="cat-chip" onclick="filterCategory('forex', this)" data-i18n="cat_forex">Валюты</div>
+                <div class="cat-chip" onclick="filterCategory('stocks', this)" data-i18n="cat_stocks">Акции</div>
+            </div>
+
+            <div class="assets-list" id="assetsList">
+                <div class="asset-item" onclick="selectAsset('AUD/NZD OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>AUD/NZD OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('AUD/USD OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>AUD/USD OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('BHD/CNY OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>BHD/CNY OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('EUR/CHF OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>EUR/CHF OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('EUR/GBP OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>EUR/GBP OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('EUR/TRY OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>EUR/TRY OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('EUR/USD OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>EUR/USD OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('KES/USD OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>KES/USD OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('NGN/USD OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>NGN/USD OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('NZD/USD OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>NZD/USD OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+                <div class="asset-item" onclick="selectAsset('OMR/CNY OTC')">
+                    <div class="asset-item-left">
+                        <button class="fav-star" onclick="toggleFav(event, this)">⭐</button>
+                        <span>OMR/CNY OTC</span>
+                    </div>
+                    <button class="select-asset-btn" data-i18n="select">Выбрать →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        ru: {
+            terminal: "TRADING TERMINAL",
+            live_signals: "🟢 LIVE СИГНАЛЫ",
+            analysis_asset: "АКТИВ ДЛЯ АНАЛИЗА",
+            timeframe: "ТАЙМФРЕЙМ",
+            expiration: "ЭКСПИРАЦИЯ",
+            min: "мин",
+            calc_signal: "ПРОСЧИТАТЬ СИГНАЛ",
+            top_asset: "ВЫБРАТЬ ТОП АКТИВ",
+            open_broker: "ОТКРЫТЬ ROCKET OPTION",
+            full_catalog: "📋 Полный каталог активов",
+            search_asset: "Поиск актива...",
+            cat_all: "Все",
+            cat_crypto: "Крипта",
+            cat_forex: "Валюты",
+            cat_stocks: "Акции",
+            select: "Выбрать →",
+            profile: "👤 Профиль",
+            your_name: "YOUR NAME",
+            status: "Status",
+            vip_unlimited: "VIP UNLIMITED",
+            your_tg: "Your TG",
+            accuracy: "Accuracy",
+            signals: "Signals",
+            favorite_assets: "⭐ FAVORITE ASSETS",
+            empty_fav: "Пока пусто — добавь актив из полного каталога",
+            clear: "CLEAR",
+            logout: "LOGOUT"
+        },
+        en: {
+            terminal: "TRADING TERMINAL",
+            live_signals: "🟢 LIVE SIGNALS",
+            analysis_asset: "ASSET FOR ANALYSIS",
+            timeframe: "TIMEFRAME",
+            expiration: "EXPIRATION",
+            min: "min",
+            calc_signal: "CALCULATE SIGNAL",
+            top_asset: "SELECT TOP ASSET",
+            open_broker: "OPEN ROCKET OPTION",
+            full_catalog: "📋 Full Assets Catalog",
+            search_asset: "Search asset...",
+            cat_all: "All",
+            cat_crypto: "Crypto",
+            cat_forex: "Forex",
+            cat_stocks: "Stocks",
+            select: "Select →",
+            profile: "👤 Profile",
+            your_name: "YOUR NAME",
+            status: "Status",
+            vip_unlimited: "VIP UNLIMITED",
+            your_tg: "Your TG",
+            accuracy: "Accuracy",
+            signals: "Signals",
+            favorite_assets: "⭐ FAVORITE ASSETS",
+            empty_fav: "Empty yet — add an asset from the full catalog",
+            clear: "CLEAR",
+            logout: "LOGOUT"
+        },
+        uk: {
+            terminal: "TRADING TERMINAL",
+            live_signals: "🟢 LIVE СИГНАЛИ",
+            analysis_asset: "АКТИВ ДЛЯ АНАЛІЗУ",
+            timeframe: "ТАЙМФРЕЙМ",
+            expiration: "ЕКСПІРАЦІЯ",
+            min: "хв",
+            calc_signal: "ПРОРАХУВАТИ СИГНАЛ",
+            top_asset: "ВИБРАТИ ТОП АКТИВ",
+            open_broker: "ВІДКРИТИ ROCKET OPTION",
+            full_catalog: "📋 Повний каталог активів",
+            search_asset: "Пошук активу...",
+            cat_all: "Всі",
+            cat_crypto: "Крипта",
+            cat_forex: "Валюти",
+            cat_stocks: "Акції",
+            select: "Вибрати →",
+            profile: "👤 Профіль",
+            your_name: "YOUR NAME",
+            status: "Status",
+            vip_unlimited: "VIP UNLIMITED",
+            your_tg: "Your TG",
+            accuracy: "Accuracy",
+            signals: "Signals",
+            favorite_assets: "⭐ FAVORITE ASSETS",
+            empty_fav: "Поки порожньо — додайте актив з повного каталогу",
+            clear: "CLEAR",
+            logout: "LOGOUT"
+        }
+    };
+
+    function changeLanguage(lang) {
+        const dict = translations[lang];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) {
+                if (el.tagName === 'SPAN' && el.children.length === 0) {
+                     el.innerText = dict[key];
+                } else if (el.tagName === 'BUTTON' && el.children.length === 0) {
+                     el.innerText = dict[key];
+                } else {
+                     // Careful replacement to not destroy inner HTML if any
+                     if(el.id === "profileBtnText") el.innerText = dict[key];
+                     else el.innerHTML = el.innerHTML.replace(el.innerText.trim(), dict[key]);
+                }
+            }
+        });
+        
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (dict[key]) {
+                el.placeholder = dict[key];
+            }
+        });
+
+        // Re-apply options text for selects to preserve structure
+        updateSelectOptions(lang);
+    }
+
+    function updateSelectOptions(lang) {
+        const dict = translations[lang];
+        const timeframes = document.getElementById('timeframeSelect').options;
+        const expirations = document.getElementById('expirationSelect').options;
+        
+        for (let i = 0; i < timeframes.length; i++) {
+            let val = timeframes[i].value;
+            timeframes[i].innerHTML = `${val} <span data-i18n="min">${dict.min}</span>`;
+        }
+        for (let i = 0; i < expirations.length; i++) {
+            let val = expirations[i].value;
+            expirations[i].innerHTML = `${val} <span data-i18n="min">${dict.min}</span>`;
+        }
+    }
+
+    function openCatalog() {
+        document.getElementById('catalogModal').classList.add('active');
+    }
+
+    function closeCatalog() {
+        document.getElementById('catalogModal').classList.remove('active');
+    }
+
+    function selectAsset(assetName) {
+        // Перекидывает на главную страницу и выставляет актив, без авто-анализа
+        document.getElementById('currentAssetDisplay').innerText = assetName;
+        closeCatalog();
+    }
+
+    function toggleProfile() {
+        const mainView = document.getElementById('mainView');
+        const profileView = document.getElementById('profileView');
+        mainView.classList.toggle('hidden');
+        profileView.classList.toggle('active');
+    }
+
+    function filterAssets() {
+        const input = document.getElementById('assetSearch').value.toUpperCase();
+        const list = document.getElementById('assetsList');
+        const items = list.getElementsByClassName('asset-item');
+
+        for (let i = 0; i < items.length; i++) {
+            let span = items[i].getElementsByTagName('span')[1];
+            if (span) {
+                let txtValue = span.textContent || span.innerText;
+                if (txtValue.toUpperCase().indexOf(input) > -1) {
+                    items[i].style.display = "";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function filterCategory(cat, element) {
+        document.querySelectorAll('.cat-chip').forEach(chip => chip.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    function toggleFav(event, btn) {
+        event.stopPropagation();
+        btn.classList.toggle('active');
+    }
+
+    function calculateSignal() {
+        alert("Analyzing asset...");
+    }
+
+    function selectTopAsset() {
+        alert("Top asset selected!");
+    }
+
+    function openBroker() {
+        window.open('https://pocketoption.com', '_blank');
+    }
+
+    function clearProfile() {
+        alert("Cleared");
+    }
+
+    function logoutProfile() {
+        toggleProfile();
+    }
+
+    // Initialize translation mapping on load to ensure robust switching
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentLang = document.getElementById('langSelect').value;
+        changeLanguage(currentLang);
+    });
+</script>
+
+</body>
+</html>
