@@ -145,7 +145,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="step on" id="s1">
 <div class="gate-icon">👑</div>
 <div class="gate-title" data-t="gateTitle">Добро пожаловать</div>
-<div class="gate-desc" id="gateDesc1"><b>Авторизация в системе</b><br><br>Введите ваш ключ доступа или спецключ админа.<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).</div>
+<div class="gate-desc" id="gateDesc1"><b>Авторизация в системе</b><br><br>Введите ваш ключ доступа, совместный ключ или спецключ админа.<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).</div>
 <input class="input" id="masterCodeInput" type="text" placeholder="Введите ваш ключ доступа...">
 <input class="input" id="tgUserInput" type="text" placeholder="Ваш ТГ юзернейм (@username)">
 <div class="msg" id="regMsg"></div>
@@ -366,6 +366,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <script>
 const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
+const SHARED_KEY = "TEAM_MASTER_SHARED_VIP";
 
 let tgUser = localStorage.getItem("tmv_tgUser")||null;
 let isAdmin = localStorage.getItem("tmv_isAdmin") === "true";
@@ -378,6 +379,7 @@ let currentLang="ru";
 let modalCategory="all";
 
 let activeCodesDb = JSON.parse(localStorage.getItem("tmv_codes_db") || JSON.stringify(["MASTER_7777", "MASTER_VIP99"]));
+let usedCodesDb = JSON.parse(localStorage.getItem("tmv_used_codes_db") || JSON.stringify([]));
 let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.stringify([
   {tg: "@master_admin", status: "Активен", code: ADMIN_SECRET_KEY, role: "ADMIN"}
 ]));
@@ -386,7 +388,7 @@ const I18N = {
   ru: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Добро пожаловать",
-    gateDesc1: "<b>Авторизация в системе</b><br><br>Введите ваш ключ доступа или спецключ админа.<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).",
+    gateDesc1: "<b>Авторизация в системе</b><br><br>Введите ваш ключ доступа, совместный ключ или спецключ админа.<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).",
     btnConfirmId: "✅ Войти в терминал",
     depTitle: "Проверка депозита",
     gateDesc2: "<b>Статус аккаунта</b><br><br>Ключ принят. Введите промокод <b>WELCOME50</b>.",
@@ -453,7 +455,7 @@ const I18N = {
   en: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Welcome",
-    gateDesc1: "<b>Authorization</b><br><br>Enter your key or admin key.<br><br>Enter your Telegram username.",
+    gateDesc1: "<b>Authorization</b><br><br>Enter your key, shared key or admin key.<br><br>Enter your Telegram username.",
     btnConfirmId: "✅ Enter Terminal",
     depTitle: "Deposit Check",
     gateDesc2: "<b>Account Status</b><br><br>Key accepted. Enter promo code <b>WELCOME50</b>.",
@@ -519,7 +521,7 @@ const I18N = {
   ua: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Ласкаво просимо",
-    gateDesc1: "<b>Авторизація</b><br><br>Введіть ваш ключ доступу або спецключ адміна.<br><br>Вкажіть ваш Telegram юзернейм.",
+    gateDesc1: "<b>Авторизація</b><br><br>Введіть ваш ключ доступу, спільний ключ або спецключ адміна.<br><br>Вкажіть ваш Telegram юзернейм.",
     btnConfirmId: "✅ Увійти в термінал",
     depTitle: "Перевірка депозиту",
     gateDesc2: "<b>Статус акаунта</b><br><br>Ключ прийнято. Введіть промокод <b>WELCOME50</b>.",
@@ -898,14 +900,23 @@ function doReg(){
   if(code === ADMIN_SECRET_KEY) {
     isAdmin = true;
     localStorage.setItem("tmv_isAdmin", "true");
+  } else if(code === SHARED_KEY) {
+    isAdmin = false;
+    localStorage.setItem("tmv_isAdmin", "false");
   } else {
+    if(usedCodesDb.includes(code)) {
+      showMsg("regMsg", "❌ Этот ключ уже был использован ранее!", true);
+      return;
+    }
     const codeIdx = activeCodesDb.indexOf(code);
     if(!code || codeIdx === -1){
-      showMsg("regMsg", "❌ Неверный или использованный ключ доступа!", true);
+      showMsg("regMsg", "❌ Неверный ключ доступа!", true);
       return;
     }
     activeCodesDb.splice(codeIdx, 1);
+    usedCodesDb.push(code);
     localStorage.setItem("tmv_codes_db", JSON.stringify(activeCodesDb));
+    localStorage.setItem("tmv_used_codes_db", JSON.stringify(usedCodesDb));
     isAdmin = false;
     localStorage.setItem("tmv_isAdmin", "false");
   }
