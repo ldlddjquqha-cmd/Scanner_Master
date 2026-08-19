@@ -19,7 +19,8 @@ app = FastAPI(title="TEAM MASTER VIP Terminal")
 
 class Analyzer:
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        # Используем стабильную модель для текста и мультимодала
+        self.model_name = 'gemini-1.5-flash'
 
     async def compute(self, image_bytes: bytes, config: dict) -> dict:
         if not GEMINI_API_KEY:
@@ -30,6 +31,7 @@ class Analyzer:
             }
         try:
             image = PIL.Image.open(io.BytesIO(image_bytes))
+            model = genai.GenerativeModel(self.model_name)
 
             prompt = f"""
 Ты — профессиональный ИИ-аналитик и помощник по финансовым рынкам.
@@ -40,7 +42,7 @@ class Analyzer:
 
 2. Если это действительно график ("is_chart": true):
    Проанализируй свечные паттерны (молот, поглощение, пин-бар), направление текущего тренда, уровень поддержки/сопротивления и положение свечей.
-   На основе реального свечного анализа определи направление: "CALL" (если рынок смотрит вверх) или "PUT" (если рынок смотрит вниз). Направление должно строго соответствовать структуре свечей!
+   На основе реального свечного анализа определи направление: "CALL" (если рынок смотрит вверх) или "PUT" (если рынок смотрит вниз).
 
 Параметры:
 - Стратегия: {config.get('стратегия', 'Smart Money')}
@@ -51,11 +53,11 @@ class Analyzer:
   "is_chart": true/false,
   "direction": "CALL" или "PUT" или "NONE",
   "winrate": "85%",
-  "reason": "Краткое описание свечной структуры (например: Медвежье поглощение от уровня сопротивления)"
+  "reason": "Краткое описание свечной структуры"
 }}
 """
 
-            response = await asyncio.to_thread(self.model.generate_content, [prompt, image])
+            response = await asyncio.to_thread(model.generate_content, [prompt, image])
             raw_text = response.text.strip()
             
             if "```json" in raw_text:
@@ -92,39 +94,59 @@ class Analyzer:
             }
 
         except Exception as e:
-            logging.error(f"Ошибка Gemini API: {e}")
+            logging.error(f"Ошибка Gemini API (Vision): {e}")
             return {
                 "is_chart": False,
                 "direction": "ОШИБКА",
-                "analysis": "❌ Ошибка обработки изображения нейросетью. Попробуйте сделать более четкий снимок графика."
+                "analysis": "❌ Ошибка обработки изображения нейросетью. Сделайте более четкий снимок."
             }
 
     async def chat_assistant(self, user_text: str) -> str:
         if not GEMINI_API_KEY:
-            return "⚠️ Gemini API не настроен."
+            return "⚠️ Gemini API не настроен на сервере Render."
         try:
+            model = genai.GenerativeModel(self.model_name)
             prompt = f"""
-Ты — дружелюбный и универсальный ИИ-ассистент торгового терминала и команды "TEAM MASTER VIP".
-Имя нашего бота — TEAM MASTER VIP Terminal. Наша команда — Команда Мастеров (TEAM MASTER), сообщество успешных трейдеров и программистов.
+Ты — главный дружелюбный ИИ-ассистент элитного торгового терминала и команды "TEAM MASTER VIP".
+Имя нашего бота: TEAM MASTER VIP Terminal. Наше сообщество и канал: Команда Мастеров (TEAM MASTER).
 
-ТВОИ ВОЗМОЖНОСТИ И ОБЯЗАННОСТИ:
-1. Отвечай на ЛЮБЫЕ адекватные вопросы пользователей!
-2. Рассказывай о боте (TEAM MASTER VIP), о команде (TEAM MASTER), о том, как работать с платформами (Pocket Option), как регистрироваться, получать сигналы и использовать сканер.
-3. По запросу пользователя подбирай и подробно расписывай любые связки, стратегии (Smart Money, Price Action, Индикаторы, Боковик, Уровни поддержки/сопротивления), давай точки входа, таймфреймы и советы по мани-менеджменту.
-4. Отвечай на общие вопросы о трейдинге, криптовалюте, акциях, сырье и индексах.
+ТВОИ ЗНАНИЯ И ОБЯЗАННОСТИ:
+1. Отвечай на ВСЕ абсолютно вопросы пользователей подробно, вежливо и чётко: про бота, название, приветствие, как пользоваться терминалом, как получать сигналы, как проходить регистрацию по партнерской ссылке и получать бонус +50% по промокоду WELCOME50.
+2. Подробно расписывай любые торговые связки, стратегии (Smart Money, Price Action, FVG, Order Block, RSI, Bollinger Bands, уровни поддержки/сопротивления), давай точки входа, таймфреймы и правила мани-менеджмента.
+3. Отлично ориентируйся в разделах активов, сырья и индексов нашего терминала. Вот точные списки, по которым ты можешь давать связки и рекомендации:
+
+СЫРЬЕ (COMMODITIES):
+- Brent Oil OTC (+80%)
+- WTI Crude Oil OTC (+80%)
+- Silver OTC (+80%)
+- Gold OTC (+80%)
+- Natural Gas OTC (+45%)
+- Palladium spot OTC (+45%)
+- Platinum spot OTC (+45%)
+
+ИНДЕКСЫ (INDICES):
+- AUS 200 OTC (+67%)
+- 100GBP OTC (+45%)
+- D30EUR OTC (+45%)
+- DJI30 OTC (+45%)
+- E50EUR OTC (+45%)
+- F40EUR OTC (+45%)
+- JPN225 OTC (+45%)
+- US100 OTC (+45%)
+- SP500 OTC (+45%)
 
 СТРОГОЕ ОГРАНИЧЕНИЕ (ПЛОХИЕ ВОПРОСЫ):
-Если вопрос содержит маты, оскорбления, тему политики, войн, экстремизма, криминала, личные провокации или неадекватную жесть — отвечай строго:
+Если вопрос содержит маты, оскорбления, тему политики, войн, экстремизма или криминала — отвечай строго:
 "⚠️ Пожалуйста, соблюдайте правила общения. Я отвечаю только на адекватные вопросы по платформе, трейдингу и нашей команде TEAM MASTER."
 
 Вопрос пользователя: {user_text}
 Ответ:
 """
-            response = await asyncio.to_thread(self.model.generate_content, prompt)
+            response = await asyncio.to_thread(model.generate_content, prompt)
             return response.text.strip()
         except Exception as e:
-            logging.error(f"Ошибка ИИ ассистента: {e}")
-            return "❌ Ошибка обработки запроса ИИ-помощником."
+            logging.error(f"Ошибка ИИ ассистента (Chat): {e}")
+            return "⚠️ Временная ошибка связи с ИИ на сервере. Пожалуйста, повторите вопрос через несколько секунд."
 
 core = Analyzer()
 
@@ -1028,7 +1050,7 @@ const EDU=[
   tags:["Классика","Рост"]
 },
 {
-  t:"3️⃣0️⃣ Стратегия Снятия Ликвидности (Liquidity Sweep)",
+  t:"30️⃣ Стратегия Снятия Ликвидности (Liquidity Sweep)",
   d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Прокол равных максимумов/минимумов (Equal Highs/Lows) и мгновенный разворот цены обратно.\\n• Точка входа: Входим сразу после закрытия свечи с длинным хвостом за равными уровнями.",
   img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
   tags:["Smart Money","Ликвидность"]
