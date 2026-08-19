@@ -55,6 +55,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .selected-asset-info span:first-child{font-size:9px;color:var(--muted);display:block;font-weight:700}
 .selected-asset-info span:last-child{font-size:13px;color:var(--gold);font-weight:900}
 
+.ref-box {background:var(--inner);border:1px solid var(--border-g);border-radius:12px;padding:10px 12px;margin-top:12px;text-align:left}
+.ref-box-title {font-size:11px;font-weight:800;color:var(--gold);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.ref-box-desc {font-size:10px;color:#b0b8c8;line-height:1.4;margin-bottom:8px}
+
 .modal-overlay{position:fixed;inset:0;background:rgba(4,6,10,.88);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease}
 .modal-content{background:var(--card);border:1.5px solid var(--border-g);border-radius:16px;width:100%;max-width:400px;max-height:85vh;display:flex;flex-direction:column;padding:16px;animation:fu .3s ease}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -157,6 +161,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <input class="input" id="promoInput" type="text" value="WELCOME50">
 <div class="msg" id="depMsg"></div>
 <button class="btn btn-green" id="btnDep" onclick="doDep()" data-t="btnCheckDep">🔍 Проверить депозит</button>
+
+<div class="ref-box">
+<div class="ref-box-title">🎁 Нет аккаунта Pocket Option?</div>
+<div class="ref-box-desc">Зарегистрируйтесь по нашей официальной ссылке, чтобы получить бонус +50% к первому депозиту:</div>
+<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank">🔗 Регистрация в Pocket Option</a>
+</div>
+
 <div class="gap2"></div>
 <button class="btn btn-dark btn-sm" onclick="goStep(1)" data-t="btnBack">← Назад</button>
 </div>
@@ -271,7 +282,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabScan">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер с камерой</h3>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер с ИИ</h3>
 <div class="scan-tips" id="scanTipsHtml">
 <b>Инструкция сканера:</b><br>
 1️⃣ Нажмите «Открыть камеру»<br>
@@ -295,18 +306,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <option value="600" data-s="600">10 мин</option><option value="900" data-s="900">15 мин</option>
 </select>
 <div class="ind-row">
-<span class="ind-chip">Vision API</span><span class="ind-chip">Smart Money</span><span class="ind-chip">ICT</span>
+<span class="ind-chip">Vision AI</span><span class="ind-chip">Smart Money</span><span class="ind-chip">ICT</span>
 <span class="ind-chip">PA</span><span class="ind-chip">Scalp</span><span class="ind-chip">Trend</span>
 </div>
 <button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled data-t="btnScanNow">📡 СКАНУВАТИ</button>
 <div class="gap"></div>
 <button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру</button>
 <div class="sig" id="scanSigBox">
-<div class="sig-meta" id="scanMeta">SCAN · Vision API</div>
+<div class="sig-meta" id="scanMeta">SCAN · Vision AI</div>
 <div class="sig-dir call" id="scanDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
-<div class="sig-stats"><span>Neural Vision</span></div>
+<div class="sig-stats"><span>Neural Vision AI</span></div>
 <button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
 <button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
 </div>
@@ -1429,7 +1440,7 @@ async function doScan(){
         }
       } catch(e) {}
 
-      document.getElementById("scanMeta").textContent = `VISION API · Выплата: ${getAssetPayout(currentAsset)}`;
+      document.getElementById("scanMeta").textContent = `VISION AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
       const dirEl = document.getElementById("scanDir");
       dirEl.textContent = dir;
       dirEl.className = "sig-dir " + (isScanCall ? "call" : "put");
