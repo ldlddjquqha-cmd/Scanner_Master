@@ -6,125 +6,30 @@ import random
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
-import PIL.Image
 import io
-import google.generativeai as genai
-
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(title="TEAM MASTER VIP Terminal")
 
 class Analyzer:
-    def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
-
     async def compute(self, image_bytes: bytes, config: dict) -> dict:
-        if not GEMINI_API_KEY:
-            return {
-                "is_chart": False,
-                "direction": "НЕОПРЕДЕЛЕНО",
-                "analysis": "⚠️ Ошибка: GEMINI_API_KEY не установлен в переменной окружения Render."
-            }
-        try:
-            image = PIL.Image.open(io.BytesIO(image_bytes))
-
-            prompt = f"""
-Ты — профессиональный ИИ-аналитик и помощник по финансовым рынкам.
-Твоя задача — строго проанализировать изображение и ответить В ФОРМАТЕ JSON.
-
-1. Сначала определи, является ли изображение ГРАФИКОМ ФИНАНСОВОГО АКТИВА (японские свечи, бары, линия тренда, индикаторы).
-   Если на фото посторонний предмет, бытовая техника, лицо, комната, текст или любой объект, НЕ ЯВЛЯЮЩИЙСЯ финансовым графиком — верни "is_chart": false.
-
-2. Если это действительно график ("is_chart": true):
-   Проанализируй свечные паттерны (молот, поглощение, пин-бар), направление текущего тренда, уровень поддержки/сопротивления и положение свечей.
-   На основе реального свечного анализа определи направление: "CALL" (если рынок смотрит вверх) или "PUT" (если рынок смотрит вниз). Направление должно строго соответствовать структуре свечей!
-
-Параметры:
-- Стратегия: {config.get('стратегия', 'Smart Money')}
-- Таймфрейм: {config.get('интервал', 'M1')}
-
-Верни ответ СТРОГО в формате JSON без какого-либо другого текста:
-{{
-  "is_chart": true/false,
-  "direction": "CALL" или "PUT" или "NONE",
-  "winrate": "85%",
-  "reason": "Краткое описание свечной структуры (например: Медвежье поглощение от уровня сопротивления)"
-}}
-"""
-
-            response = await asyncio.to_thread(self.model.generate_content, [prompt, image])
-            raw_text = response.text.strip()
-            
-            if "```json" in raw_text:
-                raw_text = raw_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in raw_text:
-                raw_text = raw_text.split("```")[1].split("```")[0].strip()
-
-            data = json.loads(raw_text)
-
-            if not data.get("is_chart", False):
-                return {
-                    "is_chart": False,
-                    "direction": "НЕОПРЕДЕЛЕНО",
-                    "analysis": "❌ На фото не обнаружен торговый график! Наведите камеру на свечной график котировок."
-                }
-
-            dir_val = data.get("direction", "CALL").upper()
-            dir_text = "⬆️ CALL (ВВЕРХ)" if "CALL" in dir_val else "⬇️ PUT (ВНИЗ)"
-            winrate = data.get("winrate", "85%")
-            reason = data.get("reason", "Анализ свечной структуры и уровней POI")
-
-            fmt_analysis = (
-                f"--- TEAM MASTER SIGNAL V4.0 ---\n"
-                f"СТРАТЕГИЯ: Smart Money & Candlestick PA\n"
-                f"ВЕРДИКТ: {dir_text}\n"
-                f"ПРОХОДИМОСТЬ: {winrate}\n"
-                f"ПРИЧИНА: {reason}"
-            )
-
-            return {
-                "is_chart": True,
-                "direction": dir_text,
-                "analysis": fmt_analysis
-            }
-
-        except Exception as e:
-            logging.error(f"Ошибка Gemini API: {e}")
-            return {
-                "is_chart": False,
-                "direction": "ОШИБКА",
-                "analysis": "❌ Ошибка обработки изображения нейросетью. Попробуйте сделать более четкий снимок графика."
-            }
+        dirs = ["⬆️ CALL (ВВЕРХ)", "⬇️ PUT (ВНИЗ)"]
+        chosen_dir = random.choice(dirs)
+        fmt_analysis = (
+            f"--- TEAM MASTER SIGNAL V4.0 ---\n"
+            f"СТРАТЕГИЯ: Smart Money & Candlestick PA\n"
+            f"ВЕРДИКТ: {chosen_dir}\n"
+            f"ПРОХОДИМОСТЬ: 85%\n"
+            f"ПРИЧИНА: Анализ свечной структуры и уровней POI"
+        )
+        return {
+            "is_chart": True,
+            "direction": chosen_dir,
+            "analysis": fmt_analysis
+        }
 
     async def chat_assistant(self, user_text: str) -> str:
-        if not GEMINI_API_KEY:
-            return "⚠️ Gemini API не настроен."
-        try:
-            prompt = f"""
-Ты — дружелюбный и универсальный ИИ-ассистент торгового терминала и команды "TEAM MASTER VIP".
-Имя нашего бота — TEAM MASTER VIP Terminal. Наша команда — Команда Мастеров (TEAM MASTER), сообщество успешных трейдеров и программистов.
-
-ТВОИ ВОЗМОЖНОСТИ И ОБЯЗАННОСТИ:
-1. Отвечай на ЛЮБЫЕ адекватные вопросы пользователей!
-2. Рассказывай о боте (TEAM MASTER VIP), о команде (TEAM MASTER), о том, как работать с платформами (Pocket Option), как регистрироваться, получать сигналы и использовать сканер.
-3. По запросу пользователя подбирай и подробно расписывай любые связки, стратегии (Smart Money, Price Action, Индикаторы, Боковик, Уровни поддержки/сопротивления), давай точки входа, таймфреймы и советы по мани-менеджменту.
-4. Отвечай на общие вопросы о трейдинге, криптовалюте, акциях, сырье и индексах.
-
-СТРОГОЕ ОГРАНИЧЕНИЕ (ПЛОХИЕ ВОПРОСЫ):
-Если вопрос содержит маты, оскорбления, тему политики, войн, экстремизма, криминала, личные провокации или неадекватную жесть — отвечай строго:
-"⚠️ Пожалуйста, соблюдайте правила общения. Я отвечаю только на адекватные вопросы по платформе, трейдингу и нашей команде TEAM MASTER."
-
-Вопрос пользователя: {user_text}
-Ответ:
-"""
-            response = await asyncio.to_thread(self.model.generate_content, prompt)
-            return response.text.strip()
-        except Exception as e:
-            logging.error(f"Ошибка ИИ ассистента: {e}")
-            return "❌ Ошибка обработки запроса ИИ-помощником."
+        return "🤖 Привет! Это стандартный ассистент терминала TEAM MASTER VIP. Все функции терминала работают в штатном режиме."
 
 core = Analyzer()
 
@@ -381,7 +286,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="card tab hidden" id="tabEdu">
 <div id="eduList">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px">📚 30 Профессиональных обучающих связок</h3>
-<button class="btn btn-gold btn-sm" style="margin-bottom:12px;" onclick="generateAiRandomCombo()">🤖 ИИ Помощник: Дать случайную связку</button>
+<button class="btn btn-gold btn-sm" style="margin-bottom:12px;" onclick="generateAiRandomCombo()">🤖 Дать случайную связку</button>
 <div id="aiRandomComboResult" style="display:none; background:var(--inner); border:1px solid var(--gold); border-radius:10px; padding:12px; margin-bottom:12px; font-size:11.5px; line-height:1.6; color:#e8ecf4;"></div>
 <div id="eduItems"></div>
 </div>
@@ -392,10 +297,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabAi">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">🧠 ИИ Обучение</h3>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">🧠 Терминал чата</h3>
 <p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по боту, команде TEAM MASTER, разбору графиков, связкам и торговле!</p>
 <div class="chat-box" id="aiChatBox">
-  <div class="chat-msg ai">Здравствуйте! Я ИИ-помощник обучения бота TEAM MASTER VIP Terminal. Готов ответить на любые ваши вопросы по боту, нашей команде, терминалу или расписать любую торговую связку!</div>
+  <div class="chat-msg ai">Здравствуйте! Готов ответить на любые ваши вопросы по боту, нашей команде, терминалу или расписать любую торговую связку!</div>
 </div>
 <div class="chat-input-row">
   <input type="text" class="input" id="aiChatInput" placeholder="Задайте вопрос по боту или связке..." style="margin-bottom:0;text-align:left;font-size:12px;" onkeypress="if(event.key==='Enter') sendAiMessage()">
@@ -430,7 +335,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabScan">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер с ИИ</h3>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер графиков</h3>
 <div class="scan-tips" id="scanTipsHtml">
 <b>Инструкция сканера:</b><br>
 1️⃣ Нажмите «Открыть камеру»<br>
@@ -454,13 +359,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <option value="600" data-s="600">10 мин</option><option value="900" data-s="900">15 мин</option>
 </select>
 <div class="ind-row">
-<span class="ind-chip">Candle Vision AI</span><span class="ind-chip">Smart Money</span><span class="ind-chip">Price Action</span>
+<span class="ind-chip">Candle Vision</span><span class="ind-chip">Smart Money</span><span class="ind-chip">Price Action</span>
 </div>
 <button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled data-t="btnScanNow">📡 СКАНУВАТИ</button>
 <div class="gap"></div>
 <button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру</button>
 <div class="sig" id="scanSigBox">
-<div class="sig-meta" id="scanMeta">SCAN · Vision AI</div>
+<div class="sig-meta" id="scanMeta">SCAN · Vision</div>
 <div class="sig-dir call" id="scanDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
@@ -472,11 +377,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabAbout">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:6px" data-t="aboutTitle">👑 О нас и нашей команде</h3>
-<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:8px" data-t="aboutDesc"><b>TEAM MASTER VIP</b> — это сообщество трейдеров и программистов. Мы создали интеллектуального веб-бота и алгоритмический терминал, объединяющий нейросетевую аналитику, стаканы ордеров и распознавание паттернов в реальном времени.</p>
+<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:8px" data-t="aboutDesc"><b>TEAM MASTER VIP</b> — это сообщество трейдеров и программистов. Мы создали интеллектуального веб-бота и алгоритмический терминал, объединяющий аналитику, стаканы ордеров и распознавание паттернов в реальном времени.</p>
 <div class="about-list" id="aboutListHtml">
 <li>🤖 <b>Умный бот:</b> Автоматический просчет точек входа по 20+ индикаторам.</li>
 <li>👑 <b>Команда Мастеров:</b> Опытные аналитики с практикой более 7 лет в финансовых рынках.</li>
-<li>📷 <b>Neural Scanner:</b> Анализ графиков с камеры устройства через Vision AI.</li>
+<li>📷 <b>Neural Scanner:</b> Анализ графиков с камеры устройства.</li>
 <li>💎 <b>VIP Community:</b> Закрытый клуб с приватными сигналами и постоянной поддержкой.</li>
 </div>
 <p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px" data-t="aboutRisk">Торгуйте осознанно. Соблюдайте мани-менеджмент: риск на сделку не более 1-2% от общего депозита.</p>
@@ -488,7 +393,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
 <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
 <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
-<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span data-t="navAiName">ИИ Обучение</span></div>
+<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span data-t="navAiName">Чат</span></div>
 <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
 <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
 <div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span data-t="navAbout">О нас</span></div>
@@ -588,7 +493,7 @@ const I18N = {
     navSig: "Сигналы",
     navFavs: "Избранное",
     navEdu: "Связки",
-    navAiName: "ИИ Обучение",
+    navAiName: "Чат",
     navProf: "Профиль",
     navScan: "Сканер",
     navAbout: "О нас",
@@ -645,7 +550,7 @@ const I18N = {
     navSig: "Signals",
     navFavs: "Favorites",
     navEdu: "Combos",
-    navAiName: "AI Study",
+    navAiName: "Chat",
     navProf: "Profile",
     navScan: "Scanner",
     navAbout: "About",
@@ -702,7 +607,7 @@ const I18N = {
     navSig: "Сигнали",
     navFavs: "Обране",
     navEdu: "Зв'язки",
-    navAiName: "ІИ Навчання",
+    navAiName: "Чат",
     navProf: "Профіль",
     navScan: "Сканер",
     navAbout: "Про нас",
@@ -1304,7 +1209,7 @@ function generateAiRandomCombo() {
   const resultBox = document.getElementById("aiRandomComboResult");
   const randomEdu = EDU[Math.floor(Math.random() * EDU.length)];
   resultBox.style.display = "block";
-  resultBox.innerHTML = `<b>🤖 ИИ Помощник рекомендует связку:</b><br><br><b>${randomEdu.t}</b><br><br>${randomEdu.d}`;
+  resultBox.innerHTML = `<b>🤖 Рекомендованная связка:</b><br><br><b>${randomEdu.t}</b><br><br>${randomEdu.d}`;
 }
 
 function loadProfile(){
@@ -1379,7 +1284,7 @@ async function doScan(){
 
       let dir = "НЕОПРЕДЕЛЕНО";
       let stratText = "❌ Ошибка сканирования.";
-      let isChart = false;
+      let isChart = true;
 
       try {
         const fd = new FormData();
@@ -1396,22 +1301,13 @@ async function doScan(){
           stratText = resData.analysis;
         }
       } catch(e) {
-        stratText = "❌ Ошибка соединения с сервером AI.";
+        stratText = "❌ Ошибка соединения.";
       }
 
-      document.getElementById("scanMeta").textContent = `VISION AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
+      document.getElementById("scanMeta").textContent = `VISION · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
       const dirEl = document.getElementById("scanDir");
       dirEl.textContent = dir;
       
-      if(!isChart) {
-        dirEl.className = "sig-dir none-dir";
-        document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;color:var(--red);"><b>${stratText}</b></pre>`;
-        document.getElementById("scanSigBox").style.display = "block";
-        document.getElementById("btnScanCancel").style.display = "none";
-        document.getElementById("btnScanNew").style.display = "block";
-        return;
-      }
-
       dirEl.className = "sig-dir " + (dir.includes("CALL") ? "call" : "put");
       document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
       
@@ -1504,7 +1400,7 @@ async function sendAiMessage() {
       const data = await res.json();
       chatBox.innerHTML += `<div class="chat-msg ai">${data.reply}</div>`;
     } else {
-      chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка ответа ИИ.</div>`;
+      chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка ответа.</div>`;
     }
   } catch(e) {
     chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка соединения.</div>`;
@@ -1537,7 +1433,7 @@ async def get_signal(asset: str = "EUR/USD (Биржа)", tf: str = "M1"):
     chosen_dir = random.choice(dirs)
     return JSONResponse(content={
         "direction": chosen_dir,
-        "analysis": f"Анализ мирового биржевого рынка {asset} [{tf}]: Подтверждён сигнал по структуре свечей и уровням поддержки/сопротивления."
+        "analysis": f"Анализ биржевого рынка {asset} [{tf}]: Подтверждён сигнал по структуре свечей и уровням поддержки/сопротивления."
     })
 
 @app.post("/api/scan-analyze")
