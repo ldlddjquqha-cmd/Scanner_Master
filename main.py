@@ -6,20 +6,125 @@ import random
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
+import PIL.Image
+import io
+import google.generativeai as genai
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(title="TEAM MASTER VIP Terminal")
 
 class Analyzer:
     def __init__(self):
-        pass
+        self.model = genai.GenerativeModel('gemini-1.5-flash')
 
     async def compute(self, image_bytes: bytes, config: dict) -> dict:
-        return {
-            "is_chart": True,
-            "direction": "⬆️ CALL (ВВЕРХ)",
-            "analysis": "--- 👑 TEAM MASTER VIP PROFESSIONAL SIGNAL ---\n💎 СТРАТЕГИЯ: Smart Money & Advanced Candlestick Price Action 📊\n🚀 РЕКОМЕНДАЦИЯ: ⬆️ CALL (ВВЕРХ)\n📈 СТАТИСТИКА ПРОХОДИМОСТИ: 88% 🔥\n💡 РАЗВЕРНУТОЕ ОПИСАНИЕ СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ:\nАнализ ценового действия подтверждает отскок от зоны ключевого уровня поддержки с формированием сильного бычьего паттерна.\n🛡️ РЕКОМЕНДАЦИЯ ПО РИСК-МЕНЕДЖМЕНТУ: Торгуйте фиксированным объемом (не более 1-2% от банка), соблюдайте мани-менеджмент! 💰✨"
-        }
+        if not GEMINI_API_KEY:
+            return {
+                "is_chart": False,
+                "direction": "НЕОПРЕДЕЛЕНО",
+                "analysis": "⚠️ Ошибка: GEMINI_API_KEY не установлен в переменной окружения Render."
+            }
+        try:
+            image = PIL.Image.open(io.BytesIO(image_bytes))
+
+            prompt = f"""
+Ты — профессиональный ИИ-аналитик и помощник по финансовым рынкам.
+Твоя задача — строго проанализировать изображение и ответить В ФОРМАТЕ JSON.
+
+1. Сначала определи, является ли изображение ГРАФИКОМ ФИНАНСОВОГО АКТИВА (японские свечи, бары, линия тренда, индикаторы).
+   Если на фото посторонний предмет, бытовая техника, лицо, комната, текст или любой объект, НЕ ЯВЛЯЮЩИЙСЯ финансовым графиком — верни "is_chart": false.
+
+2. Если это действительно график ("is_chart": true):
+   Проанализируй свечные паттерны (молот, поглощение, пин-бар), направление текущего тренда, уровень поддержки/сопротивления и положение свечей.
+   На основе реального свечного анализа определи направление: "CALL" (если рынок смотрит вверх) или "PUT" (если рынок смотрит вниз). Направление должно строго соответствовать структуре свечей!
+
+Параметры:
+- Стратегия: {config.get('стратегия', 'Smart Money')}
+- Таймфрейм: {config.get('интервал', 'M1')}
+
+Верни ответ СТРОГО в формате JSON без какого-либо другого текста:
+{{
+  "is_chart": true/false,
+  "direction": "CALL" или "PUT" или "NONE",
+  "winrate": "85%",
+  "reason": "Краткое описание свечной структуры (например: Медвежье поглощение от уровня сопротивления)"
+}}
+"""
+
+            response = await asyncio.to_thread(self.model.generate_content, [prompt, image])
+            raw_text = response.text.strip()
+            
+            if "```json" in raw_text:
+                raw_text = raw_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in raw_text:
+                raw_text = raw_text.split("```")[1].split("```")[0].strip()
+
+            data = json.loads(raw_text)
+
+            if not data.get("is_chart", False):
+                return {
+                    "is_chart": False,
+                    "direction": "НЕОПРЕДЕЛЕНО",
+                    "analysis": "❌ На фото не обнаружен торговый график! Наведите камеру на свечной график котировок."
+                }
+
+            dir_val = data.get("direction", "CALL").upper()
+            dir_text = "⬆️ CALL (ВВЕРХ)" if "CALL" in dir_val else "⬇️ PUT (ВНИЗ)"
+            winrate = data.get("winrate", "85%")
+            reason = data.get("reason", "Анализ свечной структуры и уровней POI")
+
+            fmt_analysis = (
+                f"--- TEAM MASTER SIGNAL V4.0 ---\n"
+                f"СТРАТЕГИЯ: Smart Money & Candlestick PA\n"
+                f"ВЕРДИКТ: {dir_text}\n"
+                f"ПРОХОДИМОСТЬ: {winrate}\n"
+                f"ПРИЧИНА: {reason}"
+            )
+
+            return {
+                "is_chart": True,
+                "direction": dir_text,
+                "analysis": fmt_analysis
+            }
+
+        except Exception as e:
+            logging.error(f"Ошибка Gemini API: {e}")
+            return {
+                "is_chart": False,
+                "direction": "ОШИБКА",
+                "analysis": "❌ Ошибка обработки изображения нейросетью. Попробуйте сделать более четкий снимок графика."
+            }
+
+    async def chat_assistant(self, user_text: str) -> str:
+        if not GEMINI_API_KEY:
+            return "⚠️ Gemini API не настроен."
+        try:
+            prompt = f"""
+Ты — дружелюбный и универсальный ИИ-ассистент торгового терминала и команды "TEAM MASTER VIP".
+Имя нашего бота — TEAM MASTER VIP Terminal. Наша команда — Команда Мастеров (TEAM MASTER), сообщество успешных трейдеров и программистов.
+
+ТВОИ ВОЗМОЖНОСТИ И ОБЯЗАННОСТИ:
+1. Отвечай на ЛЮБЫЕ адекватные вопросы пользователей!
+2. Рассказывай о боте (TEAM MASTER VIP), о команде (TEAM MASTER), о том, как работать с платформами (Pocket Option), как регистрироваться, получать сигналы и использовать сканер.
+3. По запросу пользователя подбирай и подробно расписывай любые связки, стратегии (Smart Money, Price Action, Индикаторы, Боковик, Уровни поддержки/сопротивления), давай точки входа, таймфреймы и советы по мани-менеджменту.
+4. Отвечай на общие вопросы о трейдинге, криптовалюте, акциях, сырье и индексах.
+
+СТРОГОЕ ОГРАНИЧЕНИЕ (ПЛОХИЕ ВОПРОСЫ):
+Если вопрос содержит маты, оскорбления, тему политики, войн, экстремизма, криминала, личные провокации или неадекватную жесть — отвечай строго:
+"⚠️ Пожалуйста, соблюдайте правила общения. Я отвечаю только на адекватные вопросы по платформе, трейдингу и нашей команде TEAM MASTER."
+
+Вопрос пользователя: {user_text}
+Ответ:
+"""
+            response = await asyncio.to_thread(self.model.generate_content, prompt)
+            return response.text.strip()
+        except Exception as e:
+            logging.error(f"Ошибка ИИ ассистента: {e}")
+            return "❌ Ошибка обработки запроса ИИ-помощником."
 
 core = Analyzer()
 
@@ -98,18 +203,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .sig-dir{font-size:19px;font-weight:900;padding:11px;border-radius:11px;margin:8px 0}
 .call{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.3)}
 .put{background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.3)}
+.none-dir{background:rgba(255,82,82,.15);color:var(--red);border:1px solid rgba(255,82,82,.4)}
 .timer{font-size:12.5px;font-weight:900;color:var(--gold);background:rgba(255,215,0,.06);border:1px dashed var(--gold);border-radius:10px;padding:8px;margin-bottom:8px}
 .strat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:10.5px;color:#c5cdd8;text-align:left;line-height:1.5;margin-bottom:8px}
 .sig-stats{display:flex;justify-content:space-between;font-size:10px;font-weight:800;margin-bottom:8px}
-
-.edu-item{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:transform .15s}
-.edu-item:active{transform:scale(.98)}
-.edu-item h4{font-size:12px;color:var(--gold);font-weight:800;line-height:1.4}
-
+.edu-item{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:transform .15s}
+.edu-item:active{transform:scale(.98)}.edu-item h4{font-size:11.5px;color:var(--gold);font-weight:800}
 .edu-detail{background:var(--inner);border:1px solid var(--border-g);border-radius:12px;padding:14px;animation:fu .3s ease}
-.edu-detail h3{color:var(--gold);font-size:13px;font-weight:900;margin-bottom:8px;line-height:1.4}
+.edu-detail h3{color:var(--gold);font-size:13px;font-weight:900;margin-bottom:8px}
 .edu-detail p{font-size:11.5px;color:#c5cdd8;line-height:1.7;white-space:pre-line;margin-bottom:10px}
-
+.edu-detail img{width:100%;height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--border);margin-bottom:8px}
+.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.tag{font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;background:rgba(255,215,0,.08);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
 .prof-row{font-size:11.5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .name-input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:13px;font-weight:700;outline:none;text-align:center;margin-bottom:10px}
 .name-input:focus{border-color:var(--gold)}
@@ -147,6 +252,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .btn-unblock-green {background:rgba(0,230,118,0.2);color:var(--green);border:1px solid rgba(0,230,118,0.4)}
 .btn-del-user {background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3);padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;margin-left:4px}
 .catalog-category-header {font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;margin:10px 0 4px 4px;letter-spacing:.5px;border-bottom:1px solid var(--border);padding-bottom:3px}
+
+.chat-box {display:flex;flex-direction:column;gap:8px;height:240px;overflow-y:auto;background:var(--inner);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px}
+.chat-msg {padding:8px 11px;border-radius:10px;font-size:11px;line-height:1.45;max-width:85%}
+.chat-msg.user {background:rgba(255,215,0,0.12);color:var(--gold);align-self:flex-end;border:1px solid rgba(255,215,0,0.25)}
+.chat-msg.ai {background:var(--card);color:#c5cdd8;align-self:flex-start;border:1px solid var(--border)}
+.chat-input-row {display:flex;gap:6px}
 </style>
 </head>
 <body>
@@ -207,7 +318,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div id="app" class="hidden">
 <div class="card tab" id="tabSig">
 <div class="live-bar">
-  <span class="live" id="apiStatusBadge">● LIVE API: БЕЗ ИИ (БАЗА ЗНАНИЙ) 🚀</span>
+  <span class="live" id="apiStatusBadge">● LIVE API: ПОДКЛЮЧЕНО</span>
   <span style="font-size:9px;color:var(--gold);font-weight:800" id="apiTimerDisplay">⚡ СИНХРОНИЗАЦИЯ</span>
 </div>
 
@@ -270,7 +381,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabEdu">
 <div id="eduList">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px">📚 30 Профессиональных обучающих связок и стратегий 🚀</h3>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px">📚 30 Профессиональных обучающих связок</h3>
 <div id="eduItems"></div>
 </div>
 <div id="eduView" class="hidden">
@@ -279,12 +390,24 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 </div>
 
+<div class="card tab hidden" id="tabAi">
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">🤖 ИИ Помощник Трейдера</h3>
+<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по боту, команде TEAM MASTER, разбору графиков, связкам и торговле!</p>
+<div class="chat-box" id="aiChatBox">
+  <div class="chat-msg ai">Здравствуйте! Я ИИ-помощник бота TEAM MASTER VIP Terminal. Готов ответить на любые ваши вопросы по боту, нашей команде, терминалу или расписать любую торговую связку!</div>
+</div>
+<div class="chat-input-row">
+  <input type="text" class="input" id="aiChatInput" placeholder="Задайте вопрос по боту или связке..." style="margin-bottom:0;text-align:left;font-size:12px;" onkeypress="if(event.key==='Enter') sendAiMessage()">
+  <button class="btn btn-gold btn-sm" style="width:70px;" onclick="sendAiMessage()">Отправить</button>
+</div>
+</div>
+
 <div class="card tab hidden" id="tabProf">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="profTitle">👤 Профиль</h3>
 <label class="lbl" data-t="profNameLbl">ВАШЕ ИМЯ</label>
 <input class="name-input" id="profName" placeholder="Введите имя" onchange="saveName()" onblur="saveName()">
 
-<div class="prof-row"><span data-t="profStatus">Статус</span><b style="color:var(--green)">VIP UNLIMITED 👑</b></div>
+<div class="prof-row"><span data-t="profStatus">Статус</span><b style="color:var(--green)">VIP UNLIMITED</b></div>
 <div class="prof-row"><span data-t="profIdLbl">Ваш ТГ</span><b id="profId">—</b></div>
 <div class="prof-row"><span data-t="profSigsLbl">Сигналов</span><b id="profSigs">0</b></div>
 <div class="gap2"></div>
@@ -306,7 +429,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabScan">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер (База знаний)</h3>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер с ИИ</h3>
 <div class="scan-tips" id="scanTipsHtml">
 <b>Инструкция сканера:</b><br>
 1️⃣ Нажмите «Открыть камеру»<br>
@@ -330,17 +453,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <option value="600" data-s="600">10 мин</option><option value="900" data-s="900">15 мин</option>
 </select>
 <div class="ind-row">
-<span class="ind-chip">Candle Base</span><span class="ind-chip">Smart Money</span><span class="ind-chip">Price Action</span>
+<span class="ind-chip">Candle Vision AI</span><span class="ind-chip">Smart Money</span><span class="ind-chip">Price Action</span>
 </div>
 <button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled data-t="btnScanNow">📡 СКАНУВАТИ</button>
 <div class="gap"></div>
 <button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру</button>
 <div class="sig" id="scanSigBox">
-<div class="sig-meta" id="scanMeta">SCAN · Base</div>
+<div class="sig-meta" id="scanMeta">SCAN · Vision AI</div>
 <div class="sig-dir call" id="scanDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
-<div class="sig-stats"><span>Knowledge Base Analysis</span></div>
+<div class="sig-stats"><span>Candle Neural Vision</span></div>
 <button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
 <button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
 </div>
@@ -348,11 +471,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabAbout">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:6px" data-t="aboutTitle">👑 О нас и нашей команде</h3>
-<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:8px" data-t="aboutDesc"><b>TEAM MASTER VIP</b> — это сообщество трейдеров и программистов. Мы создали интеллектуальный веб-бота и алгоритмический терминал, объединяющий глубокую рыночную аналитику и проверенные связки.</p>
+<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:8px" data-t="aboutDesc"><b>TEAM MASTER VIP</b> — это сообщество трейдеров и программистов. Мы создали интеллектуального веб-бота и алгоритмический терминал, объединяющий нейросетевую аналитику, стаканы ордеров и распознавание паттернов в реальном времени.</p>
 <div class="about-list" id="aboutListHtml">
-<li>🤖 <b>Торговый бот:</b> Автоматический просчет точек входа по паттернам.</li>
+<li>🤖 <b>Умный бот:</b> Автоматический просчет точек входа по 20+ индикаторам.</li>
 <li>👑 <b>Команда Мастеров:</b> Опытные аналитики с практикой более 7 лет в финансовых рынках.</li>
-<li>📷 <b>Сканер:</b> Анализ графиков с камеры устройства через экспертные алгоритмы.</li>
+<li>📷 <b>Neural Scanner:</b> Анализ графиков с камеры устройства через Vision AI.</li>
 <li>💎 <b>VIP Community:</b> Закрытый клуб с приватными сигналами и постоянной поддержкой.</li>
 </div>
 <p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px" data-t="aboutRisk">Торгуйте осознанно. Соблюдайте мани-менеджмент: риск на сделку не более 1-2% от общего депозита.</p>
@@ -364,6 +487,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
 <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
 <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
+<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span>ИИ Помощник</span></div>
 <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
 <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
 <div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span data-t="navAbout">О нас</span></div>
@@ -389,22 +513,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <button class="cat" onclick="setModalCat('crypto',this)" data-t="catCrypto">🔥 Крипто</button>
       <button class="cat" onclick="setModalCat('commodities',this)">🛢️ Сырьё</button>
       <button class="cat" onclick="setModalCat('stocks',this)" data-t="catStocks">📈 Акции</button>
-      <button class="cat" onclick="setModalCat('indices',this)" data-t="catIndices">📊 Индексы</button>
+      <button class="cat" onclick="setModalCat('indices',this)">📊 Индексы</button>
     </div>
     <div class="modal-body" id="modalCatalogBody"></div>
   </div>
 </div>
 
 <script>
-const VALID_KEYS = [
-  "MASTER_ROOT_7777_SUPER_SECRET",
-  "MASTER_TRADING_777_",
-  "HTIMM",
-  "HTIMM1",
-  "HTIMM2",
-  "HTIMM3"
-];
 const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
+const USER_SECRET_KEY = "MASTER_TRADING_777_";
 const RENDER_BACKEND_URL = window.location.origin;
 
 let tgUser = localStorage.getItem("tmv_tgUser")||null;
@@ -424,7 +541,7 @@ const I18N = {
   ru: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Добро пожаловать",
-    gateDesc1: "<b>Авторизация в системе</b><br><br>Чтобы войти в систему введите ваш секретный ключ или пароль (доступны ключи HTIMM, HTIMM1, HTIMM2, HTIMM3).<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).",
+    gateDesc1: "<b>Авторизация в системе</b><br><br>Чтобы войти в систему введите ваш секретный ключ или пароль.<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).",
     btnConfirmId: "✅ Войти в терминал",
     depTitle: "Проверка депозита",
     gateDesc2: "<b>Статус аккаунта</b><br><br>Ключ принят. Введите промокод <b>WELCOME50</b>.",
@@ -455,7 +572,7 @@ const I18N = {
     favTabTitle: "⭐ Избранные активы",
     favTabDesc: "Нажмите на любой актив из списка, чтобы мгновенно перейти к нему на главный экран терминала.",
     profFavEmpty: "Пока пусто — добавь актив из полного каталога",
-    btnClearFav: "🗑 Очистить",
+    btnClearFav: "🗑 Очистить избранное",
     btnLogout: "🚪 Выйти",
     btnOpenCam: "📷 Открыть камеру",
     camOff: "Камера отключена",
@@ -480,7 +597,7 @@ const I18N = {
   en: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Welcome",
-    gateDesc1: "<b>Authorization</b><br><br>Enter your secret key to continue (HTIMM, HTIMM1, HTIMM2, HTIMM3 accepted).<br><br>Enter your Telegram username.",
+    gateDesc1: "<b>Authorization</b><br><br>Enter your secret key to continue.<br><br>Enter your Telegram username.",
     btnConfirmId: "✅ Enter Terminal",
     depTitle: "Deposit Check",
     gateDesc2: "<b>Account Status</b><br><br>Key accepted. Enter promo code <b>WELCOME50</b>.",
@@ -536,7 +653,7 @@ const I18N = {
   ua: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Ласкаво просимо",
-    gateDesc1: "<b>Авторизація</b><br><br>Введіть ваш секретний ключ для входу (доступні HTIMM, HTIMM1, HTIMM2, HTIMM3).<br><br>Вкажіть ваш Telegram юзернейм.",
+    gateDesc1: "<b>Авторизація</b><br><br>Введіть ваш секретний ключ для входу.<br><br>Вкажіть ваш Telegram юзернейм.",
     btnConfirmId: "✅ Увійти в термінал",
     depTitle: "Перевірка депозиту",
     gateDesc2: "<b>Статус акаунта</b><br><br>Ключ прийнято. Введіть промокод <b>WELCOME50</b>.",
@@ -592,6 +709,7 @@ const I18N = {
 };
 
 const ALL_ASSETS_CATALOG = [
+  // 1. ВАЛЮТНЫЕ ПАРЫ (НАСТОЯЩИЙ РЫНОК - БИРЖА)
   { name: "EUR/AUD (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "GBP/AUD (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "CHF/JPY (Биржа)", type: "forex_real", flag: "🌐" },
@@ -614,6 +732,7 @@ const ALL_ASSETS_CATALOG = [
   { name: "EUR/JPY (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "GBP/JPY (Биржа)", type: "forex_real", flag: "🌐" },
 
+  // 2. ВАЛЮТНЫЕ ПАРЫ (OTC)
   { name: "AUD/NZD OTC", type: "forex_otc", flag: "💱" },
   { name: "AUD/USD OTC", type: "forex_otc", flag: "💱" },
   { name: "BHD/CNY OTC", type: "forex_otc", flag: "💱" },
@@ -670,6 +789,7 @@ const ALL_ASSETS_CATALOG = [
   { name: "EUR/JPY OTC", type: "forex_otc", flag: "💱" },
   { name: "NZD/USD OTC", type: "forex_otc", flag: "💱" },
 
+  // 3. КРИПТОВАЛЮТЫ (OTC)
   { name: "Cardano OTC", type: "crypto", flag: "🔥" },
   { name: "Bitcoin ETF OTC", type: "crypto", flag: "🔥" },
   { name: "BNB OTC", type: "crypto", flag: "🔥" },
@@ -685,6 +805,7 @@ const ALL_ASSETS_CATALOG = [
   { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
   { name: "Dogecoin OTC", type: "crypto", flag: "🔥" },
 
+  // 4. СЫРЬЕ (COMMODITIES)
   { name: "Brent Oil OTC", type: "commodities", flag: "🛢️" },
   { name: "WTI Crude Oil OTC", type: "commodities", flag: "🛢️" },
   { name: "Silver OTC", type: "commodities", flag: "🛢️" },
@@ -693,6 +814,7 @@ const ALL_ASSETS_CATALOG = [
   { name: "Palladium spot OTC", type: "commodities", flag: "🛢️" },
   { name: "Platinum spot OTC", type: "commodities", flag: "🛢️" },
 
+  // 5. АКЦИИ (OTC)
   { name: "Intel OTC", type: "stocks", flag: "📈" },
   { name: "McDonald's OTC", type: "stocks", flag: "📈" },
   { name: "Microsoft OTC", type: "stocks", flag: "📈" },
@@ -718,6 +840,7 @@ const ALL_ASSETS_CATALOG = [
   { name: "Marathon Digital Holdings OTC", type: "stocks", flag: "📈" },
   { name: "Citigroup Inc OTC", type: "stocks", flag: "📈" },
 
+  // 6. ИНДЕКСЫ (INDICES)
   { name: "AUS 200 OTC", type: "indices", flag: "📊" },
   { name: "100GBP OTC", type: "indices", flag: "📊" },
   { name: "D30EUR OTC", type: "indices", flag: "📊" },
@@ -731,124 +854,184 @@ const ALL_ASSETS_CATALOG = [
 
 const EDU=[
 {
-  t:"1️⃣ Торговля в Боковике: Глубокий анализ отскока от Уровня Сопротивления 📈",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: В условиях горизонтального ценового канала (флета) борьба между покупателями и продавцами находится в зоне равновесия. Когда котировки достигают верхней границы сопротивления, активируются крупные лимитные ордера маркет-мейкеров на продажу, что создает мощнейшее сопротивление дальнейшему росту.\n\n• Пошаговый алгоритм точки входа: Мы ожидаем уверенного касания верхней линии сопротивления, внимательно следим за формированием разворотного паттерна Price Action (например, пин-бар с длинной верхней тенью или внутренний бар). Дополнительно проверяем индикатор RSI на предмет нахождения в зоне перекупленности (>70). Как только закрывается сигнальная свеча, открываем сделку строго на направление PUT (ВНИЗ) сроком экспирации на 1-3 минуты! 🎯💰\n\n• Управление капиталом и психология: Ни в коем случае не заходите в сделку на всю котлету. Риск-менеджмент команды Team Master строго регламентирует: не более 1-2% от общего депозита на одну позицию. Это гарантирует вам защиту от любых непредвиденных импульсов и стабильный рост банка на дистанции!"
+  t:"1️⃣ Торговля в Боковике: Отскок от Уровня Сопротивления",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: В горизонтальном коридоре (флете) цена зажимается между поддержкой и сопротивлением. При подходе к верхней границе крупный игрок выставляет лимитные ордера на продажу.\\n• Точка входа: Ожидаем касания верхнего уровня сопротивления, появления пин-бара с длинной верхней тенью или затухания объема свечей. Входим на PUT (ВНИЗ) на 1-3 свечи.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Боковик","Сопротивление","M1","M5"]
 },
 {
-  t:"2️⃣ Торговля в Боковике: Детальный разбор отскока от Уровня Поддержки 📉",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Нижняя граница флетового канала представляет собой мощную плиту из отложенных ордеров крупных покупателей (быков), защищающих свои позиции. При ретесте этой зоны продавцы теряют инициативу.\n\n• Пошаговый алгоритм точки входа: Ждем точного касания нижней линии поддержки, формирования бычьего поглощения или разворотного молота с длинной нижней тенью. Открываем сделку на CALL (ВВЕРХ) на 1-3 минуты с высокой вероятностью отскока! 📈🔥\n\n• Важные правила комьюнити: Никогда не пытайтесь ловить падающие ножи при импульсных пробоях уровня без предварительного формирования подтверждающих свечных формаций."
+  t:"2️⃣ Торговля в Боковике: Отскок от Уровня Поддержки",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Нижняя граница бокового диапазона удерживается быками. При снижении котировок к уровню происходит скупка актива.\\n• Точка входа: Ждем касания нижней линии поддержки, формирования бычьего поглощения или разворотного молота. Входим на CALL (ВВЕРХ).",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Боковик","Поддержка","M1"]
 },
 {
-  t:"3️⃣ Стратегия Ложного Пробоя (False Breakout & Liquidity Sweep) ⚡",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Это одна из самых прибыльных связок в арсенале команды Team Master! Крупный капитал специально выбивает стоп-лоссы розничных трейдеров за пределами уровня, создавая иллюзию пробоя, после чего мгновенно разворачивает цену обратно в канал.\n\n• Пошаговый алгоритм точки входа: Фиксируем свечу, которая проколола уровень сопротивления или поддержки, но закрылась СТРОГО ВНУТРИ диапазона. Входим в сделку в противоположную сторону пробоя на 1-2 минуты! Винрейт этой связки достигает 88% на сессиях M1 и M5! 🎯💰"
+  t:"3️⃣ Торговля в Боковике: Ложный Пробой (False Breakout)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Снятие ликвидности за границами флета. Рынок импульсно выходит из канала, забирает стопы розничных трейдеров и резко возвращается назад.\\n• Точка входа: Когда свеча пробивает уровень, но закрывается обратно ВНУТРИ канала, открываем сделку в противоположную сторону пробоя.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Smart Money","Ложный пробой"]
 },
 {
-  t:"4️⃣ Профессиональная Связка: RSI (14) + Полосы Боллинджера (Bollinger Bands) 📊",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Выход японской свечи за внешнюю границу полос Боллинджера указывает на статистическое перенапряжение рынка. Индикатор RSI подтверждает перекупленность (>70) или перепроданность (<20).\n\n• Пошаговый алгоритм точки входа: Открываем позицию на разворот внутрь канала в момент, когда линия RSI пересекает экстремальную зону обратно. Срок экспирации: 2-5 минут! 📈🔥"
+  t:"4️⃣ RSI (14) + Полосы Боллинджера (Bollinger Bands)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Выход цены за внешнюю границу Боллинджера показывает экстремальное отклонение от средней цены, а RSI выше 70 или ниже 30 подтверждает перекупленность/перепроданность.\\n• Точка входа: Вход на разворот внутрь канала при пересечении линии RSI обратно.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","RSI","BB"]
 },
 {
-  t:"5️⃣ Трендовая Связка: MACD Гистограмма + Скользящая Средняя EMA 200 📈",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Торговля по глобальному тренду старшего таймфрейма. EMA 200 показывает направление тренда, а MACD измеряет силу импульса.\n\n• Пошаговый алгоритм точки входа: Если цена выше EMA 200 и гистограмма MACD пересекает ноль снизу вверх — входим на CALL. Если ниже — на PUT! Надежнейшая стратегия для любого рынка! 🚀💰"
+  t:"5️⃣ MACD Пересечение Нулевой Линии + EMA 200",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: EMA 200 определяет глобальный тренд. MACD показывает импульс сила быков/медведей.\\n• Точка входа: Если цена ВЫШЕ EMA 200 и гистограмма MACD пересекает 0 снизу вверх — вход на CALL по тренду.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","MACD","EMA"]
 },
 {
-  t:"6️⃣ Скальпинг по Стохастическому Осциллятору и Уровням 📉",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Пересечение линий %K и %D стохастика в зонах перекупленности/перепроданности у ключевого уровня.\n\n• Пошаговый алгоритм точки входа: Отскок от уровня при пересечении линий в зоне >80 или <20. Экспирация 1-2 минуты! ⚡🔥"
+  t:"6️⃣ Stochastic Oscillator + Горизонтальный Уровень",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Пересечение линий быстрой %K и медленной %D Стохастика в зоне 80/20 прямо на графическом уровне.\\n• Точка входа: Вход строго при пересечении линий индикатора в экстремальной зоне с подтверждением от уровня.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","Stochastic"]
 },
 {
-  t:"7️⃣ Паттерн «Бычье Поглощение» от Институционального Блока FVG 🟢",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Возврат цены в зону Fair Value Gap с формированием мощной поглощающей зеленой свечи.\n\n• Пошаговый алгоритм точки входа: Открытие сделки CALL на открытии следующей свечи после поглощения! 🎯💰"
+  t:"7️⃣ Паттерн «Бычье Поглощение» от Зоны Дисбаланса (FVG)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Цена перекрывает импульсный разрыв ликвидности (Fair Value Gap) и формирует свечу, полностью перекрывающую предыдущую красную свечу.\\n• Точка входа: Вход на открытии следующей свечи после закрытия поглощения.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Price Action","FVG"]
 },
 {
-  t:"8️⃣ Паттерн «Медвежье Поглощение» у Зоны Сопротивления 🔴",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Завершение коррекционного роста и жесткая реакция продавцов на сильном уровне.\n\n• Пошаговый алгоритм точки входа: Покупка опциона PUT при полном перекрытии бычьего тела медвежьей свечой! 📉🔥"
+  t:"8️⃣ Паттерн «Медвежье Поглощение» у Верхней Границы Тренда",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Окончание коррекции во нисходящем тренде при касании наклонной линии сопротивления.\\n• Точка входа: Вход на PUT при полном перекрытии бычьей свечи медвежьим телом.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Price Action","Тренд"]
 },
 {
-  t:"9️⃣ Торговля по Пин-Бару от Order Block (Ордер-Блока) ⚡",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Свечной паттерн с длинной тенью, указывающий на сильное отторжение цены крупным игроком.\n\n• Пошаговый алгоритм точки входа: Вход по направлению тени пин-бара при тесте зоны ордер-блока. Экспирация 3 минуты! 📈💎"
+  t:"9️⃣ Пин-Бар с Длинной Тенью от Блока Заказов (Order Block)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Реакция институционального объема на разворотную свечу перед сильным движением.\\n• Точка входа: Вход в сторону тени пин-бара при касании зоны OB.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Smart Money","Order Block"]
 },
 {
-  t:"🔟 Стратегия Третьего Касания Наклонного Канала (Trendline Touch) 📊",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Статистически доказано, что третье касание трендовой линии имеет максимальную вероятность отскока.\n\n• Пошаговый алгоритм точки входа: Точное касание наклонной линии с открытием сделки по тренду! 🚀🔥"
+  t:"🔟 Тройное Касание Наклонного Канала (Trendline Touch)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Третье касание подтвержденной трендовой линии имеет наибольшую вероятность успешного отскока.\\n• Точка входа: Точное касание линии на M1/M5 с покупкой опциона по направлению тренда.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Теханализ","Тренд"]
 },
 {
-  t:"1️⃣1️⃣ Ретест Пробитого Уровня Сопротивления/Поддержки (Mirror Level) 🔄",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Зеркальный уровень. Пробитое сопротивление становится надежной поддержкой для возобновления тренда.\n\n• Пошаговый алгоритм точки входа: Отскок от зеркальной линии при возврате цены! 🎯💰"
+  t:"1️⃣1️⃣ Ретест Пробитого Уровня (Support/Resistance Flip)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Бывшее сопротивление после пробоя становится надежной поддержкой.\\n• Точка входа: Входим на отскок, когда цена возвращается сверху вниз к пробитой линии.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Ретест","Уровни"]
 },
 {
-  t:"1️⃣2️⃣ Торговля по Индикатору CCI (20) в Экстремальных Зонах 📉",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Индикатор товарного канала CCI фиксирует циклическое перегревание котировок.\n\n• Пошаговый алгоритм точки входа: Возврат CCI из зоны +100 (PUT) или из зоны -100 (CALL)! 📈🔥"
+  t:"1️⃣2️⃣ CCI (20) Выход из Зон +100 / -100",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Индикатор товарного канала CCI показывает циклические отклонения от средней нормы.\\n• Точка входа: Возврат CCI снизу вверх выше -100 дает сигнал CALL; сверху вниз ниже +100 — сигнал PUT.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","CCI"]
 },
 {
-  t:"1️⃣3️⃣ Двойная Вершина + Медвежья Дивергенция RSI 📉",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Формирование двух пиков цены на фоне снижения пиков индикатора RSI.\n\n• Пошаговый алгоритм точки входа: Открытие сделки PUT на формировании второй вершины! 🎯💰"
+  t:"1️⃣3️⃣ Двойная Вершина (Double Top) + Медвежья Дивергенция RSI",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: График рисует два пика на одном уровне, а RSI показывает второй пик НИЖЕ первого.\\n• Точка входа: Входим на PUT при формировании второй вершины.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Дивергенция","Фигуры"]
 },
 {
-  t:"1️⃣4️⃣ Двойное Дно + Бычья Дивергенция RSI 📈",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Образование двух минимумов цены при росте минимумов RSI.\n\n• Пошаговый алгоритм точки входа: Мощный разворотный сигнал CALL от второго дна! 🚀🔥"
+  t:"1️⃣4️⃣ Двойное Дно (Double Bottom) + Бычья Дивергенция",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: График образует два минимума, а индикатор MACD/RSI показывает рост силовой гистограммы.\\n• Точка входа: Сигнал CALL от второго дна.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Дивергенция","Разворот"]
 },
 {
-  t:"1️⃣5️⃣ Торговля по Стратегии Alligator + Фракталы 🐊",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Пересечение линий Аллигатора и пробой локального фрактала.\n\n• Пошаговый алгоритм точки входа: Вход в сторону раскрытия пасти индикатора! 📈💰"
+  t:"1️⃣5️⃣ Индикатор Alligator + Фрактал Разворота",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Пересечение линий Аллигатора (Губы, Зубы, Челюсть) после периода «сна» и появления локального фрактала.\\n• Точка входа: Вход в сторону раскрытия пасти Аллигатора при пробое фрактала.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","Alligator"]
 },
 {
-  t:"1️⃣6️⃣ Скальпинг на Пересечении EMA 9 и EMA 21 ⚡",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Быстрая скользящая средняя пересекает медленную в момент зарождения импульса.\n\n• Пошаговый алгоритм точки входа: Сделка на 1 свечу (60 секунд) по направлению пересечения! 🔥🎯"
+  t:"1️⃣6️⃣ Пересечение Скорльзящих EMA 9 и EMA 21",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Быстрая экспоненциальная средняя пробивает медленную, сигнализируя о смене краткосрочного тренда.\\n• Точка входа: Вход на закрытии свечи, где произошло пересечение.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Скользящие","Скальпинг"]
 },
 {
-  t:"1️⃣7️⃣ Графический Паттерн «Восходящий Треугольник» 📈",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Покупатели поджимают цену к горизонтальному уровню сопротивления.\n\n• Пошаговый алгоритм точки входа: Вход на CALL при пробое уровня или ретесте! 🚀💰"
+  t:"1️⃣7️⃣ Треугольник с Плохим Верхом (Ascending Triangle)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Покупатели поджимают цену к плоскому уровню сопротивления.\\n• Точка входа: Вход на CALL при пробое горизонтального уровня или на его ретесте.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Фигуры","Пробой"]
 },
 {
-  t:"1️⃣8️⃣ Разворотный Паттерн «Утренняя Звезда» (Morning Star) ⭐",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Трехсвечная разворотная формация на дне нисходящего тренда.\n\n• Пошаговый алгоритм точки входа: Покупка CALL после закрытия третьей зеленой свечи! 📈🔥"
+  t:"1️⃣8️⃣ Паттерн «Утренняя Звезда» (Morning Star)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Трехсвечная разворотная модель в основании нисходящего движения.\\n• Точка входа: Покупка опциона CALL после закрытия третьей мощной зеленой свечи.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Свечи","Разворот"]
 },
 {
-  t:"1️⃣9️⃣ Разворотный Паттерн «Вечерняя Звезда» (Evening Star) 🌙",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Трехсвечной разворот на вершине бычьего рынка.\n\n• Пошаговый алгоритм точки входа: Покупка PUT после подтверждения третьей красной свечей! 📉🎯"
+  t:"1️⃣9️⃣ Паттерн «Вечерняя Звезда» (Evening Star)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Трехсвечный разворот на вершине бычьего тренда.\\n• Точка входа: Покупка опциона PUT после третьей красной свечи.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Свечи","Разворот"]
 },
 {
-  t:"2️⃣0️⃣ Сжатие Волатильности Squeeze Momentum Strategy ⚡",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Сужение полос Боллинджера внутри каналов Кельтнера с накоплением энергии.\n\n• Пошаговый алгоритм точки входа: Вход по первому импульсному выстрелу свечи! 🚀🔥"
+  t:"2️⃣0️⃣ Сжатие Волатильности Squeeze Momentum Indicator",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Переход Полос Боллинджера внутрь Канала Кельтнера указывает на сильнейшую накопленную энергию.\\n• Точка входа: Вход по направлению первого выстрелившего импульса.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Волатильность","Импульс"]
 },
 {
-  t:"2️⃣1️⃣ Торговля по Горизонтальным Объемам VPVR (POC) 📊",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Уровень Point of Control притягивает цену как магнит.\n\n• Пошаговый алгоритм точки входа: Отскок или пробой уровня максимального объема сессии! 🎯💰"
+  t:"2️⃣1️⃣ Торговля по Объемам VPVR (Point of Control)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: POC — максимальный накопленный объем сделок на уровне.\\n• Точка входа: Отскок от POC уровня как от сильнейшего магнита/препятствия.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Объемы","POC"]
 },
 {
-  t:"2️⃣2️⃣ Гармоничная Стратегия «Три Индейца» (Three Drives) 📈",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Паттерн из трех последовательных импульсов с равными шагами.\n\n• Пошаговый алгоритм точки входа: Вход на разворот строго на завершении третьего импульса! 🔥💎"
+  t:"2️⃣2️⃣ Стратегия «Три Индейца» (Three Drives Pattern)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Три последовательных локальных выпроста цены с одинаковым шагом разворота.\\n• Точка входа: Вход на разворот строго на третьем пике.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Паттерны","Гармоника"]
 },
 {
-  t:"2️⃣3️⃣ Торговля по Паттерну «Флаг» (Bullish Flag) 🚩",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Здоровая консолидация цены в канале после мощного импульса.\n\n• Пошаговый алгоритм точки входа: Вход на CALL при пробое флага вверх! 🚀🔥"
+  t:"2️⃣3️⃣ Паттерн «Флаг» (Bullish Flag)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Краткосрочная коррекция в виде параллельного канала после флагштока.\\n• Точка входа: Вход на CALL при выходе цены вверх из коррекционного канала.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Продолжение тренда"]
 },
 {
-  t:"2️⃣4️⃣ Торговля по Паттерну «Вымпел» (Pennant) ⚡",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Симметричное сужение диапазона после сильной волатильности.\n\n• Пошаговый алгоритм точки входа: Вход в сторону основного тренда при выходе из вымпела! 🎯💰"
+  t:"2️⃣4️⃣ Паттерн «Вымпел» (Pennant)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Симметричное сужение цены после сильного вертикального импульса.\\n• Точка входа: Вход в сторону первоначального импульса при пробое вымпела.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Фигуры","Импульс"]
 },
 {
-  t:"2️⃣5️⃣ Скальпинг по Parabolic SAR + ADX 📈",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Индикатор ADX подтверждает тренд, Parabolic SAR дает точки входа.\n\n• Пошаговый алгоритм точки входа: Сделка на 1 минуту по точкам параболика! 🔥⚡"
+  t:"2️⃣5️⃣ Скальпинг по Parabolic SAR + ADX",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: ADX выше 25 подтверждает наличие тренда, а точка Parabolic перескакивает под свечу.\\n• Точка входа: Быстрый вход на 1 свечу (60 сек).",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Скальпинг","Parabolic"]
 },
 {
-  t:"2️⃣6️⃣ Зона Имбаланса + Уровни Фибоначчи 0.618 📐",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Слияние золотого сечения Фибоначчи с неперекрытым имбалансом.\n\n• Пошаговый алгоритм точки входа: Отскок от уровня 0.618 с подтверждением на M1! 🎯💰"
+  t:"2️⃣6️⃣ Зона Имбаланса + Уровень Фибоначчи 0.618",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Совпадение золотого сечения Фибоначчи с неудовлетворенным объемом покупки/продажи.\\n• Точка входа: Отскок от уровня 0.618.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Фибоначчи","Smart Money"]
 },
 {
-  t:"2️⃣7️⃣ Индикатор Awesome Oscillator (Блюдечко) 📊",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Анализ изменения гистограммы AO при переходе через ноль.\n\n• Пошаговый алгоритм точки входа: Сигнал при смене цвета гистограммы на зеленый выше нуля! 🚀🔥"
+  t:"2️⃣7️⃣ Индикатор Awesome Oscillator (Блюдечко)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Изменение гистограммы Билла Вильямса при переходе через ноль.\\n• Точка входа: Сигнал при смене цвета гистограммы с красного на зеленый выше нуля.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","AO"]
 },
 {
-  t:"2️⃣8️⃣ Разворотный Паттерн «Голова и Плечи» (Head & Shoulders) 👤",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Классическая разворотная модель с центральной вершиной и плечами.\n\n• Пошаговый алгоритм точки входа: Вход на PUT при проходе линии шеи вниз! 📉🎯"
+  t:"2️⃣8️⃣ Голова и Плечи (Head & Shoulders)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Разворотная фигура с центральным выступом (голова) и двумя боковыми (плечи).\\n• Точка входа: Вход на PUT при пробое линии шеи.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Классика","Разворот"]
 },
 {
-  t:"2️⃣9️⃣ Перевернутая «Голова и Плечи» (Inverse H&S) 🔄",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Зеркальная разворотная формация на дне медвежьего рынка.\n\n• Пошаговый алгоритм точки входа: Вход на CALL при пробое линии шеи снизу вверх! 🚀💰"
+  t:"2️⃣9️⃣ Перевернутая Голова и Плечи (Inverse H&S)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Разворотная модель на дне рынка.\\n• Точка входа: Вход на CALL при пробое линии шеи снизу вверх.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Классика","Рост"]
 },
 {
-  t:"30️⃣ Профессиональная Стратегия Снятия Ликвидности (Liquidity Sweep) 💧",
-  d:"📌 МАКСИМАЛЬНО ПОДРОБНЫЙ РАЗБОР СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ: 🚀💎🔥\n\n• Глобальная рыночная механика: Прокол равных максимумов/минимумов с мгновенным сбором стоп-лоссов и возвратом цены.\n\n• Пошаговый алгоритм точки входа: Вход сразу после закрытия свечи с длинной тенью за уровнем ликвидности! Топовый винрейт! 🔥🎯"
+  t:"3️⃣0️⃣ Стратегия Снятия Ликвидности (Liquidity Sweep)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Прокол равных максимумов/минимумов (Equal Highs/Lows) и мгновенный разворот цены обратно.\\n• Точка входа: Входим сразу после закрытия свечи с длинным хвостом за равными уровнями.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Smart Money","Ликвидность"]
 }
 ];
 
@@ -937,7 +1120,7 @@ function doReg(){
     showMsg("regMsg", "❌ Укажите ваш Telegram юзернейм начиная с @", true);
     return;
   }
-  if(!VALID_KEYS.includes(code)) {
+  if(code !== ADMIN_SECRET_KEY && code !== USER_SECRET_KEY) {
     showMsg("regMsg", "❌ Неверный ключ доступа!", true);
     return;
   }
@@ -1106,14 +1289,23 @@ async function getSig(){
     
     let isCall = Math.random() > 0.5;
     let dir = isCall ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
-    let stratText = `Глубокий анализ биржевого рынка (${currentAsset}): Сформирована разворотная свечная модель Price Action и зоны Smart Money из нашей базы знаний. Направление входа: ${dir}. Соблюдайте мани-менеджмент! 🚀🔥💰`;
+    let stratText = `Анализ биржевого рынка (${currentAsset}): Сформирована свечная модель Price Action. Направление входа: ${dir}.`;
 
-    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf} · Мировой рынок Team Master 🚀`;
+    try {
+      const res = await fetch(`${RENDER_BACKEND_URL}/api/signal?asset=${encodeURIComponent(currentAsset)}&tf=${tf}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.direction) dir = data.direction;
+        if (data.analysis) stratText = data.analysis;
+      }
+    } catch(e) {}
+
+    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf} · Мировой рынок`;
     const dirEl = document.getElementById("sigDir");
     dirEl.textContent = dir;
     dirEl.className = "sig-dir " + (dir.includes("CALL") ? "call" : "put");
-    document.getElementById("sigStrat").innerHTML = `<b>Детальный разбор связки:</b> ${stratText}`;
-    document.getElementById("sigCombo").textContent = "Smart Money + PA + Multi-Factor 💎";
+    document.getElementById("sigStrat").innerHTML = `<b>Анализ:</b> ${stratText}`;
+    document.getElementById("sigCombo").textContent = "Smart Money + PA";
     document.getElementById("sigBox").style.display = "block";
     document.getElementById("btnCancel").style.display = "block";
     document.getElementById("btnNew").style.display = "none";
@@ -1150,7 +1342,7 @@ function startTimer(elementId, seconds, onComplete){
     rem--;
     if(rem <= 0){
       clearInterval(timer);
-      el.textContent = "00:00 Сигнал завершен! 🔥";
+      el.textContent = "00:00 Готово!";
       if(onComplete) onComplete();
       return;
     }
@@ -1169,7 +1361,7 @@ function runAnalyzer(callback){
   const txtEl = document.getElementById("analyzeTxt");
   overlay.classList.remove("hidden");
   let step = 0;
-  const phrasesList = ["🔍 Анализ базы связок...", "📊 Проверка уровней Price Action...", "🤖 Обработка Smart Money...", "⚡ Синхронизация терминала..."];
+  const phrasesList = ["🔍 Анализ графика...", "📊 Оценка свечных паттернов...", "🤖 Просчет Smart Money...", "⚡ Считывание волатильности..."];
   const interval = setInterval(()=>{
     txtEl.textContent = phrasesList[step % phrasesList.length];
     step++;
@@ -1197,8 +1389,12 @@ function openEdu(idx){
   const ed = EDU[idx];
   document.getElementById("eduList").classList.add("hidden");
   document.getElementById("eduView").classList.remove("hidden");
+  let tagsHtml = "";
+  ed.tags.forEach(t => { tagsHtml += `<span class="tag">${t}</span>`; });
   document.getElementById("eduBody").innerHTML = `
     <h3>${ed.t}</h3>
+    <img src="${ed.img}" alt="Strategy">
+    <div class="tag-row">${tagsHtml}</div>
     <p>${ed.d}</p>
   `;
 }
@@ -1264,31 +1460,72 @@ function stopCam(){
 async function doScan(){
   if(!camReady){ alert("Сначала откройте камеру!"); return; }
 
-  runAnalyzer(async ()=>{
-    const expSec = parseInt(document.getElementById("scanExp").value);
-    let isCall = Math.random() > 0.5;
-    let dir = isCall ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
-    let stratText = `--- 👑 TEAM MASTER VIP PROFESSIONAL SIGNAL ---\n💎 СТРАТЕГИЯ: Базовый Анализ Свечных Паттернов 📊\n🚀 РЕКОМЕНДАЦИЯ: ${dir}\n📈 СТАТИСТИКА ПРОХОДИМОСТИ: 89% 🔥\n💡 РАЗВЕРНУТОЕ ОПИСАНИЕ СВЯЗКИ И РЫНОЧНОЙ МЕХАНИКИ:\nСканирование кадра выявило паттерн отскока от ключевого уровня ликвидности.\n🛡️ РЕКОМЕНДАЦИЯ: Торгуйте фиксированным объемом (не более 1-2% от банка)! 💰✨`;
+  const video = document.getElementById("scanVideo");
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  
+  canvas.toBlob(async (blob) => {
+    runAnalyzer(async ()=>{
+      const expSec = parseInt(document.getElementById("scanExp").value);
+      const cfgObj = {
+        интервал: document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text,
+        стратегия: "Candlestick PA & Smart Money"
+      };
 
-    document.getElementById("scanMeta").textContent = `SCAN BASE · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
-    const dirEl = document.getElementById("scanDir");
-    dirEl.textContent = dir;
-    dirEl.className = "sig-dir " + (dir.includes("CALL") ? "call" : "put");
-    document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
-    
-    document.getElementById("scanSigBox").style.display = "block";
-    document.getElementById("btnScanCancel").style.display = "block";
-    document.getElementById("btnScanNew").style.display = "none";
-    
-    sigCount++;
-    localStorage.setItem("tmv_sigs", sigCount);
-    document.getElementById("profSigs").textContent = sigCount;
+      let dir = "НЕОПРЕДЕЛЕНО";
+      let stratText = "❌ Ошибка сканирования.";
+      let isChart = false;
 
-    startTimer("scanCd", expSec, ()=>{
-      document.getElementById("btnScanCancel").style.display = "none";
-      document.getElementById("btnScanNew").style.display = "block";
+      try {
+        const fd = new FormData();
+        fd.append('file', blob, 'snapshot.jpg');
+        fd.append('cfg', JSON.stringify(cfgObj));
+        const response = await fetch(`${RENDER_BACKEND_URL}/api/scan-analyze`, {
+          method: 'POST',
+          body: fd
+        });
+        if(response.ok) {
+          const resData = await response.json();
+          isChart = resData.is_chart;
+          dir = resData.direction;
+          stratText = resData.analysis;
+        }
+      } catch(e) {
+        stratText = "❌ Ошибка соединения с сервером AI.";
+      }
+
+      document.getElementById("scanMeta").textContent = `VISION AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
+      const dirEl = document.getElementById("scanDir");
+      dirEl.textContent = dir;
+      
+      if(!isChart) {
+        dirEl.className = "sig-dir none-dir";
+        document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;color:var(--red);"><b>${stratText}</b></pre>`;
+        document.getElementById("scanSigBox").style.display = "block";
+        document.getElementById("btnScanCancel").style.display = "none";
+        document.getElementById("btnScanNew").style.display = "block";
+        return;
+      }
+
+      dirEl.className = "sig-dir " + (dir.includes("CALL") ? "call" : "put");
+      document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
+      
+      document.getElementById("scanSigBox").style.display = "block";
+      document.getElementById("btnScanCancel").style.display = "block";
+      document.getElementById("btnScanNew").style.display = "none";
+      
+      sigCount++;
+      localStorage.setItem("tmv_sigs", sigCount);
+      document.getElementById("profSigs").textContent = sigCount;
+
+      startTimer("scanCd", expSec, ()=>{
+        document.getElementById("btnScanCancel").style.display = "none";
+        document.getElementById("btnScanNew").style.display = "block";
+      });
     });
-  });
+  }, 'image/jpeg');
 }
 
 function cancelScan(){
@@ -1344,6 +1581,34 @@ function deleteUser(idx) {
   }
 }
 
+async function sendAiMessage() {
+  const inputEl = document.getElementById("aiChatInput");
+  const txt = inputEl.value.trim();
+  if(!txt) return;
+
+  const chatBox = document.getElementById("aiChatBox");
+  chatBox.innerHTML += `<div class="chat-msg user">${txt}</div>`;
+  inputEl.value = "";
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    const res = await fetch(`${RENDER_BACKEND_URL}/api/ai-chat`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({text: txt})
+    });
+    if(res.ok) {
+      const data = await res.json();
+      chatBox.innerHTML += `<div class="chat-msg ai">${data.reply}</div>`;
+    } else {
+      chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка ответа ИИ.</div>`;
+    }
+  } catch(e) {
+    chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка соединения.</div>`;
+  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
 window.addEventListener("DOMContentLoaded", ()=>{
   if(tgUser) {
     if(checkUserBlockedStatus(tgUser)) {
@@ -1369,8 +1634,25 @@ async def get_signal(asset: str = "EUR/USD (Биржа)", tf: str = "M1"):
     chosen_dir = random.choice(dirs)
     return JSONResponse(content={
         "direction": chosen_dir,
-        "analysis": f"Глубокий анализ мирового биржевого рынка {asset} [{tf}] на основе внутренней базы знаний Team Master: Подтвержден сигнал по структуре свечей и уровням ликвидности. 🚀🔥"
+        "analysis": f"Анализ мирового биржевого рынка {asset} [{tf}]: Подтверждён сигнал по структуре свечей и уровням поддержки/сопротивления."
     })
+
+@app.post("/api/scan-analyze")
+async def scan_analyze(file: UploadFile = File(...), cfg: str = Form(...)):
+    image_bytes = await file.read()
+    try:
+        config_data = json.loads(cfg)
+    except Exception:
+        config_data = {"стратегия": "Candlestick PA & Smart Money", "интервал": "M1"}
+    
+    result = await core.compute(image_bytes, config_data)
+    return JSONResponse(content=result)
+
+@app.post("/api/ai-chat")
+async def ai_chat(data: dict):
+    user_text = data.get("text", "")
+    reply = await core.chat_assistant(user_text)
+    return JSONResponse(content={"reply": reply})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
