@@ -29,7 +29,41 @@ class Analyzer:
         }
 
     async def chat_assistant(self, user_text: str) -> str:
-        return "🤖 Привет! Это стандартный ассистент терминала TEAM MASTER VIP. Все функции терминала работают в штатном режиме."
+        t = user_text.lower()
+        
+        # База знаний FAQ команды
+        if "привет" in t or "здаров" in t or "добрый день" in t:
+            return "Привет! 👋 Добро пожаловать в Команду Мастера 👑 Здесь ты можешь узнать об обучении, тренингах, сигналах, Telegram-канале и возможностях команды."
+        elif "что такое команда мастера" in t or "о команде" in t:
+            return "Это сообщество, где участники получают обучающие материалы, проходят тренинги и изучают торговлю. 👑"
+        elif "с чего начать" in t or "новичку" in t:
+            return "Начни с обучения и базовых материалов. Не спеши переходить к реальной торговле — сначала разберись с правилами, рисками и принципом работы платформы."
+        elif "есть ли обучение" in t or "обучение" in t:
+            return "Да 📚 В команде предусмотрены обучающие материалы и тренинги для новичков и тех, кто хочет улучшить свои знания. (В терминале доступно во вкладке «Связки»)."
+        elif "что входит в обучение" in t:
+            return "Основы торговли, работа с графиками, разборы ситуаций, управление рисками и практические примеры."
+        elif "тренинг" in t:
+            return "Да 🔥 В рамках команды проводятся тренинги и разборы, где объясняются различные подходы к анализу рынка."
+        elif "что умеет бот" in t:
+            return "🤖 Бот помогает получать информацию о торговых сигналах, обучающих материалах и возможностях команды."
+        elif "сигнал" in t and ("дает" in t or "дает ли" in t or "дает" in t or "даёт" in t):
+            return "Да, бот может предоставлять торговые сигналы. Указанная командой ориентировочная проходимость может находиться в районе 65–75%, но это не гарантированный результат и может меняться в зависимости от рынка."
+        elif "гарантир" in t:
+            return "Нет ❗ Ни один сигнал не гарантирует прибыль. Рынок может двигаться неожиданно, поэтому важно учитывать риски."
+        elif "как часто" in t and "сигнал" in t:
+            return "Частота зависит от рыночной ситуации. Если подходящего сигнала нет, лучше дождаться более подходящей ситуации."
+        elif "telegram" in t or "телеграм" in t or "канал" in t:
+            return "Все основные новости, обновления, публикации и информация команды размещаются в нашем Telegram-канале 📲 (Ссылка доступна на вкладке «О нас»)."
+        elif "кто админ" in t or "администратор" in t:
+            return "Администратор команды занимается развитием проекта, обучением участников и организацией работы команды. Опыт работы в этой сфере около 7 лет."
+        elif "связаться с админом" in t or "написать админу" in t or "админ" in t:
+            return "👑 Если у тебя есть вопрос, который бот не смог решить, обратитесь напрямую к администратору в Telegram: @master_admin"
+        elif "заработать" in t or "деньги" in t or "сколько" in t:
+            return "Торговля связана с риском, поэтому заработок не гарантирован. Точную сумму невозможно гарантировать. Не используй деньги, которые не можешь позволить себе потерять."
+        elif "без опыта" in t:
+            return "Изучать тему можно с нуля. Лучше сначала пройти обучение и разобраться в рисках, а не сразу использовать реальные деньги."
+        else:
+            return "🤖 К сожалению, я не смог найти точный ответ на этот вопрос. Пожалуйста, сформулируйте вопрос иначе или свяжитесь с админом для получения помощи: @master_admin 👑"
 
 core = Analyzer()
 
@@ -108,7 +142,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .sig-dir{font-size:19px;font-weight:900;padding:11px;border-radius:11px;margin:8px 0}
 .call{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.3)}
 .put{background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.3)}
-.none-dir{background:rgba(255,82,82,.15);color:var(--red);border:1px solid rgba(255,82,82,.4)}
 .timer{font-size:12.5px;font-weight:900;color:var(--gold);background:rgba(255,215,0,.06);border:1px dashed var(--gold);border-radius:10px;padding:8px;margin-bottom:8px}
 .strat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:10.5px;color:#c5cdd8;text-align:left;line-height:1.5;margin-bottom:8px}
 .sig-stats{display:flex;justify-content:space-between;font-size:10px;font-weight:800;margin-bottom:8px}
@@ -297,14 +330,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabAi">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">🧠 Терминал чата</h3>
-<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по боту, команде TEAM MASTER, разбору графиков, связкам и торговле!</p>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">🧠 ИИ-помощник & FAQ</h3>
+<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по обучению, сигналам, боту или свяжитесь с админом (@master_admin)!</p>
 <div class="chat-box" id="aiChatBox">
-  <div class="chat-msg ai">Здравствуйте! Готов ответить на любые ваши вопросы по боту, нашей команде, терминалу или расписать любую торговую связку!</div>
+  <div class="chat-msg ai">Привет! 👋 Добро пожаловать в Команду Мастера 👑 Чем я могу вам помочь? Если вопрос сложный, вы всегда можете связаться с админом: @master_admin</div>
 </div>
 <div class="chat-input-row">
-  <input type="text" class="input" id="aiChatInput" placeholder="Задайте вопрос по боту или связке..." style="margin-bottom:0;text-align:left;font-size:12px;" onkeypress="if(event.key==='Enter') sendAiMessage()">
-  <button class="btn btn-gold btn-sm" style="width:70px;" onclick="sendAiMessage()">Отправить</button>
+  <input type="text" class="input" id="aiChatInput" placeholder="Напишите вопрос или свяжитесь с админом..." style="margin-bottom:0;text-align:left;font-size:12px;" onkeypress="if(event.key==='Enter') sendAiMessage()">
+  <button class="btn btn-gold btn-sm" style="width:70px;" onclick="sendAiMessage()">Спросить</button>
+</div>
+<div style="margin-top:8px; text-align:center;">
+  <a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#00C853,#00E676);color:#063;" href="https://t.me/master_admin" target="_blank">👑 Связаться с админом (@master_admin)</a>
 </div>
 </div>
 
@@ -377,15 +413,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabAbout">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:6px" data-t="aboutTitle">👑 О нас и нашей команде</h3>
-<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:8px" data-t="aboutDesc"><b>TEAM MASTER VIP</b> — это сообщество трейдеров и программистов. Мы создали интеллектуального веб-бота и алгоритмический терминал, объединяющий аналитику, стаканы ордеров и распознавание паттернов в реальном времени.</p>
+<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:8px" data-t="aboutDesc"><b>TEAM MASTER VIP</b> — это сообщество трейдеров и программистов. Все основные новости, обучающие материалы, результаты, объявления и тренировки публикуются в нашем официальном канале.</p>
 <div class="about-list" id="aboutListHtml">
-<li>🤖 <b>Умный бот:</b> Автоматический просчет точек входа по 20+ индикаторам.</li>
-<li>👑 <b>Команда Мастеров:</b> Опытные аналитики с практикой более 7 лет в финансовых рынках.</li>
-<li>📷 <b>Neural Scanner:</b> Анализ графиков с камеры устройства.</li>
-<li>💎 <b>VIP Community:</b> Закрытый клуб с приватными сигналами и постоянной поддержкой.</li>
+<li>🤖 <b>Умный бот:</b> Автоматический просчет точек входа по индикаторам.</li>
+<li>👑 <b>Команда Мастеров:</b> Опытные аналитики во главе с админом (опыт около 7 лет).</li>
+<li>📢 <b>Telegram-канал:</b> Все новости и обновления команды.</li>
+<li>💎 <b>VIP Community:</b> Закрытый клуб с поддержкой.</li>
 </div>
-<p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px" data-t="aboutRisk">Торгуйте осознанно. Соблюдайте мани-менеджмент: риск на сделку не более 1-2% от общего депозита.</p>
+<p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px">Торгуйте осознанно. Риск на сделку не более 1-2% от общего депозита. Связь с админом: @master_admin</p>
 <a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" data-t="btnTgChan">📢 Наш Telegram канал</a>
+<div class="gap"></div>
+<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#00C853,#00E676);color:#063;" href="https://t.me/master_admin" target="_blank">👑 Связаться с админом (@master_admin)</a>
 </div>
 </div>
 
@@ -1284,7 +1322,6 @@ async function doScan(){
 
       let dir = "НЕОПРЕДЕЛЕНО";
       let stratText = "❌ Ошибка сканирования.";
-      let isChart = true;
 
       try {
         const fd = new FormData();
@@ -1296,7 +1333,6 @@ async function doScan(){
         });
         if(response.ok) {
           const resData = await response.json();
-          isChart = resData.is_chart;
           dir = resData.direction;
           stratText = resData.analysis;
         }
@@ -1400,10 +1436,10 @@ async function sendAiMessage() {
       const data = await res.json();
       chatBox.innerHTML += `<div class="chat-msg ai">${data.reply}</div>`;
     } else {
-      chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка ответа.</div>`;
+      chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка ответа. Свяжитесь с админом: @master_admin</div>`;
     }
   } catch(e) {
-    chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка соединения.</div>`;
+    chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка соединения. Свяжитесь с админом: @master_admin</div>`;
   }
   chatBox.scrollTop = chatBox.scrollHeight;
 }
