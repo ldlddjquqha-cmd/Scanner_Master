@@ -31,39 +31,41 @@ class Analyzer:
     async def chat_assistant(self, user_text: str) -> str:
         t = user_text.lower()
         
-        # База знаний FAQ команды
+        # Полная база знаний с учетом всех добавленных блоков и ключевых слов
         if "привет" in t or "здаров" in t or "добрый день" in t:
             return "Привет! 👋 Добро пожаловать в Команду Мастера 👑 Здесь ты можешь узнать об обучении, тренингах, сигналах, Telegram-канале и возможностях команды."
         elif "что такое команда мастера" in t or "о команде" in t:
             return "Это сообщество, где участники получают обучающие материалы, проходят тренинги и изучают торговлю. 👑"
         elif "с чего начать" in t or "новичку" in t:
             return "Начни с обучения и базовых материалов. Не спеши переходить к реальной торговле — сначала разберись с правилами, рисками и принципом работы платформы."
-        elif "есть ли обучение" in t or "обучение" in t:
-            return "Да 📚 В команде предусмотрены обучающие материалы и тренинги для новичков и тех, кто хочет улучшить свои знания. (В терминале доступно во вкладке «Связки»)."
+        elif "есть ли обучение" in t or "обучение" in t or "где найти обучение" in t or "где находится раздел обучения" in t or "специальный раздел с обучением" in t or "где посмотреть обучение" in t:
+            return "Да 📚 В команде предусмотрены обучающие материалы и тренинги для новичков и тех, кто хочет улучшить свои знания. Обучение находится в специальном разделе «Обучение» в боте. Открой меню и выбери нужный раздел."
         elif "что входит в обучение" in t:
             return "Основы торговли, работа с графиками, разборы ситуаций, управление рисками и практические примеры."
-        elif "тренинг" in t:
-            return "Да 🔥 В рамках команды проводятся тренинги и разборы, где объясняются различные подходы к анализу рынка."
+        elif "тренинг" in t or "где найти тренинги" in t:
+            return "Да 🔥 В рамках команды проводятся тренинги и разборы, где объясняются различные подходы к анализу рынка. Тренинги находятся в разделе «📚 Обучение»."
         elif "что умеет бот" in t:
             return "🤖 Бот помогает получать информацию о торговых сигналах, обучающих материалах и возможностях команды."
-        elif "сигнал" in t and ("дает" in t or "дает ли" in t or "дает" in t or "даёт" in t):
+        elif "какая проходимость у бота" in t or "проходимость" in t or "дает 75" in t or "даёт 75" in t:
+            return "📊 По статистике команды, ориентировочная проходимость сигналов составляет 65–75%. При этом показатель не является гарантированным и может меняться в зависимости от рыночной ситуации."
+        elif "сигнал" in t and ("дает" in t or "дает ли" in t or "даёт" in t):
             return "Да, бот может предоставлять торговые сигналы. Указанная командой ориентировочная проходимость может находиться в районе 65–75%, но это не гарантированный результат и может меняться в зависимости от рынка."
-        elif "гарантир" in t:
-            return "Нет ❗ Ни один сигнал не гарантирует прибыль. Рынок может двигаться неожиданно, поэтому важно учитывать риски."
+        elif "гарантир" in t or "доверять сигналам" in t or "можно ли доверять" in t:
+            return "Нет ❗ Ни один сигнал не гарантирует прибыль. Рынок может двигаться неожиданно, поэтому важно учитывать риски. Сигналы являются вспомогательным инструментом для анализа."
         elif "как часто" in t and "сигнал" in t:
             return "Частота зависит от рыночной ситуации. Если подходящего сигнала нет, лучше дождаться более подходящей ситуации."
-        elif "telegram" in t or "телеграм" in t or "канал" in t:
-            return "Все основные новости, обновления, публикации и информация команды размещаются в нашем Telegram-канале 📲 (Ссылка доступна на вкладке «О нас»)."
+        elif "telegram" in t or "телеграм" in t or "канал" in t or "где telegram" in t:
+            return "Все основные новости, обновления, публикации и информация команды размещаются в нашем Telegram-канале 📲 (Ссылка доступна на вкладке «О нас»). Открой «Telegram» и перейди по кнопке."
         elif "кто админ" in t or "администратор" in t:
             return "Администратор команды занимается развитием проекта, обучением участников и организацией работы команды. Опыт работы в этой сфере около 7 лет."
-        elif "связаться с админом" in t or "написать админу" in t or "админ" in t:
-            return "👑 Если у тебя есть вопрос, который бот не смог решить, обратитесь напрямую к администратору в Telegram: @master_admin"
+        elif "связаться с админом" in t or "написать админу" in t or "админ" in t or "связь" in t or "куда написать" in t or "проблема" in t:
+            return "👑 Если у тебя есть вопрос, который бот не смог решить, обратитесь напрямую к администратору в Telegram: @andriddddd"
         elif "заработать" in t or "деньги" in t or "сколько" in t:
             return "Торговля связана с риском, поэтому заработок не гарантирован. Точную сумму невозможно гарантировать. Не используй деньги, которые не можешь позволить себе потерять."
         elif "без опыта" in t:
             return "Изучать тему можно с нуля. Лучше сначала пройти обучение и разобраться в рисках, а не сразу использовать реальные деньги."
         else:
-            return "🤖 К сожалению, я не смог найти точный ответ на этот вопрос. Пожалуйста, сформулируйте вопрос иначе или свяжитесь с админом для получения помощи: @master_admin 👑"
+            return "🤖 К сожалению, я не смог найти точный ответ на этот вопрос. Пожалуйста, сформулируйте вопрос иначе или свяжитесь с админом для получения помощи: @andriddddd 👑"
 
 core = Analyzer()
 
@@ -331,16 +333,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabAi">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">🧠 ИИ-помощник & FAQ</h3>
-<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по обучению, сигналам, боту или свяжитесь с админом (@master_admin)!</p>
+<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по обучению, сигналам, боту или свяжитесь с админом (@andriddddd)!</p>
 <div class="chat-box" id="aiChatBox">
-  <div class="chat-msg ai">Привет! 👋 Добро пожаловать в Команду Мастера 👑 Чем я могу вам помочь? Если вопрос сложный, вы всегда можете связаться с админом: @master_admin</div>
+  <div class="chat-msg ai">Привет! 👋 Добро пожаловать в Команду Мастера 👑 Чем я могу вам помочь? Если вопрос сложный, вы всегда можете связаться с админом: @andriddddd</div>
 </div>
 <div class="chat-input-row">
   <input type="text" class="input" id="aiChatInput" placeholder="Напишите вопрос или свяжитесь с админом..." style="margin-bottom:0;text-align:left;font-size:12px;" onkeypress="if(event.key==='Enter') sendAiMessage()">
   <button class="btn btn-gold btn-sm" style="width:70px;" onclick="sendAiMessage()">Спросить</button>
 </div>
 <div style="margin-top:8px; text-align:center;">
-  <a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#00C853,#00E676);color:#063;" href="https://t.me/master_admin" target="_blank">👑 Связаться с админом (@master_admin)</a>
+  <a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#00C853,#00E676);color:#063;" href="https://t.me/andriddddd" target="_blank">👑 Связаться с админом (@andriddddd)</a>
 </div>
 </div>
 
@@ -420,10 +422,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <li>📢 <b>Telegram-канал:</b> Все новости и обновления команды.</li>
 <li>💎 <b>VIP Community:</b> Закрытый клуб с поддержкой.</li>
 </div>
-<p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px">Торгуйте осознанно. Риск на сделку не более 1-2% от общего депозита. Связь с админом: @master_admin</p>
+<p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px">Торгуйте осознанно. Риск на сделку не более 1-2% от общего депозита. Связь с админом: @andriddddd</p>
 <a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" data-t="btnTgChan">📢 Наш Telegram канал</a>
 <div class="gap"></div>
-<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#00C853,#00E676);color:#063;" href="https://t.me/master_admin" target="_blank">👑 Связаться с админом (@master_admin)</a>
+<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#00C853,#00E676);color:#063;" href="https://t.me/andriddddd" target="_blank">👑 Связаться с админом (@andriddddd)</a>
 </div>
 </div>
 
@@ -478,7 +480,7 @@ let currentLang="ru";
 let modalCategory="all";
 
 let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.stringify([
-  {tg: "@master_admin", status: "Активен", role: "ADMIN"}
+  {tg: "@andriddddd", status: "Активен", role: "ADMIN"}
 ]));
 
 const I18N = {
@@ -1436,10 +1438,10 @@ async function sendAiMessage() {
       const data = await res.json();
       chatBox.innerHTML += `<div class="chat-msg ai">${data.reply}</div>`;
     } else {
-      chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка ответа. Свяжитесь с админом: @master_admin</div>`;
+      chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка ответа. Свяжитесь с админом: @andriddddd</div>`;
     }
   } catch(e) {
-    chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка соединения. Свяжитесь с админом: @master_admin</div>`;
+    chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка соединения. Свяжитесь с админом: @andriddddd</div>`;
   }
   chatBox.scrollTop = chatBox.scrollHeight;
 }
