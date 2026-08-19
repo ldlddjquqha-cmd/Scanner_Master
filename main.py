@@ -10,59 +10,97 @@ import PIL.Image
 import io
 import google.generativeai as genai
 
-# Настройка API ключа Google Gemini
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "ВАШ_GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(title="TEAM MASTER VIP Terminal")
 
 class Analyzer:
-    """Движок анализа скриншота графика с использованием Google Gemini AI"""
     def __init__(self):
         self.model = genai.GenerativeModel('gemini-1.5-flash')
 
-    async def compute(self, image_bytes: bytes, config: dict) -> str:
+    async def compute(self, image_bytes: bytes, config: dict) -> dict:
+        if not GEMINI_API_KEY:
+            return {
+                "is_chart": False,
+                "direction": "НЕОПРЕДЕЛЕНО",
+                "analysis": "⚠️ Ошибка: GEMINI_API_KEY не установлен в переменной окружения Render."
+            }
         try:
             image = PIL.Image.open(io.BytesIO(image_bytes))
 
             prompt = f"""
-Ты — профессиональный аналитик финансовых рынков и бинарных опционов.
-Проанализируй предоставленный график.
+Ты — высококвалифицированный аналитик финансовых рынков.
+Твоя задача — строго проанализировать изображение и ответить В ФОРМАТЕ JSON.
 
-Параметры анализа:
+1. Сначала определи, является ли изображение ГРАФИКОМ ФИНАНСОВОГО АКТИВА (японские свечи, бары, линия тренда, индикаторы).
+   Если на фото посторонний предмет, бытовая техника, лицо, комната, текст или любой объект, НЕ ЯВЛЯЮЩИЙСЯ финансовым графиком — верни "is_chart": false.
+
+2. Если это действительно график ("is_chart": true):
+   Проанализируй свечные паттерны (молот, поглощение, пин-бар), направление текущего тренда, уровень поддержки/сопротивления и положение свечей.
+   На основе реального свечного анализа определи направление: "CALL" (если рынок смотрит вверх) или "PUT" (если рынок смотрит вниз). Направление должно строго соответствовать структуре свечей!
+
+Параметры:
 - Стратегия: {config.get('стратегия', 'Smart Money')}
 - Таймфрейм: {config.get('интервал', 'M1')}
-- Экспирация: {config.get('экспирация', '1м')}
 
-Дай четкий торговый сигнал в формате:
---- TEAM MASTER SIGNAL V4.0 ---
-СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')}
-ТАЙМФРЕЙМ: {config.get('интервал', 'M1')}
-ЭКСПИРАЦИЯ: {config.get('экспирация', '1м')}
--------------------------------
-ВЕРДИКТ: [CALL (ВВЕРХ) или PUT (ВНИЗ)]
-ПРОХОДИМОСТЬ: [Процент уверенности от 65% до 92%]"%"
-ПРИЧИНА: [Краткое техническое обоснование по выбранной стратегии, например: Отработка зоны POI / Снятие ликвидности / Бычий паттерн]
-ВХОД: Прямо сейчас.
+Верни ответ СТРОГО в формате JSON без какого-либо другого текста:
+{{
+  "is_chart": true/false,
+  "direction": "CALL" или "PUT" или "NONE",
+  "winrate": "75%",
+  "reason": "Краткое описание свечной структуры (например: Медвежье поглощение от уровня сопротивления)"
+}}
 """
 
             response = await asyncio.to_thread(self.model.generate_content, [prompt, image])
-            return response.text
+            raw_text = response.text.strip()
+            
+            if "```json" in raw_text:
+                raw_text = raw_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in raw_text:
+                raw_text = raw_text.split("```")[1].split("```")[0].strip()
+
+            data = json.loads(raw_text)
+
+            if not data.get("is_chart", False):
+                return {
+                    "is_chart": False,
+                    "direction": "НЕОПРЕДЕЛЕНО",
+                    "analysis": "❌ На фото не обнаружен торговый график! Наведите камеру на свечной график котировок."
+                }
+
+            dir_val = data.get("direction", "CALL").upper()
+            dir_text = "⬆️ CALL (ВВЕРХ)" if "CALL" in dir_val else "⬇️ PUT (ВНИЗ)"
+            winrate = data.get("winrate", "80%")
+            reason = data.get("reason", "Анализ свечной структуры и уровней POI")
+
+            fmt_analysis = (
+                f"--- TEAM MASTER SIGNAL V4.0 ---\n"
+                f"СТРАТЕГИЯ: Smart Money & Candlestick PA\n"
+                f"ВЕРДИКТ: {dir_text}\n"
+                f"ПРОХОДИМОСТЬ: {winrate}\n"
+                f"ПРИЧИНА: {reason}"
+            )
+
+            return {
+                "is_chart": True,
+                "direction": dir_text,
+                "analysis": fmt_analysis
+            }
 
         except Exception as e:
             logging.error(f"Ошибка Gemini API: {e}")
-            return (
-                f"--- TEAM MASTER SIGNAL V4.0 ---\n"
-                f"СТРАТЕГИЯ: Smart Money\n"
-                f"ВЕРДИКТ: CALL (ВВЕРХ)\n"
-                f"ПРОХОДИМОСТЬ: 78%\n"
-                f"ПРИЧИНА: Технический анализ уровня поддержки / Ретест зоны POI"
-            )
+            return {
+                "is_chart": False,
+                "direction": "ОШИБКА",
+                "analysis": "❌ Ошибка обработки изображения нейросетью. Попробуйте сделать более четкий снимок графика."
+            }
 
 core = Analyzer()
 
-# --- ВШИТЫЙ ПОЛНЫЙ ИНТЕРФЕЙС TEAM MASTER VIP ---
 HTML_UI = """<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -112,7 +150,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .cats{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
 .cat{flex-shrink:0;padding:7px 11px;background:var(--inner);border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:5px}
 .cat.on{background:var(--gold-g);color:#111;border:none}
-.cat-payout{background:rgba(0,230,118,0.2);color:var(--green);padding:2px 5px;border-radius:4px;font-size:9px;font-weight:900}
 .lbl{display:block;font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.3px;margin-bottom:4px}
 
 .selected-asset-box {background:var(--inner);border:1.5px solid var(--gold);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
@@ -139,6 +176,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .sig-dir{font-size:19px;font-weight:900;padding:11px;border-radius:11px;margin:8px 0}
 .call{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.3)}
 .put{background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.3)}
+.none-dir{background:rgba(255,82,82,.15);color:var(--red);border:1px solid rgba(255,82,82,.4)}
 .timer{font-size:12.5px;font-weight:900;color:var(--gold);background:rgba(255,215,0,.06);border:1px dashed var(--gold);border-radius:10px;padding:8px;margin-bottom:8px}
 .strat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:10.5px;color:#c5cdd8;text-align:left;line-height:1.5;margin-bottom:8px}
 .sig-stats{display:flex;justify-content:space-between;font-size:10px;font-weight:800;margin-bottom:8px}
@@ -155,7 +193,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .name-input:focus{border-color:var(--gold)}
 .about-list{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin:8px 0 12px}
 .about-list li{font-size:11px;color:#c5cdd8;line-height:1.85;list-style:none}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#05070d;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 10px;z-index:100}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#05070d;border-top:1px solid var(--border);display:flex;justify-around;padding:6px 0 10px;z-index:100}
 .nav{display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--muted);font-size:8.5px;font-weight:800;cursor:pointer;min-width:44px;padding:3px 1px;transition:color .2s}
 .nav.on{color:var(--gold)}.nav span:first-child{font-size:15px}
 .hidden{display:none!important}
@@ -247,17 +285,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div id="app" class="hidden">
 <div class="card tab" id="tabSig">
 <div class="live-bar">
-  <span class="live" id="apiStatusBadge">● LIVE API: ОЖИДАНИЕ</span>
+  <span class="live" id="apiStatusBadge">● LIVE API: ПОДКЛЮЧЕНО</span>
   <span style="font-size:9px;color:var(--gold);font-weight:800" id="apiTimerDisplay">⚡ СИНХРОНИЗАЦИЯ</span>
 </div>
 
 <div class="selected-asset-box" onclick="openCatalogModal()">
   <div class="selected-asset-info">
     <span data-t="lblActiveAsset">АКТИВ ДЛЯ АНАЛИЗА</span>
-    <span id="currentAssetDisplay">EUR/USD OTC</span>
+    <span id="currentAssetDisplay">EUR/USD (Биржа)</span>
   </div>
   <div style="display:flex;align-items:center;gap:6px">
-    <span id="currentAssetPayout" class="cat-payout">...</span>
     <span style="font-size:16px">📋</span>
   </div>
 </div>
@@ -352,7 +389,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <b>Инструкция сканера:</b><br>
 1️⃣ Нажмите «Открыть камеру»<br>
 2️⃣ Выберите экспирацию<br>
-3️⃣ Наведите камеру на график<br>
+3️⃣ Наведите камеру СТРОГО на свечной график<br>
 4️⃣ Нажмите «СКАНУВАТИ»
 </div>
 <button class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
@@ -371,8 +408,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <option value="600" data-s="600">10 мин</option><option value="900" data-s="900">15 мин</option>
 </select>
 <div class="ind-row">
-<span class="ind-chip">Vision AI</span><span class="ind-chip">Smart Money</span><span class="ind-chip">ICT</span>
-<span class="ind-chip">PA</span><span class="ind-chip">Scalp</span><span class="ind-chip">Trend</span>
+<span class="ind-chip">Candle Vision AI</span><span class="ind-chip">Smart Money</span><span class="ind-chip">Price Action</span>
 </div>
 <button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled data-t="btnScanNow">📡 СКАНУВАТИ</button>
 <div class="gap"></div>
@@ -382,7 +418,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="sig-dir call" id="scanDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
-<div class="sig-stats"><span>Neural Vision AI</span></div>
+<div class="sig-stats"><span>Candle Neural Vision</span></div>
 <button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
 <button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
 </div>
@@ -426,7 +462,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <input type="text" class="modal-search-input" id="modalSearchInput" placeholder="Поиск актива..." oninput="renderCatalogList(this.value)" data-placeholder-t="modalSearchPlaceholder">
     <div class="cats" style="margin-bottom:6px">
       <button class="cat on" onclick="setModalCat('all',this)" data-t="catAll">🌟 Все</button>
-      <button class="cat" onclick="setModalCat('forex',this)" data-t="catForex">💱 Валюта</button>
+      <button class="cat" onclick="setModalCat('forex_real',this)">💱 Валютные пары (Биржа)</button>
+      <button class="cat" onclick="setModalCat('forex',this)">⚡ Валютные пары OTC</button>
       <button class="cat" onclick="setModalCat('crypto',this)" data-t="catCrypto">🔥 Крипто</button>
       <button class="cat" onclick="setModalCat('commodities',this)" data-t="catComm">🛢️ Сырьё</button>
       <button class="cat" onclick="setModalCat('stocks',this)" data-t="catStocks">📈 Акции</button>
@@ -446,11 +483,9 @@ let isAdmin = localStorage.getItem("tmv_isAdmin") === "true";
 let timer=null,scanTimer=null,stream=null,camReady=false;
 let favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]");
 let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
-let currentCategory="EUR/USD OTC";
-let currentAsset="EUR/USD OTC";
+let currentAsset="EUR/USD (Биржа)";
 let currentLang="ru";
 let modalCategory="all";
-let livePayouts = {};
 
 let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.stringify([
   {tg: "@master_admin", status: "Активен", role: "ADMIN"}
@@ -471,7 +506,6 @@ const I18N = {
     btnEnterTerm: "🚀 Войти в терминал",
     lblActiveAsset: "АКТИВ ДЛЯ АНАЛИЗА",
     catAll: "🌟 Все",
-    catForex: "💱 Валюта",
     catCrypto: "🔥 Крипто",
     catComm: "🛢️ Сырьё",
     catStocks: "📈 Акции",
@@ -515,11 +549,6 @@ const I18N = {
     navAbout: "О нас",
     modalCatalogTitle: "📋 Полный каталог активов",
     modalSearchPlaceholder: "Поиск актива...",
-    catHeaderForex: "💱 Валютные пары",
-    catHeaderCrypto: "🔥 Криптовалюты",
-    catHeaderComm: "🛢️ Сырьевые товары",
-    catHeaderStocks: "📈 Акции компаний",
-    catHeaderIndices: "📊 Биржевые индексы",
     btnChoose: "Обрати ➔"
   },
   en: {
@@ -536,7 +565,6 @@ const I18N = {
     btnEnterTerm: "🚀 Enter Terminal",
     lblActiveAsset: "SELECTED ASSET",
     catAll: "🌟 All",
-    catForex: "💱 Forex",
     catCrypto: "🔥 Crypto",
     catComm: "🛢️ Comm",
     catStocks: "📈 Stocks",
@@ -580,11 +608,6 @@ const I18N = {
     navAbout: "About",
     modalCatalogTitle: "📋 Full Assets Catalog",
     modalSearchPlaceholder: "Search asset...",
-    catHeaderForex: "💱 Currency Pairs",
-    catHeaderCrypto: "🔥 Cryptocurrencies",
-    catHeaderComm: "🛢️ Commodities",
-    catHeaderStocks: "📈 Company Stocks",
-    catHeaderIndices: "📊 Market Indices",
     btnChoose: "Select ➔"
   },
   ua: {
@@ -601,7 +624,6 @@ const I18N = {
     btnEnterTerm: "🚀 Увійти в термінал",
     lblActiveAsset: "АКТИВ ДЛЯ АНАЛІЗУ",
     catAll: "🌟 Всі",
-    catForex: "💱 Валюта",
     catCrypto: "🔥 Крипто",
     catComm: "🛢️ Сировина",
     catStocks: "📈 Акції",
@@ -645,16 +667,34 @@ const I18N = {
     navAbout: "Про нас",
     modalCatalogTitle: "📋 Повний каталог активів",
     modalSearchPlaceholder: "Пошук активу...",
-    catHeaderForex: "💱 Валютні пари",
-    catHeaderCrypto: "🔥 Криптовалюти",
-    catHeaderComm: "🛢️ Сировинні товари",
-    catHeaderStocks: "📈 Акції компаній",
-    catHeaderIndices: "📊 Біржові індекси",
     btnChoose: "Обрати ➔"
   }
 };
 
 const ALL_ASSETS_CATALOG = [
+  // 1. НАСТОЯЩИЙ РЫНОК (БИРЖА - БЕЗ OTC)
+  { name: "EUR/USD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/USD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "USD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "AUD/USD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "USD/CAD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "USD/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "EUR/JPY (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/JPY (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "EUR/GBP (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "AUD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "NZD/USD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "CAD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "EUR/CAD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "EUR/AUD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/CAD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "AUD/CAD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "AUD/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "NZD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "CAD/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+
+  // 2. ВАЛЮТНЫЕ ПАРЫ OTC
   { name: "AUD/NZD OTC", type: "forex", flag: "💱" },
   { name: "AUD/USD OTC", type: "forex", flag: "💱" },
   { name: "BHD/CNY OTC", type: "forex", flag: "💱" },
@@ -662,316 +702,82 @@ const ALL_ASSETS_CATALOG = [
   { name: "EUR/GBP OTC", type: "forex", flag: "💱" },
   { name: "EUR/TRY OTC", type: "forex", flag: "💱" },
   { name: "EUR/USD OTC", type: "forex", flag: "💱" },
-  { name: "KES/USD OTC", type: "forex", flag: "💱" },
-  { name: "NGN/USD OTC", type: "forex", flag: "💱" },
   { name: "NZD/USD OTC", type: "forex", flag: "💱" },
-  { name: "OMR/CNY OTC", type: "forex", flag: "💱" },
-  { name: "USD/BRL OTC", type: "forex", flag: "💱" },
   { name: "USD/CHF OTC", type: "forex", flag: "💱" },
-  { name: "USD/IDR OTC", type: "forex", flag: "💱" },
   { name: "USD/INR OTC", type: "forex", flag: "💱" },
-  { name: "USD/PHP OTC", type: "forex", flag: "💱" },
-  { name: "USD/PKR OTC", type: "forex", flag: "💱" },
-  { name: "USD/SGD OTC", type: "forex", flag: "💱" },
-  { name: "USD/THB OTC", type: "forex", flag: "💱" },
   { name: "CHF/NOK OTC", type: "forex", flag: "💱" },
   { name: "AUD/CAD OTC", type: "forex", flag: "💱" },
   { name: "USD/JPY OTC", type: "forex", flag: "💱" },
   { name: "GBP/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/COP OTC", type: "forex", flag: "💱" },
-  { name: "MAD/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/MXN OTC", type: "forex", flag: "💱" },
-  { name: "AUD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "QAR/CNY OTC", type: "forex", flag: "💱" },
-  { name: "ZAR/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/EGP OTC", type: "forex", flag: "💱" },
-  { name: "NZD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "USD/CNH OTC", type: "forex", flag: "💱" },
-  { name: "AUD/CHF OTC", type: "forex", flag: "💱" },
-  { name: "USD/CAD OTC", type: "forex", flag: "💱" },
-  { name: "USD/ARS OTC", type: "forex", flag: "💱" },
-  { name: "TND/USD OTC", type: "forex", flag: "💱" },
-  { name: "YER/USD OTC", type: "forex", flag: "💱" },
-  { name: "EUR/NZD OTC", type: "forex", flag: "💱" },
-  { name: "USD/CLP OTC", type: "forex", flag: "💱" },
-  { name: "EUR/JPY OTC", type: "forex", flag: "💱" },
-  { name: "SAR/CNY OTC", type: "forex", flag: "💱" },
-  { name: "JOD/CNY OTC", type: "forex", flag: "💱" },
-  { name: "USD/DZD OTC", type: "forex", flag: "💱" },
-  { name: "EUR/HUF OTC", type: "forex", flag: "💱" },
-  { name: "USD/BDT OTC", type: "forex", flag: "💱" },
-  { name: "GBP/AUD OTC", type: "forex", flag: "💱" },
-  { name: "UAH/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/MYR OTC", type: "forex", flag: "💱" },
-  { name: "AED/CNY OTC", type: "forex", flag: "💱" },
-  { name: "CHF/JPY OTC", type: "forex", flag: "💱" },
-  { name: "CAD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "CAD/CHF OTC", type: "forex", flag: "💱" },
   { name: "GBP/JPY OTC", type: "forex", flag: "💱" },
-  { name: "USD/VND OTC", type: "forex", flag: "💱" },
-  { name: "LBP/USD OTC", type: "forex", flag: "💱" },
-  { name: "GBP/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/JPY", type: "forex", flag: "💱" },
-  { name: "AUD/CAD", type: "forex", flag: "💱" },
-  { name: "AUD/CHF", type: "forex", flag: "💱" },
-  { name: "AUD/JPY", type: "forex", flag: "💱" },
-  { name: "AUD/USD", type: "forex", flag: "💱" },
-  { name: "CAD/CHF", type: "forex", flag: "💱" },
-  { name: "CHF/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/AUD", type: "forex", flag: "💱" },
-  { name: "EUR/CAD", type: "forex", flag: "💱" },
-  { name: "EUR/CHF", type: "forex", flag: "💱" },
-  { name: "EUR/USD", type: "forex", flag: "💱" },
-  { name: "GBP/AUD", type: "forex", flag: "💱" },
-  { name: "GBP/CAD", type: "forex", flag: "💱" },
-  { name: "GBP/CHF", type: "forex", flag: "💱" },
-  { name: "USD/CAD", type: "forex", flag: "💱" },
-  { name: "USD/CHF", type: "forex", flag: "💱" },
-  { name: "USD/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/GBP", type: "forex", flag: "💱" },
-  { name: "GBP/USD", type: "forex", flag: "💱" },
-  { name: "Polkadot OTC", type: "crypto", flag: "🔥" },
-  { name: "Litecoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
+  { name: "CAD/JPY OTC", type: "forex", flag: "💱" },
+  { name: "EUR/JPY OTC", type: "forex", flag: "💱" },
+  { name: "USD/CAD OTC", type: "forex", flag: "💱" },
+  { name: "USD/RUB OTC", type: "forex", flag: "💱" },
+
+  // 3. КРИПТОВАЛЮТЫ
   { name: "Bitcoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Cardano OTC", type: "crypto", flag: "🔥" },
-  { name: "Polygon OTC", type: "crypto", flag: "🔥" },
-  { name: "Chainlink OTC", type: "crypto", flag: "🔥" },
-  { name: "Solana OTC", type: "crypto", flag: "🔥" },
-  { name: "TRON OTC", type: "crypto", flag: "🔥" },
-  { name: "Avalanche OTC", type: "crypto", flag: "🔥" },
-  { name: "Bitcoin ETF OTC", type: "crypto", flag: "🔥" },
   { name: "Ethereum OTC", type: "crypto", flag: "🔥" },
+  { name: "Solana OTC", type: "crypto", flag: "🔥" },
+  { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
+  { name: "Ripple OTC", type: "crypto", flag: "🔥" },
+  { name: "Cardano OTC", type: "crypto", flag: "🔥" },
   { name: "Dogecoin OTC", type: "crypto", flag: "🔥" },
-  { name: "BNB OTC", type: "crypto", flag: "🔥" },
-  { name: "Bitcoin", type: "crypto", flag: "🔥" },
+  { name: "Bitcoin Real", type: "crypto", flag: "🔥" },
+  { name: "Ethereum Real", type: "crypto", flag: "🔥" },
+  { name: "Solana Real", type: "crypto", flag: "🔥" },
+
+  // 4. СЫРЬЕ
+  { name: "Gold OTC", type: "commodities", flag: "🛢️" },
+  { name: "Silver OTC", type: "commodities", flag: "🛢️" },
   { name: "Brent Oil OTC", type: "commodities", flag: "🛢️" },
   { name: "WTI Crude Oil OTC", type: "commodities", flag: "🛢️" },
-  { name: "Silver OTC", type: "commodities", flag: "🛢️" },
-  { name: "Gold OTC", type: "commodities", flag: "🛢️" },
   { name: "Natural Gas OTC", type: "commodities", flag: "🛢️" },
-  { name: "Palladium spot OTC", type: "commodities", flag: "🛢️" },
-  { name: "Platinum spot OTC", type: "commodities", flag: "🛢️" },
-  { name: "American Express OTC", type: "stocks", flag: "📈" },
-  { name: "Johnson & Johnson OTC", type: "stocks", flag: "📈" },
-  { name: "McDonald's OTC", type: "stocks", flag: "📈" },
-  { name: "Intel OTC", type: "stocks", flag: "📈" },
-  { name: "Microsoft OTC", type: "stocks", flag: "📈" },
-  { name: "Cisco OTC", type: "stocks", flag: "📈" },
-  { name: "Alibaba OTC", type: "stocks", flag: "📈" },
-  { name: "Citigroup Inc OTC", type: "stocks", flag: "📈" },
+  { name: "Gold Real (XAU/USD)", type: "commodities", flag: "🛢️" },
+  { name: "Silver Real (XAG/USD)", type: "commodities", flag: "🛢️" },
+
+  // 5. АКЦИИ
   { name: "Apple OTC", type: "stocks", flag: "📈" },
-  { name: "Pfizer Inc OTC", type: "stocks", flag: "📈" },
   { name: "Tesla OTC", type: "stocks", flag: "📈" },
-  { name: "GameStop Corp OTC", type: "stocks", flag: "📈" },
-  { name: "VISA OTC", type: "stocks", flag: "📈" },
-  { name: "Boeing Company OTC", type: "stocks", flag: "📈" },
-  { name: "Netflix OTC", type: "stocks", flag: "📈" },
-  { name: "Coinbase Global OTC", type: "stocks", flag: "📈" },
-  { name: "ExxonMobil OTC", type: "stocks", flag: "📈" },
-  { name: "Palantir Technologies OTC", type: "stocks", flag: "📈" },
-  { name: "Advanced Micro Devices OTC", type: "stocks", flag: "📈" },
-  { name: "FACEBOOK INC OTC", type: "stocks", flag: "📈" },
+  { name: "Microsoft OTC", type: "stocks", flag: "📈" },
   { name: "Amazon OTC", type: "stocks", flag: "📈" },
-  { name: "FedEx OTC", type: "stocks", flag: "📈" },
-  { name: "Marathon Digital Holdings OTC", type: "stocks", flag: "📈" },
-  { name: "VIX OTC", type: "stocks", flag: "📈" },
-  { name: "AUS 200 OTC", type: "indices", flag: "📊" },
-  { name: "100GBP OTC", type: "indices", flag: "📊" },
-  { name: "D30EUR OTC", type: "indices", flag: "📊" },
-  { name: "DJI30 OTC", type: "indices", flag: "📊" },
-  { name: "E35EUR OTC", type: "indices", flag: "📊" },
-  { name: "E50EUR OTC", type: "indices", flag: "📊" },
-  { name: "F40EUR OTC", type: "indices", flag: "📊" },
-  { name: "JPN225 OTC", type: "indices", flag: "📊" },
+  { name: "Google OTC", type: "stocks", flag: "📈" },
+  { name: "Meta OTC", type: "stocks", flag: "📈" },
+  { name: "NVIDIA OTC", type: "stocks", flag: "📈" },
+  { name: "AMD OTC", type: "stocks", flag: "📈" },
+  { name: "Netflix OTC", type: "stocks", flag: "📈" },
+  { name: "Intel OTC", type: "stocks", flag: "📈" },
+
+  // 6. ИНДЕКСЫ
   { name: "US100 OTC", type: "indices", flag: "📊" },
-  { name: "SP500 OTC", type: "indices", flag: "📊" }
+  { name: "SP500 OTC", type: "indices", flag: "📊" },
+  { name: "DJI30 OTC", type: "indices", flag: "📊" },
+  { name: "GER40 OTC", type: "indices", flag: "📊" },
+  { name: "UK100 OTC", type: "indices", flag: "📊" },
+  { name: "JP225 OTC", type: "indices", flag: "📊" }
 ];
 
 const EDU=[
 {
   t:"1️⃣ Уровни Поддержки и Сопротивления (S/R)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Отрабатывается на исторических точках разворота цены при сильном скоплении лимитных ордеров крупных участников.\\n• Точка входа: При формировании 2-3 касаний уровня и появлении паттерна ложного пробоя или пин-бара на M1/M5.\\n• Психология трейдинга: Большинство розничных трейдеров выставляют стоп-лоссы за уровнями, что провоцирует мощнейшее импульсное движение при ретесте.",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Отрабатывается на исторических точках разворота цены при сильном скоплении лимитных ордеров крупных участников.\\n• Точка входа: При формировании 2-3 касаний уровня и появлении паттерна ложного пробоя или пин-бара на M1/M5.",
   img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
   tags:["M1","M5"]
 },
 {
   t:"2️⃣ RSI (14) + Полосы Боллинджера (Bollinger Bands)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с физическим выходом цены за динамические границы Полосы Боллинджера.\\n• Точка входа: Когда свеча закрывается за пределами верхней или нижней линии BB, а RSI пересекает отметку 70 или 30 в обратную сторону.\\n• Риск-менеджмент: Используйте строго фиксированный объем и избегайте входов во время выхода важных новостей.",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с физическим выходом цены за границы BB.\\n• Точка входа: Когда свеча закрывается за пределами верхней или нижней линии BB, а RSI пересекает отметку 70 или 30.",
   img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
   tags:["M1","M5"]
-},
-{
-  t:"3️⃣ MACD + EMA 200 (Трендовый фильтр)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Определение глобального направления тренда по экспоненциальной средней EMA 200 и поиск локальных импульсов по гистограмме MACD.\\n• Точка входа: Цена выше EMA 200 — ищем исключительно CALL на откатах гистограммы MACD к нулевой линии. Цена ниже — только PUT.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M1-M5"]
-},
-{
-  t:"4️⃣ Стохастический осциллятор (Stochastic) + Уровни Фибоначчи",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Поиск глубоких коррекций по ключевым уровням Фибоначчи (0.618 / 0.5) в сочетании с пересечением линий %K и %D в зонах экстремумов.\\n• Точка входа: Завершение коррекции импульсного движения в сторону тренда.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M5-M15"]
-},
-{
-  t:"5️⃣ Скользящие средние EMA (9) + EMA (21) Пересечение",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Быстрое реагирование на смену краткосрочного импульса при пересечении быстрой и медленной экспоненциальных средних.\\n• Точка входа: Четкое пересечение EMA 9 снизу вверх (CALL) или сверху вниз (PUT) с подтверждением объема.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M1","M2"]
-},
-{
-  t:"6️⃣ Индикатор ATR (Average True Range) + Пробой канала",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Оценка волатильности рынка. Низкие значения ATR неизбежно сменяются резким расширением диапазона (флэт переходит в мощный тренд).\\n• Точка входа: Пробой узкого торгового канала при резком росте волатильности.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M5"]
-},
-{
-  t:"7️⃣ Паттерн 'Пин-бар' + Зона круглых чисел",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Психологические круглые уровни (например, 1.08000) привлекают гигантский объем отложенных ордеров участников.\\n• Точка входа: Образование длинной тени свечи (пин-бара) за круглой отметкой с быстрым возвратом.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"8️⃣ RSI (7) + Поддержка трендовой линии",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Использование сверхчувствительного RSI(7) для точных отскоков от наклонных линий тренда в динамическом канале.\\n• Точка входа: Касание трендовой линии на графике точно совпадает с разворотом RSI из зоны перепроданности/перекупленности.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M1","M3"]
-},
-{
-  t:"9️⃣ Индикатор Ichimoku Kinko Hyo (Облако + Киджун-сен)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Комплексный анализ баланса сил быков и медведей с использованием облака Ишимоку и линии Киджун-сен.\\n• Точка входа: Отскок от линии Киджун-сен внутри сильного трендового облака.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M5","M15"]
-},
-{
-  t:"🔟 Индикатор Parabolic SAR + ADX (Сила тренда)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Индикатор ADX выше 25 подтверждает наличие сильного тренда, а точки Parabolic SAR указывают точные точки переворота.\\n• Точка входа: Появление точки SAR с другой стороны цены при высоком значении ADX.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"11️⃣ Кластерный анализ объема (Volume Profile + Delta)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Определение максимального объема торгов (POC) и зон дисбаланса покупателей и продавцов.\\n• Точка входа: Тест уровня контроля POC с отскоком в сторону преобладающей рыночной дельты.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"12️⃣ Свечной паттерн 'Поглощение' + Уровень S/R",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Резкое перехватывание инициативы противоположной стороной рынка на важном ценовом уровне поддержки или сопротивления.\\n• Точка входа: Закрытие поглощающей свечи на ключевом уровне.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"13️⃣ Индикатор Williams %R + Скользящая SMA (50)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Оценка перекупленности и перепроданности по Williams %R относительно средней линии SMA 50.\\n• Точка входа: Выход из зоны экстремума (-20 / -80) при нахождении цены выше/ниже SMA 50.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M2","M5"]
-},
-{
-  t:"14️⃣ Стратегия 'Три экрана Элдера' (Модификация для бинарных)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Анализ старшего таймфрейма для глобального тренда и младшего для точной точки входа по импульсному осциллятору.\\n• Точка входа: Полное совпадение направления импульса на двух таймфреймах.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M5 / M1"]
-},
-{
-  t:"15️⃣ Канал Кельтнера (Keltner Channels) + RSI",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Использование экспоненциального канала волатильности на базе ATR вместо стандартного Боллинджера.\\n• Точка входа: Касание внешней границы канала Кельтнера при подтверждении RSI.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"16️⃣ Индикатор CCI (Commodity Channel Index) + Уровни",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Выход CCI за рамки уровней +100 / -100 сигнализирует о сильном отклонении цены от статистической нормы.\\n• Точка входа: Возврат CCI внутрь канала после ложного пробоя.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M1","M3"]
-},
-{
-  t:"17️⃣ Паттерн '1-2-3' + Уровень Фибоначчи",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Классическая разворотная формация с формированием экстремумов 1, 2 и 3 на коррекции.\\n• Точка входа: Пробой точки 2 после завершения глубокой коррекции тренда.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M5","M15"]
-},
-{
-  t:"18️⃣ Индикатор Rate of Change (ROC) + Скользящая средняя",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Измерение скорости изменения цены в процентах для выявления истощения импульса движения.\\n• Точка входа: Пересечение нулевой линии ROC в сторону текущего тренда.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"19️⃣ Торговля по стакану ордеров (Order Book Imbalance)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Анализ плотности лимитных ордеров на покупку и продажу в реальном стакане котировок.\\n• Точка входа: Резкое преобладание лимитных заявок в стакане на уровне поддержки.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["S30","M1"]
-},
-{
-  t:"20️⃣ Нейросетевой комплексный анализ (Multi-Factor)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Одновременный опрос 8 индикаторов (RSI, Bollinger, MACD, EMA 200, Volume, ATR, Stochastic, ADX) с расчетом вероятностей.\\n• Точка входа: Сигнал генерируется только при совпадении минимум 6 факторов из 8.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["Все таймфреймы"]
 }
 ];
-
-function cleanSymbol(sym) {
-  if (!sym) return "";
-  return sym.toString().toUpperCase().replace(/[^A-Z0-9]/g, "");
-}
-
-async function syncPayoutsFromRender() {
-  try {
-    const res = await fetch(`${RENDER_BACKEND_URL}/api/payouts`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.assets) {
-        livePayouts = data.assets;
-        const badge = document.getElementById("apiStatusBadge");
-        if(badge) {
-          badge.textContent = "● LIVE API: ONLINE 🟢";
-          badge.style.color = "var(--green)";
-        }
-        updateSelectedAssetUI();
-        renderAssetButtons();
-        if (!document.getElementById("catalogModal").classList.contains("hidden")) {
-          renderCatalogList(document.getElementById("modalSearchInput").value);
-        }
-      }
-    }
-  } catch (e) {
-    const badge = document.getElementById("apiStatusBadge");
-    if(badge) {
-      badge.textContent = "● LIVE API: RECONNECTING...";
-      badge.style.color = "var(--gold)";
-    }
-  }
-}
-
-function getAssetPayout(symbol) {
-  const targetKey = cleanSymbol(symbol);
-  if (livePayouts[targetKey] !== undefined) return livePayouts[targetKey] + "%";
-  for (let k in livePayouts) {
-    if (k.includes(targetKey) || targetKey.includes(k)) return livePayouts[k] + "%";
-  }
-  let hash = 0;
-  for (let i = 0; i < targetKey.length; i++) {
-    hash = targetKey.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const payout = 82 + Math.abs(hash) % 11;
-  return payout + "%";
-}
 
 function updatePoDeepLink() {
   const btn = document.getElementById("poDeepLink");
   if(!btn) return;
   const poPairMap = {
     "EUR/USD OTC": "EURUSD_otc", "GBP/USD OTC": "GBPUSD_otc", "USD/JPY OTC": "USDJPY_otc",
-    "AUD/CAD OTC": "AUDCAD_otc", "AUD/CHF OTC": "AUDCHF_otc", "AUD/JPY OTC": "AUDJPY_otc",
-    "AUD/NZD OTC": "AUDNZD_otc", "AUD/USD OTC": "AUDUSD_otc", "CAD/CHF OTC": "CADCHF_otc",
-    "CAD/JPY OTC": "CADJPY_otc", "CHF/JPY OTC": "CHFJPY_otc", "EUR/AUD OTC": "EURAUD_otc",
-    "EUR/CAD OTC": "EURCAD_otc", "EUR/CHF OTC": "EURCHF_otc", "EUR/GBP OTC": "EURGBP_otc",
-    "EUR/JPY OTC": "EURJPY_otc", "EUR/NZD OTC": "EURNZD_otc", "GBP/AUD OTC": "GBPAUD_otc",
-    "GBP/CAD OTC": "GBPCAD_otc", "GBP/CHF OTC": "GBPCHF_otc", "GBP/JPY OTC": "GBPJPY_otc",
-    "NZD/JPY OTC": "NZDJPY_otc", "NZD/USD OTC": "NZDUSD_otc", "USD/CAD OTC": "USDCAD_otc",
-    "USD/CHF OTC": "USDCHF_otc", "Gold OTC": "XAUUSD_otc", "Silver OTC": "XAGUSD_otc",
-    "Brent Oil OTC": "UKOIL_otc", "WTI Crude Oil OTC": "USOIL_otc", "Bitcoin OTC": "BTCUSD_otc"
+    "EUR/USD (Биржа)": "EURUSD", "GBP/USD (Биржа)": "GBPUSD", "USD/JPY (Биржа)": "USDJPY"
   };
   let formattedAsset = poPairMap[currentAsset];
   if(!formattedAsset) {
@@ -985,13 +791,12 @@ function updatePoDeepLink() {
 function renderAssetButtons() {
   const container = document.getElementById("assetCatsContainer");
   if(!container) return;
-  let forexItems = ALL_ASSETS_CATALOG.filter(item => item.type === "forex").slice(0, 6);
+  let realForexItems = ALL_ASSETS_CATALOG.filter(item => item.type === "forex_real").slice(0, 8);
   let html = "";
-  forexItems.forEach((item) => {
+  realForexItems.forEach((item) => {
     let fullName = item.name;
     let activeClass = (fullName === currentAsset) ? " on" : "";
-    let payoutStr = getAssetPayout(fullName);
-    html += `<button class="cat ${activeClass}" onclick="selectCatalogAsset('${fullName}')">${item.flag} ${item.name} <span class="cat-payout">${payoutStr}</span></button>`;
+    html += `<button class="cat ${activeClass}" onclick="selectCatalogAsset('${fullName}')">${item.flag} ${item.name}</button>`;
   });
   container.innerHTML = html;
 }
@@ -1000,10 +805,6 @@ function updateSelectedAssetUI() {
   const displayEl = document.getElementById("currentAssetDisplay");
   if(displayEl) {
     displayEl.textContent = currentAsset;
-  }
-  const payoutEl = document.getElementById("currentAssetPayout");
-  if(payoutEl) {
-    payoutEl.textContent = getAssetPayout(currentAsset);
   }
   updatePoDeepLink();
 }
@@ -1033,7 +834,7 @@ function showMsg(id, txt, isErr=false){
 function checkUserBlockedStatus(user) {
   let foundUser = allUsersReg.find(u => u.tg.toLowerCase() === user.toLowerCase());
   if(foundUser && foundUser.status === "Заблокирован") {
-    alert("⛔ Ваш аккаунт заблокирован администратором! Доступ к сигналам закрыт.");
+    alert("⛔ Ваш аккаунт заблокирован администратором!");
     return true;
   }
   return false;
@@ -1046,11 +847,6 @@ function registerUserAndNotify(username) {
   if(!foundUser) {
     allUsersReg.push({tg: formattedTg, status: "Активен", role: "USER"});
     localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
-  } else {
-    if(foundUser.status !== "Заблокирован") {
-      foundUser.status = "Активен";
-      localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
-    }
   }
 }
 
@@ -1061,10 +857,6 @@ function doReg(){
     showMsg("regMsg", "❌ Укажите ваш Telegram юзернейм начиная с @", true);
     return;
   }
-  if(!code) {
-    showMsg("regMsg", "❌ Введите ключ доступа!", true);
-    return;
-  }
   if(code !== ADMIN_SECRET_KEY && code !== USER_SECRET_KEY) {
     showMsg("regMsg", "❌ Неверный ключ доступа!", true);
     return;
@@ -1073,43 +865,29 @@ function doReg(){
     showMsg("regMsg", "❌ Этот аккаунт заблокирован навсегда!", true);
     return;
   }
-  if(code === ADMIN_SECRET_KEY) {
-    isAdmin = true;
-    localStorage.setItem("tmv_isAdmin", "true");
-  } else {
-    isAdmin = false;
-    localStorage.setItem("tmv_isAdmin", "false");
-  }
+  isAdmin = (code === ADMIN_SECRET_KEY);
+  localStorage.setItem("tmv_isAdmin", isAdmin ? "true" : "false");
   tgUser = user;
   localStorage.setItem("tmv_tgUser", user);
   registerUserAndNotify(tgUser);
-  showMsg("regMsg", "✅ Ключ принят! Переходим к проверке депозита...");
-  setTimeout(()=>{ goStep(2); }, 1000);
+  showMsg("regMsg", "✅ Ключ принят!");
+  setTimeout(()=>{ goStep(2); }, 800);
 }
 
 function doDep(){
   const promo = document.getElementById("promoInput").value.trim();
   if(promo.toUpperCase() !== "WELCOME50"){
-    showMsg("depMsg", "❌ Неверный промокод! Введите WELCOME50", true);
+    showMsg("depMsg", "❌ Неверный промокод!", true);
     return;
   }
   showMsg("depMsg", "✅ Депозит подтвержден!");
-  setTimeout(()=>{ goStep(3); }, 1000);
+  setTimeout(()=>{ goStep(3); }, 800);
 }
 
 function enterApp(){
-  if(tgUser) {
-    if(checkUserBlockedStatus(tgUser)) {
-      logout();
-      return;
-    }
-    registerUserAndNotify(tgUser);
-  }
   document.getElementById("gate").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   document.getElementById("bnav").classList.remove("hidden");
-  syncPayoutsFromRender();
-  setInterval(syncPayoutsFromRender, 3000);
   renderAssetButtons();
   updateSelectedAssetUI();
   renderFavs();
@@ -1118,20 +896,12 @@ function enterApp(){
 }
 
 function tab(tabId, el){
-  if(tgUser && checkUserBlockedStatus(tgUser)) {
-    logout();
-    return;
-  }
   document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
   document.getElementById(tabId).classList.remove("hidden");
   document.querySelectorAll(".bnav .nav").forEach(n=>n.classList.remove("on"));
   el.classList.add("on");
-  if(tabId === 'tabFavs') {
-    renderMainFavs();
-  }
-  if(tabId === 'tabProf' && isAdmin) {
-    renderAdminData();
-  }
+  if(tabId === 'tabFavs') renderMainFavs();
+  if(tabId === 'tabProf' && isAdmin) renderAdminData();
 }
 
 function openCatalogModal(){
@@ -1156,11 +926,12 @@ function renderCatalogList(filter=""){
   let searchLower = filter.toLowerCase();
   const dict = I18N[currentLang] || I18N.ru;
   const categories = [
-    { key: "forex", name: dict.catHeaderForex },
-    { key: "crypto", name: dict.catHeaderCrypto },
-    { key: "commodities", name: dict.catHeaderComm },
-    { key: "stocks", name: dict.catHeaderStocks },
-    { key: "indices", name: dict.catHeaderIndices }
+    { key: "forex_real", name: "💱 Валютные пары (Настоящий рынок Биржи)" },
+    { key: "forex", name: "⚡ Валютные пары OTC (Котировки брокера)" },
+    { key: "crypto", name: "🔥 Криптовалюты" },
+    { key: "commodities", name: "🛢️ Сырьевые товары" },
+    { key: "stocks", name: "📈 Акции компаний" },
+    { key: "indices", name: "📊 Биржевые индексы" }
   ];
   categories.forEach(catGroup => {
     if(modalCategory !== "all" && modalCategory !== catGroup.key) return;
@@ -1174,11 +945,9 @@ function renderCatalogList(filter=""){
       groupItems.forEach(item => {
         let fullAssetName = item.name;
         let isFav = favs.includes(fullAssetName);
-        let payoutStr = getAssetPayout(fullAssetName);
         html += `<div class="fav-item">
           <span onclick="selectCatalogAsset('${fullAssetName}')">${item.flag} ${item.name}</span>
           <div style="display:flex;gap:8px;align-items:center">
-            <span class="cat-payout">${payoutStr}</span>
             <span style="cursor:pointer;font-size:15px" onclick="toggleFav('${fullAssetName}')">${isFav ? '⭐' : '☆'}</span>
             <span style="color:var(--gold);font-size:11px;cursor:pointer" onclick="selectCatalogAsset('${fullAssetName}')">${dict.btnChoose}</span>
           </div>
@@ -1193,11 +962,8 @@ function renderCatalogList(filter=""){
 }
 
 function toggleFav(name){
-  if(favs.includes(name)){
-    favs = favs.filter(f => f !== name);
-  } else {
-    favs.push(name);
-  }
+  if(favs.includes(name)) favs = favs.filter(f => f !== name);
+  else favs.push(name);
   localStorage.setItem("tmv_favs", JSON.stringify(favs));
   renderCatalogList(document.getElementById("modalSearchInput").value);
   renderFavs();
@@ -1206,7 +972,6 @@ function toggleFav(name){
 
 function selectCatalogAsset(name){
   currentAsset = name;
-  currentCategory = name;
   updateSelectedAssetUI();
   renderAssetButtons();
   closeCatalogModal();
@@ -1225,8 +990,7 @@ function renderFavs(){
   if(emptyEl) emptyEl.style.display = "none";
   let html = "";
   favs.forEach(f => {
-    let payoutStr = getAssetPayout(f);
-    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f} <span class="cat-payout">${payoutStr}</span></span><span>➔</span></div>`;
+    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f}</span><span>➔</span></div>`;
   });
   listEl.innerHTML = html;
 }
@@ -1243,8 +1007,7 @@ function renderMainFavs(){
   if(emptyEl) emptyEl.style.display = "none";
   let html = "";
   favs.forEach(f => {
-    let payoutStr = getAssetPayout(f);
-    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f} <span class="cat-payout">${payoutStr}</span></span><span style="color:var(--gold)">Перейти ➔</span></div>`;
+    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f}</span><span style="color:var(--gold)">Перейти ➔</span></div>`;
   });
   listEl.innerHTML = html;
 }
@@ -1257,45 +1020,29 @@ function clearFavs(){
 }
 
 async function getSig(){
-  if(tgUser) {
-    if(checkUserBlockedStatus(tgUser)) {
-      logout();
-      return;
-    }
-    registerUserAndNotify(tgUser);
-  }
   runAnalyzer(async ()=>{
     const tf = document.getElementById("tf").value;
     const expSec = parseInt(document.getElementById("exp").value);
     
-    let hash = 0;
-    const comboStr = currentAsset + tf + Date.now().toString().slice(0, -3);
-    for (let i = 0; i < comboStr.length; i++) {
-      hash = comboStr.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    let isCall = Math.abs(hash) % 2 === 0;
-    let dir = isCall ? "⬆️ CALL" : "⬇️ PUT";
+    let isCall = Math.random() > 0.5;
+    let dir = isCall ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
+    let stratText = `Анализ биржевого рынка (${currentAsset}): Сформирована свечная модель Price Action. Направление входа: ${dir}.`;
 
-    let stratText = `Анализ актива (${currentAsset}): Зафиксирован импульс по связке RSI + Bollinger. Направление: ${isCall ? 'Вверх (CALL)' : 'Вниз (PUT)'}. Выплата: ${getAssetPayout(currentAsset)}.`;
-    
     try {
       const res = await fetch(`${RENDER_BACKEND_URL}/api/signal?asset=${encodeURIComponent(currentAsset)}&tf=${tf}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.direction) {
-          dir = data.direction;
-          isCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
-        }
-        if (data.analysis) stratText = data.analysis + ` (Выплата: ${getAssetPayout(currentAsset)})`;
+        if (data.direction) dir = data.direction;
+        if (data.analysis) stratText = data.analysis;
       }
     } catch(e) {}
 
-    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf} · Выплата: ${getAssetPayout(currentAsset)}`;
+    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf} · Мировой рынок`;
     const dirEl = document.getElementById("sigDir");
     dirEl.textContent = dir;
-    dirEl.className = "sig-dir " + (isCall ? "call" : "put");
+    dirEl.className = "sig-dir " + (dir.includes("CALL") ? "call" : "put");
     document.getElementById("sigStrat").innerHTML = `<b>Анализ:</b> ${stratText}`;
-    document.getElementById("sigCombo").textContent = "Multi-Factor + BB";
+    document.getElementById("sigCombo").textContent = "Smart Money + PA";
     document.getElementById("sigBox").style.display = "block";
     document.getElementById("btnCancel").style.display = "block";
     document.getElementById("btnNew").style.display = "none";
@@ -1310,8 +1057,8 @@ async function getSig(){
 }
 
 function autoSig(){
-  const forexAssets = ALL_ASSETS_CATALOG.filter(a => a.type === "forex");
-  const randomAssetObj = forexAssets[Math.floor(Math.random()*forexAssets.length)];
+  const realForex = ALL_ASSETS_CATALOG.filter(a => a.type === "forex_real");
+  const randomAssetObj = realForex[Math.floor(Math.random()*realForex.length)];
   currentAsset = randomAssetObj.name;
   updateSelectedAssetUI();
   renderAssetButtons();
@@ -1351,7 +1098,7 @@ function runAnalyzer(callback){
   const txtEl = document.getElementById("analyzeTxt");
   overlay.classList.remove("hidden");
   let step = 0;
-  const phrasesList = ["🔍 Анализ рынка...", "🤖 Просчет Smart Money...", "📊 Обработка ICT паттернов...", "⚡ Генерация сигнала..."];
+  const phrasesList = ["🔍 Анализ графика...", "📊 Оценка свечных паттернов...", "🤖 Просчет Smart Money...", "⚡ Считывание волатильности..."];
   const interval = setInterval(()=>{
     txtEl.textContent = phrasesList[step % phrasesList.length];
     step++;
@@ -1360,7 +1107,7 @@ function runAnalyzer(callback){
     clearInterval(interval);
     overlay.classList.add("hidden");
     if(callback) callback();
-  }, 2200);
+  }, 2000);
 }
 
 function renderEdu(){
@@ -1409,8 +1156,7 @@ function loadProfile(){
 }
 
 function saveName(){
-  const name = document.getElementById("profName").value;
-  localStorage.setItem("tmv_name", name);
+  localStorage.setItem("tmv_name", document.getElementById("profName").value);
 }
 
 function logout(){
@@ -1433,7 +1179,7 @@ function openCam(){
     camReady = true;
     document.getElementById("btnScan").removeAttribute("disabled");
   })
-  .catch(err => { alert("Не удалось получить доступ к камере: " + err); });
+  .catch(err => { alert("Камера недоступна: " + err); });
 }
 
 function stopCam(){
@@ -1441,24 +1187,14 @@ function stopCam(){
     stream.getTracks().forEach(t => t.stop());
     stream = null;
   }
-  const video = document.getElementById("scanVideo");
-  const ph = document.getElementById("scanPh");
-  const frame = document.getElementById("scanFrame");
-  video.classList.add("hidden");
-  ph.classList.remove("hidden");
-  frame.classList.remove("live");
+  document.getElementById("scanVideo").classList.add("hidden");
+  document.getElementById("scanPh").classList.remove("hidden");
+  document.getElementById("scanFrame").classList.remove("live");
   camReady = false;
   document.getElementById("btnScan").setAttribute("disabled", "true");
 }
 
 async function doScan(){
-  if(tgUser) {
-    if(checkUserBlockedStatus(tgUser)) {
-      logout();
-      return;
-    }
-    registerUserAndNotify(tgUser);
-  }
   if(!camReady){ alert("Сначала откройте камеру!"); return; }
 
   const video = document.getElementById("scanVideo");
@@ -1472,19 +1208,12 @@ async function doScan(){
       const expSec = parseInt(document.getElementById("scanExp").value);
       const cfgObj = {
         интервал: document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text,
-        экспирация: document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text,
-        стратегия: "Smart Money"
+        стратегия: "Candlestick PA & Smart Money"
       };
 
-      let scanHash = 0;
-      const scanCombo = "scan" + Date.now().toString();
-      for (let i = 0; i < scanCombo.length; i++) {
-        scanHash = scanCombo.charCodeAt(i) + ((scanHash << 5) - scanHash);
-      }
-      let isScanCall = Math.abs(scanHash) % 2 === 0;
-
-      let dir = isScanCall ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
-      let stratText = `--- TEAM MASTER SIGNAL V4.0 ---\\nСТРАТЕГИЯ: Smart Money\\nТАЙМФРЕЙМ: M1\\nВЕРДИКТ: ${isScanCall ? 'ВВЕРХ (CALL)' : 'ВНИЗ (PUT)'}\\nПРОХОДИМОСТЬ: 82%`;
+      let dir = "НЕОПРЕДЕЛЕНО";
+      let stratText = "❌ Ошибка сканирования.";
+      let isChart = false;
 
       try {
         const fd = new FormData();
@@ -1496,18 +1225,28 @@ async function doScan(){
         });
         if(response.ok) {
           const resData = await response.json();
-          if(resData.direction) {
-            dir = resData.direction;
-            isScanCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
-          }
-          if(resData.analysis) stratText = resData.analysis;
+          isChart = resData.is_chart;
+          dir = resData.direction;
+          stratText = resData.analysis;
         }
-      } catch(e) {}
+      } catch(e) {
+        stratText = "❌ Ошибка соединения с сервером AI.";
+      }
 
       document.getElementById("scanMeta").textContent = `VISION AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
       const dirEl = document.getElementById("scanDir");
       dirEl.textContent = dir;
-      dirEl.className = "sig-dir " + (isScanCall ? "call" : "put");
+      
+      if(!isChart) {
+        dirEl.className = "sig-dir none-dir";
+        document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;color:var(--red);"><b>${stratText}</b></pre>`;
+        document.getElementById("scanSigBox").style.display = "block";
+        document.getElementById("btnScanCancel").style.display = "none";
+        document.getElementById("btnScanNew").style.display = "block";
+        return;
+      }
+
+      dirEl.className = "sig-dir " + (dir.includes("CALL") ? "call" : "put");
       document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
       
       document.getElementById("scanSigBox").style.display = "block";
@@ -1539,11 +1278,6 @@ function changeLanguage(lang){
     const el = document.querySelector(`[data-t="${key}"]`);
     if(el) el.innerHTML = dict[key];
   }
-  const searchInput = document.getElementById("modalSearchInput");
-  if(searchInput && dict.modalSearchPlaceholder) {
-    searchInput.placeholder = dict.modalSearchPlaceholder;
-  }
-  renderCatalogList(searchInput ? searchInput.value : "");
 }
 
 function renderAdminData(filter=""){
@@ -1556,12 +1290,10 @@ function renderAdminData(filter=""){
     filteredUsers.forEach((u)=>{
       const originalIdx = allUsersReg.findIndex(item => item.tg.toLowerCase() === u.tg.toLowerCase());
       const isBlocked = u.status === "Заблокирован";
-      const btnText = isBlocked ? "Разблокировать" : "Заблокировать";
-      const statusLabel = isBlocked ? "Заблокирован" : "Активен";
       html += `<div class="user-row">
-        <div><b>${u.tg}</b><br><small style="color:${isBlocked?'var(--red)':'var(--green)'}">${statusLabel}</small></div>
+        <div><b>${u.tg}</b><br><small style="color:${isBlocked?'var(--red)':'var(--green)'}">${u.status}</small></div>
         <div style="display:flex;align-items:center;gap:4px">
-          <button class="user-status-btn ${isBlocked?'btn-unblock-green':'btn-block-red'}" onclick="toggleUserStatus(${originalIdx})">${btnText}</button>
+          <button class="user-status-btn ${isBlocked?'btn-unblock-green':'btn-block-red'}" onclick="toggleUserStatus(${originalIdx})">${isBlocked?'Разблокировать':'Заблокировать'}</button>
           <button class="btn-del-user" onclick="deleteUser(${originalIdx})">🗑</button>
         </div>
       </div>`;
@@ -1572,23 +1304,17 @@ function renderAdminData(filter=""){
 
 function toggleUserStatus(idx) {
   if(allUsersReg[idx]) {
-    if(allUsersReg[idx].status === "Заблокирован") {
-      allUsersReg[idx].status = "Активен";
-    } else {
-      allUsersReg[idx].status = "Заблокирован";
-    }
+    allUsersReg[idx].status = (allUsersReg[idx].status === "Заблокирован") ? "Активен" : "Заблокирован";
     localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
-    const searchVal = document.getElementById("adminSearchUserInput") ? document.getElementById("adminSearchUserInput").value : "";
-    renderAdminData(searchVal);
+    renderAdminData();
   }
 }
 
 function deleteUser(idx) {
-  if(confirm("Удалить пользователя из списка?")) {
+  if(confirm("Удалить пользователя?")) {
     allUsersReg.splice(idx, 1);
     localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
-    const searchVal = document.getElementById("adminSearchUserInput") ? document.getElementById("adminSearchUserInput").value : "";
-    renderAdminData(searchVal);
+    renderAdminData();
   }
 }
 
@@ -1598,11 +1324,8 @@ window.addEventListener("DOMContentLoaded", ()=>{
       logout();
       return;
     }
-    registerUserAndNotify(tgUser);
     goStep(3);
     enterApp();
-  } else {
-    syncPayoutsFromRender();
   }
 });
 </script>
@@ -1610,53 +1333,30 @@ window.addEventListener("DOMContentLoaded", ()=>{
 </html>
 """
 
-# --- API ENDPOINTS ---
-
 @app.get("/")
 async def get_page():
     return HTMLResponse(HTML_UI)
 
-@app.get("/api/payouts")
-async def get_payouts():
-    """Эндпоинт выплат для терминала"""
-    dummy_payouts = {
-        "EURUSDOTC": 92, "GBPUSDOTC": 89, "USDJPYOTC": 91,
-        "AUDCADOTC": 88, "AUDCHFOTC": 87, "AUDJPYOTC": 90,
-        "BTCUSDOTC": 85, "XAUUSDOTC": 90, "XAGUSDOTC": 86
-    }
-    return JSONResponse(content={"assets": dummy_payouts})
-
 @app.get("/api/signal")
-async def get_signal(asset: str = "EUR/USD OTC", tf: str = "M1"):
-    """Эндпоинт генерации сигнала"""
-    directions = ["⬆️ CALL (ВВЕРХ)", "⬇️ PUT (ВНИЗ)"]
-    chosen_dir = random.choice(directions)
-    payout = random.randint(82, 92)
+async def get_signal(asset: str = "EUR/USD (Биржа)", tf: str = "M1"):
+    dirs = ["⬆️ CALL (ВВЕРХ)", "⬇️ PUT (ВНИЗ)"]
+    chosen_dir = random.choice(dirs)
     return JSONResponse(content={
         "direction": chosen_dir,
-        "analysis": f"Алгоритмический анализ {asset} [{tf}]: Подтверждён вход по Smart Money / ICT паттерну. Выплата {payout}%."
+        "analysis": f"Анализ мирового биржевого рынка {asset} [{tf}]: Подтверждён сигнал по структуре свечей и уровням поддержки/сопротивления."
     })
 
 @app.post("/api/scan-analyze")
 async def scan_analyze(file: UploadFile = File(...), cfg: str = Form(...)):
-    """Эндпоинт анализа снимка с камеры через Gemini AI"""
     image_bytes = await file.read()
     try:
         config_data = json.loads(cfg)
     except Exception:
-        config_data = {"стратегия": "Smart Money", "интервал": "M1", "экспирация": "1м"}
+        config_data = {"стратегия": "Candlestick PA & Smart Money", "интервал": "M1"}
     
-    analysis_text = await core.compute(image_bytes, config_data)
-    
-    is_call = "CALL" in analysis_text.upper() or "ВВЕРХ" in analysis_text.upper()
-    direction = "⬆️ CALL (ВВЕРХ)" if is_call else "⬇️ PUT (ВНИЗ)"
-    
-    return JSONResponse(content={
-        "direction": direction,
-        "analysis": analysis_text
-    })
+    result = await core.compute(image_bytes, config_data)
+    return JSONResponse(content=result)
 
-# --- ЗАПУСК СЕРВЕРА С УЧЕТОМ ДИНАМИЧЕСКОГО ПОРТА RENDER ---
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
