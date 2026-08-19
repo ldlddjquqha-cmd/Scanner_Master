@@ -32,7 +32,7 @@ class Analyzer:
             image = PIL.Image.open(io.BytesIO(image_bytes))
 
             prompt = f"""
-Ты — высококвалифицированный аналитик финансовых рынков.
+Ты — профессиональный ИИ-аналитик и помощник по финансовым рынкам.
 Твоя задача — строго проанализировать изображение и ответить В ФОРМАТЕ JSON.
 
 1. Сначала определи, является ли изображение ГРАФИКОМ ФИНАНСОВОГО АКТИВА (японские свечи, бары, линия тренда, индикаторы).
@@ -50,7 +50,7 @@ class Analyzer:
 {{
   "is_chart": true/false,
   "direction": "CALL" или "PUT" или "NONE",
-  "winrate": "75%",
+  "winrate": "85%",
   "reason": "Краткое описание свечной структуры (например: Медвежье поглощение от уровня сопротивления)"
 }}
 """
@@ -74,7 +74,7 @@ class Analyzer:
 
             dir_val = data.get("direction", "CALL").upper()
             dir_text = "⬆️ CALL (ВВЕРХ)" if "CALL" in dir_val else "⬇️ PUT (ВНИЗ)"
-            winrate = data.get("winrate", "80%")
+            winrate = data.get("winrate", "85%")
             reason = data.get("reason", "Анализ свечной структуры и уровней POI")
 
             fmt_analysis = (
@@ -98,6 +98,28 @@ class Analyzer:
                 "direction": "ОШИБКА",
                 "analysis": "❌ Ошибка обработки изображения нейросетью. Попробуйте сделать более четкий снимок графика."
             }
+
+    async def chat_assistant(self, user_text: str) -> str:
+        if not GEMINI_API_KEY:
+            return "⚠️ Gemini API не настроен."
+        try:
+            prompt = f"""
+Ты — профессиональный ИИ-ассистент торгового терминала TEAM MASTER VIP.
+Твоя задача — отвечать ИСКЛЮЧИТЕЛЬНО на рабочие вопросы по трейдингу, анализу графиков, техническому анализу, менеджменту рисков, индикаторам, стратегиям (Smart Money, Price Action) и работе с платформой Pocket Option.
+
+ПРАВИЛА И ОГРАНИЧЕНИЯ:
+1. Если пользователь задает нерабочий вопрос, не связанный с трейдингом (о жизни, философии, развлечениях, юморе, личных вопросах, политике) или использует нецензурную/агрессивную лексику, отвечай строго одной фразой:
+"⚠️ Я — рабочий ИИ-помощник трейдинг-терминала TEAM MASTER. Отвечаю только на технические и торговые вопросы."
+2. Отвечай кратко, профессионально, четко и по делу.
+
+Вопрос пользователя: {user_text}
+Ответ:
+"""
+            response = await asyncio.to_thread(self.model.generate_content, prompt)
+            return response.text.strip()
+        except Exception as e:
+            logging.error(f"Ошибка ИИ ассистента: {e}")
+            return "❌ Ошибка обработки запроса ИИ-помощником."
 
 core = Analyzer()
 
@@ -193,7 +215,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .name-input:focus{border-color:var(--gold)}
 .about-list{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin:8px 0 12px}
 .about-list li{font-size:11px;color:#c5cdd8;line-height:1.85;list-style:none}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#05070d;border-top:1px solid var(--border);display:flex;justify-around;padding:6px 0 10px;z-index:100}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#05070d;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 10px;z-index:100}
 .nav{display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--muted);font-size:8.5px;font-weight:800;cursor:pointer;min-width:44px;padding:3px 1px;transition:color .2s}
 .nav.on{color:var(--gold)}.nav span:first-child{font-size:15px}
 .hidden{display:none!important}
@@ -225,6 +247,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .btn-unblock-green {background:rgba(0,230,118,0.2);color:var(--green);border:1px solid rgba(0,230,118,0.4)}
 .btn-del-user {background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3);padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;margin-left:4px}
 .catalog-category-header {font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;margin:10px 0 4px 4px;letter-spacing:.5px;border-bottom:1px solid var(--border);padding-bottom:3px}
+
+.chat-box {display:flex;flex-direction:column;gap:8px;height:240px;overflow-y:auto;background:var(--inner);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px}
+.chat-msg {padding:8px 11px;border-radius:10px;font-size:11px;line-height:1.45;max-width:85%}
+.chat-msg.user {background:rgba(255,215,0,0.12);color:var(--gold);align-self:flex-end;border:1px solid rgba(255,215,0,0.25)}
+.chat-msg.ai {background:var(--card);color:#c5cdd8;align-self:flex-start;border:1px solid var(--border)}
+.chat-input-row {display:flex;gap:6px}
 </style>
 </head>
 <body>
@@ -348,12 +376,24 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabEdu">
 <div id="eduList">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="eduHeader">📚 20 профессиональных связок (Полный курс)</h3>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px">📚 30 Профессиональных обучающих связок</h3>
 <div id="eduItems"></div>
 </div>
 <div id="eduView" class="hidden">
 <button class="btn btn-gold btn-sm" style="margin-bottom:10px" onclick="closeEdu()" data-t="btnBackEdu">← Назад к списку</button>
 <div class="edu-detail" id="eduBody"></div>
+</div>
+</div>
+
+<div class="card tab hidden" id="tabAi">
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">🤖 ИИ Помощник Трейдера</h3>
+<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по разбору графиков, уровням, боковому движению и индикаторам.</p>
+<div class="chat-box" id="aiChatBox">
+  <div class="chat-msg ai">Здравствуйте! Я ваш профессиональный ИИ-ассистент по трейдингу. Задайте мне любой рабочий вопрос по теханализу или стратегиям!</div>
+</div>
+<div class="chat-input-row">
+  <input type="text" class="input" id="aiChatInput" placeholder="Введите рабочий вопрос..." style="margin-bottom:0;text-align:left;font-size:12px;" onkeypress="if(event.key==='Enter') sendAiMessage()">
+  <button class="btn btn-gold btn-sm" style="width:70px;" onclick="sendAiMessage()">Отправить</button>
 </div>
 </div>
 
@@ -375,7 +415,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <button class="btn btn-red btn-sm" onclick="logout()" data-t="btnLogout">🚪 Выйти</button>
 
 <div class="admin-profile-box hidden" id="adminProfileBox">
-<h3 class="g-text" style="font-size:12px;margin-bottom:8px">👑 АДМИН-ПАНЕЛЬ: УПРАВЛЕНИЕ УЧАСТНИКАМИ</h3>
+<h3 class="g-text" style="font-size:12px;margin-bottom:8px">👑 АДМИН-ПАНЕЛЬ: БЛОКИРОВКА И УПРАВЛЕНИЕ</h3>
 <label class="lbl">ПОЛЬЗОВАТЕЛИ, ПЕРЕШЕДШИЕ К СИГНАЛАМ</label>
 <input type="text" class="admin-search-input" id="adminSearchUserInput" placeholder="Поиск по @username..." oninput="renderAdminData(this.value)" autocomplete="off">
 <div class="users-list" id="adminUsersList"></div>
@@ -442,6 +482,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
 <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
 <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
+<div class="nav" onclick="tab('tabAi',this)"><span>🤖</span><span>ИИ Помощник</span></div>
 <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
 <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
 <div class="nav" onclick="tab('tabAbout',this)"><span>👑</span><span data-t="navAbout">О нас</span></div>
@@ -463,11 +504,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <div class="cats" style="margin-bottom:6px">
       <button class="cat on" onclick="setModalCat('all',this)" data-t="catAll">🌟 Все</button>
       <button class="cat" onclick="setModalCat('forex_real',this)">💱 Валютные пары (Биржа)</button>
-      <button class="cat" onclick="setModalCat('forex',this)">⚡ Валютные пары OTC</button>
+      <button class="cat" onclick="setModalCat('forex_otc',this)">⚡ Валютные пары OTC</button>
       <button class="cat" onclick="setModalCat('crypto',this)" data-t="catCrypto">🔥 Крипто</button>
-      <button class="cat" onclick="setModalCat('commodities',this)" data-t="catComm">🛢️ Сырьё</button>
       <button class="cat" onclick="setModalCat('stocks',this)" data-t="catStocks">📈 Акции</button>
-      <button class="cat" onclick="setModalCat('indices',this)" data-t="catIndices">📊 Индексы</button>
     </div>
     <div class="modal-body" id="modalCatalogBody"></div>
   </div>
@@ -507,9 +546,7 @@ const I18N = {
     lblActiveAsset: "АКТИВ ДЛЯ АНАЛИЗА",
     catAll: "🌟 Все",
     catCrypto: "🔥 Крипто",
-    catComm: "🛢️ Сырьё",
     catStocks: "📈 Акции",
-    catIndices: "📊 Индексы",
     lblTf: "ТАЙМФРЕЙМ",
     lblExp: "ЭКСПИРАЦИЯ",
     btnCalcSig: "⚡ Просчитать сигнал",
@@ -518,7 +555,6 @@ const I18N = {
     lblCombo: "Связка",
     btnCancel: "✖ Отменить",
     btnNewSig: "⚡ Новый сигнал",
-    eduHeader: "📚 20 профессиональных связок (Полный курс)",
     btnBackEdu: "← Назад к списку",
     profTitle: "👤 Профиль",
     profNameLbl: "ВАШЕ ИМЯ",
@@ -566,9 +602,7 @@ const I18N = {
     lblActiveAsset: "SELECTED ASSET",
     catAll: "🌟 All",
     catCrypto: "🔥 Crypto",
-    catComm: "🛢️ Comm",
     catStocks: "📈 Stocks",
-    catIndices: "📊 Indices",
     lblTf: "TIMEFRAME",
     lblExp: "EXPIRATION",
     btnCalcSig: "⚡ Calculate Signal",
@@ -577,7 +611,6 @@ const I18N = {
     lblCombo: "Combo",
     btnCancel: "✖ Cancel",
     btnNewSig: "⚡ New Signal",
-    eduHeader: "📚 Combos",
     btnBackEdu: "← Back",
     profTitle: "👤 Profile",
     profNameLbl: "YOUR NAME",
@@ -625,9 +658,7 @@ const I18N = {
     lblActiveAsset: "АКТИВ ДЛЯ АНАЛІЗУ",
     catAll: "🌟 Всі",
     catCrypto: "🔥 Крипто",
-    catComm: "🛢️ Сировина",
     catStocks: "📈 Акції",
-    catIndices: "📊 Індекси",
     lblTf: "ТАЙМФРЕЙМ",
     lblExp: "ЕКСПИРАЦИЯ",
     btnCalcSig: "⚡ Прорахувати сигнал",
@@ -636,7 +667,6 @@ const I18N = {
     lblCombo: "Зв'язка",
     btnCancel: "✖ Скасувати",
     btnNewSig: "⚡ Новий сигнал",
-    eduHeader: "📚 Зв'язки",
     btnBackEdu: "← Назад",
     profTitle: "👤 Профіль",
     profNameLbl: "ВАШЕ ІМ'Я",
@@ -672,103 +702,309 @@ const I18N = {
 };
 
 const ALL_ASSETS_CATALOG = [
-  // 1. НАСТОЯЩИЙ РЫНОК (БИРЖА - БЕЗ OTC)
-  { name: "EUR/USD (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "GBP/USD (Биржа)", type: "forex_real", flag: "🌐" },
+  // ВАЛЮТНЫЕ ПАРЫ (НАСТОЯЩИЙ РЫНОК - БИРЖА)
+  { name: "EUR/AUD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/AUD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "CHF/JPY (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "AUD/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "USD/CAD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "AUD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "USD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "AUD/USD (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "USD/CAD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/CAD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "CAD/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "EUR/USD (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "USD/CHF (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "EUR/JPY (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "GBP/JPY (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "EUR/GBP (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "AUD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "NZD/USD (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "EUR/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/USD (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "CAD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "EUR/CAD (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "EUR/AUD (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "GBP/CAD (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "GBP/CHF (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "AUD/CAD (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "AUD/CHF (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "NZD/JPY (Биржа)", type: "forex_real", flag: "🌐" },
-  { name: "CAD/CHF (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "EUR/GBP (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "EUR/JPY (Биржа)", type: "forex_real", flag: "🌐" },
+  { name: "GBP/JPY (Биржа)", type: "forex_real", flag: "🌐" },
 
-  // 2. ВАЛЮТНЫЕ ПАРЫ OTC
-  { name: "AUD/NZD OTC", type: "forex", flag: "💱" },
-  { name: "AUD/USD OTC", type: "forex", flag: "💱" },
-  { name: "BHD/CNY OTC", type: "forex", flag: "💱" },
-  { name: "EUR/CHF OTC", type: "forex", flag: "💱" },
-  { name: "EUR/GBP OTC", type: "forex", flag: "💱" },
-  { name: "EUR/TRY OTC", type: "forex", flag: "💱" },
-  { name: "EUR/USD OTC", type: "forex", flag: "💱" },
-  { name: "NZD/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/CHF OTC", type: "forex", flag: "💱" },
-  { name: "USD/INR OTC", type: "forex", flag: "💱" },
-  { name: "CHF/NOK OTC", type: "forex", flag: "💱" },
-  { name: "AUD/CAD OTC", type: "forex", flag: "💱" },
-  { name: "USD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "GBP/USD OTC", type: "forex", flag: "💱" },
-  { name: "GBP/JPY OTC", type: "forex", flag: "💱" },
-  { name: "CAD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "EUR/JPY OTC", type: "forex", flag: "💱" },
-  { name: "USD/CAD OTC", type: "forex", flag: "💱" },
-  { name: "USD/RUB OTC", type: "forex", flag: "💱" },
+  // ВАЛЮТНЫЕ ПАРЫ (OTC)
+  { name: "AUD/NZD OTC", type: "forex_otc", flag: "💱" },
+  { name: "AUD/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "BHD/CNY OTC", type: "forex_otc", flag: "💱" },
+  { name: "EUR/CHF OTC", type: "forex_otc", flag: "💱" },
+  { name: "EUR/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "LBP/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "NGN/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "NZD/JPY OTC", type: "forex_otc", flag: "💱" },
+  { name: "QAR/CNY OTC", type: "forex_otc", flag: "💱" },
+  { name: "SAR/CNY OTC", type: "forex_otc", flag: "💱" },
+  { name: "UAH/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/BRL OTC", type: "forex_otc", flag: "💱" },
+  { name: "YER/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "CHF/NOK OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/JPY OTC", type: "forex_otc", flag: "💱" },
+  { name: "AUD/CAD OTC", type: "forex_otc", flag: "💱" },
+  { name: "EUR/GBP OTC", type: "forex_otc", flag: "💱" },
+  { name: "EUR/NZD OTC", type: "forex_otc", flag: "💱" },
+  { name: "AUD/JPY OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/THB OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/COP OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/EGP OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/ARS OTC", type: "forex_otc", flag: "💱" },
+  { name: "AUD/CHF OTC", type: "forex_otc", flag: "💱" },
+  { name: "GBP/JPY OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/CAD OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/CHF OTC", type: "forex_otc", flag: "💱" },
+  { name: "JOD/CNY OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/IDR OTC", type: "forex_otc", flag: "💱" },
+  { name: "EUR/HUF OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/VND OTC", type: "forex_otc", flag: "💱" },
+  { name: "ZAR/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/CLP OTC", type: "forex_otc", flag: "💱" },
+  { name: "GBP/AUD OTC", type: "forex_otc", flag: "💱" },
+  { name: "CAD/CHF OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/BDT OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/PKR OTC", type: "forex_otc", flag: "💱" },
+  { name: "GBP/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/INR OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/MYR OTC", type: "forex_otc", flag: "💱" },
+  { name: "AED/CNY OTC", type: "forex_otc", flag: "💱" },
+  { name: "KES/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "EUR/TRY OTC", type: "forex_otc", flag: "💱" },
+  { name: "MAD/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "CHF/JPY OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/SGD OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/CNH OTC", type: "forex_otc", flag: "💱" },
+  { name: "CAD/JPY OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/MXN OTC", type: "forex_otc", flag: "💱" },
+  { name: "TND/USD OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/DZD OTC", type: "forex_otc", flag: "💱" },
+  { name: "OMR/CNY OTC", type: "forex_otc", flag: "💱" },
+  { name: "USD/PHP OTC", type: "forex_otc", flag: "💱" },
+  { name: "EUR/JPY OTC", type: "forex_otc", flag: "💱" },
+  { name: "NZD/USD OTC", type: "forex_otc", flag: "💱" },
 
-  // 3. КРИПТОВАЛЮТЫ
-  { name: "Bitcoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Ethereum OTC", type: "crypto", flag: "🔥" },
-  { name: "Solana OTC", type: "crypto", flag: "🔥" },
-  { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Ripple OTC", type: "crypto", flag: "🔥" },
+  // КРИПТОВАЛЮТЫ (OTC)
   { name: "Cardano OTC", type: "crypto", flag: "🔥" },
+  { name: "Bitcoin ETF OTC", type: "crypto", flag: "🔥" },
+  { name: "BNB OTC", type: "crypto", flag: "🔥" },
+  { name: "Chainlink OTC", type: "crypto", flag: "🔥" },
+  { name: "Solana OTC", type: "crypto", flag: "🔥" },
+  { name: "Litecoin OTC", type: "crypto", flag: "🔥" },
+  { name: "Polkadot OTC", type: "crypto", flag: "🔥" },
+  { name: "Polygon OTC", type: "crypto", flag: "🔥" },
+  { name: "Bitcoin OTC", type: "crypto", flag: "🔥" },
+  { name: "TRON OTC", type: "crypto", flag: "🔥" },
+  { name: "Avalanche OTC", type: "crypto", flag: "🔥" },
+  { name: "Ethereum OTC", type: "crypto", flag: "🔥" },
+  { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
   { name: "Dogecoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Bitcoin Real", type: "crypto", flag: "🔥" },
-  { name: "Ethereum Real", type: "crypto", flag: "🔥" },
-  { name: "Solana Real", type: "crypto", flag: "🔥" },
 
-  // 4. СЫРЬЕ
-  { name: "Gold OTC", type: "commodities", flag: "🛢️" },
-  { name: "Silver OTC", type: "commodities", flag: "🛢️" },
-  { name: "Brent Oil OTC", type: "commodities", flag: "🛢️" },
-  { name: "WTI Crude Oil OTC", type: "commodities", flag: "🛢️" },
-  { name: "Natural Gas OTC", type: "commodities", flag: "🛢️" },
-  { name: "Gold Real (XAU/USD)", type: "commodities", flag: "🛢️" },
-  { name: "Silver Real (XAG/USD)", type: "commodities", flag: "🛢️" },
-
-  // 5. АКЦИИ
-  { name: "Apple OTC", type: "stocks", flag: "📈" },
-  { name: "Tesla OTC", type: "stocks", flag: "📈" },
-  { name: "Microsoft OTC", type: "stocks", flag: "📈" },
-  { name: "Amazon OTC", type: "stocks", flag: "📈" },
-  { name: "Google OTC", type: "stocks", flag: "📈" },
-  { name: "Meta OTC", type: "stocks", flag: "📈" },
-  { name: "NVIDIA OTC", type: "stocks", flag: "📈" },
-  { name: "AMD OTC", type: "stocks", flag: "📈" },
-  { name: "Netflix OTC", type: "stocks", flag: "📈" },
+  // АКЦИИ (OTC)
   { name: "Intel OTC", type: "stocks", flag: "📈" },
-
-  // 6. ИНДЕКСЫ
-  { name: "US100 OTC", type: "indices", flag: "📊" },
-  { name: "SP500 OTC", type: "indices", flag: "📊" },
-  { name: "DJI30 OTC", type: "indices", flag: "📊" },
-  { name: "GER40 OTC", type: "indices", flag: "📊" },
-  { name: "UK100 OTC", type: "indices", flag: "📊" },
-  { name: "JP225 OTC", type: "indices", flag: "📊" }
+  { name: "McDonald's OTC", type: "stocks", flag: "📈" },
+  { name: "Microsoft OTC", type: "stocks", flag: "📈" },
+  { name: "Pfizer Inc OTC", type: "stocks", flag: "📈" },
+  { name: "GameStop Corp OTC", type: "stocks", flag: "📈" },
+  { name: "VISA OTC", type: "stocks", flag: "📈" },
+  { name: "Advanced Micro Devices OTC", type: "stocks", flag: "📈" },
+  { name: "American Express OTC", type: "stocks", flag: "📈" },
+  { name: "Cisco OTC", type: "stocks", flag: "📈" },
+  { name: "Palantir Technologies OTC", type: "stocks", flag: "📈" },
+  { name: "Boeing Company OTC", type: "stocks", flag: "📈" },
+  { name: "Alibaba OTC", type: "stocks", flag: "📈" },
+  { name: "Netflix OTC", type: "stocks", flag: "📈" },
+  { name: "FedEx OTC", type: "stocks", flag: "📈" },
+  { name: "FACEBOOK INC OTC", type: "stocks", flag: "📈" },
+  { name: "Amazon OTC", type: "stocks", flag: "📈" },
+  { name: "VIX OTC", type: "stocks", flag: "📈" },
+  { name: "Tesla OTC", type: "stocks", flag: "📈" },
+  { name: "ExxonMobil OTC", type: "stocks", flag: "📈" },
+  { name: "Apple OTC", type: "stocks", flag: "📈" },
+  { name: "Coinbase Global OTC", type: "stocks", flag: "📈" },
+  { name: "Johnson & Johnson OTC", type: "stocks", flag: "📈" },
+  { name: "Marathon Digital Holdings OTC", type: "stocks", flag: "📈" },
+  { name: "Citigroup Inc OTC", type: "stocks", flag: "📈" }
 ];
 
 const EDU=[
 {
-  t:"1️⃣ Уровни Поддержки и Сопротивления (S/R)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Отрабатывается на исторических точках разворота цены при сильном скоплении лимитных ордеров крупных участников.\\n• Точка входа: При формировании 2-3 касаний уровня и появлении паттерна ложного пробоя или пин-бара на M1/M5.",
+  t:"1️⃣ Торговля в Боковике: Отскок от Уровня Сопротивления",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: В горизонтальном коридоре (флете) цена зажимается между поддержкой и сопротивлением. При подходе к верхней границе крупный игрок выставляет лимитные ордера на продажу.\\n• Точка входа: Ожидаем касания верхнего уровня сопротивления, появления пин-бара с длинной верхней тенью или затухания объема свечей. Входим на PUT (ВНИЗ) на 1-3 свечи.",
   img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
+  tags:["Боковик","Сопротивление","M1","M5"]
 },
 {
-  t:"2️⃣ RSI (14) + Полосы Боллинджера (Bollinger Bands)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с физическим выходом цены за границы BB.\\n• Точка входа: Когда свеча закрывается за пределами верхней или нижней линии BB, а RSI пересекает отметку 70 или 30.",
+  t:"2️⃣ Торговля в Боковике: Отскок от Уровня Поддержки",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Нижняя граница бокового диапазона удерживается быками. При снижении котировок к уровню происходит скупка актива.\\n• Точка входа: Ждем касания нижней линии поддержки, формирования бычьего поглощения или разворотного молота. Входим на CALL (ВВЕРХ).",
   img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
+  tags:["Боковик","Поддержка","M1"]
+},
+{
+  t:"3️⃣ Торговля в Боковике: Ложный Пробой (False Breakout)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Снятие ликвидности за границами флета. Рынок импульсно выходит из канала, забирает стопы розничных трейдеров и резко возвращается назад.\\n• Точка входа: Когда свеча пробивает уровень, но закрывается обратно ВНУТРИ канала, открываем сделку в противоположную сторону пробоя.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Smart Money","Ложный пробой"]
+},
+{
+  t:"4️⃣ RSI (14) + Полосы Боллинджера (Bollinger Bands)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Выход цены за внешнюю границу Боллинджера показывает экстремальное отклонение от средней цены, а RSI выше 70 или ниже 30 подтверждает перекупленность/перепроданность.\\n• Точка входа: Вход на разворот внутрь канала при пересечении линии RSI обратно.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","RSI","BB"]
+},
+{
+  t:"5️⃣ MACD Пересечение Нулевой Линии + EMA 200",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: EMA 200 определяет глобальный тренд. MACD показывает импульс сила быков/медведей.\\n• Точка входа: Если цена ВЫШЕ EMA 200 и гистограмма MACD пересекает 0 снизу вверх — вход на CALL по тренду.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","MACD","EMA"]
+},
+{
+  t:"6️⃣ Stochastic Oscillator + Горизонтальный Уровень",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Пересечение линий быстрой %K и медленной %D Стохастика в зоне 80/20 прямо на графическом уровне.\\n• Точка входа: Вход строго при пересечении линий индикатора в экстремальной зоне с подтверждением от уровня.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","Stochastic"]
+},
+{
+  t:"7️⃣ Паттерн «Бычье Поглощение» от Зоны Дисбаланса (FVG)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Цена перекрывает импульсный разрыв ликвидности (Fair Value Gap) и формирует свечу, полностью перекрывающую предыдущую красную свечу.\\n• Точка входа: Вход на открытии следующей свечи после закрытия поглощения.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Price Action","FVG"]
+},
+{
+  t:"8️⃣ Паттерн «Медвежье Поглощение» у Верхней Границы Тренда",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Окончание коррекции во нисходящем тренде при касании наклонной линии сопротивления.\\n• Точка входа: Вход на PUT при полном перекрытии бычьей свечи медвежьим телом.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Price Action","Тренд"]
+},
+{
+  t:"9️⃣ Пин-Бар с Длинной Тенью от Блока Заказов (Order Block)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Реакция институционального объема на разворотную свечу перед сильным движением.\\n• Точка входа: Вход в сторону тени пин-бара при касании зоны OB.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Smart Money","Order Block"]
+},
+{
+  t:"🔟 Тройное Касание Наклонного Канала (Trendline Touch)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Третье касание подтвержденной трендовой линии имеет наибольшую вероятность успешного отскока.\\n• Точка входа: Точное касание линии на M1/M5 с покупкой опциона по направлению тренда.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Теханализ","Тренд"]
+},
+{
+  t:"1️⃣1️⃣ Ретест Пробитого Уровня (Support/Resistance Flip)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Бывшее сопротивление после пробоя становится надежной поддержкой.\\n• Точка входа: Входим на отскок, когда цена возвращается сверху вниз к пробитой линии.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Ретест","Уровни"]
+},
+{
+  t:"1️⃣2️⃣ CCI (20) Выход из Зон +100 / -100",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Индикатор товарного канала CCI показывает циклические отклонения от средней нормы.\\n• Точка входа: Возврат CCI снизу вверх выше -100 дает сигнал CALL; сверху вниз ниже +100 — сигнал PUT.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","CCI"]
+},
+{
+  t:"1️⃣3️⃣ Двойная Вершина (Double Top) + Медвежья Дивергенция RSI",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: График рисует два пика на одном уровне, а RSI показывает второй пик НИЖЕ первого.\\n• Точка входа: Входим на PUT при формировании второй вершины.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Дивергенция","Фигуры"]
+},
+{
+  t:"1️⃣4️⃣ Двойное Дно (Double Bottom) + Бычья Дивергенция",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: График образует два минимума, а индикатор MACD/RSI показывает рост силовой гистограммы.\\n• Точка входа: Сигнал CALL от второго дна.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Дивергенция","Разворот"]
+},
+{
+  t:"1️⃣5️⃣ Индикатор Alligator + Фрактал Разворота",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Пересечение линий Аллигатора (Губы, Зубы, Челюсть) после периода «сна» и появления локального фрактала.\\n• Точка входа: Вход в сторону раскрытия пасти Аллигатора при пробое фрактала.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","Alligator"]
+},
+{
+  t:"1️⃣6️⃣ Пересечение Скорльзящих EMA 9 и EMA 21",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Быстрая экспоненциальная средняя пробивает медленную, сигнализируя о смене краткосрочного тренда.\\n• Точка входа: Вход на закрытии свечи, где произошло пересечение.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Скользящие","Скальпинг"]
+},
+{
+  t:"1️⃣7️⃣ Треугольник с Плохим Верхом (Ascending Triangle)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Покупатели поджимают цену к плоскому уровню сопротивления.\\n• Точка входа: Вход на CALL при пробое горизонтального уровня или на его ретесте.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Фигуры","Пробой"]
+},
+{
+  t:"1️⃣8️⃣ Паттерн «Утренняя Звезда» (Morning Star)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Трехсвечная разворотная модель в основании нисходящего движения.\\n• Точка входа: Покупка опциона CALL после закрытия третьей мощной зеленой свечи.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Свечи","Разворот"]
+},
+{
+  t:"1️⃣9️⃣ Паттерн «Вечерняя Звезда» (Evening Star)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Трехсвечный разворот на вершине бычьего тренда.\\n• Точка входа: Покупка опциона PUT после третьей красной свечи.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Свечи","Разворот"]
+},
+{
+  t:"2️⃣0️⃣ Сжатие Волатильности Squeeze Momentum Indicator",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Переход Полос Боллинджера внутрь Канала Кельтнера указывает на сильнейшую накопленную энергию.\\n• Точка входа: Вход по направлению первого выстрелившего импульса.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Волатильность","Импульс"]
+},
+{
+  t:"2️⃣1️⃣ Торговля по Объемам VPVR (Point of Control)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: POC — максимальный накопленный объем сделок на уровне.\\n• Точка входа: Отскок от POC уровня как от сильнейшего магнита/препятствия.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Объемы","POC"]
+},
+{
+  t:"2️⃣2️⃣ Стратегия «Три Индейца» (Three Drives Pattern)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Три последовательных локальных выпроста цены с одинаковым шагом разворота.\\n• Точка входа: Вход на разворот строго на третьем пике.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Паттерны","Гармоника"]
+},
+{
+  t:"2️⃣3️⃣ Паттерн «Флаг» (Bullish Flag)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Краткосрочная коррекция в виде параллельного канала после флагштока.\\n• Точка входа: Вход на CALL при выходе цены вверх из коррекционного канала.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Продолжение тренда"]
+},
+{
+  t:"2️⃣4️⃣ Паттерн «Вымпел» (Pennant)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Симметричное сужение цены после сильного вертикального импульса.\\n• Точка входа: Вход в сторону первоначального импульса при пробое вымпела.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Фигуры","Импульс"]
+},
+{
+  t:"2️⃣5️⃣ Скальпинг по Parabolic SAR + ADX",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: ADX выше 25 подтверждает наличие тренда, а точка Parabolic перескакивает под свечу.\\n• Точка входа: Быстрый вход на 1 свечу (60 сек).",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Скальпинг","Parabolic"]
+},
+{
+  t:"2️⃣6️⃣ Зона Имбаланса + Уровень Фибоначчи 0.618",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Совпадение золотого сечения Фибоначчи с неудовлетворенным объемом покупки/продажи.\\n• Точка входа: Отскок от уровня 0.618.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Фибоначчи","Smart Money"]
+},
+{
+  t:"2️⃣7️⃣ Индикатор Awesome Oscillator (Блюдечко)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Изменение гистограммы Билла Вильямса при переходе через ноль.\\n• Точка входа: Сигнал при смене цвета гистограммы с красного на зеленый выше нуля.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Индикаторы","AO"]
+},
+{
+  t:"2️⃣8️⃣ Голова и Плечи (Head & Shoulders)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Разворотная фигура с центральным выступом (голова) и двумя боковыми (плечи).\\n• Точка входа: Вход на PUT при пробое линии шеи.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Классика","Разворот"]
+},
+{
+  t:"2️⃣9️⃣ Перевернутая Голова и Плечи (Inverse H&S)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Разворотная модель на дне рынка.\\n• Точка входа: Вход на CALL при пробое линии шеи снизу вверх.",
+  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["Классика","Рост"]
+},
+{
+  t:"3️⃣0️⃣ Стратегия Снятия Ликвидности (Liquidity Sweep)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Прокол равных максимумов/минимумов (Equal Highs/Lows) и мгновенный разворот цены обратно.\\n• Точка входа: Входим сразу после закрытия свечи с длинным хвостом за равными уровнями.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
+  tags:["Smart Money","Ликвидность"]
 }
 ];
 
@@ -926,12 +1162,10 @@ function renderCatalogList(filter=""){
   let searchLower = filter.toLowerCase();
   const dict = I18N[currentLang] || I18N.ru;
   const categories = [
-    { key: "forex_real", name: "💱 Валютные пары (Настоящий рынок Биржи)" },
-    { key: "forex", name: "⚡ Валютные пары OTC (Котировки брокера)" },
-    { key: "crypto", name: "🔥 Криптовалюты" },
-    { key: "commodities", name: "🛢️ Сырьевые товары" },
-    { key: "stocks", name: "📈 Акции компаний" },
-    { key: "indices", name: "📊 Биржевые индексы" }
+    { key: "forex_real", name: "💱 Валютные пары (Биржа)" },
+    { key: "forex_otc", name: "⚡ Валютные пары OTC" },
+    { key: "crypto", name: "🔥 Криптовалюты OTC" },
+    { key: "stocks", name: "📈 Акции компаний OTC" }
   ];
   categories.forEach(catGroup => {
     if(modalCategory !== "all" && modalCategory !== catGroup.key) return;
@@ -1318,6 +1552,34 @@ function deleteUser(idx) {
   }
 }
 
+async function sendAiMessage() {
+  const inputEl = document.getElementById("aiChatInput");
+  const txt = inputEl.value.trim();
+  if(!txt) return;
+
+  const chatBox = document.getElementById("aiChatBox");
+  chatBox.innerHTML += `<div class="chat-msg user">${txt}</div>`;
+  inputEl.value = "";
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    const res = await fetch(`${RENDER_BACKEND_URL}/api/ai-chat`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({text: txt})
+    });
+    if(res.ok) {
+      const data = await res.json();
+      chatBox.innerHTML += `<div class="chat-msg ai">${data.reply}</div>`;
+    } else {
+      chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка ответа ИИ.</div>`;
+    }
+  } catch(e) {
+    chatBox.innerHTML += `<div class="chat-msg ai">❌ Ошибка соединения.</div>`;
+  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
 window.addEventListener("DOMContentLoaded", ()=>{
   if(tgUser) {
     if(checkUserBlockedStatus(tgUser)) {
@@ -1356,6 +1618,12 @@ async def scan_analyze(file: UploadFile = File(...), cfg: str = Form(...)):
     
     result = await core.compute(image_bytes, config_data)
     return JSONResponse(content=result)
+
+@app.post("/api/ai-chat")
+async def ai_chat(data: dict):
+    user_text = data.get("text", "")
+    reply = await core.chat_assistant(user_text)
+    return JSONResponse(content={"reply": reply})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
