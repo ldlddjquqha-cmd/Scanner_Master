@@ -10,7 +10,6 @@ import io
 import google.generativeai as genai
 
 # Настройка API ключа Google Gemini
-# Ключ можно задать в переменной окружения GEMINI_API_KEY или вставить прямо в код
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "ВАШ_GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -20,15 +19,12 @@ app = FastAPI(title="TeamMaster Core")
 class Analyzer:
     """Движок анализа скриншота графика с использованием Google Gemini AI"""
     def __init__(self):
-        # Используем быстрый визуальный движок Gemini 1.5 Flash
         self.model = genai.GenerativeModel('gemini-1.5-flash')
 
     async def compute(self, image_bytes: bytes, config: dict) -> str:
         try:
-            # Открываем изображение из байтов
             image = PIL.Image.open(io.BytesIO(image_bytes))
 
-            # Промпт для ИИ
             prompt = f"""
 Ты — профессиональный аналитик финансовых рынков и бинарных опционов.
 Проанализируй предоставленный график.
@@ -50,7 +46,6 @@ class Analyzer:
 ВХОД: Прямо сейчас.
 """
 
-            # Отправляем запрос в Gemini
             response = await asyncio.to_thread(self.model.generate_content, [prompt, image])
             return response.text
 
@@ -159,4 +154,5 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
     return {"text": result_text}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
