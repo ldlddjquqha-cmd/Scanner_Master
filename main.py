@@ -104,13 +104,18 @@ class Analyzer:
             return "⚠️ Gemini API не настроен."
         try:
             prompt = f"""
-Ты — профессиональный ИИ-ассистент торгового терминала TEAM MASTER VIP.
-Твоя задача — отвечать ИСКЛЮЧИТЕЛЬНО на рабочие вопросы по трейдингу, анализу графиков, техническому анализу, менеджменту рисков, индикаторам, стратегиям (Smart Money, Price Action) и работе с платформой Pocket Option.
+Ты — дружелюбный и универсальный ИИ-ассистент торгового терминала и команды "TEAM MASTER VIP".
+Имя нашего бота — TEAM MASTER VIP Terminal. Наша команда — Команда Мастеров (TEAM MASTER), сообщество успешных трейдеров и программистов.
 
-ПРАВИЛА И ОГРАНИЧЕНИЯ:
-1. Если пользователь задает нерабочий вопрос, не связанный с трейдингом (о жизни, философии, развлечениях, юморе, личных вопросах, политике) или использует нецензурную/агрессивную лексику, отвечай строго одной фразой:
-"⚠️ Я — рабочий ИИ-помощник трейдинг-терминала TEAM MASTER. Отвечаю только на технические и торговые вопросы."
-2. Отвечай кратко, профессионально, четко и по делу.
+ТВОИ ВОЗМОЖНОСТИ И ОБЯЗАННОСТИ:
+1. Отвечай на ЛЮБЫЕ адекватные вопросы пользователей!
+2. Рассказывай о боте (TEAM MASTER VIP), о команде (TEAM MASTER), о том, как работать с платформами (Pocket Option), как регистрироваться, получать сигналы и использовать сканер.
+3. По запросу пользователя подбирай и подробно расписывай любые связки, стратегии (Smart Money, Price Action, Индикаторы, Боковик, Уровни поддержки/сопротивления), давай точки входа, таймфреймы и советы по мани-менеджменту.
+4. Отвечай на общие вопросы о трейдинге, криптовалюте, акциях, сырье и индексах.
+
+СТРОГОЕ ОГРАНИЧЕНИЕ (ПЛОХИЕ ВОПРОСЫ):
+Если вопрос содержит маты, оскорбления, тему политики, войн, экстремизма, криминала, личные провокации или неадекватную жесть — отвечай строго:
+"⚠️ Пожалуйста, соблюдайте правила общения. Я отвечаю только на адекватные вопросы по платформе, трейдингу и нашей команде TEAM MASTER."
 
 Вопрос пользователя: {user_text}
 Ответ:
@@ -387,12 +392,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabAi">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">🤖 ИИ Помощник Трейдера</h3>
-<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по разбору графиков, уровням, боковому движению и индикаторам.</p>
+<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px;text-align:center">Задавайте любые вопросы по боту, команде TEAM MASTER, разбору графиков, связкам и торговле!</p>
 <div class="chat-box" id="aiChatBox">
-  <div class="chat-msg ai">Здравствуйте! Я ваш профессиональный ИИ-ассистент по трейдингу. Задайте мне любой рабочий вопрос по теханализу или стратегиям!</div>
+  <div class="chat-msg ai">Здравствуйте! Я ИИ-помощник бота TEAM MASTER VIP Terminal. Готов ответить на любые ваши вопросы по боту, нашей команде, терминалу или расписать любую торговую связку!</div>
 </div>
 <div class="chat-input-row">
-  <input type="text" class="input" id="aiChatInput" placeholder="Введите рабочий вопрос..." style="margin-bottom:0;text-align:left;font-size:12px;" onkeypress="if(event.key==='Enter') sendAiMessage()">
+  <input type="text" class="input" id="aiChatInput" placeholder="Задайте вопрос по боту или связке..." style="margin-bottom:0;text-align:left;font-size:12px;" onkeypress="if(event.key==='Enter') sendAiMessage()">
   <button class="btn btn-gold btn-sm" style="width:70px;" onclick="sendAiMessage()">Отправить</button>
 </div>
 </div>
@@ -506,7 +511,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <button class="cat" onclick="setModalCat('forex_real',this)">💱 Валютные пары (Биржа)</button>
       <button class="cat" onclick="setModalCat('forex_otc',this)">⚡ Валютные пары OTC</button>
       <button class="cat" onclick="setModalCat('crypto',this)" data-t="catCrypto">🔥 Крипто</button>
+      <button class="cat" onclick="setModalCat('commodities',this)">🛢️ Сырьё</button>
       <button class="cat" onclick="setModalCat('stocks',this)" data-t="catStocks">📈 Акции</button>
+      <button class="cat" onclick="setModalCat('indices',this)">📊 Индексы</button>
     </div>
     <div class="modal-body" id="modalCatalogBody"></div>
   </div>
@@ -702,7 +709,7 @@ const I18N = {
 };
 
 const ALL_ASSETS_CATALOG = [
-  // ВАЛЮТНЫЕ ПАРЫ (НАСТОЯЩИЙ РЫНОК - БИРЖА)
+  // 1. ВАЛЮТНЫЕ ПАРЫ (НАСТОЯЩИЙ РЫНОК - БИРЖА)
   { name: "EUR/AUD (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "GBP/AUD (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "CHF/JPY (Биржа)", type: "forex_real", flag: "🌐" },
@@ -725,7 +732,7 @@ const ALL_ASSETS_CATALOG = [
   { name: "EUR/JPY (Биржа)", type: "forex_real", flag: "🌐" },
   { name: "GBP/JPY (Биржа)", type: "forex_real", flag: "🌐" },
 
-  // ВАЛЮТНЫЕ ПАРЫ (OTC)
+  // 2. ВАЛЮТНЫЕ ПАРЫ (OTC)
   { name: "AUD/NZD OTC", type: "forex_otc", flag: "💱" },
   { name: "AUD/USD OTC", type: "forex_otc", flag: "💱" },
   { name: "BHD/CNY OTC", type: "forex_otc", flag: "💱" },
@@ -782,7 +789,7 @@ const ALL_ASSETS_CATALOG = [
   { name: "EUR/JPY OTC", type: "forex_otc", flag: "💱" },
   { name: "NZD/USD OTC", type: "forex_otc", flag: "💱" },
 
-  // КРИПТОВАЛЮТЫ (OTC)
+  // 3. КРИПТОВАЛЮТЫ (OTC)
   { name: "Cardano OTC", type: "crypto", flag: "🔥" },
   { name: "Bitcoin ETF OTC", type: "crypto", flag: "🔥" },
   { name: "BNB OTC", type: "crypto", flag: "🔥" },
@@ -798,7 +805,16 @@ const ALL_ASSETS_CATALOG = [
   { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
   { name: "Dogecoin OTC", type: "crypto", flag: "🔥" },
 
-  // АКЦИИ (OTC)
+  // 4. СЫРЬЕ (COMMODITIES)
+  { name: "Brent Oil OTC", type: "commodities", flag: "🛢️" },
+  { name: "WTI Crude Oil OTC", type: "commodities", flag: "🛢️" },
+  { name: "Silver OTC", type: "commodities", flag: "🛢️" },
+  { name: "Gold OTC", type: "commodities", flag: "🛢️" },
+  { name: "Natural Gas OTC", type: "commodities", flag: "🛢️" },
+  { name: "Palladium spot OTC", type: "commodities", flag: "🛢️" },
+  { name: "Platinum spot OTC", type: "commodities", flag: "🛢️" },
+
+  // 5. АКЦИИ (OTC)
   { name: "Intel OTC", type: "stocks", flag: "📈" },
   { name: "McDonald's OTC", type: "stocks", flag: "📈" },
   { name: "Microsoft OTC", type: "stocks", flag: "📈" },
@@ -822,7 +838,18 @@ const ALL_ASSETS_CATALOG = [
   { name: "Coinbase Global OTC", type: "stocks", flag: "📈" },
   { name: "Johnson & Johnson OTC", type: "stocks", flag: "📈" },
   { name: "Marathon Digital Holdings OTC", type: "stocks", flag: "📈" },
-  { name: "Citigroup Inc OTC", type: "stocks", flag: "📈" }
+  { name: "Citigroup Inc OTC", type: "stocks", flag: "📈" },
+
+  // 6. ИНДЕКСЫ (INDICES)
+  { name: "AUS 200 OTC", type: "indices", flag: "📊" },
+  { name: "100GBP OTC", type: "indices", flag: "📊" },
+  { name: "D30EUR OTC", type: "indices", flag: "📊" },
+  { name: "DJI30 OTC", type: "indices", flag: "📊" },
+  { name: "E50EUR OTC", type: "indices", flag: "📊" },
+  { name: "F40EUR OTC", type: "indices", flag: "📊" },
+  { name: "JPN225 OTC", type: "indices", flag: "📊" },
+  { name: "US100 OTC", type: "indices", flag: "📊" },
+  { name: "SP500 OTC", type: "indices", flag: "📊" }
 ];
 
 const EDU=[
@@ -1165,7 +1192,9 @@ function renderCatalogList(filter=""){
     { key: "forex_real", name: "💱 Валютные пары (Биржа)" },
     { key: "forex_otc", name: "⚡ Валютные пары OTC" },
     { key: "crypto", name: "🔥 Криптовалюты OTC" },
-    { key: "stocks", name: "📈 Акции компаний OTC" }
+    { key: "commodities", name: "🛢️ Сырьевые товары OTC" },
+    { key: "stocks", name: "📈 Акции компаний OTC" },
+    { key: "indices", name: "📊 Биржевые индексы OTC" }
   ];
   categories.forEach(catGroup => {
     if(modalCategory !== "all" && modalCategory !== catGroup.key) return;
