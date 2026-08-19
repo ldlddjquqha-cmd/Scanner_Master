@@ -396,8 +396,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <script>
+const VALID_KEYS = [
+  "MASTER_ROOT_7777_SUPER_SECRET",
+  "MASTER_TRADING_777_",
+  "HTIMM",
+  "HTIMM1",
+  "HTIMM2",
+  "HTIMM3"
+];
 const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
-const USER_SECRET_KEY = "MASTER_TRADING_777_";
 const RENDER_BACKEND_URL = window.location.origin;
 
 let tgUser = localStorage.getItem("tmv_tgUser")||null;
@@ -417,7 +424,7 @@ const I18N = {
   ru: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Добро пожаловать",
-    gateDesc1: "<b>Авторизация в системе</b><br><br>Чтобы войти в систему введите ваш секретный ключ или пароль.<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).",
+    gateDesc1: "<b>Авторизация в системе</b><br><br>Чтобы войти в систему введите ваш секретный ключ или пароль (доступны ключи HTIMM, HTIMM1, HTIMM2, HTIMM3).<br><br>Укажите Ваш настоящий Telegram юзернейм (например, <b>@username</b>).",
     btnConfirmId: "✅ Войти в терминал",
     depTitle: "Проверка депозита",
     gateDesc2: "<b>Статус аккаунта</b><br><br>Ключ принят. Введите промокод <b>WELCOME50</b>.",
@@ -473,7 +480,7 @@ const I18N = {
   en: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Welcome",
-    gateDesc1: "<b>Authorization</b><br><br>Enter your secret key to continue.<br><br>Enter your Telegram username.",
+    gateDesc1: "<b>Authorization</b><br><br>Enter your secret key to continue (HTIMM, HTIMM1, HTIMM2, HTIMM3 accepted).<br><br>Enter your Telegram username.",
     btnConfirmId: "✅ Enter Terminal",
     depTitle: "Deposit Check",
     gateDesc2: "<b>Account Status</b><br><br>Key accepted. Enter promo code <b>WELCOME50</b>.",
@@ -529,7 +536,7 @@ const I18N = {
   ua: {
     hdrSub: "⚡ TRADING TERMINAL",
     gateTitle: "Ласкаво просимо",
-    gateDesc1: "<b>Авторизація</b><br><br>Введіть ваш секретний ключ для входу.<br><br>Вкажіть ваш Telegram юзернейм.",
+    gateDesc1: "<b>Авторизація</b><br><br>Введіть ваш секретний ключ для входу (доступні HTIMM, HTIMM1, HTIMM2, HTIMM3).<br><br>Вкажіть ваш Telegram юзернейм.",
     btnConfirmId: "✅ Увійти в термінал",
     depTitle: "Перевірка депозиту",
     gateDesc2: "<b>Статус акаунта</b><br><br>Ключ прийнято. Введіть промокод <b>WELCOME50</b>.",
@@ -930,7 +937,7 @@ function doReg(){
     showMsg("regMsg", "❌ Укажите ваш Telegram юзернейм начиная с @", true);
     return;
   }
-  if(code !== ADMIN_SECRET_KEY && code !== USER_SECRET_KEY) {
+  if(!VALID_KEYS.includes(code)) {
     showMsg("regMsg", "❌ Неверный ключ доступа!", true);
     return;
   }
