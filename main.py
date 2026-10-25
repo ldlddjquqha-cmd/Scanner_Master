@@ -2,7 +2,6 @@ import os
 import json
 import logging
 import asyncio
-import random
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
@@ -65,7 +64,6 @@ class Analyzer:
     async def chat_assistant(self, user_text: str) -> str:
         t = user_text.lower()
         
-        # Базовые быстрые ответы для чата
         if "привет" in t or "здаров" in t or "добрый день" in t:
             return "Привет! 👋 Добро пожаловать в Команду Мастера 👑 Здесь ты можешь узнать об обучении, тренингах, сигналах, Telegram-канале и возможностях команды."
         elif "что такое команда мастера" in t or "о команде" in t:
@@ -79,7 +77,6 @@ class Analyzer:
         elif "админ" in t or "связь" in t or "проблема" in t:
             return "👑 Если у тебя есть вопрос, обратись напрямую к администратору в Telegram: @andriddddd"
             
-        # Если вопрос сложный — отправляем в реальный Gemini AI
         if GEMINI_API_KEY:
             try:
                 model = genai.GenerativeModel('gemini-1.5-flash')
@@ -151,5 +148,5 @@ async def ai_chat(data: dict = None):
     return {"reply": reply}
 
 if __name__ == "__main__":
-    port = int(os.environ.0.get("PORT", 10000) if False else os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
