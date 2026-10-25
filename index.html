@@ -49,16 +49,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .cat.on{background:var(--gold-g);color:#111;border:none}
 .cat-payout{background:rgba(0,230,118,0.2);color:var(--green);padding:2px 5px;border-radius:4px;font-size:9px;font-weight:900}
 .lbl{display:block;font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.3px;margin-bottom:4px}
-
 .selected-asset-box {background:var(--inner);border:1.5px solid var(--gold);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
 .selected-asset-box:hover{background:rgba(255,215,0,0.05)}
 .selected-asset-info span:first-child{font-size:9px;color:var(--muted);display:block;font-weight:700}
 .selected-asset-info span:last-child{font-size:13px;color:var(--gold);font-weight:900}
-
 .ref-box {background:var(--inner);border:1px solid var(--border-g);border-radius:12px;padding:10px 12px;margin-top:12px;text-align:left}
 .ref-box-title {font-size:11px;font-weight:800;color:var(--gold);margin-bottom:4px;display:flex;align-items:center;gap:5px}
 .ref-box-desc {font-size:10px;color:#b0b8c8;line-height:1.4;margin-bottom:8px}
-
 .modal-overlay{position:fixed;inset:0;background:rgba(4,6,10,.88);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease}
 .modal-content{background:var(--card);border:1.5px solid var(--border-g);border-radius:16px;width:100%;max-width:400px;max-height:85vh;display:flex;flex-direction:column;padding:16px;animation:fu .3s ease}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -66,7 +63,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;font-weight:900}
 .modal-body{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:6px;padding-right:2px}
 .modal-search-input{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:12px;font-weight:700;outline:none;margin-bottom:8px}
-
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .sel{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:12px;font-weight:700;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%238a94a6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
 .sig{display:none;margin-top:11px;background:var(--inner);border:2px solid var(--gold);border-radius:14px;padding:14px;text-align:center;animation:fu .3s ease}
@@ -111,7 +107,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .fav-item{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--inner);border:1px solid var(--border);border-radius:11px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s}
 .fav-item:hover{background:rgba(255,215,0,.08)}
 .fav-item span:first-child{color:var(--gold)}
-
 .admin-profile-box {background:var(--inner);border:2px solid var(--gold);border-radius:14px;padding:14px;margin-top:12px;animation:fu .3s ease}
 .users-list {display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-top:8px;padding-right:4px}
 .admin-search-input {width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:#fff;font-size:11.5px;font-weight:700;outline:none;margin-bottom:8px}
@@ -122,6 +117,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .btn-unblock-green {background:rgba(0,230,118,0.2);color:var(--green);border:1px solid rgba(0,230,118,0.4)}
 .btn-del-user {background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3);padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;margin-left:4px}
 .catalog-category-header {font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;margin:10px 0 4px 4px;letter-spacing:.5px;border-bottom:1px solid var(--border);padding-bottom:3px}
+
+/* AI Chat Styles */
+.chat-container{display:flex;flex-direction:column;height:380px;background:var(--inner);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{padding:8px 11px;border-radius:10px;font-size:11.5px;line-height:1.4;max-width:85%}
+.chat-msg.user{background:rgba(255,215,0,0.15);color:var(--gold);align-self:flex-end;border:1px solid rgba(255,215,0,0.3)}
+.chat-msg.ai{background:var(--card);color:var(--text);align-self:flex-start;border:1px solid var(--border)}
+.chat-input-row{display:flex;gap:6px;padding:8px;background:var(--card);border-top:1px solid var(--border)}
+.chat-input{flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:11.5px;outline:none}
+.chat-input:focus{border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -244,6 +249,20 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div id="mainFavEmpty" style="text-align:center;padding:24px;color:var(--muted);font-size:11px;font-weight:600" data-t="profFavEmpty">Пока пусто — добавь актив из полного каталога</div>
 </div>
 
+<div class="card tab hidden" id="tabChat">
+<h3 class="g-text" style="font-size:13px;margin-bottom:8px">🤖 ИИ Умный Чат (Трейдинг)</h3>
+<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px">Спросите у ИИ о рынках, стратегиях, техническом анализе и психологии трейдинга.</p>
+<div class="chat-container">
+  <div class="chat-messages" id="chatMessagesBox">
+    <div class="chat-msg ai">Привет! Я твой ИИ-ассистент по трейдингу. Задай мне любой вопрос о рынках, стратегиях или управлении рисками!</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" class="chat-input" id="chatInputText" placeholder="Введите ваш вопрос..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
+    <button class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
+  </div>
+</div>
+</div>
+
 <div class="card tab hidden" id="tabEdu">
 <div id="eduList">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="eduHeader">📚 20 профессиональных связок (Полный курс)</h3>
@@ -287,7 +306,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <b>Инструкция сканера:</b><br>
 1️⃣ Нажмите «Открыть камеру»<br>
 2️⃣ Выберите экспирацию<br>
-3️⃣ Наведите камеру на график<br>
+3️⃣ Наведите камеру строго на торговый график<br>
 4️⃣ Нажмите «СКАНУВАТИ»
 </div>
 <button class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
@@ -340,6 +359,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="bnav hidden" id="bnav">
 <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
 <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
+<div class="nav" onclick="tab('tabChat',this)"><span>🤖</span><span>ИИ Чат</span></div>
 <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
 <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
 <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
@@ -590,137 +610,144 @@ const I18N = {
 };
 
 const ALL_ASSETS_CATALOG = [
+  { name: "AED/CNY OTC", type: "forex", flag: "💱" },
+  { name: "AUD/CAD", type: "forex", flag: "💱" },
+  { name: "AUD/CAD OTC", type: "forex", flag: "💱" },
+  { name: "AUD/CHF", type: "forex", flag: "💱" },
+  { name: "AUD/CHF OTC", type: "forex", flag: "💱" },
+  { name: "AUD/JPY", type: "forex", flag: "💱" },
+  { name: "AUD/JPY OTC", type: "forex", flag: "💱" },
   { name: "AUD/NZD OTC", type: "forex", flag: "💱" },
+  { name: "AUD/USD", type: "forex", flag: "💱" },
   { name: "AUD/USD OTC", type: "forex", flag: "💱" },
   { name: "BHD/CNY OTC", type: "forex", flag: "💱" },
+  { name: "CAD/CHF", type: "forex", flag: "💱" },
+  { name: "CAD/CHF OTC", type: "forex", flag: "💱" },
+  { name: "CAD/JPY", type: "forex", flag: "💱" },
+  { name: "CAD/JPY OTC", type: "forex", flag: "💱" },
+  { name: "CHF/JPY", type: "forex", flag: "💱" },
+  { name: "CHF/JPY OTC", type: "forex", flag: "💱" },
+  { name: "CHF/NOK OTC", type: "forex", flag: "💱" },
+  { name: "EUR/AUD", type: "forex", flag: "💱" },
+  { name: "EUR/CAD", type: "forex", flag: "💱" },
+  { name: "EUR/CAD OTC", type: "forex", flag: "💱" },
+  { name: "EUR/CHF", type: "forex", flag: "💱" },
   { name: "EUR/CHF OTC", type: "forex", flag: "💱" },
+  { name: "EUR/GBP", type: "forex", flag: "💱" },
   { name: "EUR/GBP OTC", type: "forex", flag: "💱" },
+  { name: "EUR/HUF OTC", type: "forex", flag: "💱" },
+  { name: "EUR/JPY", type: "forex", flag: "💱" },
+  { name: "EUR/JPY OTC", type: "forex", flag: "💱" },
+  { name: "EUR/NZD OTC", type: "forex", flag: "💱" },
   { name: "EUR/TRY OTC", type: "forex", flag: "💱" },
+  { name: "EUR/USD", type: "forex", flag: "💱" },
   { name: "EUR/USD OTC", type: "forex", flag: "💱" },
+  { name: "GBP/AUD", type: "forex", flag: "💱" },
+  { name: "GBP/AUD OTC", type: "forex", flag: "💱" },
+  { name: "GBP/CAD", type: "forex", flag: "💱" },
+  { name: "GBP/CHF", type: "forex", flag: "💱" },
+  { name: "GBP/JPY", type: "forex", flag: "💱" },
+  { name: "GBP/JPY OTC", type: "forex", flag: "💱" },
+  { name: "GBP/USD", type: "forex", flag: "💱" },
+  { name: "GBP/USD OTC", type: "forex", flag: "💱" },
+  { name: "JOD/CNY OTC", type: "forex", flag: "💱" },
   { name: "KES/USD OTC", type: "forex", flag: "💱" },
+  { name: "LBP/USD OTC", type: "forex", flag: "💱" },
+  { name: "MAD/USD OTC", type: "forex", flag: "💱" },
   { name: "NGN/USD OTC", type: "forex", flag: "💱" },
+  { name: "NZD/JPY OTC", type: "forex", flag: "💱" },
   { name: "NZD/USD OTC", type: "forex", flag: "💱" },
   { name: "OMR/CNY OTC", type: "forex", flag: "💱" },
+  { name: "QAR/CNY OTC", type: "forex", flag: "💱" },
+  { name: "SAR/CNY OTC", type: "forex", flag: "💱" },
+  { name: "TND/USD OTC", type: "forex", flag: "💱" },
+  { name: "UAH/USD OTC", type: "forex", flag: "💱" },
+  { name: "USD/ARS OTC", type: "forex", flag: "💱" },
+  { name: "USD/BDT OTC", type: "forex", flag: "💱" },
   { name: "USD/BRL OTC", type: "forex", flag: "💱" },
+  { name: "USD/CAD", type: "forex", flag: "💱" },
+  { name: "USD/CAD OTC", type: "forex", flag: "💱" },
+  { name: "USD/CHF", type: "forex", flag: "💱" },
   { name: "USD/CHF OTC", type: "forex", flag: "💱" },
+  { name: "USD/CLP OTC", type: "forex", flag: "💱" },
+  { name: "USD/CNH OTC", type: "forex", flag: "💱" },
+  { name: "USD/COP OTC", type: "forex", flag: "💱" },
+  { name: "USD/DZD OTC", type: "forex", flag: "💱" },
+  { name: "USD/EGP OTC", type: "forex", flag: "💱" },
   { name: "USD/IDR OTC", type: "forex", flag: "💱" },
   { name: "USD/INR OTC", type: "forex", flag: "💱" },
+  { name: "USD/JPY", type: "forex", flag: "💱" },
+  { name: "USD/JPY OTC", type: "forex", flag: "💱" },
+  { name: "USD/MXN OTC", type: "forex", flag: "💱" },
+  { name: "USD/MYR OTC", type: "forex", flag: "💱" },
   { name: "USD/PHP OTC", type: "forex", flag: "💱" },
   { name: "USD/PKR OTC", type: "forex", flag: "💱" },
   { name: "USD/SGD OTC", type: "forex", flag: "💱" },
   { name: "USD/THB OTC", type: "forex", flag: "💱" },
-  { name: "CHF/NOK OTC", type: "forex", flag: "💱" },
-  { name: "AUD/CAD OTC", type: "forex", flag: "💱" },
-  { name: "USD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "GBP/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/COP OTC", type: "forex", flag: "💱" },
-  { name: "MAD/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/MXN OTC", type: "forex", flag: "💱" },
-  { name: "AUD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "QAR/CNY OTC", type: "forex", flag: "💱" },
-  { name: "ZAR/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/EGP OTC", type: "forex", flag: "💱" },
-  { name: "NZD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "USD/CNH OTC", type: "forex", flag: "💱" },
-  { name: "AUD/CHF OTC", type: "forex", flag: "💱" },
-  { name: "USD/CAD OTC", type: "forex", flag: "💱" },
-  { name: "USD/ARS OTC", type: "forex", flag: "💱" },
-  { name: "TND/USD OTC", type: "forex", flag: "💱" },
-  { name: "YER/USD OTC", type: "forex", flag: "💱" },
-  { name: "EUR/NZD OTC", type: "forex", flag: "💱" },
-  { name: "USD/CLP OTC", type: "forex", flag: "💱" },
-  { name: "EUR/JPY OTC", type: "forex", flag: "💱" },
-  { name: "SAR/CNY OTC", type: "forex", flag: "💱" },
-  { name: "JOD/CNY OTC", type: "forex", flag: "💱" },
-  { name: "USD/DZD OTC", type: "forex", flag: "💱" },
-  { name: "EUR/HUF OTC", type: "forex", flag: "💱" },
-  { name: "USD/BDT OTC", type: "forex", flag: "💱" },
-  { name: "GBP/AUD OTC", type: "forex", flag: "💱" },
-  { name: "UAH/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/MYR OTC", type: "forex", flag: "💱" },
-  { name: "AED/CNY OTC", type: "forex", flag: "💱" },
-  { name: "CHF/JPY OTC", type: "forex", flag: "💱" },
-  { name: "CAD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "CAD/CHF OTC", type: "forex", flag: "💱" },
-  { name: "GBP/JPY OTC", type: "forex", flag: "💱" },
   { name: "USD/VND OTC", type: "forex", flag: "💱" },
-  { name: "LBP/USD OTC", type: "forex", flag: "💱" },
-  { name: "GBP/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/JPY", type: "forex", flag: "💱" },
-  { name: "AUD/CAD", type: "forex", flag: "💱" },
-  { name: "AUD/CHF", type: "forex", flag: "💱" },
-  { name: "AUD/JPY", type: "forex", flag: "💱" },
-  { name: "AUD/USD", type: "forex", flag: "💱" },
-  { name: "CAD/CHF", type: "forex", flag: "💱" },
-  { name: "CHF/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/AUD", type: "forex", flag: "💱" },
-  { name: "EUR/CAD", type: "forex", flag: "💱" },
-  { name: "EUR/CHF", type: "forex", flag: "💱" },
-  { name: "EUR/USD", type: "forex", flag: "💱" },
-  { name: "GBP/AUD", type: "forex", flag: "💱" },
-  { name: "GBP/CAD", type: "forex", flag: "💱" },
-  { name: "GBP/CHF", type: "forex", flag: "💱" },
-  { name: "USD/CAD", type: "forex", flag: "💱" },
-  { name: "USD/CHF", type: "forex", flag: "💱" },
-  { name: "USD/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/GBP", type: "forex", flag: "💱" },
-  { name: "GBP/USD", type: "forex", flag: "💱" },
-  { name: "Polkadot OTC", type: "crypto", flag: "🔥" },
-  { name: "Litecoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Bitcoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Cardano OTC", type: "crypto", flag: "🔥" },
-  { name: "Polygon OTC", type: "crypto", flag: "🔥" },
-  { name: "Chainlink OTC", type: "crypto", flag: "🔥" },
-  { name: "Solana OTC", type: "crypto", flag: "🔥" },
-  { name: "TRON OTC", type: "crypto", flag: "🔥" },
+  { name: "YER/USD OTC", type: "forex", flag: "💱" },
+  { name: "ZAR/USD OTC", type: "forex", flag: "💱" },
   { name: "Avalanche OTC", type: "crypto", flag: "🔥" },
-  { name: "Bitcoin ETF OTC", type: "crypto", flag: "🔥" },
-  { name: "Ethereum OTC", type: "crypto", flag: "🔥" },
-  { name: "Dogecoin OTC", type: "crypto", flag: "🔥" },
-  { name: "BNB OTC", type: "crypto", flag: "🔥" },
+  { name: "BCH/EUR", type: "crypto", flag: "🔥" },
+  { name: "BCH/GBP", type: "crypto", flag: "🔥" },
+  { name: "BCH/JPY", type: "crypto", flag: "🔥" },
   { name: "Bitcoin", type: "crypto", flag: "🔥" },
+  { name: "Bitcoin ETF OTC", type: "crypto", flag: "🔥" },
+  { name: "Bitcoin OTC", type: "crypto", flag: "🔥" },
+  { name: "BNB OTC", type: "crypto", flag: "🔥" },
+  { name: "Cardano OTC", type: "crypto", flag: "🔥" },
+  { name: "Chainlink OTC", type: "crypto", flag: "🔥" },
+  { name: "Dash", type: "crypto", flag: "🔥" },
+  { name: "Dogecoin OTC", type: "crypto", flag: "🔥" },
+  { name: "Ethereum", type: "crypto", flag: "🔥" },
+  { name: "Ethereum OTC", type: "crypto", flag: "🔥" },
+  { name: "Litecoin OTC", type: "crypto", flag: "🔥" },
+  { name: "Polkadot OTC", type: "crypto", flag: "🔥" },
+  { name: "Polygon OTC", type: "crypto", flag: "🔥" },
+  { name: "Solana OTC", type: "crypto", flag: "🔥" },
+  { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
+  { name: "TRON OTC", type: "crypto", flag: "🔥" },
   { name: "Brent Oil OTC", type: "commodities", flag: "🛢️" },
-  { name: "WTI Crude Oil OTC", type: "commodities", flag: "🛢️" },
-  { name: "Silver OTC", type: "commodities", flag: "🛢️" },
   { name: "Gold OTC", type: "commodities", flag: "🛢️" },
   { name: "Natural Gas OTC", type: "commodities", flag: "🛢️" },
   { name: "Palladium spot OTC", type: "commodities", flag: "🛢️" },
-  { name: "Platinum spot OTC", type: "commodities", flag: "🛢️" },
-  { name: "American Express OTC", type: "stocks", flag: "📈" },
-  { name: "Johnson & Johnson OTC", type: "stocks", flag: "📈" },
-  { name: "McDonald's OTC", type: "stocks", flag: "📈" },
-  { name: "Intel OTC", type: "stocks", flag: "📈" },
-  { name: "Microsoft OTC", type: "stocks", flag: "📈" },
-  { name: "Cisco OTC", type: "stocks", flag: "📈" },
+  { name: "Platinum spot", type: "commodities", flag: "🛢️" },
+  { name: "Silver OTC", type: "commodities", flag: "🛢️" },
+  { name: "WTI Crude Oil OTC", type: "commodities", flag: "🛢️" },
+  { name: "Advanced Micro Devices OTC", type: "stocks", flag: "📈" },
   { name: "Alibaba OTC", type: "stocks", flag: "📈" },
-  { name: "Citigroup Inc OTC", type: "stocks", flag: "📈" },
+  { name: "Amazon OTC", type: "stocks", flag: "📈" },
+  { name: "American Express OTC", type: "stocks", flag: "📈" },
   { name: "Apple OTC", type: "stocks", flag: "📈" },
+  { name: "Boeing Company OTC", type: "stocks", flag: "📈" },
+  { name: "Cisco OTC", type: "stocks", flag: "📈" },
+  { name: "Citigroup Inc OTC", type: "stocks", flag: "📈" },
+  { name: "Coinbase Global OTC", type: "stocks", flag: "📈" },
+  { name: "ExxonMobil", type: "stocks", flag: "📈" },
+  { name: "FACEBOOK INC OTC", type: "stocks", flag: "📈" },
+  { name: "FedEx OTC", type: "stocks", flag: "📈" },
+  { name: "GameStop Corp OTC", type: "stocks", flag: "📈" },
+  { name: "Intel OTC", type: "stocks", flag: "📈" },
+  { name: "Johnson & Johnson OTC", type: "stocks", flag: "📈" },
+  { name: "Marathon Digital Holdings OTC", type: "stocks", flag: "📈" },
+  { name: "McDonald's OTC", type: "stocks", flag: "📈" },
+  { name: "Microsoft OTC", type: "stocks", flag: "📈" },
+  { name: "Netflix OTC", type: "stocks", flag: "📈" },
+  { name: "Palantir Technologies OTC", type: "stocks", flag: "📈" },
   { name: "Pfizer Inc OTC", type: "stocks", flag: "📈" },
   { name: "Tesla OTC", type: "stocks", flag: "📈" },
-  { name: "GameStop Corp OTC", type: "stocks", flag: "📈" },
   { name: "VISA OTC", type: "stocks", flag: "📈" },
-  { name: "Boeing Company OTC", type: "stocks", flag: "📈" },
-  { name: "Netflix OTC", type: "stocks", flag: "📈" },
-  { name: "Coinbase Global OTC", type: "stocks", flag: "📈" },
-  { name: "ExxonMobil OTC", type: "stocks", flag: "📈" },
-  { name: "Palantir Technologies OTC", type: "stocks", flag: "📈" },
-  { name: "Advanced Micro Devices OTC", type: "stocks", flag: "📈" },
-  { name: "FACEBOOK INC OTC", type: "stocks", flag: "📈" },
-  { name: "Amazon OTC", type: "stocks", flag: "📈" },
-  { name: "FedEx OTC", type: "stocks", flag: "📈" },
-  { name: "Marathon Digital Holdings OTC", type: "stocks", flag: "📈" },
   { name: "VIX OTC", type: "stocks", flag: "📈" },
-  { name: "AUS 200 OTC", type: "indices", flag: "📊" },
   { name: "100GBP OTC", type: "indices", flag: "📊" },
+  { name: "AUS 200 OTC", type: "indices", flag: "📊" },
   { name: "D30EUR OTC", type: "indices", flag: "📊" },
   { name: "DJI30 OTC", type: "indices", flag: "📊" },
   { name: "E35EUR OTC", type: "indices", flag: "📊" },
   { name: "E50EUR OTC", type: "indices", flag: "📊" },
   { name: "F40EUR OTC", type: "indices", flag: "📊" },
   { name: "JPN225 OTC", type: "indices", flag: "📊" },
-  { name: "US100 OTC", type: "indices", flag: "📊" },
-  { name: "SP500 OTC", type: "indices", flag: "📊" }
+  { name: "SP500", type: "indices", flag: "📊" },
+  { name: "US100 OTC", type: "indices", flag: "📊" }
 ];
 
 const EDU=[
@@ -735,116 +762,32 @@ const EDU=[
   d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с физическим выходом цены за динамические границы Полосы Боллинджера.\n• Точка входа: Когда свеча закрывается за пределами верхней или нижней линии BB, а RSI пересекает отметку 70 или 30 в обратную сторону.\n• Риск-менеджмент: Используйте строго фиксированный объем и избегайте входов во время выхода важных новостей.",
   img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
   tags:["M1","M5"]
-},
-{
-  t:"3️⃣ MACD + EMA 200 (Трендовый фильтр)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Определение глобального направления тренда по экспоненциальной средней EMA 200 и поиск локальных импульсов по гистограмме MACD.\n• Точка входа: Цена выше EMA 200 — ищем исключительно CALL на откатах гистограммы MACD к нулевой линии. Цена ниже — только PUT.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M1-M5"]
-},
-{
-  t:"4️⃣ Стохастический осциллятор (Stochastic) + Уровни Фибоначчи",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Поиск глубоких коррекций по ключевым уровням Фибоначчи (0.618 / 0.5) в сочетании с пересечением линий %K и %D в зонах экстремумов.\n• Точка входа: Завершение коррекции импульсного движения в сторону тренда.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M5-M15"]
-},
-{
-  t:"5️⃣ Скользящие средние EMA (9) + EMA (21) Пересечение",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Быстрое реагирование на смену краткосрочного импульса при пересечении быстрой и медленной экспоненциальных средних.\n• Точка входа: Четкое пересечение EMA 9 снизу вверх (CALL) или сверху вниз (PUT) с подтверждением объема.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M1","M2"]
-},
-{
-  t:"6️⃣ Индикатор ATR (Average True Range) + Пробой канала",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Оценка волатильности рынка. Низкие значения ATR неизбежно сменяются резким расширением диапазона (флэт переходит в мощный тренд).\n• Точка входа: Пробой узкого торгового канала при резком росте волатильности.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M5"]
-},
-{
-  t:"7️⃣ Паттерн 'Пин-бар' + Зона круглых чисел",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Психологические круглые уровни (например, 1.08000) привлекают гигантский объем отложенных ордеров участников.\n• Точка входа: Образование длинной тени свечи (пин-бара) за круглой отметкой с быстрым возвратом.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"8️⃣ RSI (7) + Поддержка трендовой линии",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Использование сверхчувствительного RSI(7) для точных отскоков от наклонных линий тренда в динамическом канале.\n• Точка входа: Касание трендовой линии на графике точно совпадает с разворотом RSI из зоны перепроданности/перекупленности.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M1","M3"]
-},
-{
-  t:"9️⃣ Индикатор Ichimoku Kinko Hyo (Облако + Киджун-сен)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Комплексный анализ баланса сил быков и медведей с использованием облака Ишимоку и линии Киджун-сен.\n• Точка входа: Отскок от линии Киджун-сен внутри сильного трендового облака.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M5","M15"]
-},
-{
-  t:"🔟 Индикатор Parabolic SAR + ADX (Сила тренда)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Индикатор ADX выше 25 подтверждает наличие сильного тренда, а точки Parabolic SAR указывают точные точки переворота.\n• Точка входа: Появление точки SAR с другой стороны цены при высоком значении ADX.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"11️⃣ Кластерный анализ объема (Volume Profile + Delta)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Определение максимального объема торгов (POC) и зон дисбаланса покупателей и продавцов.\n• Точка входа: Тест уровня контроля POC с отскоком в сторону преобладающей рыночной дельты.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"12️⃣ Свечной паттерн 'Поглощение' + Уровень S/R",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Резкое перехватывание инициативы противоположной стороной рынка на важном ценовом уровне поддержки или сопротивления.\n• Точка входа: Закрытие поглощающей свечи на ключевом уровне.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"13️⃣ Индикатор Williams %R + Скользящая SMA (50)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Оценка перекупленности и перепроданности по Williams %R относительно средней линии SMA 50.\n• Точка входа: Выход из зоны экстремума (-20 / -80) при нахождении цены выше/ниже SMA 50.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M2","M5"]
-},
-{
-  t:"14️⃣ Стратегия 'Три экрана Элдера' (Модификация для бинарных)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Анализ старшего таймфрейма для глобального тренда и младшего для точной точки входа по импульсному осциллятору.\n• Точка входа: Полное совпадение направления импульса на двух таймфреймах.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M5 / M1"]
-},
-{
-  t:"15️⃣ Канал Кельтнера (Keltner Channels) + RSI",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Использование экспоненциального канала волатильности на базе ATR вместо стандартного Боллинджера.\n• Точка входа: Касание внешней границы канала Кельтнера при подтверждении RSI.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"16️⃣ Индикатор CCI (Commodity Channel Index) + Уровни",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Выход CCI за рамки уровней +100 / -100 сигнализирует о сильном отклонении цены от статистической нормы.\n• Точка входа: Возврат CCI внутрь канала после ложного пробоя.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["M1","M3"]
-},
-{
-  t:"17️⃣ Паттерн '1-2-3' + Уровень Фибоначчи",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Классическая разворотная формация с формированием экстремумов 1, 2 и 3 на коррекции.\n• Точка входа: Пробой точки 2 после завершения глубокой коррекции тренда.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["M5","M15"]
-},
-{
-  t:"18️⃣ Индикатор Rate of Change (ROC) + Скользящая средняя",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Измерение скорости изменения цены в процентах для выявления истощения импульса движения.\n• Точка входа: Пересечение нулевой линии ROC в сторону текущего тренда.",
-  img:"https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop",
-  tags:["M1","M5"]
-},
-{
-  t:"19️⃣ Торговля по стакану ордеров (Order Book Imbalance)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Анализ плотности лимитных ордеров на покупку и продажу в реальном стакане котировок.\n• Точка входа: Резкое преобладание лимитных заявок в стакане на уровне поддержки.",
-  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
-  tags:["S30","M1"]
-},
-{
-  t:"20️⃣ Нейросетевой комплексный анализ (Multi-Factor)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Одновременный опрос 8 индикаторов (RSI, Bollinger, MACD, EMA 200, Volume, ATR, Stochastic, ADX) с расчетом вероятностей.\n• Точка входа: Сигнал генерируется только при совпадении минимум 6 факторов из 8.",
-  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
-  tags:["Все таймфреймы"]
 }
 ];
+
+function isMarketOpen(assetName) {
+  if (assetName.toUpperCase().includes("OTC") || 
+      assetName.toUpperCase().includes("BITCOIN") || 
+      assetName.toUpperCase().includes("ETHEREUM") || 
+      assetName.toUpperCase().includes("LITECOIN") || 
+      assetName.toUpperCase().includes("SOLANA") || 
+      assetName.toUpperCase().includes("DOGECOIN") || 
+      assetName.toUpperCase().includes("TRON") || 
+      assetName.toUpperCase().includes("TONCOIN") || 
+      assetName.toUpperCase().includes("POLYGON") || 
+      assetName.toUpperCase().includes("BNB") || 
+      assetName.toUpperCase().includes("AVALANCHE") || 
+      assetName.toUpperCase().includes("DASH") || 
+      assetName.toUpperCase().includes("BCH")) {
+    return true;
+  }
+  const now = new Date();
+  const day = now.getUTCDay();
+  if (day === 0 || day === 6) {
+    return false;
+  }
+  return true;
+}
 
 function cleanSymbol(sym) {
   if (!sym) return "";
@@ -896,22 +839,7 @@ function getAssetPayout(symbol) {
 function updatePoDeepLink() {
   const btn = document.getElementById("poDeepLink");
   if(!btn) return;
-  const poPairMap = {
-    "EUR/USD OTC": "EURUSD_otc", "GBP/USD OTC": "GBPUSD_otc", "USD/JPY OTC": "USDJPY_otc",
-    "AUD/CAD OTC": "AUDCAD_otc", "AUD/CHF OTC": "AUDCHF_otc", "AUD/JPY OTC": "AUDJPY_otc",
-    "AUD/NZD OTC": "AUDNZD_otc", "AUD/USD OTC": "AUDUSD_otc", "CAD/CHF OTC": "CADCHF_otc",
-    "CAD/JPY OTC": "CADJPY_otc", "CHF/JPY OTC": "CHFJPY_otc", "EUR/AUD OTC": "EURAUD_otc",
-    "EUR/CAD OTC": "EURCAD_otc", "EUR/CHF OTC": "EURCHF_otc", "EUR/GBP OTC": "EURGBP_otc",
-    "EUR/JPY OTC": "EURJPY_otc", "EUR/NZD OTC": "EURNZD_otc", "GBP/AUD OTC": "GBPAUD_otc",
-    "GBP/CAD OTC": "GBPCAD_otc", "GBP/CHF OTC": "GBPCHF_otc", "GBP/JPY OTC": "GBPJPY_otc",
-    "NZD/JPY OTC": "NZDJPY_otc", "NZD/USD OTC": "NZDUSD_otc", "USD/CAD OTC": "USDCAD_otc",
-    "USD/CHF OTC": "USDCHF_otc", "Gold OTC": "XAUUSD_otc", "Silver OTC": "XAGUSD_otc",
-    "Brent Oil OTC": "UKOIL_otc", "WTI Crude Oil OTC": "USOIL_otc", "Bitcoin OTC": "BTCUSD_otc"
-  };
-  let formattedAsset = poPairMap[currentAsset];
-  if(!formattedAsset) {
-    formattedAsset = currentAsset.replace("/", "").replace(/ /g, "_").toLowerCase();
-  }
+  let formattedAsset = currentAsset.replace("/", "").replace(/ /g, "_").toLowerCase();
   const baseUrl = "https://u3.shortink.io/cabinet/demo-quick-high-low";
   const queryParams = "?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50";
   btn.href = `${baseUrl}/${formattedAsset}${queryParams}`;
@@ -920,9 +848,9 @@ function updatePoDeepLink() {
 function renderAssetButtons() {
   const container = document.getElementById("assetCatsContainer");
   if(!container) return;
-  let forexItems = ALL_ASSETS_CATALOG.filter(item => item.type === "forex").slice(0, 6);
+  let items = ALL_ASSETS_CATALOG.slice(0, 6);
   let html = "";
-  forexItems.forEach((item) => {
+  items.forEach((item) => {
     let fullName = item.name;
     let activeClass = (fullName === currentAsset) ? " on" : "";
     let payoutStr = getAssetPayout(fullName);
@@ -1060,7 +988,7 @@ function tab(tabId, el){
   document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
   document.getElementById(tabId).classList.remove("hidden");
   document.querySelectorAll(".bnav .nav").forEach(n=>n.classList.remove("on"));
-  el.classList.add("on");
+  if(el) el.classList.add("on");
   if(tabId === 'tabFavs') {
     renderMainFavs();
   }
@@ -1110,8 +1038,10 @@ function renderCatalogList(filter=""){
         let fullAssetName = item.name;
         let isFav = favs.includes(fullAssetName);
         let payoutStr = getAssetPayout(fullAssetName);
+        let isOpen = isMarketOpen(fullAssetName);
+        let marketBadge = isOpen ? '' : ' <span style="color:var(--red);font-size:9px;">[ЗАКРЫТ]</span>';
         html += `<div class="fav-item">
-          <span onclick="selectCatalogAsset('${fullAssetName}')">${item.flag} ${item.name}</span>
+          <span onclick="selectCatalogAsset('${fullAssetName}')">${item.flag} ${item.name}${marketBadge}</span>
           <div style="display:flex;gap:8px;align-items:center">
             <span class="cat-payout">${payoutStr}</span>
             <span style="cursor:pointer;font-size:15px" onclick="toggleFav('${fullAssetName}')">${isFav ? '⭐' : '☆'}</span>
@@ -1161,7 +1091,9 @@ function renderFavs(){
   let html = "";
   favs.forEach(f => {
     let payoutStr = getAssetPayout(f);
-    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f} <span class="cat-payout">${payoutStr}</span></span><span>➔</span></div>`;
+    let isOpen = isMarketOpen(f);
+    let statusText = isOpen ? '' : ' (Закрыт)';
+    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f}${statusText} <span class="cat-payout">${payoutStr}</span></span><span>➔</span></div>`;
   });
   listEl.innerHTML = html;
 }
@@ -1179,7 +1111,9 @@ function renderMainFavs(){
   let html = "";
   favs.forEach(f => {
     let payoutStr = getAssetPayout(f);
-    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f} <span class="cat-payout">${payoutStr}</span></span><span style="color:var(--gold)">Перейти ➔</span></div>`;
+    let isOpen = isMarketOpen(f);
+    let statusText = isOpen ? '' : ' (Закрыт)';
+    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f}${statusText} <span class="cat-payout">${payoutStr}</span></span><span style="color:var(--gold)">Перейти ➔</span></div>`;
   });
   listEl.innerHTML = html;
 }
@@ -1192,6 +1126,10 @@ function clearFavs(){
 }
 
 async function getSig(){
+  if (!isMarketOpen(currentAsset)) {
+    alert("⛔ Биржевой рынок по активу " + currentAsset + " закрыт (выходной день). Торговля и сканирование недоступны до открытия рынка!");
+    return;
+  }
   if(tgUser) {
     if(checkUserBlockedStatus(tgUser)) {
       logout();
@@ -1203,7 +1141,6 @@ async function getSig(){
     const tf = document.getElementById("tf").value;
     const expSec = parseInt(document.getElementById("exp").value);
     
-    // Динамический выбор направления на базе имени актива и точного времени (50% CALL / 50% PUT)
     let hash = 0;
     const comboStr = currentAsset + tf + Date.now().toString().slice(0, -3);
     for (let i = 0; i < comboStr.length; i++) {
@@ -1246,8 +1183,12 @@ async function getSig(){
 }
 
 function autoSig(){
-  const forexAssets = ALL_ASSETS_CATALOG.filter(a => a.type === "forex");
-  const randomAssetObj = forexAssets[Math.floor(Math.random()*forexAssets.length)];
+  const openAssets = ALL_ASSETS_CATALOG.filter(a => isMarketOpen(a.name));
+  if(openAssets.length === 0) {
+    alert("На данный момент все стандартные рынки закрыты. Доступны только крипта и OTC активы.");
+    return;
+  }
+  const randomAssetObj = openAssets[Math.floor(Math.random()*openAssets.length)];
   currentAsset = randomAssetObj.name;
   updateSelectedAssetUI();
   renderAssetButtons();
@@ -1412,16 +1353,6 @@ async function doScan(){
         стратегия: "Smart Money"
       };
 
-      let scanHash = 0;
-      const scanCombo = "scan" + Date.now().toString();
-      for (let i = 0; i < scanCombo.length; i++) {
-        scanHash = scanCombo.charCodeAt(i) + ((scanHash << 5) - scanHash);
-      }
-      let isScanCall = Math.abs(scanHash) % 2 === 0;
-
-      let dir = isScanCall ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
-      let stratText = `--- TEAM MASTER SIGNAL V4.0 ---\nСТРАТЕГИЯ: Smart Money\nТАЙМФРЕЙМ: M1\nВЕРДИКТ: ${isScanCall ? 'ВВЕРХ (CALL)' : 'ВНИЗ (PUT)'}\nПРОХОДИМОСТЬ: 82%`;
-
       try {
         const fd = new FormData();
         fd.append('file', blob, 'snapshot.jpg');
@@ -1432,32 +1363,48 @@ async function doScan(){
         });
         if(response.ok) {
           const resData = await response.json();
-          if(resData.direction) {
-            dir = resData.direction;
-            isScanCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
+          let dir = resData.direction || "❌ График не найден";
+          let isScanCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
+          let stratText = resData.analysis || "На камере не обнаружен торговый график. Пожалуйста, наведите камеру строго на график цены.";
+          
+          document.getElementById("scanMeta").textContent = `VISION AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
+          const dirEl = document.getElementById("scanDir");
+          
+          if(dir.includes("не найден") || dir.includes("ERROR") || dir.includes("❌")) {
+            dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
+            dirEl.className = "sig-dir put";
+          } else {
+            dirEl.textContent = dir;
+            dirEl.className = "sig-dir " + (isScanCall ? "call" : "put");
+            sigCount++;
+            localStorage.setItem("tmv_sigs", sigCount);
+            document.getElementById("profSigs").textContent = sigCount;
           }
-          if(resData.analysis) stratText = resData.analysis;
+
+          document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
+          document.getElementById("scanSigBox").style.display = "block";
+          document.getElementById("btnScanCancel").style.display = "block";
+          document.getElementById("btnScanNew").style.display = "none";
+
+          if(!dir.includes("не найден")) {
+            startTimer("scanCd", expSec, ()=>{
+              document.getElementById("btnScanCancel").style.display = "none";
+              document.getElementById("btnScanNew").style.display = "block";
+            });
+          }
+          return;
         }
       } catch(e) {}
 
-      document.getElementById("scanMeta").textContent = `VISION AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
+      // Fallback при сетевой ошибке бэкенда
+      document.getElementById("scanMeta").textContent = `VISION AI · ERROR`;
       const dirEl = document.getElementById("scanDir");
-      dirEl.textContent = dir;
-      dirEl.className = "sig-dir " + (isScanCall ? "call" : "put");
-      document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
-      
+      dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
+      dirEl.className = "sig-dir put";
+      document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>График не найден. Пожалуйста, наведите камеру на монитор с графиком котировок.</b></pre>`;
       document.getElementById("scanSigBox").style.display = "block";
       document.getElementById("btnScanCancel").style.display = "block";
       document.getElementById("btnScanNew").style.display = "none";
-      
-      sigCount++;
-      localStorage.setItem("tmv_sigs", sigCount);
-      document.getElementById("profSigs").textContent = sigCount;
-
-      startTimer("scanCd", expSec, ()=>{
-        document.getElementById("btnScanCancel").style.display = "none";
-        document.getElementById("btnScanNew").style.display = "block";
-      });
     });
   }, 'image/jpeg');
 }
@@ -1465,6 +1412,49 @@ async function doScan(){
 function cancelScan(){
   if(scanTimer) clearInterval(scanTimer);
   document.getElementById("scanSigBox").style.display = "none";
+}
+
+async function sendAiChatMessage() {
+  const inputEl = document.getElementById("chatInputText");
+  const msgBox = document.getElementById("chatMessagesBox");
+  const text = inputEl.value.trim();
+  if(!text) return;
+
+  msgBox.innerHTML += `<div class="chat-msg user">${escapeHtml(text)}</div>`;
+  inputEl.value = "";
+  msgBox.scrollTop = msgBox.scrollHeight;
+
+  const loadingId = "ai_load_" + Date.now();
+  msgBox.innerHTML += `<div class="chat-msg ai" id="${loadingId}">ИИ думает...</div>`;
+  msgBox.scrollTop = msgBox.scrollHeight;
+
+  try {
+    const response = await fetch(`${RENDER_BACKEND_URL}/api/ai-chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: text, user: tgUser })
+    });
+    
+    const loadEl = document.getElementById(loadingId);
+    if(response.ok) {
+      const data = await response.json();
+      if(loadEl) loadEl.remove();
+      const aiReply = data.reply || "Извините, я отвечаю только на вопросы по трейдингу и финансовым рынкам.";
+      msgBox.innerHTML += `<div class="chat-msg ai">${escapeHtml(aiReply)}</div>`;
+    } else {
+      if(loadEl) loadEl.remove();
+      msgBox.innerHTML += `<div class="chat-msg ai">⚠️ Пожалуйста, задавайте вопросы, касающиеся исключительно трейдинга, стратегий и рыночного анализа.</div>`;
+    }
+  } catch(e) {
+    const loadEl = document.getElementById(loadingId);
+    if(loadEl) loadEl.remove();
+    msgBox.innerHTML += `<div class="chat-msg ai">⚠️ Ошибка связи с сервером ИИ на Render.</div>`;
+  }
+  msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function changeLanguage(lang){
