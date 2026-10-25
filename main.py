@@ -1,15 +1,11 @@
-# main.py (Код бэкенда для Render, который нужно обновить в репозитории)
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import google.generativeai as genai
-from PIL import Image
-import io
 
 app = Flask(__name__)
 CORS(app)
 
-# Инициализация Gemini API через ключ окружения на Render
 api_key = os.getenv("GEMINI_API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
@@ -23,7 +19,7 @@ def get_payouts():
             "GBPUSDOTC": 92,
             "AUDUSDOTC": 78,
             "USDJPYOTC": 32,
-            "BITCOINOT0": 58,
+            "BITCOINOTC": 58,
             "GOLDOTC": 80
         }
     })
@@ -33,13 +29,13 @@ def get_signal():
     asset = request.args.get('asset', 'EUR/USD OTC')
     tf = request.args.get('tf', 'M1')
     
-    analysis_text = f"Анализ актива {asset} на таймфрейме {tf}: На основе индикаторов Smart Money и RSI зафиксирован локальный импульс."
+    analysis_text = f"Анализ актива {asset} на таймфрейме {tf}: Зафиксирован импульс по Smart Money."
     direction = "⬆️ CALL (ВВЕРХ)"
     
     if api_key:
         try:
             model = genai.GenerativeModel('gemini-1.5-flash')
-            prompt = f"Ты профессиональный трейдер. Дай краткий торговый сигнал (CALL или PUT) и анализ для актива {asset} на таймфрейме {tf}. Отвечай строго на русском языке в формате: НАПРАВЛЕНИЕ | Текст анализа."
+            prompt = f"Ты профессиональный трейдер. Дай торговый сигнал (CALL или PUT) и анализ для актива {asset} на таймфрейме {tf}. Отвечай на русском языке в формате: НАПРАВЛЕНИЕ | Текст анализа."
             response = model.generate_content(prompt)
             if response and response.text:
                 res_str = response.text.strip()
@@ -63,24 +59,26 @@ def scan_analyze():
     
     file = request.files['file']
     try:
-        image = Image.open(file.stream)
+        image_bytes = file.read()
         
         if api_key:
             model = genai.GenerativeModel('gemini-1.5-flash')
+            image_part = {
+                "mime_type": "image/jpeg",
+                "data": image_bytes
+            }
             prompt = (
-                "Внимательно посмотри на это изображение. На нем изображен график финансового актива с японскими свечами? "
-                "Если на изображении нет графиков, котировок, свечей или это посторонний предмет/комната/лицо, то строго ответь: "
-                "СТАТУС: НЕТ_ГРАФИКА | АНАЛИЗ: ❌ ГРАФИК НЕ НАЙДЕН. Пожалуйста, наведите камеру строго на торговый график.\n"
-                "Если на фото реальный торговый график со свечами, то проанализируй его и выдай ответ в формате: "
-                "СТАТУС: ОК | НАПРАВЛЕНИЕ: ⬆️ CALL (ВВЕРХ) или ⬇️ PUT (ВНИЗ) | АНАЛИЗ: Текст с разбором по Smart Money и Price Action."
+                "Внимательно посмотри на это изображение графика. Если это график со свечами, проанализируй его. "
+                "Если на фото нет графиков или посторонний предмет, ответь: СТАТУС: НЕТ_ГРАФИКА | АНАЛИЗ: ❌ ГРАФИК НЕ НАЙДЕН.\n"
+                "Если график есть, выдай ответ в формате: СТАТУС: ОК | НАПРАВЛЕНИЕ: ⬆️ CALL (ВВЕРХ) или ⬇️ PUT (ВНИЗ) | АНАЛИЗ: Текст с разбором."
             )
-            response = model.generate_content([image, prompt])
+            response = model.generate_content([image_part, prompt])
             res_text = response.text if response and response.text else ""
             
             if "НЕТ_ГРАФИКА" in res_text or "❌" in res_text or not ("CALL" in res_text.upper() or "PUT" in res_text.upper()):
                 return jsonify({
                     "direction": "❌ ГРАФИК НЕ НАЙДЕН",
-                    "analysis": "❌ ГРАФИК НЕ НАЙДЕН. На камере обнаружен посторонний предмет или фон. Наведите камеру строго на график цены со свечами."
+                    "analysis": "❌ ГРАФИК НЕ НАЙДЕН. Наведите камеру строго на график котировок со свечами."
                 })
             
             direction = "⬆️ CALL (ВВЕРХ)"
@@ -90,7 +88,7 @@ def scan_analyze():
             return jsonify({
                 "direction": direction,
                 "analysis": res_text
-        })
+            })
     except Exception as e:
         pass
 
@@ -107,16 +105,16 @@ def ai_chat():
     if not prompt:
         return jsonify({"reply": "Пожалуйста, введите вопрос."})
         
-    reply = "Я специализируюсь исключительно на трейдинге, финансовых рынках и стратегиях."
+    reply = "Я специализируюсь исключительно на трейдинге и финансовых рынках."
     if api_key:
         try:
             model = genai.GenerativeModel('gemini-1.5-flash')
-            full_prompt = f"Ты ИИ-ассистент закрытого VIP-клуба трейдеров 'Team Master'. Отвечай на вопрос пользователя по трейдингу, техническому анализу или психологии рынка. Вопрос: {prompt}"
+            full_prompt = f"Ты ИИ-ассистент клуба трейдеров 'Team Master'. Отвечай на вопрос по трейдингу и техническому анализу. Вопрос: {prompt}"
             response = model.generate_content(full_prompt)
             if response and response.text:
                 reply = response.text.strip()
         except Exception as e:
-            reply = "Ошибка обращения к нейросети Gemini."
+            reply = "Ошибка обращения к нейросети."
             
     return jsonify({"reply": reply})
 
