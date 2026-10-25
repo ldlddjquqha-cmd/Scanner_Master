@@ -1,14 +1,14 @@
 import os
+import json
+import base64
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
+import requests
 
 app = Flask(__name__)
 CORS(app)
 
 api_key = os.getenv("GEMINI_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
 
 @app.route('/api/payouts', methods=['GET'])
 def get_payouts():
@@ -34,11 +34,14 @@ def get_signal():
     
     if api_key:
         try:
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
             prompt = f"Ты профессиональный трейдер. Дай торговый сигнал (CALL или PUT) и анализ для актива {asset} на таймфрейме {tf}. Отвечай на русском языке в формате: НАПРАВЛЕНИЕ | Текст анализа."
-            response = model.generate_content(prompt)
-            if response and response.text:
-                res_str = response.text.strip()
+            payload = {"contents": [{"parts": [{"text": prompt}]}]}
+            
+            res = requests.post(url, json=payload, timeout=10)
+            if res.status_code == 200:
+                data = res.json()
+                res_str = data['candidates'][0]['content']['parts'][0]['text'].strip()
                 if "PUT" in res_str.upper() or "НИЗ" in res_str.upper():
                     direction = "⬇️ PUT (ВНИЗ)"
                 else:
@@ -60,35 +63,43 @@ def scan_analyze():
     file = request.files['file']
     try:
         image_bytes = file.read()
+        encoded_image = base64.b64encode(image_bytes).decode('utf-8')
         
         if api_key:
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            image_part = {
-                "mime_type": "image/jpeg",
-                "data": image_bytes
-            }
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
             prompt = (
                 "Внимательно посмотри на это изображение графика. Если это график со свечами, проанализируй его. "
                 "Если на фото нет графиков или посторонний предмет, ответь: СТАТУС: НЕТ_ГРАФИКА | АНАЛИЗ: ❌ ГРАФИК НЕ НАЙДЕН.\n"
                 "Если график есть, выдай ответ в формате: СТАТУС: ОК | НАПРАВЛЕНИЕ: ⬆️ CALL (ВВЕРХ) или ⬇️ PUT (ВНИЗ) | АНАЛИЗ: Текст с разбором."
             )
-            response = model.generate_content([image_part, prompt])
-            res_text = response.text if response and response.text else ""
+            payload = {
+                "contents": [{
+                    "parts": [
+                        {"text": prompt},
+                        {"inline_data": {"mime_type": "image/jpeg", "data": encoded_image}}
+                    ]
+                }]
+            }
             
-            if "НЕТ_ГРАФИКА" in res_text or "❌" in res_text or not ("CALL" in res_text.upper() or "PUT" in res_text.upper()):
-                return jsonify({
-                    "direction": "❌ ГРАФИК НЕ НАЙДЕН",
-                    "analysis": "❌ ГРАФИК НЕ НАЙДЕН. Наведите камеру строго на график котировок со свечами."
-                })
-            
-            direction = "⬆️ CALL (ВВЕРХ)"
-            if "PUT" in res_text.upper() or "ВНИЗ" in res_text.upper():
-                direction = "⬇️ PUT (ВНИЗ)"
+            res = requests.post(url, json=payload, timeout=15)
+            if res.status_code == 200:
+                data = res.json()
+                res_text = data['candidates'][0]['content']['parts'][0]['text'].strip()
                 
-            return jsonify({
-                "direction": direction,
-                "analysis": res_text
-            })
+                if "НЕТ_ГРАФИКА" in res_text or "❌" in res_text or not ("CALL" in res_text.upper() or "PUT" in res_text.upper()):
+                    return jsonify({
+                        "direction": "❌ ГРАФИК НЕ НАЙДЕН",
+                        "analysis": "❌ ГРАФИК НЕ НАЙДЕН. Наведите камеру строго на график котировок со свечами."
+                    })
+                
+                direction = "⬆️ CALL (ВВЕРХ)"
+                if "PUT" in res_text.upper() or "ВНИЗ" in res_text.upper():
+                    direction = "⬇️ PUT (ВНИЗ)"
+                    
+                return jsonify({
+                    "direction": direction,
+                    "analysis": res_text
+                })
     except Exception as e:
         pass
 
@@ -108,11 +119,14 @@ def ai_chat():
     reply = "Я специализируюсь исключительно на трейдинге и финансовых рынках."
     if api_key:
         try:
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
             full_prompt = f"Ты ИИ-ассистент клуба трейдеров 'Team Master'. Отвечай на вопрос по трейдингу и техническому анализу. Вопрос: {prompt}"
-            response = model.generate_content(full_prompt)
-            if response and response.text:
-                reply = response.text.strip()
+            payload = {"contents": [{"parts": [{"text": full_prompt}]}]}
+            
+            res = requests.post(url, json=payload, timeout=10)
+            if res.status_code == 200:
+                data = res.json()
+                reply = data['candidates'][0]['content']['parts'][0]['text'].strip()
         except Exception as e:
             reply = "Ошибка обращения к нейросети."
             
