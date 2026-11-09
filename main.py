@@ -7,6 +7,8 @@ from pydantic import BaseModel
 import httpx
 from datetime import datetime
 import google.generativeai as genai
+from PIL import Image
+import io
 
 app = FastAPI()
 
@@ -691,15 +693,11 @@ const EDU=[
 ];
 
 function updateDynamicLinks() {
-  const currentOrigin = window.location.origin;
   const tgLink = "https://t.me/+uekq4TquqkM4Mzcy";
-  
   const chatLinkEl = document.getElementById("tgCommunityLink");
   if(chatLinkEl) chatLinkEl.href = tgLink;
-  
   const aboutChanEl = document.getElementById("aboutTgChanBtn");
   if(aboutChanEl) aboutChanEl.href = tgLink;
-  
   const aboutChatEl = document.getElementById("aboutTgChatBtn");
   if(aboutChatEl) aboutChatEl.href = tgLink;
 }
@@ -1591,23 +1589,22 @@ async def scan_analyze(file: UploadFile = File(...)):
         }
 
     try:
+        image = Image.open(io.BytesIO(image_bytes))
         model = genai.GenerativeModel('gemini-1.5-flash')
-        image_part = {
-            "mime_type": file.content_type or "image/jpeg",
-            "data": image_bytes
-        }
+        
         prompt = (
-            "Проанализируй данное изображение. ВНИМАНИЕ: Сначала определи, является ли изображение реальным финансовым/биржевым графиком цен (свечи, линии тренда, индикаторы). "
-            "Если на изображении НЕ график (например, фото людей, природы, текста, случайные предметы или размытый фон), строго верни ответ в таком формате:\n"
+            "Проанализируй данное изображение. ВНИМАНИЕ: Сначала определи, является ли изображение реальным финансовым/биржевым графиком цен (свечи, линии тренда, индикаторы, графики котировок). "
+            "Если на изображении НЕ график (например, фото людей, природы, текста, случайные предметы, скриншоты интерфейсов без свечей или размытый фон), строго верни ответ в таком формате:\n"
             "DIRECTION: ❌ ГРАФИК НЕ НАЙДЕН\n"
             "ANALYSIS: ❌ ГРАФИК НЕ НАЙДЕН. На изображении отсутствует торговый график котировок.\n\n"
-            "Если это настоящий график, проанализируй его по Smart Money / ICT и дай торговый сигнал: "
-            "направление строго '⬆️ CALL (ВВЕРХ)' или '⬇️ PUT (НИЗ)' и краткий анализ структуры рынка.\n"
+            "Если это настоящий график, проанализируй его структуру, тренд и уровни, и дай торговый сигнал: "
+            "направление строго '⬆️ CALL (ВВЕРХ)' или '⬇️ PUT (НИЗ)' и краткий анализ.\n"
             "Формат ответа:\n"
             "DIRECTION: ⬆️ CALL (ВВЕРХ) (или ⬇️ PUT (НИЗ))\n"
             "ANALYSIS: [Текст твоего детального анализа]"
         )
-        response = model.generate_content([image_part, prompt])
+        
+        response = model.generate_content([image, prompt])
         text_res = response.text if response and response.text else ""
         
         direction = "❌ ГРАФИК НЕ НАЙДЕН"
@@ -1620,14 +1617,14 @@ async def scan_analyze(file: UploadFile = File(...)):
                 analysis = line.replace("ANALYSIS:", "").strip()
 
         if "не найден" in text_res.lower() or "❌" in direction:
-            return {"direction": "❌ ГRAPH NOT FOUND", "analysis": "❌ ГРАФИК НЕ НАЙДЕН. Пожалуйста, наведите камеру или загрузите скриншот исключительно торгового графика котировок."}
+            return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "❌ ГРАФИК НЕ НАЙДЕН. Пожалуйста, загрузите или сфотографируйте исключительно торговый график котировок."}
 
         if not direction or ("CALL" not in direction and "PUT" not in direction and "ВВЕРХ" not in direction and "НИЗ" not in direction):
             direction = "⬆️ CALL (ВВЕРХ)"
 
         return {"direction": direction, "analysis": text_res}
     except Exception as e:
-        return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "Ошибка обработки изображения через Gemini Vision AI."}
+        return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": f"Ошибка обработки изображения через Gemini Vision AI: {str(e)}"}
 
 if __name__ == "__main__":
     import uvicorn
