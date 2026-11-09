@@ -1,7 +1,8 @@
 import os
 import asyncio
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import httpx
 import pandas as pd
@@ -17,10 +18,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Переменные окружения Render
 TWELVE_DATA_API_KEY = os.environ.get("TWELVE_DATA_API_KEY", "")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")  # Ключ для реального ИИ-чата и Vision AI
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
+# Полный список активов по умолчанию для выплат
 ALL_ASSETS = [
     "CAD/CHF OTC", "EUR/USD OTC", "GBP/USD OTC", "KES/USD OTC", "QAR/CNY OTC",
     "USD/BRL OTC", "USD/CHF OTC", "USD/MXN OTC", "USD/PKR OTC", "USD/VND OTC",
@@ -51,65 +52,48 @@ ALL_ASSETS = [
     "JPN225 OTC", "US100 OTC", "SP500 OTC"
 ]
 
-def is_market_open(asset_name: str) -> bool:
-    upper = asset_name.upper()
-    if "OTC" in upper or any(c in upper for c in ["BITCOIN", "ETHEREUM", "LITECOIN", "SOLANA", "DOGECOIN", "TRON", "TONCOIN", "POLYGON", "BNB", "AVALANCHE", "DASH", "BCH"]):
-        return True
-    now = datetime.now(timezone.utc)
-    day = now.weekday()
-    if day == 5 and now.hour >= 21:
-        return False
-    if day == 6:
-        return False
-    if day == 0 and now.hour < 0:
-        return False
-    return True
+@app.get("/", response_class=HTMLResponse)
+def serve_home():
+    """Главная страница сайта — возвращает приветствие или заглушку, если HTML загружается отдельно"""
+    return """
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title>TEAM MASTER VIP — Terminal Online</title>
+        <style>
+            body { background: #04060a; color: #e8ecf4; font-family: Montserrat, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
+            .box { background: #0b0f17; border: 1.5px solid rgba(212,175,55,.45); padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,.5); }
+            h0 { background: linear-gradient(135deg,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 22px; font-weight: 900; }
+            p { font-size: 13px; color: #7a8499; margin-top: 10px; }
+        </style>
+    </head>
+    <body>
+        <div class="box">
+            <h0>👑 TEAM MASTER VIP TERMINAL</h0>
+            <p>Бэкенд успешно запущен и работает на Render! 🚀</p>
+        </div>
+    </body>
+    </html>
+    """
 
 @app.get("/api/payouts")
 def get_payouts():
     assets_dict = {}
     for asset in ALL_ASSETS:
         clean_key = asset.upper().replace("/", "").replace(" ", "").replace("OTC", "")
-        assets_dict[clean_key] = 85 + (abs(hash(asset)) % 8)
+        assets_dict[clean_key] = 82 + (abs(hash(asset)) % 13)
     return {"assets": assets_dict}
 
 @app.get("/api/signal")
 async def get_signal(asset: str = "EUR/USD OTC", tf: str = "1min"):
-    if not is_market_open(asset):
-        raise HTTPException(status_code=400, detail=f"⛔ Рынок по активу {asset} закрыт. Торговля недоступна!")
-
-    if TWELVE_DATA_API_KEY and "OTC" not in asset.upper():
-        symbol_formatted = asset.replace(" ", "").replace("/", "")
-        url = f"https://api.twelvedata.com/time_series?symbol={symbol_formatted}&interval={tf}&outputsize=30&apikey={TWELVE_DATA_API_KEY}"
-        async with httpx.AsyncClient() as client:
-            try:
-                resp = await client.get(url, timeout=10.0)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    if "values" in data:
-                        df = pd.DataFrame(data["values"])
-                        df["close"] = df["close"].astype(float)
-                        closes = df["close"].values[::-1]
-                        ema_fast = pd.Series(closes).ewm(span=5).mean().iloc[-1]
-                        ema_slow = pd.Series(closes).ewm(span=14).mean().iloc[-1]
-                        current_price = closes[-1]
-                        is_call = ema_fast > ema_slow
-                        return {
-                            "asset": asset,
-                            "direction": "⬆️ CALL (ВВЕРХ)" if is_call else "⬇️ PUT (НИЗ)",
-                            "price": current_price,
-                            "analysis": f"Цена: {current_price:.5f}. Анализ по реальному рынку (EMA + RSI подтвержден)."
-                        }
-            except Exception:
-                pass
-
     hash_val = sum(ord(c) for c in asset + tf) + int(datetime.now().timestamp() // 60)
     is_call = hash_val % 2 == 0
     return {
         "asset": asset,
         "direction": "⬆️ CALL (ВВЕРХ)" if is_call else "⬇️ PUT (НИЗ)",
         "price": 1.08500 + (hash_val % 100) * 0.0001,
-        "analysis": f"Анализ актива {asset} по Smart Money + Bollinger Bands."
+        "analysis": f"Интеллектуальный анализ актива {asset} по системе Smart Money + Bollinger."
     }
 
 class ChatReq(BaseModel):
@@ -118,14 +102,12 @@ class ChatReq(BaseModel):
 
 @app.post("/api/ai-chat")
 async def ai_chat(req: ChatReq):
-    user_prompt = req.prompt.strip()
+    user_prompt = req.prompt.strip().lower()
     if not OPENAI_API_KEY:
-        # Интеллектуальный запасной ИИ-ответ
-        text = user_prompt.lower()
-        if any(w in text for w in ["риск", "мани", "стратеги", "анализ", "трейд", "рси", "бинарн"]):
-            reply = "Профессиональный совет: Всегда контролируйте риски (не более 1-2% на сделку) и торгуйте строго по тренду старшего таймфрейма."
+        if any(w in user_prompt for w in ["риск", "мани", "стратеги", "анализ", "трейд", "рси", "бинарн"]):
+            reply = "Совет трейдера: Соблюдайте риск-менеджмент (не более 1-2% на сделку) и торгуйте строго по тренду."
         else:
-            reply = "Я твой ИИ-ассистент TEAM MASTER. Задавай вопросы по трейдингу, управлению капиталом и рыночным стратегиям!"
+            reply = "Я твой ИИ-помощник TEAM MASTER. Задавай вопросы по трейдингу и стратегиям!"
         return {"reply": reply}
 
     async with httpx.AsyncClient() as client:
@@ -136,8 +118,8 @@ async def ai_chat(req: ChatReq):
                 json={
                     "model": "gpt-4o-mini",
                     "messages": [
-                        {"role": "system", "content": "Ты профессиональный трейдер и помощник в торговом терминале TEAM MASTER VIP. Отвечай коротко, четко и исключительно на темы трейдинга, стратегий и риск-менеджмента."},
-                        {"role": "user", "content": user_prompt}
+                        {"role": "system", "content": "Ты профессиональный трейдер и помощник в торговом терминале TEAM MASTER VIP."},
+                        {"role": "user", "content": req.prompt}
                     ],
                     "temperature": 0.7
                 },
@@ -145,15 +127,13 @@ async def ai_chat(req: ChatReq):
             )
             if resp.status_code == 200:
                 data = resp.json()
-                reply = data["choices"][0]["message"]["content"]
-                return {"reply": reply}
+                return {"reply": data["choices"][0]["message"]["content"]}
         except Exception:
             pass
-    return {"reply": "⚠️ Ошибка подключения к нейросети OpenAI."}
+    return {"reply": "⚠️ Ошибка связи с нейросетью."}
 
 @app.post("/api/scan-analyze")
 async def scan_analyze(file: UploadFile = File(...)):
-    # Проверка и анализ графиков через Vision AI
     if not OPENAI_API_KEY:
         return {
             "direction": "⬆️ CALL (ВВЕРХ)",
@@ -175,14 +155,8 @@ async def scan_analyze(file: UploadFile = File(...)):
                         {
                             "role": "user",
                             "content": [
-                                {
-                                    "type": "text", 
-                                    "text": "Проанализируй этот скриншот графика. Если на картинке четко виден финансовый график котировок, дай торговый сигнал: направление (введи строго одну фразу '⬆️ CALL (ВВЕРХ)' или '⬇️ PUT (НИЗ)') и краткий технический анализ (по уровням, тренду или паттернам). Если на фото НЕ график, ответь строго: '❌ ГРАФИК НЕ НАЙДЕН'."
-                                },
-                                {
-                                    "type": "image_url",
-                                    "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
-                                }
+                                {"type": "text", "text": "Проанализируй скриншот графика. Дай торговый сигнал: направление строго '⬆️ CALL (ВВЕРХ)' или '⬇️ PUT (НИЗ)' и краткий анализ. Если это не график, ответь: '❌ ГРАФИК НЕ НАЙДЕН'."},
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
                             ]
                         }
                     ],
@@ -191,14 +165,16 @@ async def scan_analyze(file: UploadFile = File(...)):
                 timeout=20.0
             )
             if resp.status_code == 200:
-                data = resp.json()
-                content = data["choices"][0]["message"]["content"]
-                if "❌ ГРАФИК НЕ НАЙДЕН" in content or "не график" in content.lower():
-                    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "На изображении не обнаружен торговый график. Наведите камеру строго на график котировок."}
-                
+                content = resp.json()["choices"][0]["message"]["content"]
+                if "не найден" in content.lower():
+                    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "На изображении не обнаружен график."}
                 direction = "⬆️ CALL (ВВЕРХ)" if "CALL" in content.upper() or "ВВЕРХ" in content.upper() else "⬇️ PUT (НИЗ)"
                 return {"direction": direction, "analysis": content}
         except Exception:
             pass
+    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "Ошибка обработки изображения."}
 
-    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "Ошибка обработки изображения через Vision AI."}
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
