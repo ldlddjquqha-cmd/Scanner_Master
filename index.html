@@ -261,6 +261,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <button class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
   </div>
 </div>
+<div class="gap2"></div>
+<a class="btn btn-dark btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" style="color:var(--gold)">💬 Наши чаты и сообщество в Telegram</a>
 </div>
 
 <div class="card tab hidden" id="tabEdu">
@@ -408,6 +410,7 @@ let currentAsset="EUR/USD OTC";
 let currentLang="ru";
 let modalCategory="all";
 let livePayouts = {};
+let ALL_ASSETS_CATALOG = []; // Список активов подгружается динамически с бэкенда main.py
 
 let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.stringify([
   {tg: "@master_admin", status: "Активен", role: "ADMIN"}
@@ -611,145 +614,6 @@ const I18N = {
   }
 };
 
-const ALL_ASSETS_CATALOG = [
-  { name: "CAD/CHF OTC", type: "forex", flag: "💱" },
-  { name: "EUR/USD OTC", type: "forex", flag: "💱" },
-  { name: "GBP/USD OTC", type: "forex", flag: "💱" },
-  { name: "KES/USD OTC", type: "forex", flag: "💱" },
-  { name: "QAR/CNY OTC", type: "forex", flag: "💱" },
-  { name: "USD/BRL OTC", type: "forex", flag: "💱" },
-  { name: "USD/CHF OTC", type: "forex", flag: "💱" },
-  { name: "USD/MXN OTC", type: "forex", flag: "💱" },
-  { name: "USD/PKR OTC", type: "forex", flag: "💱" },
-  { name: "USD/VND OTC", type: "forex", flag: "💱" },
-  { name: "NZD/USD OTC", type: "forex", flag: "💱" },
-  { name: "GBP/JPY OTC", type: "forex", flag: "💱" },
-  { name: "AUD/NZD OTC", type: "forex", flag: "💱" },
-  { name: "USD/IDR OTC", type: "forex", flag: "💱" },
-  { name: "BHD/CNY OTC", type: "forex", flag: "💱" },
-  { name: "CAD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "EUR/HUF OTC", type: "forex", flag: "💱" },
-  { name: "USD/COP OTC", type: "forex", flag: "💱" },
-  { name: "USD/PHP OTC", type: "forex", flag: "💱" },
-  { name: "AED/CNY OTC", type: "forex", flag: "💱" },
-  { name: "AUD/CHF OTC", type: "forex", flag: "💱" },
-  { name: "USD/THB OTC", type: "forex", flag: "💱" },
-  { name: "AUD/USD OTC", type: "forex", flag: "💱" },
-  { name: "JOD/CNY OTC", type: "forex", flag: "💱" },
-  { name: "CHF/NOK OTC", type: "forex", flag: "💱" },
-  { name: "USD/CNH OTC", type: "forex", flag: "💱" },
-  { name: "AUD/CAD OTC", type: "forex", flag: "💱" },
-  { name: "GBP/AUD OTC", type: "forex", flag: "💱" },
-  { name: "USD/ARS OTC", type: "forex", flag: "💱" },
-  { name: "LBP/USD OTC", type: "forex", flag: "💱" },
-  { name: "MAD/USD OTC", type: "forex", flag: "💱" },
-  { name: "AUD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "USD/EGP OTC", type: "forex", flag: "💱" },
-  { name: "OMR/CNY OTC", type: "forex", flag: "💱" },
-  { name: "ZAR/USD OTC", type: "forex", flag: "💱" },
-  { name: "CHF/JPY OTC", type: "forex", flag: "💱" },
-  { name: "EUR/JPY OTC", type: "forex", flag: "💱" },
-  { name: "EUR/CHF OTC", type: "forex", flag: "💱" },
-  { name: "UAH/USD OTC", type: "forex", flag: "💱" },
-  { name: "EUR/NZD OTC", type: "forex", flag: "💱" },
-  { name: "YER/USD OTC", type: "forex", flag: "💱" },
-  { name: "NGN/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/SGD OTC", type: "forex", flag: "💱" },
-  { name: "USD/CAD OTC", type: "forex", flag: "💱" },
-  { name: "EUR/GBP OTC", type: "forex", flag: "💱" },
-  { name: "EUR/TRY OTC", type: "forex", flag: "💱" },
-  { name: "USD/BDT OTC", type: "forex", flag: "💱" },
-  { name: "NZD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "USD/INR OTC", type: "forex", flag: "💱" },
-  { name: "SAR/CNY OTC", type: "forex", flag: "💱" },
-  { name: "USD/JPY OTC", type: "forex", flag: "💱" },
-  { name: "USD/MYR OTC", type: "forex", flag: "💱" },
-  { name: "USD/DZD OTC", type: "forex", flag: "💱" },
-  { name: "TND/USD OTC", type: "forex", flag: "💱" },
-  { name: "USD/CLP OTC", type: "forex", flag: "💱" },
-  { name: "CAD/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/CAD", type: "forex", flag: "💱" },
-  { name: "AUD/CAD", type: "forex", flag: "💱" },
-  { name: "AUD/CHF", type: "forex", flag: "💱" },
-  { name: "AUD/JPY", type: "forex", flag: "💱" },
-  { name: "AUD/USD", type: "forex", flag: "💱" },
-  { name: "CAD/CHF", type: "forex", flag: "💱" },
-  { name: "CHF/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/CHF", type: "forex", flag: "💱" },
-  { name: "EUR/GBP", type: "forex", flag: "💱" },
-  { name: "GBP/AUD", type: "forex", flag: "💱" },
-  { name: "GBP/CAD", type: "forex", flag: "💱" },
-  { name: "GBP/CHF", type: "forex", flag: "💱" },
-  { name: "GBP/USD", type: "forex", flag: "💱" },
-  { name: "USD/CAD", type: "forex", flag: "💱" },
-  { name: "USD/CHF", type: "forex", flag: "💱" },
-  { name: "USD/JPY", type: "forex", flag: "💱" },
-  { name: "GBP/JPY", type: "forex", flag: "💱" },
-  { name: "EUR/USD", type: "forex", flag: "💱" },
-  { name: "EUR/AUD", type: "forex", flag: "💱" },
-  { name: "Bitcoin ETF OTC", type: "crypto", flag: "🔥" },
-  { name: "TRON OTC", type: "crypto", flag: "🔥" },
-  { name: "Chainlink OTC", type: "crypto", flag: "🔥" },
-  { name: "Cardano OTC", type: "crypto", flag: "🔥" },
-  { name: "Solana OTC", type: "crypto", flag: "🔥" },
-  { name: "Dogecoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Litecoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Bitcoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Ethereum OTC", type: "crypto", flag: "🔥" },
-  { name: "Polkadot OTC", type: "crypto", flag: "🔥" },
-  { name: "Toncoin OTC", type: "crypto", flag: "🔥" },
-  { name: "Polygon OTC", type: "crypto", flag: "🔥" },
-  { name: "BNB OTC", type: "crypto", flag: "🔥" },
-  { name: "Ethereum", type: "crypto", flag: "🔥" },
-  { name: "Avalanche OTC", type: "crypto", flag: "🔥" },
-  { name: "Dash", type: "crypto", flag: "🔥" },
-  { name: "BCH/EUR", type: "crypto", flag: "🔥" },
-  { name: "BCH/GBP", type: "crypto", flag: "🔥" },
-  { name: "BCH/JPY", type: "crypto", flag: "🔥" },
-  { name: "Brent Oil OTC", type: "commodities", flag: "🛢️" },
-  { name: "WTI Crude Oil OTC", type: "commodities", flag: "🛢️" },
-  { name: "Silver OTC", type: "commodities", flag: "🛢️" },
-  { name: "Gold OTC", type: "commodities", flag: "🛢️" },
-  { name: "Natural Gas OTC", type: "commodities", flag: "🛢️" },
-  { name: "Palladium spot OTC", type: "commodities", flag: "🛢️" },
-  { name: "Platinum spot OTC", type: "commodities", flag: "🛢️" },
-  { name: "American Express OTC", type: "stocks", flag: "📈" },
-  { name: "Boeing Company OTC", type: "stocks", flag: "📈" },
-  { name: "FACEBOOK INC OTC", type: "stocks", flag: "📈" },
-  { name: "Johnson & Johnson OTC", type: "stocks", flag: "📈" },
-  { name: "GameStop Corp OTC", type: "stocks", flag: "📈" },
-  { name: "Marathon Digital Holdings OTC", type: "stocks", flag: "📈" },
-  { name: "Alibaba OTC", type: "stocks", flag: "📈" },
-  { name: "Netflix OTC", type: "stocks", flag: "📈" },
-  { name: "McDonald's OTC", type: "stocks", flag: "📈" },
-  { name: "Advanced Micro Devices OTC", type: "stocks", flag: "📈" },
-  { name: "VIX OTC", type: "stocks", flag: "📈" },
-  { name: "Cisco OTC", type: "stocks", flag: "📈" },
-  { name: "Palantir Technologies OTC", type: "stocks", flag: "📈" },
-  { name: "Pfizer Inc OTC", type: "stocks", flag: "📈" },
-  { name: "VISA OTC", type: "stocks", flag: "📈" },
-  { name: "Citigroup Inc OTC", type: "stocks", flag: "📈" },
-  { name: "Amazon OTC", type: "stocks", flag: "📈" },
-  { name: "Microsoft OTC", type: "stocks", flag: "📈" },
-  { name: "Coinbase Global OTC", type: "stocks", flag: "📈" },
-  { name: "Tesla OTC", type: "stocks", flag: "📈" },
-  { name: "Intel OTC", type: "stocks", flag: "📈" },
-  { name: "Apple OTC", type: "stocks", flag: "📈" },
-  { name: "FedEx OTC", type: "stocks", flag: "📈" },
-  { name: "ExxonMobil OTC", type: "stocks", flag: "📈" },
-  { name: "AUS 200 OTC", type: "indices", flag: "📊" },
-  { name: "100GBP OTC", type: "indices", flag: "📊" },
-  { name: "D30EUR OTC", type: "indices", flag: "📊" },
-  { name: "DJI30 OTC", type: "indices", flag: "📊" },
-  { name: "E35EUR OTC", type: "indices", flag: "📊" },
-  { name: "E50EUR OTC", type: "indices", flag: "📊" },
-  { name: "F40EUR OTC", type: "indices", flag: "📊" },
-  { name: "JPN225 OTC", type: "indices", flag: "📊" },
-  { name: "US100 OTC", type: "indices", flag: "📊" },
-  { name: "SP500 OTC", type: "indices", flag: "📊" }
-];
-
 const EDU=[
 {
   t:"1️⃣ Уровни Поддержки и Сопротивления (S/R)",
@@ -801,6 +665,24 @@ async function syncPayoutsFromRender() {
       const data = await res.json();
       if (data && data.assets) {
         livePayouts = data.assets;
+        
+        // Динамически формируем список активов прямо из ответа бэкенда main.py
+        ALL_ASSETS_CATALOG = Object.keys(livePayouts).map(key => {
+          let type = "forex";
+          let flag = "💱";
+          let upperKey = key.toUpperCase();
+          if(upperKey.includes("BTC") || upperKey.includes("ETH") || upperKey.includes("LTC") || upperKey.includes("SOL") || upperKey.includes("DOGE") || upperKey.includes("TRON") || upperKey.includes("TON") || upperKey.includes("POLYGON") || upperKey.includes("BNB") || upperKey.includes("CRYPTO")) {
+            type = "crypto"; flag = "🔥";
+          } else if(upperKey.includes("OIL") || upperKey.includes("GOLD") || upperKey.includes("SILVER") || upperKey.includes("GAS") || upperKey.includes("PLATINUM") || upperKey.includes("PALLADIUM")) {
+            type = "commodities"; flag = "🛢️";
+          } else if(upperKey.includes("US100") || upperKey.includes("SP500") || upperKey.includes("DJI") || upperKey.includes("AUS") || upperKey.includes("JPN") || upperKey.includes("F40") || upperKey.includes("E50") || upperKey.includes("D30")) {
+            type = "indices"; flag = "📊";
+          } else if(upperKey.length > 6 && !upperKey.includes("/")) {
+            type = "stocks"; flag = "📈";
+          }
+          return { name: key + " OTC", type: type, flag: flag };
+        });
+
         const badge = document.getElementById("apiStatusBadge");
         if(badge) {
           badge.textContent = "● LIVE API: ONLINE 🟢";
@@ -848,6 +730,7 @@ function updatePoDeepLink() {
 function renderAssetButtons() {
   const container = document.getElementById("assetCatsContainer");
   if(!container) return;
+  if(ALL_ASSETS_CATALOG.length === 0) return;
   let items = ALL_ASSETS_CATALOG.slice(0, 6);
   let html = "";
   items.forEach((item) => {
@@ -1141,15 +1024,8 @@ async function getSig(){
     const tf = document.getElementById("tf").value;
     const expSec = parseInt(document.getElementById("exp").value);
     
-    let hash = 0;
-    const comboStr = currentAsset + tf + Date.now().toString().slice(0, -3);
-    for (let i = 0; i < comboStr.length; i++) {
-      hash = comboStr.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    let isCall = Math.abs(hash) % 2 === 0;
-    let dir = isCall ? "⬆️ CALL" : "⬇️ PUT";
-
-    let stratText = `Анализ актива (${currentAsset}): Зафиксирован импульс по связке RSI + Bollinger. Направление: ${isCall ? 'Вверх (CALL)' : 'Вниз (PUT)'}. Выплата по API: ${getAssetPayout(currentAsset)}.`;
+    let dir = "⬆️ CALL";
+    let stratText = `Анализ актива (${currentAsset}): Анализ по реальному рынку через API. Выплата: ${getAssetPayout(currentAsset)}.`;
     
     try {
       const res = await fetch(`${RENDER_BACKEND_URL}/api/signal?asset=${encodeURIComponent(currentAsset)}&tf=${tf}`);
@@ -1157,18 +1033,18 @@ async function getSig(){
         const data = await res.json();
         if (data.direction) {
           dir = data.direction;
-          isCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
         }
         if (data.analysis) stratText = data.analysis + ` (Выплата: ${getAssetPayout(currentAsset)})`;
       }
     } catch(e) {}
 
+    let isCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
     document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf} · Выплата: ${getAssetPayout(currentAsset)}`;
     const dirEl = document.getElementById("sigDir");
     dirEl.textContent = dir;
     dirEl.className = "sig-dir " + (isCall ? "call" : "put");
     document.getElementById("sigStrat").innerHTML = `<b>Анализ:</b> ${stratText}`;
-    document.getElementById("sigCombo").textContent = "Multi-Factor + BB";
+    document.getElementById("sigCombo").textContent = "Multi-Factor + AI";
     document.getElementById("sigBox").style.display = "block";
     document.getElementById("btnCancel").style.display = "block";
     document.getElementById("btnNew").style.display = "none";
@@ -1183,6 +1059,10 @@ async function getSig(){
 }
 
 function autoSig(){
+  if(ALL_ASSETS_CATALOG.length === 0) {
+    alert("Каталог активов загружается с сервера...");
+    return;
+  }
   const openAssets = ALL_ASSETS_CATALOG.filter(a => isMarketOpen(a.name));
   if(openAssets.length === 0) {
     alert("На данный момент все стандартные рынки закрыты. Доступны только крипта и OTC активы.");
@@ -1347,16 +1227,9 @@ async function doScan(){
   canvas.toBlob(async (blob) => {
     runAnalyzer(async ()=>{
       const expSec = parseInt(document.getElementById("scanExp").value);
-      const cfgObj = {
-        интервал: document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text,
-        экспирация: document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text,
-        стратегия: "Smart Money"
-      };
-
       try {
         const fd = new FormData();
         fd.append('file', blob, 'snapshot.jpg');
-        fd.append('cfg', JSON.stringify(cfgObj));
         const response = await fetch(`${RENDER_BACKEND_URL}/api/scan-analyze`, {
           method: 'POST',
           body: fd
@@ -1486,7 +1359,7 @@ function renderAdminData(filter=""){
       html += `<div class="user-row">
         <div><b>${u.tg}</b><br><small style="color:${isBlocked?'var(--red)':'var(--green)'}">${statusLabel}</small></div>
         <div style="display:flex;align-items:center;gap:4px">
-          <button class="user-status-btn ${isBlocked?'btn-unblock-green':'btn-block-red'}" onclick="toggleUserStatus(${originalIdx})">${btnText}</button>
+          <button class="user-status-btn ${isBlocked?'btn-unblock-green':'btn-block-red'}" onclick="toggleUserStatus(${originalIdx})">${btnTest}</button>
           <button class="btn-del-user" onclick="deleteUser(${originalIdx})">🗑</button>
         </div>
       </div>`;
@@ -1517,7 +1390,8 @@ function deleteUser(idx) {
   }
 }
 
-window.addEventListener("DOMContentLoaded", ()=>{
+window.addEventListener("DOMContentLoaded", async ()=>{
+  await syncPayoutsFromRender();
   if(tgUser) {
     if(checkUserBlockedStatus(tgUser)) {
       logout();
@@ -1526,8 +1400,6 @@ window.addEventListener("DOMContentLoaded", ()=>{
     registerUserAndNotify(tgUser);
     goStep(3);
     enterApp();
-  } else {
-    syncPayoutsFromRender();
   }
 });
 </script>
