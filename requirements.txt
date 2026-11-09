@@ -4,3 +4,4 @@ pydantic
 httpx
 google-generativeai
 python-multipart
+PIL
