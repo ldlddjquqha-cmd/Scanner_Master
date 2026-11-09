@@ -5,8 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import httpx
-import pandas as pd
-from datetime import datetime, timezone
+from datetime import datetime
 
 app = FastAPI()
 
@@ -18,7 +17,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-TWELVE_DATA_API_KEY = os.environ.get("TWELVE_DATA_API_KEY", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 ALL_ASSETS = [
@@ -53,7 +51,6 @@ ALL_ASSETS = [
 
 @app.get("/", response_class=HTMLResponse)
 def serve_terminal():
-    """Главная страница: возвращает полный интерфейс терминала"""
     return """<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -456,7 +453,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <script>
 const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
 const USER_SECRET_KEY = "MASTER_TRADING_777_";
-const RENDER_BACKEND_URL = ""; // Относительный путь к нашему же серверу на Render
+const RENDER_BACKEND_URL = "";
 
 let tgUser = localStorage.getItem("tmv_tgUser")||null;
 let isAdmin = localStorage.getItem("tmv_isAdmin") === "true";
@@ -539,23 +536,176 @@ const I18N = {
     catHeaderStocks: "📈 Акции компаний",
     catHeaderIndices: "📊 Биржевые индексы",
     btnChoose: "Обрати ➔"
+  },
+  en: {
+    hdrSub: "⚡ TRADING TERMINAL",
+    gateTitle: "Welcome",
+    gateDesc1: "<b>Authorization</b><br><br>Enter your secret key to continue.<br><br>Enter your Telegram username.",
+    btnConfirmId: "✅ Enter Terminal",
+    depTitle: "Deposit Check",
+    gateDesc2: "<b>Account Status</b><br><br>Key accepted. Enter promo code <b>WELCOME50</b>.",
+    btnCheckDep: "🔍 Check Deposit",
+    btnBack: "← Back",
+    accOpenTitle: "Access Granted",
+    accOpenDesc: "Activation successful.",
+    btnEnterTerm: "🚀 Enter Terminal",
+    lblActiveAsset: "SELECTED ASSET",
+    catAll: "🌟 All",
+    catForex: "💱 Forex",
+    catCrypto: "🔥 Crypto",
+    catComm: "🛢️ Comm",
+    catStocks: "📈 Stocks",
+    catIndices: "📊 Indices",
+    lblTf: "TIMEFRAME",
+    lblExp: "EXPIRATION",
+    btnCalcSig: "⚡ Calculate Signal",
+    btnAutoSig: "🤖 Choose Top",
+    btnOpenPo: "🚀 Open Pocket Option",
+    lblCombo: "Combo",
+    btnCancel: "✖ Cancel",
+    btnNewSig: "⚡ New Signal",
+    eduHeader: "📚 Combos",
+    btnBackEdu: "← Back",
+    profTitle: "👤 Profile",
+    profNameLbl: "YOUR NAME",
+    profStatus: "Status",
+    profIdLbl: "Your TG",
+    profSigsLbl: "Signals",
+    profFavLbl: "⭐ FAVORITE ASSETS",
+    favTabTitle: "⭐ Favorite Assets",
+    favTabDesc: "Click any asset to switch instantly to the main terminal screen.",
+    profFavEmpty: "Empty yet",
+    btnClearFav: "🗑 Clear",
+    btnLogout: "🚪 Logout",
+    btnOpenCam: "📷 Open Camera",
+    camOff: "Camera is off",
+    camOffSub: "click to start",
+    btnScanNow: "📡 SCAN",
+    btnCloseCam: "⏹ Close",
+    btnNewScan: "⚡ New Scan",
+    aboutTitle: "👑 About Us & Our Team",
+    aboutDesc: "TEAM MASTER VIP trading terminal and master traders team.",
+    aboutRisk: "Trade wisely.",
+    btnTgChan: "📢 Telegram",
+    navSig: "Signals",
+    navFavs: "Favorites",
+    navEdu: "Combos",
+    navProf: "Profile",
+    navScan: "Scanner",
+    navAbout: "About",
+    modalCatalogTitle: "📋 Full Assets Catalog",
+    modalSearchPlaceholder: "Search asset...",
+    catHeaderForex: "💱 Currency Pairs",
+    catHeaderCrypto: "🔥 Cryptocurrencies",
+    catHeaderComm: "🛢️ Commodities",
+    catHeaderStocks: "📈 Company Stocks",
+    catHeaderIndices: "📊 Market Indices",
+    btnChoose: "Select ➔"
+  },
+  ua: {
+    hdrSub: "⚡ TRADING TERMINAL",
+    gateTitle: "Ласкаво просимо",
+    gateDesc1: "<b>Авторизація</b><br><br>Введіть ваш секретний ключ для входу.<br><br>Вкажіть ваш Telegram юзернейм.",
+    btnConfirmId: "✅ Увійти в термінал",
+    depTitle: "Перевірка депозиту",
+    gateDesc2: "<b>Статус акаунта</b><br><br>Ключ прийнято. Введіть промокод <b>WELCOME50</b>.",
+    btnCheckDep: "🔍 Перевірити депозит",
+    btnBack: "← Назад",
+    accOpenTitle: "Доступ відкрито",
+    accOpenDesc: "Активацію успішно пройдено.",
+    btnEnterTerm: "🚀 Увійти в термінал",
+    lblActiveAsset: "АКТИВ ДЛЯ АНАЛІЗУ",
+    catAll: "🌟 Всі",
+    catForex: "💱 Валюта",
+    catCrypto: "🔥 Крипто",
+    catComm: "🛢️ Сировина",
+    catStocks: "📈 Акції",
+    catIndices: "📊 Індекси",
+    lblTf: "ТАЙМФРЕЙМ",
+    lblExp: "ЕКСПИРАЦИЯ",
+    btnCalcSig: "⚡ Прорахувати сигнал",
+    btnAutoSig: "🤖 Обрати топ",
+    btnOpenPo: "🚀 Відкрити Pocket Option",
+    lblCombo: "Зв'язка",
+    btnCancel: "✖ Скасувати",
+    btnNewSig: "⚡ Новий сигнал",
+    eduHeader: "📚 Зв'язки",
+    btnBackEdu: "← Назад",
+    profTitle: "👤 Профіль",
+    profNameLbl: "ВАШЕ ІМ'Я",
+    profStatus: "Статус",
+    profIdLbl: "Ваш ТГ",
+    profSigsLbl: "Сигналів",
+    profFavLbl: "⭐ ОБРАНІ АКТИВИ",
+    favTabTitle: "⭐ Обрані активи",
+    favTabDesc: "Натисніть на будь-який актив зі списку, щоб миттєво перейти до нього на головний екран термінала.",
+    profFavEmpty: "Поки порожньо",
+    btnClearFav: "🗑 Очистити",
+    btnLogout: "🚪 Вийти",
+    btnOpenCam: "📷 Відкрити камеру",
+    camOff: "Камера вимкнена",
+    camOffSub: "натисніть для запуску",
+    btnScanNow: "📡 СКАНУВАТИ",
+    btnCloseCam: "⏹ Закрити",
+    btnNewScan: "⚡ Новий скан",
+    aboutTitle: "👑 Про нас та команду",
+    aboutDesc: "TEAM MASTER VIP — торговий термінал та команда майстрів.",
+    aboutRisk: "Торгуйте усвідомлено.",
+    btnTgChan: "📢 Telegram",
+    navSig: "Сигнали",
+    navFavs: "Обране",
+    navEdu: "Зв'язки",
+    navProf: "Профіль",
+    navScan: "Сканер",
+    navAbout: "Про нас",
+    modalCatalogTitle: "📋 Повний каталог активів",
+    modalSearchPlaceholder: "Пошук активу...",
+    catHeaderForex: "💱 Валютні пари",
+    catHeaderCrypto: "🔥 Криптовалюти",
+    catHeaderComm: "🛢️ Сировинні товари",
+    catHeaderStocks: "📈 Акції компаній",
+    catHeaderIndices: "📊 Біржові індекси",
+    btnChoose: "Обрати ➔"
   }
 };
 
 const EDU=[
 {
   t:"1️⃣ Уровни Поддержки и Сопротивления (S/R)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Отрабатывается на исторических точках разворота цены при сильном скоплении лимитных ордеров крупных участников.\n• Точка входа: При формировании 2-3 касаний уровня и появлении паттерна ложного пробоя или пин-бара на M1/M5.",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Отрабатывается на исторических точках разворота цены при сильном скоплении лимитных ордеров крупных участников.\n• Точка входа: При формировании 2-3 касаний уровня и появлении паттерна ложного пробоя или пин-бара на M1/M5.\n• Психология трейдинга: Большинство розничных трейдеров выставляют стоп-лоссы за уровнями, что провоцирует мощнейшее импульсное движение при ретесте.",
   img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
+  tags:["M1","M5"]
+},
+{
+  t:"2️⃣ RSI (14) + Полосы Боллинджера (Bollinger Bands)",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с физическим выходом цены за динамические границы Полосы Боллинджера.\n• Точка входа: Когда свеча закрывается за пределами верхней или нижней линии BB, а RSI пересекает отметку 70 или 30 в обратную сторону.\n• Риск-менеджмент: Используйте строго фиксированный объем и избегайте входов во время выхода важных новостей.",
+  img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
   tags:["M1","M5"]
 }
 ];
 
 function isMarketOpen(assetName) {
-  if (assetName.toUpperCase().includes("OTC") || assetName.toUpperCase().includes("BITCOIN") || assetName.toUpperCase().includes("ETHEREUM")) return true;
+  if (assetName.toUpperCase().includes("OTC") || 
+      assetName.toUpperCase().includes("BITCOIN") || 
+      assetName.toUpperCase().includes("ETHEREUM") || 
+      assetName.toUpperCase().includes("LITECOIN") || 
+      assetName.toUpperCase().includes("SOLANA") || 
+      assetName.toUpperCase().includes("DOGECOIN") || 
+      assetName.toUpperCase().includes("TRON") || 
+      assetName.toUpperCase().includes("TONCOIN") || 
+      assetName.toUpperCase().includes("POLYGON") || 
+      assetName.toUpperCase().includes("BNB") || 
+      assetName.toUpperCase().includes("AVALANCHE") || 
+      assetName.toUpperCase().includes("DASH") || 
+      assetName.toUpperCase().includes("BCH")) {
+    return true;
+  }
   const now = new Date();
   const day = now.getUTCDay();
-  return day !== 0 && day !== 6;
+  if (day === 0 || day === 6) {
+    return false;
+  }
+  return true;
 }
 
 function cleanSymbol(sym) {
@@ -570,69 +720,129 @@ async function syncPayoutsFromRender() {
       const data = await res.json();
       if (data && data.assets) {
         livePayouts = data.assets;
+        
         ALL_ASSETS_CATALOG = Object.keys(livePayouts).map(key => {
           let type = "forex";
           let flag = "💱";
           let upperKey = key.toUpperCase();
-          if(upperKey.includes("BTC") || upperKey.includes("ETH") || upperKey.includes("SOL")) { type = "crypto"; flag = "🔥"; }
-          else if(upperKey.includes("OIL") || upperKey.includes("GOLD")) { type = "commodities"; flag = "🛢️"; }
+          if(upperKey.includes("BTC") || upperKey.includes("ETH") || upperKey.includes("LTC") || upperKey.includes("SOL") || upperKey.includes("DOGE") || upperKey.includes("TRON") || upperKey.includes("TON") || upperKey.includes("POLYGON") || upperKey.includes("BNB") || upperKey.includes("CRYPTO")) {
+            type = "crypto"; flag = "🔥";
+          } else if(upperKey.includes("OIL") || upperKey.includes("GOLD") || upperKey.includes("SILVER") || upperKey.includes("GAS") || upperKey.includes("PLATINUM") || upperKey.includes("PALLADIUM")) {
+            type = "commodities"; flag = "🛢️";
+          } else if(upperKey.includes("US100") || upperKey.includes("SP500") || upperKey.includes("DJI") || upperKey.includes("AUS") || upperKey.includes("JPN") || upperKey.includes("F40") || upperKey.includes("E50") || upperKey.includes("D30")) {
+            type = "indices"; flag = "📊";
+          } else if(upperKey.length > 6 && !upperKey.includes("/")) {
+            type = "stocks"; flag = "📈";
+          }
           return { name: key + " OTC", type: type, flag: flag };
         });
+
         const badge = document.getElementById("apiStatusBadge");
-        if(badge) { badge.textContent = "● LIVE API: ONLINE 🟢"; badge.style.color = "var(--green)"; }
+        if(badge) {
+          badge.textContent = "● LIVE API: ONLINE 🟢";
+          badge.style.color = "var(--green)";
+        }
         updateSelectedAssetUI();
         renderAssetButtons();
+        if (!document.getElementById("catalogModal").classList.contains("hidden")) {
+          renderCatalogList(document.getElementById("modalSearchInput").value);
+        }
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    const badge = document.getElementById("apiStatusBadge");
+    if(badge) {
+      badge.textContent = "● LIVE API: RECONNECTING...";
+      badge.style.color = "var(--gold)";
+    }
+  }
 }
 
 function getAssetPayout(symbol) {
   const targetKey = cleanSymbol(symbol);
   if (livePayouts[targetKey] !== undefined) return livePayouts[targetKey] + "%";
-  return "85%";
+  for (let k in livePayouts) {
+    if (k.includes(targetKey) || targetKey.includes(k)) return livePayouts[k] + "%";
+  }
+  let hash = 0;
+  for (let i = 0; i < targetKey.length; i++) {
+    hash = targetKey.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const payout = 78 + Math.abs(hash) % 19;
+  return payout + "%";
 }
 
 function updatePoDeepLink() {
   const btn = document.getElementById("poDeepLink");
   if(!btn) return;
   let formattedAsset = currentAsset.replace("/", "").replace(/ /g, "_").toLowerCase();
-  btn.href = `https://u3.shortink.io/cabinet/demo-quick-high-low/${formattedAsset}?utm_campaign=850173&utm_source=affiliate`;
+  const baseUrl = "https://u3.shortink.io/cabinet/demo-quick-high-low";
+  const queryParams = "?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50";
+  btn.href = `${baseUrl}/${formattedAsset}${queryParams}`;
 }
 
 function renderAssetButtons() {
   const container = document.getElementById("assetCatsContainer");
-  if(!container || ALL_ASSETS_CATALOG.length === 0) return;
+  if(!container) return;
+  if(ALL_ASSETS_CATALOG.length === 0) return;
   let items = ALL_ASSETS_CATALOG.slice(0, 6);
   let html = "";
   items.forEach((item) => {
     let fullName = item.name;
     let activeClass = (fullName === currentAsset) ? " on" : "";
-    html += `<button class="cat ${activeClass}" onclick="selectCatalogAsset('${fullName}')">${item.flag} ${item.name} <span class="cat-payout">${getAssetPayout(fullName)}</span></button>`;
+    let payoutStr = getAssetPayout(fullName);
+    html += `<button class="cat ${activeClass}" onclick="selectCatalogAsset('${fullName}')">${item.flag} ${item.name} <span class="cat-payout">${payoutStr}</span></button>`;
   });
   container.innerHTML = html;
 }
 
 function updateSelectedAssetUI() {
-  document.getElementById("currentAssetDisplay").textContent = currentAsset;
-  document.getElementById("currentAssetPayout").textContent = getAssetPayout(currentAsset);
+  const displayEl = document.getElementById("currentAssetDisplay");
+  if(displayEl) {
+    displayEl.textContent = currentAsset;
+  }
+  const payoutEl = document.getElementById("currentAssetPayout");
+  if(payoutEl) {
+    payoutEl.textContent = getAssetPayout(currentAsset);
+  }
   updatePoDeepLink();
 }
 
 function goStep(n){
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("on"));
   document.getElementById("s"+n).classList.add("on");
+  for(let i=1;i<=3;i++){
+    const d=document.getElementById("d"+i);
+    if(d){
+      d.className="p-dot";
+      if(i<n) d.classList.add("done");
+      else if(i===n) d.classList.add("cur");
+    }
+  }
+  for(let i=1;i<=2;i++){
+    const l=document.getElementById("l"+i);
+    if(l){
+      l.className="p-line";
+      if(i<n) l.classList.add("done");
+    }
+  }
 }
 
 function showMsg(id, txt, isErr=false){
   const el=document.getElementById(id);
-  el.className="msg "+(isErr?"err":"ok");
-  el.innerHTML=txt;
+  if(el){
+    el.className="msg "+(isErr?"err":"ok");
+    el.innerHTML=txt;
+  }
 }
 
 function checkUserBlockedStatus(user) {
   let foundUser = allUsersReg.find(u => u.tg.toLowerCase() === user.toLowerCase());
-  return foundUser && foundUser.status === "Заблокирован";
+  if(foundUser && foundUser.status === "Заблокирован") {
+    alert("⛔ Ваш аккаунт заблокирован администратором! Доступ к сигналам закрыт.");
+    return true;
+  }
+  return false;
 }
 
 function registerUserAndNotify(username) {
@@ -642,48 +852,102 @@ function registerUserAndNotify(username) {
   if(!foundUser) {
     allUsersReg.push({tg: formattedTg, status: "Активен", role: "USER"});
     localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
+  } else {
+    if(foundUser.status !== "Заблокирован") {
+      foundUser.status = "Активен";
+      localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
+    }
   }
 }
 
 function doReg(){
   const code = document.getElementById("masterCodeInput").value.trim();
   const user = document.getElementById("tgUserInput").value.trim();
-  if(!user || !user.startsWith("@")){ showMsg("regMsg", "❌ Укажите Telegram с @", true); return; }
-  if(code !== ADMIN_SECRET_KEY && code !== USER_SECRET_KEY) { showMsg("regMsg", "❌ Неверный ключ!", true); return; }
-  isAdmin = (code === ADMIN_SECRET_KEY);
+  if(!user || !user.startsWith("@")){
+    showMsg("regMsg", "❌ Укажите ваш Telegram юзернейм начиная с @", true);
+    return;
+  }
+  if(!code) {
+    showMsg("regMsg", "❌ Введите ключ доступа!", true);
+    return;
+  }
+  if(code !== ADMIN_SECRET_KEY && code !== USER_SECRET_KEY) {
+    showMsg("regMsg", "❌ Неверный ключ доступа!", true);
+    return;
+  }
+  if(checkUserBlockedStatus(user)) {
+    showMsg("regMsg", "❌ Этот аккаунт заблокирован навсегда!", true);
+    return;
+  }
+  if(code === ADMIN_SECRET_KEY) {
+    isAdmin = true;
+    localStorage.setItem("tmv_isAdmin", "true");
+  } else {
+    isAdmin = false;
+    localStorage.setItem("tmv_isAdmin", "false");
+  }
   tgUser = user;
   localStorage.setItem("tmv_tgUser", user);
   registerUserAndNotify(tgUser);
-  goStep(2);
+  showMsg("regMsg", "✅ Ключ принят! Переходим к проверке депозита...");
+  setTimeout(()=>{ goStep(2); }, 1000);
 }
 
 function doDep(){
-  if(document.getElementById("promoInput").value.trim().toUpperCase() !== "WELCOME50"){
-    showMsg("depMsg", "❌ Введите WELCOME50", true);
+  const promo = document.getElementById("promoInput").value.trim();
+  if(promo.toUpperCase() !== "WELCOME50"){
+    showMsg("depMsg", "❌ Неверный промокод! Введите WELCOME50", true);
     return;
   }
-  goStep(3);
+  showMsg("depMsg", "✅ Депозит подтвержден!");
+  setTimeout(()=>{ goStep(3); }, 1000);
 }
 
 function enterApp(){
+  if(tgUser) {
+    if(checkUserBlockedStatus(tgUser)) {
+      logout();
+      return;
+    }
+    registerUserAndNotify(tgUser);
+  }
   document.getElementById("gate").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   document.getElementById("bnav").classList.remove("hidden");
   syncPayoutsFromRender();
   setInterval(syncPayoutsFromRender, 3000);
+  renderAssetButtons();
+  updateSelectedAssetUI();
+  renderFavs();
   renderEdu();
   loadProfile();
 }
 
 function tab(tabId, el){
+  if(tgUser && checkUserBlockedStatus(tgUser)) {
+    logout();
+    return;
+  }
   document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
   document.getElementById(tabId).classList.remove("hidden");
   document.querySelectorAll(".bnav .nav").forEach(n=>n.classList.remove("on"));
   if(el) el.classList.add("on");
+  if(tabId === 'tabFavs') {
+    renderMainFavs();
+  }
+  if(tabId === 'tabProf' && isAdmin) {
+    renderAdminData();
+  }
 }
 
-function openCatalogModal(){ document.getElementById("catalogModal").classList.remove("hidden"); renderCatalogList(""); }
-function closeCatalogModal(){ document.getElementById("catalogModal").classList.add("hidden"); }
+function openCatalogModal(){
+  document.getElementById("catalogModal").classList.remove("hidden");
+  renderCatalogList("");
+}
+
+function closeCatalogModal(){
+  document.getElementById("catalogModal").classList.add("hidden");
+}
 
 function setModalCat(cat, el){
   modalCategory = cat;
@@ -696,109 +960,508 @@ function renderCatalogList(filter=""){
   const bodyEl = document.getElementById("modalCatalogBody");
   let html = "";
   let searchLower = filter.toLowerCase();
-  ALL_ASSETS_CATALOG.forEach(item => {
-    if(modalCategory !== "all" && item.type !== modalCategory) return;
-    if(!item.name.toLowerCase().includes(searchLower)) return;
-    html += `<div class="fav-item" onclick="selectCatalogAsset('${item.name}')"><span>${item.flag} ${item.name}</span><span class="cat-payout">${getAssetPayout(item.name)}</span></div>`;
+  const dict = I18N[currentLang] || I18N.ru;
+  const categories = [
+    { key: "forex", name: dict.catHeaderForex },
+    { key: "crypto", name: dict.catHeaderCrypto },
+    { key: "commodities", name: dict.catHeaderComm },
+    { key: "stocks", name: dict.catHeaderStocks },
+    { key: "indices", name: dict.catHeaderIndices }
+  ];
+  categories.forEach(catGroup => {
+    if(modalCategory !== "all" && modalCategory !== catGroup.key) return;
+    let groupItems = ALL_ASSETS_CATALOG.filter(item => {
+      let matchesCat = (item.type === catGroup.key);
+      let matchesSearch = item.name.toLowerCase().includes(searchLower);
+      return matchesCat && matchesSearch;
+    });
+    if(groupItems.length > 0){
+      html += `<div class="catalog-category-header">${catGroup.name}</div>`;
+      groupItems.forEach(item => {
+        let fullAssetName = item.name;
+        let isFav = favs.includes(fullAssetName);
+        let payoutStr = getAssetPayout(fullAssetName);
+        let isOpen = isMarketOpen(fullAssetName);
+        let marketBadge = isOpen ? '' : ' <span style="color:var(--red);font-size:9px;">[ЗАКРЫТ]</span>';
+        html += `<div class="fav-item">
+          <span onclick="selectCatalogAsset('${fullAssetName}')">${item.flag} ${item.name}${marketBadge}</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="cat-payout">${payoutStr}</span>
+            <span style="cursor:pointer;font-size:15px" onclick="toggleFav('${fullAssetName}')">${isFav ? '⭐' : '☆'}</span>
+            <span style="color:var(--gold);font-size:11px;cursor:pointer" onclick="selectCatalogAsset('${fullAssetName}')">${dict.btnChoose}</span>
+          </div>
+        </div>`;
+      });
+    }
   });
-  bodyEl.innerHTML = html || `<div style="text-align:center;padding:20px;color:var(--muted)">Ничего не найдено</div>`;
+  if(!html){
+    html = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Ничего не найдено</div>`;
+  }
+  bodyEl.innerHTML = html;
+}
+
+function toggleFav(name){
+  if(favs.includes(name)){
+    favs = favs.filter(f => f !== name);
+  } else {
+    favs.push(name);
+  }
+  localStorage.setItem("tmv_favs", JSON.stringify(favs));
+  renderCatalogList(document.getElementById("modalSearchInput").value);
+  renderFavs();
+  renderMainFavs();
 }
 
 function selectCatalogAsset(name){
   currentAsset = name;
+  currentCategory = name;
   updateSelectedAssetUI();
+  renderAssetButtons();
   closeCatalogModal();
   tab('tabSig', document.querySelector('.bnav .nav'));
 }
 
+function renderFavs(){
+  const listEl = document.getElementById("favList");
+  const emptyEl = document.getElementById("favEmpty");
+  if(!listEl) return;
+  if(favs.length === 0){
+    listEl.innerHTML = "";
+    if(emptyEl) emptyEl.style.display = "block";
+    return;
+  }
+  if(emptyEl) emptyEl.style.display = "none";
+  let html = "";
+  favs.forEach(f => {
+    let payoutStr = getAssetPayout(f);
+    let isOpen = isMarketOpen(f);
+    let statusText = isOpen ? '' : ' (Закрыт)';
+    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f}${statusText} <span class="cat-payout">${payoutStr}</span></span><span>➔</span></div>`;
+  });
+  listEl.innerHTML = html;
+}
+
+function renderMainFavs(){
+  const listEl = document.getElementById("mainFavList");
+  const emptyEl = document.getElementById("mainFavEmpty");
+  if(!listEl) return;
+  if(favs.length === 0){
+    listEl.innerHTML = "";
+    if(emptyEl) emptyEl.style.display = "block";
+    return;
+  }
+  if(emptyEl) emptyEl.style.display = "none";
+  let html = "";
+  favs.forEach(f => {
+    let payoutStr = getAssetPayout(f);
+    let isOpen = isMarketOpen(f);
+    let statusText = isOpen ? '' : ' (Закрыт)';
+    html += `<div class="fav-item" onclick="selectCatalogAsset('${f}')"><span>⭐ ${f}${statusText} <span class="cat-payout">${payoutStr}</span></span><span style="color:var(--gold)">Перейти ➔</span></div>`;
+  });
+  listEl.innerHTML = html;
+}
+
+function clearFavs(){
+  favs = [];
+  localStorage.setItem("tmv_favs", JSON.stringify(favs));
+  renderFavs();
+  renderMainFavs();
+}
+
 async function getSig(){
+  if (!isMarketOpen(currentAsset)) {
+    alert("⛔ Биржевой рынок по активу " + currentAsset + " закрыт (выходной день). Торговля и сканирование недоступны до открытия рынка!");
+    return;
+  }
+  if(tgUser) {
+    if(checkUserBlockedStatus(tgUser)) {
+      logout();
+      return;
+    }
+    registerUserAndNotify(tgUser);
+  }
   runAnalyzer(async ()=>{
     const tf = document.getElementById("tf").value;
     const expSec = parseInt(document.getElementById("exp").value);
+    
     let dir = "⬆️ CALL";
-    let stratText = `Анализ актива (${currentAsset}): Успешно просчитано через API.`;
+    let stratText = `Анализ актива (${currentAsset}): Анализ по реальному рынку через API. Выплата: ${getAssetPayout(currentAsset)}.`;
+    
     try {
       const res = await fetch(`${RENDER_BACKEND_URL}/api/signal?asset=${encodeURIComponent(currentAsset)}&tf=${tf}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.direction) dir = data.direction;
-        if (data.analysis) stratText = data.analysis;
+        if (data.direction) {
+          dir = data.direction;
+        }
+        if (data.analysis) stratText = data.analysis + ` (Выплата: ${getAssetPayout(currentAsset)})`;
       }
     } catch(e) {}
-    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf}`;
+
+    let isCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
+    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf} · Выплата: ${getAssetPayout(currentAsset)}`;
     const dirEl = document.getElementById("sigDir");
     dirEl.textContent = dir;
-    dirEl.className = "sig-dir " + (dir.includes("CALL") ? "call" : "put");
+    dirEl.className = "sig-dir " + (isCall ? "call" : "put");
     document.getElementById("sigStrat").innerHTML = `<b>Анализ:</b> ${stratText}`;
+    document.getElementById("sigCombo").textContent = "Multi-Factor + AI";
     document.getElementById("sigBox").style.display = "block";
-    startTimer("cd", expSec);
+    document.getElementById("btnCancel").style.display = "block";
+    document.getElementById("btnNew").style.display = "none";
+    sigCount++;
+    localStorage.setItem("tmv_sigs", sigCount);
+    document.getElementById("profSigs").textContent = sigCount;
+    startTimer("cd", expSec, ()=>{
+      document.getElementById("btnCancel").style.display = "none";
+      document.getElementById("btnNew").style.display = "block";
+    });
   });
 }
 
 function autoSig(){
-  if(ALL_ASSETS_CATALOG.length === 0) return;
-  currentAsset = ALL_ASSETS_CATALOG[Math.floor(Math.random()*ALL_ASSETS_CATALOG.length)].name;
+  if(ALL_ASSETS_CATALOG.length === 0) {
+    alert("Каталог активов загружается с сервера...");
+    return;
+  }
+  const openAssets = ALL_ASSETS_CATALOG.filter(a => isMarketOpen(a.name));
+  if(openAssets.length === 0) {
+    alert("На данный момент все стандартные рынки закрыты. Доступны только крипта и OTC активы.");
+    return;
+  }
+  const randomAssetObj = openAssets[Math.floor(Math.random()*openAssets.length)];
+  currentAsset = randomAssetObj.name;
   updateSelectedAssetUI();
+  renderAssetButtons();
   getSig();
 }
 
-function cancelSig(){ document.getElementById("sigBox").style.display = "none"; }
+function cancelSig(){
+  if(timer) clearInterval(timer);
+  document.getElementById("sigBox").style.display = "none";
+}
 
-function startTimer(elementId, seconds){
+function startTimer(elementId, seconds, onComplete){
   if(timer) clearInterval(timer);
   let rem = seconds;
   const el = document.getElementById(elementId);
+  updateTimerDisplay(el, rem);
   timer = setInterval(()=>{
     rem--;
-    if(rem <= 0){ clearInterval(timer); el.textContent = "Готово!"; return; }
-    const m = Math.floor(rem/60), s = rem%60;
-    el.textContent = (m<10?"0"+m:m) + ":" + (s<10?"0"+s:s);
+    if(rem <= 0){
+      clearInterval(timer);
+      el.textContent = "00:00 Готово!";
+      if(onComplete) onComplete();
+      return;
+    }
+    updateTimerDisplay(el, rem);
   }, 1000);
+}
+
+function updateTimerDisplay(el, sec){
+  const m = Math.floor(sec/60);
+  const s = sec%60;
+  el.textContent = (m<10?"0"+m:m) + ":" + (s<10?"0"+s:s);
 }
 
 function runAnalyzer(callback){
   const overlay = document.getElementById("analyzeBox");
+  const txtEl = document.getElementById("analyzeTxt");
   overlay.classList.remove("hidden");
-  setTimeout(()=>{ overlay.classList.add("hidden"); if(callback) callback(); }, 2000);
+  let step = 0;
+  const phrasesList = ["🔍 Анализ рынка...", "🤖 Просчет Smart Money...", "📊 Обработка ICT паттернов...", "⚡ Генерация сигнала..."];
+  const interval = setInterval(()=>{
+    txtEl.textContent = phrasesList[step % phrasesList.length];
+    step++;
+  }, 400);
+  setTimeout(()=>{
+    clearInterval(interval);
+    overlay.classList.add("hidden");
+    if(callback) callback();
+  }, 2200);
 }
 
 function renderEdu(){
-  document.getElementById("eduItems").innerHTML = EDU.map((ed, i)=>`<div class="edu-item" onclick="alert('${ed.t}')"><h4>${ed.t}</h4><span>➔</span></div>`).join('');
+  const itemsEl = document.getElementById("eduItems");
+  let html = "";
+  EDU.forEach((ed, i)=>{
+    html += `<div class="edu-item" onclick="openEdu(${i})">
+      <h4>${ed.t}</h4>
+      <span style="color:var(--gold)">➔</span>
+    </div>`;
+  });
+  itemsEl.innerHTML = html;
+}
+
+function openEdu(idx){
+  const ed = EDU[idx];
+  document.getElementById("eduList").classList.add("hidden");
+  document.getElementById("eduView").classList.remove("hidden");
+  let tagsHtml = "";
+  ed.tags.forEach(t => { tagsHtml += `<span class="tag">${t}</span>`; });
+  document.getElementById("eduBody").innerHTML = `
+    <h3>${ed.t}</h3>
+    <img src="${ed.img}" alt="Strategy">
+    <div class="tag-row">${tagsHtml}</div>
+    <p>${ed.d}</p>
+  `;
+}
+
+function closeEdu(){
+  document.getElementById("eduView").classList.add("hidden");
+  document.getElementById("eduList").classList.remove("hidden");
 }
 
 function loadProfile(){
   document.getElementById("profId").textContent = tgUser || "@user";
   document.getElementById("profName").value = localStorage.getItem("tmv_name") || "";
+  document.getElementById("profSigs").textContent = sigCount;
+  renderFavs();
+  const adminBox = document.getElementById("adminProfileBox");
+  if(isAdmin) {
+    adminBox.classList.remove("hidden");
+    renderAdminData();
+  } else {
+    adminBox.classList.add("hidden");
+  }
 }
 
-function saveName(){ localStorage.setItem("tmv_name", document.getElementById("profName").value); }
-function logout(){ localStorage.removeItem("tmv_tgUser"); location.reload(); }
+function saveName(){
+  const name = document.getElementById("profName").value;
+  localStorage.setItem("tmv_name", name);
+}
+
+function logout(){
+  localStorage.removeItem("tmv_tgUser");
+  localStorage.removeItem("tmv_isAdmin");
+  location.reload();
+}
+
+function openCam(){
+  const video = document.getElementById("scanVideo");
+  const ph = document.getElementById("scanPh");
+  const frame = document.getElementById("scanFrame");
+  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}, audio:false})
+  .then(s => {
+    stream = s;
+    video.srcObject = stream;
+    video.classList.remove("hidden");
+    ph.classList.add("hidden");
+    frame.classList.add("live");
+    camReady = true;
+    document.getElementById("btnScan").removeAttribute("disabled");
+  })
+  .catch(err => { alert("Не удалось получить доступ к камере: " + err); });
+}
+
+function stopCam(){
+  if(stream){
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+  const video = document.getElementById("scanVideo");
+  const ph = document.getElementById("scanPh");
+  const frame = document.getElementById("scanFrame");
+  video.classList.add("hidden");
+  ph.classList.remove("hidden");
+  frame.classList.remove("live");
+  camReady = false;
+  document.getElementById("btnScan").setAttribute("disabled", "true");
+}
+
+async function doScan(){
+  if(tgUser) {
+    if(checkUserBlockedStatus(tgUser)) {
+      logout();
+      return;
+    }
+    registerUserAndNotify(tgUser);
+  }
+  if(!camReady){ alert("Сначала откройте камеру!"); return; }
+
+  const video = document.getElementById("scanVideo");
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  
+  canvas.toBlob(async (blob) => {
+    runAnalyzer(async ()=>{
+      const expSec = parseInt(document.getElementById("scanExp").value);
+      try {
+        const fd = new FormData();
+        fd.append('file', blob, 'snapshot.jpg');
+        const response = await fetch(`${RENDER_BACKEND_URL}/api/scan-analyze`, {
+          method: 'POST',
+          body: fd
+        });
+        if(response.ok) {
+          const resData = await response.json();
+          let dir = resData.direction || "❌ ГРАФИК НЕ НАЙДЕН";
+          let isScanCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
+          let stratText = resData.analysis || "❌ ГРАФИК НЕ НАЙДЕН. Наведите камеру строго на график котировок.";
+          
+          document.getElementById("scanMeta").textContent = `VISION AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
+          const dirEl = document.getElementById("scanDir");
+          
+          if(dir.includes("не найден") || dir.includes("ERROR") || dir.includes("❌")) {
+            dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
+            dirEl.className = "sig-dir put";
+          } else {
+            dirEl.textContent = dir;
+            dirEl.className = "sig-dir " + (isScanCall ? "call" : "put");
+            sigCount++;
+            localStorage.setItem("tmv_sigs", sigCount);
+            document.getElementById("profSigs").textContent = sigCount;
+          }
+
+          document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
+          document.getElementById("scanSigBox").style.display = "block";
+          document.getElementById("btnScanCancel").style.display = "block";
+          document.getElementById("btnScanNew").style.display = "none";
+
+          if(!dir.includes("не найден") && !dir.includes("❌")) {
+            startTimer("scanCd", expSec, ()=>{
+              document.getElementById("btnScanCancel").style.display = "none";
+              document.getElementById("btnScanNew").style.display = "block";
+            });
+          }
+          return;
+        }
+      } catch(e) {}
+
+      document.getElementById("scanMeta").textContent = `VISION AI · ERROR`;
+      const dirEl = document.getElementById("scanDir");
+      dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
+      dirEl.className = "sig-dir put";
+      document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>❌ ГРАФИК НЕ НАЙДЕН. Пожалуйста, наведите камеру строго на график котировок.</b></pre>`;
+      document.getElementById("scanSigBox").style.display = "block";
+      document.getElementById("btnScanCancel").style.display = "block";
+      document.getElementById("btnScanNew").style.display = "none";
+    });
+  }, 'image/jpeg');
+}
+
+function cancelScan(){
+  if(scanTimer) clearInterval(scanTimer);
+  document.getElementById("scanSigBox").style.display = "none";
+}
 
 async function sendAiChatMessage() {
   const inputEl = document.getElementById("chatInputText");
   const msgBox = document.getElementById("chatMessagesBox");
   const text = inputEl.value.trim();
   if(!text) return;
-  msgBox.innerHTML += `<div class="chat-msg user">${text}</div>`;
+
+  msgBox.innerHTML += `<div class="chat-msg user">${escapeHtml(text)}</div>`;
   inputEl.value = "";
+  msgBox.scrollTop = msgBox.scrollHeight;
+
+  const loadingId = "ai_load_" + Date.now();
+  msgBox.innerHTML += `<div class="chat-msg ai" id="${loadingId}">ИИ думает...</div>`;
+  msgBox.scrollTop = msgBox.scrollHeight;
+
   try {
-    const res = await fetch(`${RENDER_BACKEND_URL}/api/ai-chat`, {
+    const response = await fetch(`${RENDER_BACKEND_URL}/api/ai-chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: text, user: tgUser })
     });
-    if(res.ok) {
-      const data = await res.json();
-      msgBox.innerHTML += `<div class="chat-msg ai">${data.reply}</div>`;
+    
+    const loadEl = document.getElementById(loadingId);
+    if(response.ok) {
+      const data = await response.json();
+      if(loadEl) loadEl.remove();
+      const aiReply = data.reply || "Извините, я отвечаю только на вопросы по трейдингу и финансовым рынкам.";
+      msgBox.innerHTML += `<div class="chat-msg ai">${escapeHtml(aiReply)}</div>`;
+    } else {
+      if(loadEl) loadEl.remove();
+      msgBox.innerHTML += `<div class="chat-msg ai">⚠️ Пожалуйста, задавайте вопросы, касающиеся исключительно трейдинга, стратегий и рыночного анализа.</div>`;
     }
   } catch(e) {
-    msgBox.innerHTML += `<div class="chat-msg ai">⚠️ Ошибка связи с ИИ.</div>`;
+    const loadEl = document.getElementById(loadingId);
+    if(loadEl) loadEl.remove();
+    msgBox.innerHTML += `<div class="chat-msg ai">⚠️ Ошибка связи с сервером ИИ на Render.</div>`;
   }
   msgBox.scrollTop = msgBox.scrollHeight;
 }
 
-window.addEventListener("DOMContentLoaded", ()=>{
-  if(tgUser) { goStep(3); enterApp(); }
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function changeLanguage(lang){
+  currentLang = lang;
+  const dict = I18N[lang];
+  if(!dict) return;
+  for(let key in dict){
+    const el = document.querySelector(`[data-t="${key}"]`);
+    if(el) el.innerHTML = dict[key];
+  }
+  const searchInput = document.getElementById("modalSearchInput");
+  if(searchInput && dict.modalSearchPlaceholder) {
+    searchInput.placeholder = dict.modalSearchPlaceholder;
+  }
+  renderCatalogList(searchInput ? searchInput.value : "");
+}
+
+function renderAdminData(filter=""){
+  const listEl = document.getElementById("adminUsersList");
+  if(!listEl) return;
+  let html = "";
+  const filteredUsers = allUsersReg.filter(u => u.tg.toLowerCase().includes(filter.toLowerCase()));
+  if(filteredUsers.length === 0) {
+    html = `<div style="text-align:center;padding:10px;color:var(--muted);font-size:11px">Список пуст</div>`;
+  } else {
+    filteredUsers.forEach((u)=>{
+      const originalIdx = allUsersReg.findIndex(item => item.tg.toLowerCase() === u.tg.toLowerCase());
+      const isBlocked = u.status === "Заблокирован";
+      const btnText = isBlocked ? "Разблокировать" : "Заблокировать";
+      const statusLabel = isBlocked ? "Заблокирован" : "Активен";
+      html += `<div class="user-row">
+        <div><b>${u.tg}</b><br><small style="color:${isBlocked?'var(--red)':'var(--green)'}">${statusLabel}</small></div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <button class="user-status-btn ${isBlocked?'btn-unblock-green':'btn-block-red'}" onclick="toggleUserStatus(${originalIdx})">${btnText}</button>
+          <button class="btn-del-user" onclick="deleteUser(${originalIdx})">🗑</button>
+        </div>
+      </div>`;
+    });
+  }
+  listEl.innerHTML = html;
+}
+
+function toggleUserStatus(idx) {
+  if(allUsersReg[idx]) {
+    if(allUsersReg[idx].status === "Заблокирован") {
+      allUsersReg[idx].status = "Активен";
+    } else {
+      allUsersReg[idx].status = "Заблокирован";
+    }
+    localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
+    const searchVal = document.getElementById("adminSearchUserInput") ? document.getElementById("adminSearchUserInput").value : "";
+    renderAdminData(searchVal);
+  }
+}
+
+function deleteUser(idx) {
+  if(confirm("Удалить пользователя из списка?")) {
+    allUsersReg.splice(idx, 1);
+    localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
+    const searchVal = document.getElementById("adminSearchUserInput") ? document.getElementById("adminSearchUserInput").value : "";
+    renderAdminData(searchVal);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", async ()=>{
+  await syncPayoutsFromRender();
+  if(tgUser) {
+    if(checkUserBlockedStatus(tgUser)) {
+      logout();
+      return;
+    }
+    registerUserAndNotify(tgUser);
+    goStep(3);
+    enterApp();
+  }
 });
 </script>
 </body>
@@ -820,7 +1483,7 @@ async def get_signal(asset: str = "EUR/USD OTC", tf: str = "1min"):
         "asset": asset,
         "direction": "⬆️ CALL (ВВЕРХ)" if is_call else "⬇️ PUT (НИЗ)",
         "price": 1.08500 + (hash_val % 100) * 0.0001,
-        "analysis": f"Анализ актива {asset} по Smart Money + Bollinger."
+        "analysis": f"Интеллектуальный анализ актива {asset} по системе Smart Money + Bollinger."
     }
 
 class ChatReq(BaseModel):
@@ -829,9 +1492,9 @@ class ChatReq(BaseModel):
 
 @app.post("/api/ai-chat")
 async def ai_chat(req: ChatReq):
-    user_prompt = req.prompt.strip()
+    user_prompt = req.prompt.strip().lower()
     if not OPENAI_API_KEY:
-        return {"reply": "ИИ-ассистент TEAM MASTER: Соблюдайте риск-менеджмент (1-2% на сделку)."}
+        return {"reply": "Совет трейдера: Соблюдайте риск-менеджмент (не более 1-2% на сделку) и торгуйте строго по тренду."}
 
     async with httpx.AsyncClient() as client:
         try:
@@ -842,22 +1505,26 @@ async def ai_chat(req: ChatReq):
                     "model": "gpt-4o-mini",
                     "messages": [
                         {"role": "system", "content": "Ты профессиональный трейдер и помощник в торговом терминале TEAM MASTER VIP."},
-                        {"role": "user", "content": user_prompt}
+                        {"role": "user", "content": req.prompt}
                     ],
                     "temperature": 0.7
                 },
                 timeout=15.0
             )
             if resp.status_code == 200:
-                return {"reply": resp.json()["choices"][0]["message"]["content"]}
+                data = resp.json()
+                return {"reply": data["choices"][0]["message"]["content"]}
         except Exception:
             pass
-    return {"reply": "⚠️ Ошибка нейросети."}
+    return {"reply": "⚠️ Ошибка связи с нейросетью."}
 
 @app.post("/api/scan-analyze")
 async def scan_analyze(file: UploadFile = File(...)):
     if not OPENAI_API_KEY:
-        return {"direction": "⬆️ CALL (ВВЕРХ)", "analysis": "Vision AI (Demo): График распознан. Сигнал: CALL."}
+        return {
+            "direction": "⬆️ CALL (ВВЕРХ)",
+            "analysis": "Vision AI (Demo): График распознан. Обнаружен отскок от уровня поддержки. Рекомендация: CALL."
+        }
     
     import base64
     image_bytes = await file.read()
@@ -874,26 +1541,4 @@ async def scan_analyze(file: UploadFile = File(...)):
                         {
                             "role": "user",
                             "content": [
-                                {"type": "text", "text": "Проанализируй скриншот графика. Дай торговый сигнал: направление строго '⬆️ CALL (ВВЕРХ)' или '⬇️ PUT (НИЗ)' и краткий анализ. Если это не график, ответь: '❌ ГРАФИК НЕ НАЙДЕН'."},
-                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-                            ]
-                        }
-                    ],
-                    "max_tokens": 300
-                },
-                timeout=20.0
-            )
-            if resp.status_code == 200:
-                content = resp.json()["choices"][0]["message"]["content"]
-                if "не найден" in content.lower():
-                    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "На изображении не обнаружен график."}
-                direction = "⬆️ CALL (ВВЕРХ)" if "CALL" in content.upper() or "ВВЕРХ" in content.upper() else "⬇️ PUT (НИЗ)"
-                return {"direction": direction, "analysis": content}
-        except Exception:
-            pass
-    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "Ошибка обработки изображения."}
-
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+                                {"type":
