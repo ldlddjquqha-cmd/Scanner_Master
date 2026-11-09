@@ -49,9 +49,7 @@ ALL_ASSETS = [
     "JPN225 OTC", "US100 OTC", "SP500 OTC"
 ]
 
-@app.get("/", response_class=HTMLResponse)
-def serve_terminal():
-    return """<!DOCTYPE html>
+HTML_CONTENT = """<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -170,8 +168,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .btn-unblock-green {background:rgba(0,230,118,0.2);color:var(--green);border:1px solid rgba(0,230,118,0.4)}
 .btn-del-user {background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3);padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;margin-left:4px}
 .catalog-category-header {font-size:11px;font-weight:900;color:var(--gold);text-transform:uppercase;margin:12px 0 6px 4px;letter-spacing:.6px;border-bottom:1px solid var(--border-g);padding-bottom:4px}
-
-/* AI Chat Styles */
 .chat-container{display:flex;flex-direction:column;height:380px;background:var(--inner);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
 .chat-msg{padding:8px 11px;border-radius:10px;font-size:11.5px;line-height:1.4;max-width:85%}
@@ -672,13 +668,13 @@ const I18N = {
 const EDU=[
 {
   t:"1️⃣ Уровни Поддержки и Сопротивления (S/R)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Отрабатывается на исторических точках разворота цены при сильном скоплении лимитных ордеров крупных участников.\n• Точка входа: При формировании 2-3 касаний уровня и появлении паттерна ложного пробоя или пин-бара на M1/M5.\n• Психология трейдинга: Большинство розничных трейдеров выставляют стоп-лоссы за уровнями, что провоцирует мощнейшее импульсное движение при ретесте.",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Отрабатывается на исторических точках разворота цены при сильном скоплении лимитных ордеров крупных участников.\\n• Точка входа: При формировании 2-3 касаний уровня и появлении паттерна ложного пробоя или пин-бара на M1/M5.\\n• Психология трейдинга: Большинство розничных трейдеров выставляют стоп-лоссы за уровнями, что провоцирует мощнейшее импульсное движение при ретесте.",
   img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop",
   tags:["M1","M5"]
 },
 {
   t:"2️⃣ RSI (14) + Полосы Боллинджера (Bollinger Bands)",
-  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с физическим выходом цены за динамические границы Полосы Боллинджера.\n• Точка входа: Когда свеча закрывается за пределами верхней или нижней линии BB, а RSI пересекает отметку 70 или 30 в обратную сторону.\n• Риск-менеджмент: Используйте строго фиксированный объем и избегайте входов во время выхода важных новостей.",
+  d:"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СВЯЗКИ:\\n• Рыночная механика: Сочетание зоны перекупленности/перепроданности осциллятора RSI с физическим выходом цены за динамические границы Полосы Боллинджера.\\n• Точка входа: Когда свеча закрывается за пределами верхней или нижней линии BB, а RSI пересекает отметку 70 или 30 в обратную сторону.\\n• Риск-менеджмент: Используйте строго фиксированный объем и избегайте входов во время выхода важных новостей.",
   img:"https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop",
   tags:["M1","M5"]
 }
@@ -1465,7 +1461,12 @@ window.addEventListener("DOMContentLoaded", async ()=>{
 });
 </script>
 </body>
-</html>"""
+</html>
+"""
+
+@app.get("/", response_class=HTMLResponse)
+def serve_terminal():
+    return HTML_CONTENT
 
 @app.get("/api/payouts")
 def get_payouts():
@@ -1541,4 +1542,26 @@ async def scan_analyze(file: UploadFile = File(...)):
                         {
                             "role": "user",
                             "content": [
-                                {"type":
+                                {"type": "text", "text": "Проанализируй скриншот графика. Дай торговый сигнал: направление строго '⬆️ CALL (ВВЕРХ)' или '⬇️ PUT (НИЗ)' и краткий анализ. Если это не график, ответь: '❌ ГРАФИК НЕ НАЙДЕН'."},
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                            ]
+                        }
+                    ],
+                    "max_tokens": 300
+                },
+                timeout=20.0
+            )
+            if resp.status_code == 200:
+                content = resp.json()["choices"][0]["message"]["content"]
+                if "не найден" in content.lower():
+                    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "На изображении не обнаружен график."}
+                direction = "⬆️ CALL (ВВЕРХ)" if "CALL" in content.upper() or "ВВЕРХ" in content.upper() else "⬇️ PUT (НИЗ)"
+                return {"direction": direction, "analysis": content}
+        except Exception:
+            pass
+    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "Ошибка обработки изображения."}
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
