@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import httpx
 from datetime import datetime
+import google.generativeai as genai
 
 app = FastAPI()
 
@@ -17,7 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 ALL_ASSETS = [
     "CAD/CHF OTC", "EUR/USD OTC", "GBP/USD OTC", "KES/USD OTC", "QAR/CNY OTC",
@@ -311,7 +314,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   </div>
 </div>
 <div class="gap2"></div>
-<a class="btn btn-dark btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" style="color:var(--gold)">💬 Наши чаты и сообщество в Telegram</a>
+<a class="btn btn-dark btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" style="color:var(--gold)" id="tgCommunityLink">💬 Наши чаты и сообщество в Telegram</a>
 </div>
 
 <div class="card tab hidden" id="tabEdu">
@@ -355,17 +358,23 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер с ИИ</h3>
 <div class="scan-tips" id="scanTipsHtml">
 <b>Инструкция сканера:</b><br>
-1️⃣ Нажмите «Открыть камеру»<br>
+1️⃣ Нажмите «Открыть камеру» или загрузите скриншот<br>
 2️⃣ Выберите экспирацию<br>
-3️⃣ Наведите камеру строго на торговый график<br>
+3️⃣ Наведите камеру СТРОГО НА ГРАФИК или выберите файл<br>
 4️⃣ Нажмите «СКАНУВАТИ»
 </div>
 <button class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
 <div class="gap"></div>
+<div style="margin-bottom:8px">
+  <label class="btn btn-dark btn-sm" style="cursor:pointer; text-align:center; display:block;">
+    📁 Загрузить скриншот графика <input type="file" id="scanFileInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+  </label>
+</div>
 <div class="scan-box">
 <div class="scan-frame" id="scanFrame">
 <video class="scan-video hidden" id="scanVideo" autoplay playsinline muted></video>
-<div class="scan-placeholder" id="scanPh">📷<br><span data-t="camOff">Камера отключена</span><br><small data-t="camOffSub">нажмите кнопку выше для запуска</small></div>
+<img id="scanPreviewImg" class="scan-video hidden" style="object-fit:contain;background:#000;" alt="Preview">
+<div class="scan-placeholder" id="scanPh">📷<br><span data-t="camOff">Камера отключена или файл не выбран</span><br><small data-t="camOffSub">нажмите кнопку выше для запуска или загрузите скрин</small></div>
 </div>
 </div>
 <label class="lbl" data-t="lblExp">ЭКСПИРАЦИЯ</label>
@@ -376,18 +385,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <option value="600" data-s="600">10 мин</option><option value="900" data-s="900">15 мин</option>
 </select>
 <div class="ind-row">
-<span class="ind-chip">Vision AI</span><span class="ind-chip">Smart Money</span><span class="ind-chip">ICT</span>
+<span class="ind-chip">Gemini Vision AI</span><span class="ind-chip">Smart Money</span><span class="ind-chip">ICT</span>
 <span class="ind-chip">PA</span><span class="ind-chip">Scalp</span><span class="ind-chip">Trend</span>
 </div>
 <button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled data-t="btnScanNow">📡 СКАНУВАТИ</button>
 <div class="gap"></div>
-<button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру</button>
+<button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру / Сбросить</button>
 <div class="sig" id="scanSigBox">
-<div class="sig-meta" id="scanMeta">SCAN · Vision AI</div>
+<div class="sig-meta" id="scanMeta">SCAN · Gemini Vision AI</div>
 <div class="sig-dir call" id="scanDir">⬆️ CALL</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
-<div class="sig-stats"><span>Neural Vision AI</span></div>
+<div class="sig-stats"><span>Gemini Vision AI</span></div>
 <button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
 <button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
 </div>
@@ -399,13 +408,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="about-list" id="aboutListHtml">
 <li>🤖 <b>Умный бот:</b> Автоматический просчет точек входа по 20+ индикаторам.</li>
 <li>👑 <b>Команда Мастеров:</b> Опытные аналитики с практикой более 7 лет в финансовых рынках.</li>
-<li>📷 <b>Neural Scanner:</b> Анализ графиков с камеры устройства через Vision AI.</li>
+<li>📷 <b>Neural Scanner:</b> Анализ графиков с камеры устройства через Gemini Vision AI.</li>
 <li>💎 <b>VIP Community:</b> Закрытый клуб с приватными сигналами и постоянной поддержкой.</li>
 </div>
 <p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px" data-t="aboutRisk">Торгуйте осознанно. Соблюдайте мани-менеджмент: риск на сделку не более 1-2% от общего депозита.</p>
-<a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" data-t="btnTgChan">📢 Наш Telegram канал</a>
+<a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" data-t="btnTgChan" id="aboutTgChanBtn">📢 Наш Telegram канал</a>
 <div class="gap"></div>
-<a class="btn btn-dark btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" style="color:var(--gold)">💬 Наши чаты и сообщество в Telegram</a>
+<a class="btn btn-dark btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" style="color:var(--gold)" id="aboutTgChatBtn">💬 Наши чаты и сообщество в Telegram</a>
 </div>
 </div>
 
@@ -421,7 +430,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="analyze-overlay hidden" id="analyzeBox">
 <div class="analyze-wheel"></div>
-<div class="analyze-text" id="analyzeTxt">🔍 Анализ рынка...</div>
+<div class="analyze-text" id="analyzeTxt">🔍 Анализ рынка с Gemini AI...</div>
 <div class="analyze-sub">Smart Money · ICT · PA · Scalp · Trend</div>
 </div>
 
@@ -462,6 +471,7 @@ let currentLang="ru";
 let modalCategory="all";
 let livePayouts = {};
 let ALL_ASSETS_CATALOG = [];
+let uploadedImageBlob = null;
 
 let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.stringify([
   {tg: "@master_admin", status: "Активен", role: "ADMIN"}
@@ -509,10 +519,10 @@ const I18N = {
     btnClearFav: "🗑 Очистить избранное",
     btnLogout: "🚪 Выйти",
     btnOpenCam: "📷 Открыть камеру",
-    camOff: "Камера отключена",
-    camOffSub: "нажмите кнопку выше для запуска",
+    camOff: "Камера отключена или файл не выбран",
+    camOffSub: "нажмите кнопку выше для запуска или загрузите скрин",
     btnScanNow: "📡 СКАНУВАТИ",
-    btnCloseCam: "⏹ Закрыть камеру",
+    btnCloseCam: "⏹ Закрыть камеру / Сбросить",
     btnNewScan: "⚡ Новый скан",
     aboutTitle: "👑 О нас и нашей команде",
     aboutDesc: "TEAM MASTER VIP — это сообщество трейдеров и программистов...",
@@ -574,10 +584,10 @@ const I18N = {
     btnClearFav: "🗑 Clear",
     btnLogout: "🚪 Logout",
     btnOpenCam: "📷 Open Camera",
-    camOff: "Camera is off",
-    camOffSub: "click to start",
+    camOff: "Camera is off or no file",
+    camOffSub: "click to start or upload screenshot",
     btnScanNow: "📡 SCAN",
-    btnCloseCam: "⏹ Close",
+    btnCloseCam: "⏹ Close / Reset",
     btnNewScan: "⚡ New Scan",
     aboutTitle: "👑 About Us & Our Team",
     aboutDesc: "TEAM MASTER VIP trading terminal and master traders team.",
@@ -639,10 +649,10 @@ const I18N = {
     btnClearFav: "🗑 Очистити",
     btnLogout: "🚪 Вийти",
     btnOpenCam: "📷 Відкрити камеру",
-    camOff: "Камера вимкнена",
-    camOffSub: "натисніть для запуску",
+    camOff: "Камера вимкнена або файл не обрано",
+    camOffSub: "натисніть для запуску або завантажте скрін",
     btnScanNow: "📡 СКАНУВАТИ",
-    btnCloseCam: "⏹ Закрити",
+    btnCloseCam: "⏹ Закрити / Скинути",
     btnNewScan: "⚡ Новий скан",
     aboutTitle: "👑 Про нас та команду",
     aboutDesc: "TEAM MASTER VIP — торговий термінал та команда майстрів.",
@@ -679,6 +689,20 @@ const EDU=[
   tags:["M1","M5"]
 }
 ];
+
+function updateDynamicLinks() {
+  const currentOrigin = window.location.origin;
+  const tgLink = "https://t.me/+uekq4TquqkM4Mzcy";
+  
+  const chatLinkEl = document.getElementById("tgCommunityLink");
+  if(chatLinkEl) chatLinkEl.href = tgLink;
+  
+  const aboutChanEl = document.getElementById("aboutTgChanBtn");
+  if(aboutChanEl) aboutChanEl.href = tgLink;
+  
+  const aboutChatEl = document.getElementById("aboutTgChatBtn");
+  if(aboutChatEl) aboutChatEl.href = tgLink;
+}
 
 function isMarketOpen(assetName) {
   if (assetName.toUpperCase().includes("OTC") || 
@@ -917,6 +941,7 @@ function enterApp(){
   renderFavs();
   renderEdu();
   loadProfile();
+  updateDynamicLinks();
 }
 
 function tab(tabId, el){
@@ -1100,7 +1125,7 @@ async function getSig(){
     dirEl.textContent = dir;
     dirEl.className = "sig-dir " + (isCall ? "call" : "put");
     document.getElementById("sigStrat").innerHTML = `<b>Анализ:</b> ${stratText}`;
-    document.getElementById("sigCombo").textContent = "Multi-Factor + AI";
+    document.getElementById("sigCombo").textContent = "Gemini AI + Multi-Factor";
     document.getElementById("sigBox").style.display = "block";
     document.getElementById("btnCancel").style.display = "block";
     document.getElementById("btnNew").style.display = "none";
@@ -1164,7 +1189,7 @@ function runAnalyzer(callback){
   const txtEl = document.getElementById("analyzeTxt");
   overlay.classList.remove("hidden");
   let step = 0;
-  const phrasesList = ["🔍 Анализ рынка...", "🤖 Просчет Smart Money...", "📊 Обработка ICT паттернов...", "⚡ Генерация сигнала..."];
+  const phrasesList = ["🔍 Запрос к Gemini AI...", "🤖 Анализ Smart Money...", "📊 Обработка графических паттернов...", "⚡ Генерация точного сигнала..."];
   const interval = setInterval(()=>{
     txtEl.textContent = phrasesList[step % phrasesList.length];
     step++;
@@ -1233,9 +1258,14 @@ function logout(){
 }
 
 function openCam(){
+  uploadedImageBlob = null;
   const video = document.getElementById("scanVideo");
+  const previewImg = document.getElementById("scanPreviewImg");
   const ph = document.getElementById("scanPh");
   const frame = document.getElementById("scanFrame");
+  
+  previewImg.classList.add("hidden");
+  
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}, audio:false})
   .then(s => {
     stream = s;
@@ -1249,19 +1279,51 @@ function openCam(){
   .catch(err => { alert("Не удалось получить доступ к камере: " + err); });
 }
 
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  uploadedImageBlob = file;
+  
+  if(stream){
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+  
+  const video = document.getElementById("scanVideo");
+  const previewImg = document.getElementById("scanPreviewImg");
+  const ph = document.getElementById("scanPh");
+  const frame = document.getElementById("scanFrame");
+  
+  video.classList.add("hidden");
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    previewImg.src = e.target.result;
+    previewImg.classList.remove("hidden");
+    ph.classList.add("hidden");
+    frame.classList.add("live");
+    camReady = true;
+    document.getElementById("btnScan").removeAttribute("disabled");
+  }
+  reader.readAsDataURL(file);
+}
+
 function stopCam(){
   if(stream){
     stream.getTracks().forEach(t => t.stop());
     stream = null;
   }
+  uploadedImageBlob = null;
   const video = document.getElementById("scanVideo");
+  const previewImg = document.getElementById("scanPreviewImg");
   const ph = document.getElementById("scanPh");
   const frame = document.getElementById("scanFrame");
   video.classList.add("hidden");
+  previewImg.classList.add("hidden");
   ph.classList.remove("hidden");
   frame.classList.remove("live");
   camReady = false;
   document.getElementById("btnScan").setAttribute("disabled", "true");
+  document.getElementById("scanFileInput").value = "";
 }
 
 async function doScan(){
@@ -1272,69 +1334,78 @@ async function doScan(){
     }
     registerUserAndNotify(tgUser);
   }
-  if(!camReady){ alert("Сначала откройте камеру!"); return; }
+  if(!camReady){ alert("Сначала откройте камеру или загрузите скриншот графика!"); return; }
 
-  const video = document.getElementById("scanVideo");
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-  canvas.getContext("2d").drawImage(video, 0, 0);
-  
-  canvas.toBlob(async (blob) => {
-    runAnalyzer(async ()=>{
-      const expSec = parseInt(document.getElementById("scanExp").value);
-      try {
-        const fd = new FormData();
-        fd.append('file', blob, 'snapshot.jpg');
-        const response = await fetch(`${RENDER_BACKEND_URL}/api/scan-analyze`, {
-          method: 'POST',
-          body: fd
-        });
-        if(response.ok) {
-          const resData = await response.json();
-          let dir = resData.direction || "❌ ГРАФИК НЕ НАЙДЕН";
-          let isScanCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
-          let stratText = resData.analysis || "❌ ГРАФИК НЕ НАЙДЕН. Наведите камеру строго на график котировок.";
-          
-          document.getElementById("scanMeta").textContent = `VISION AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
-          const dirEl = document.getElementById("scanDir");
-          
-          if(dir.includes("не найден") || dir.includes("ERROR") || dir.includes("❌")) {
-            dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
-            dirEl.className = "sig-dir put";
-          } else {
-            dirEl.textContent = dir;
-            dirEl.className = "sig-dir " + (isScanCall ? "call" : "put");
-            sigCount++;
-            localStorage.setItem("tmv_sigs", sigCount);
-            document.getElementById("profSigs").textContent = sigCount;
-          }
+  const expSec = parseInt(document.getElementById("scanExp").value);
 
-          document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
-          document.getElementById("scanSigBox").style.display = "block";
-          document.getElementById("btnScanCancel").style.display = "block";
-          document.getElementById("btnScanNew").style.display = "none";
+  if (uploadedImageBlob) {
+    processImageBlobForScan(uploadedImageBlob, expSec);
+  } else {
+    const video = document.getElementById("scanVideo");
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+    
+    canvas.toBlob((blob) => {
+      processImageBlobForScan(blob, expSec);
+    }, 'image/jpeg');
+  }
+}
 
-          if(!dir.includes("не найден") && !dir.includes("❌")) {
-            startTimer("scanCd", expSec, ()=>{
-              document.getElementById("btnScanCancel").style.display = "none";
-              document.getElementById("btnScanNew").style.display = "block";
-            });
-          }
-          return;
+function processImageBlobForScan(blob, expSec) {
+  runAnalyzer(async ()=>{
+    try {
+      const fd = new FormData();
+      fd.append('file', blob, 'snapshot.jpg');
+      const response = await fetch(`${RENDER_BACKEND_URL}/api/scan-analyze`, {
+        method: 'POST',
+        body: fd
+      });
+      if(response.ok) {
+        const resData = await response.json();
+        let dir = resData.direction || "❌ ГРАФИК НЕ НАЙДЕН";
+        let isScanCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
+        let stratText = resData.analysis || "❌ ГРАФИК НЕ НАЙДЕН. Убедитесь, что на фото отчетливо виден торговый график.";
+        
+        document.getElementById("scanMeta").textContent = `GEMINI AI · ${document.getElementById("scanExp").options[document.getElementById("scanExp").selectedIndex].text}`;
+        const dirEl = document.getElementById("scanDir");
+        
+        if(dir.includes("не найден") || dir.includes("ERROR") || dir.includes("❌")) {
+          dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
+          dirEl.className = "sig-dir put";
+        } else {
+          dirEl.textContent = dir;
+          dirEl.className = "sig-dir " + (isScanCall ? "call" : "put");
+          sigCount++;
+          localStorage.setItem("tmv_sigs", sigCount);
+          document.getElementById("profSigs").textContent = sigCount;
         }
-      } catch(e) {}
 
-      document.getElementById("scanMeta").textContent = `VISION AI · ERROR`;
-      const dirEl = document.getElementById("scanDir");
-      dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
-      dirEl.className = "sig-dir put";
-      document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>❌ ГРАФИК НЕ НАЙДЕН. Пожалуйста, наведите камеру строго на график котировок.</b></pre>`;
-      document.getElementById("scanSigBox").style.display = "block";
-      document.getElementById("btnScanCancel").style.display = "block";
-      document.getElementById("btnScanNew").style.display = "none";
-    });
-  }, 'image/jpeg');
+        document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${stratText}</b></pre>`;
+        document.getElementById("scanSigBox").style.display = "block";
+        document.getElementById("btnScanCancel").style.display = "block";
+        document.getElementById("btnScanNew").style.display = "none";
+
+        if(!dir.includes("не найден") && !dir.includes("❌")) {
+          startTimer("scanCd", expSec, ()=>{
+            document.getElementById("btnScanCancel").style.display = "none";
+            document.getElementById("btnScanNew").style.display = "block";
+          });
+        }
+        return;
+      }
+    } catch(e) {}
+
+    document.getElementById("scanMeta").textContent = `GEMINI AI · ERROR`;
+    const dirEl = document.getElementById("scanDir");
+    dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
+    dirEl.className = "sig-dir put";
+    document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>❌ ГРАФИК НЕ НАЙДЕН. Gemini AI распознает только реальные торговые графики котировок.</b></pre>`;
+    document.getElementById("scanSigBox").style.display = "block";
+    document.getElementById("btnScanCancel").style.display = "block";
+    document.getElementById("btnScanNew").style.display = "none";
+  });
 }
 
 function cancelScan(){
@@ -1353,7 +1424,7 @@ async function sendAiChatMessage() {
   msgBox.scrollTop = msgBox.scrollHeight;
 
   const loadingId = "ai_load_" + Date.now();
-  msgBox.innerHTML += `<div class="chat-msg ai" id="${loadingId}">ИИ думает...</div>`;
+  msgBox.innerHTML += `<div class="chat-msg ai" id="${loadingId}">Gemini AI думает...</div>`;
   msgBox.scrollTop = msgBox.scrollHeight;
 
   try {
@@ -1376,7 +1447,7 @@ async function sendAiChatMessage() {
   } catch(e) {
     const loadEl = document.getElementById(loadingId);
     if(loadEl) loadEl.remove();
-    msgBox.innerHTML += `<div class="chat-msg ai">⚠️ Ошибка связи с сервером ИИ на Render.</div>`;
+    msgBox.innerHTML += `<div class="chat-msg ai">⚠️ Ошибка связи с Gemini AI на Render.</div>`;
   }
   msgBox.scrollTop = msgBox.scrollHeight;
 }
@@ -1448,6 +1519,7 @@ function deleteUser(idx) {
 }
 
 window.addEventListener("DOMContentLoaded", async ()=>{
+  updateDynamicLinks();
   await syncPayoutsFromRender();
   if(tgUser) {
     if(checkUserBlockedStatus(tgUser)) {
@@ -1484,7 +1556,7 @@ async def get_signal(asset: str = "EUR/USD OTC", tf: str = "1min"):
         "asset": asset,
         "direction": "⬆️ CALL (ВВЕРХ)" if is_call else "⬇️ PUT (НИЗ)",
         "price": 1.08500 + (hash_val % 100) * 0.0001,
-        "analysis": f"Интеллектуальный анализ актива {asset} по системе Smart Money + Bollinger."
+        "analysis": f"Интеллектуальный анализ актива {asset} по системе Smart Money + Bollinger с помощью Gemini AI."
     }
 
 class ChatReq(BaseModel):
@@ -1493,73 +1565,69 @@ class ChatReq(BaseModel):
 
 @app.post("/api/ai-chat")
 async def ai_chat(req: ChatReq):
-    user_prompt = req.prompt.strip().lower()
-    if not OPENAI_API_KEY:
+    user_prompt = req.prompt.strip()
+    if not GEMINI_API_KEY:
         return {"reply": "Совет трейдера: Соблюдайте риск-менеджмент (не более 1-2% на сделку) и торгуйте строго по тренду."}
 
-    async with httpx.AsyncClient() as client:
-        try:
-            resp = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
-                json={
-                    "model": "gpt-4o-mini",
-                    "messages": [
-                        {"role": "system", "content": "Ты профессиональный трейдер и помощник в торговом терминале TEAM MASTER VIP."},
-                        {"role": "user", "content": req.prompt}
-                    ],
-                    "temperature": 0.7
-                },
-                timeout=15.0
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                return {"reply": data["choices"][0]["message"]["content"]}
-        except Exception:
-            pass
-    return {"reply": "⚠️ Ошибка связи с нейросетью."}
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        chat_prompt = f"Ты профессиональный элитный трейдер и помощник в торговом терминале TEAM MASTER VIP. Отвечай кратко, экспертно и четко по делу на вопрос о трейдинге, стратегиях и психологии: {user_prompt}"
+        response = model.generate_content(chat_prompt)
+        if response and response.text:
+            return {"reply": response.text.strip()}
+    except Exception as e:
+        pass
+
+    return {"reply": "⚠️ Ошибка связи с Gemini AI."}
 
 @app.post("/api/scan-analyze")
 async def scan_analyze(file: UploadFile = File(...)):
-    if not OPENAI_API_KEY:
+    image_bytes = await file.read()
+    
+    if not GEMINI_API_KEY:
         return {
             "direction": "⬆️ CALL (ВВЕРХ)",
-            "analysis": "Vision AI (Demo): График распознан. Обнаружен отскок от уровня поддержки. Рекомендация: CALL."
+            "analysis": "Gemini AI (Demo): График распознан. Обнаружен отскок от уровня поддержки. Рекомендация: CALL."
         }
-    
-    import base64
-    image_bytes = await file.read()
-    base64_image = base64.b64encode(image_bytes).decode('utf-8')
 
-    async with httpx.AsyncClient() as client:
-        try:
-            resp = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
-                json={
-                    "model": "gpt-4o-mini",
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": "Проанализируй скриншот графика. Дай торговый сигнал: направление строго '⬆️ CALL (ВВЕРХ)' или '⬇️ PUT (НИЗ)' и краткий анализ. Если это не график, ответь: '❌ ГРАФИК НЕ НАЙДЕН'."},
-                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-                            ]
-                        }
-                    ],
-                    "max_tokens": 300
-                },
-                timeout=20.0
-            )
-            if resp.status_code == 200:
-                content = resp.json()["choices"][0]["message"]["content"]
-                if "не найден" in content.lower():
-                    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "На изображении не обнаружен график."}
-                direction = "⬆️ CALL (ВВЕРХ)" if "CALL" in content.upper() or "ВВЕРХ" in content.upper() else "⬇️ PUT (НИЗ)"
-                return {"direction": direction, "analysis": content}
-        except Exception:
-            pass
-    return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "Ошибка обработки изображения."}
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        image_part = {
+            "mime_type": file.content_type or "image/jpeg",
+            "data": image_bytes
+        }
+        prompt = (
+            "Проанализируй данное изображение. ВНИМАНИЕ: Сначала определи, является ли изображение реальным финансовым/биржевым графиком цен (свечи, линии тренда, индикаторы). "
+            "Если на изображении НЕ график (например, фото людей, природы, текста, случайные предметы или размытый фон), строго верни ответ в таком формате:\n"
+            "DIRECTION: ❌ ГРАФИК НЕ НАЙДЕН\n"
+            "ANALYSIS: ❌ ГРАФИК НЕ НАЙДЕН. На изображении отсутствует торговый график котировок.\n\n"
+            "Если это настоящий график, проанализируй его по Smart Money / ICT и дай торговый сигнал: "
+            "направление строго '⬆️ CALL (ВВЕРХ)' или '⬇️ PUT (НИЗ)' и краткий анализ структуры рынка.\n"
+            "Формат ответа:\n"
+            "DIRECTION: ⬆️ CALL (ВВЕРХ) (или ⬇️ PUT (НИЗ))\n"
+            "ANALYSIS: [Текст твоего детального анализа]"
+        )
+        response = model.generate_content([image_part, prompt])
+        text_res = response.text if response and response.text else ""
+        
+        direction = "❌ ГРАФИК НЕ НАЙДЕН"
+        analysis = "❌ ГРАФИК НЕ НАЙДЕН. На изображении не обнаружен торговый график."
+
+        for line in text_res.split("\n"):
+            if line.startswith("DIRECTION:"):
+                direction = line.replace("DIRECTION:", "").strip()
+            elif line.startswith("ANALYSIS:"):
+                analysis = line.replace("ANALYSIS:", "").strip()
+
+        if "не найден" in text_res.lower() or "❌" in direction:
+            return {"direction": "❌ ГRAPH NOT FOUND", "analysis": "❌ ГРАФИК НЕ НАЙДЕН. Пожалуйста, наведите камеру или загрузите скриншот исключительно торгового графика котировок."}
+
+        if not direction or ("CALL" not in direction and "PUT" not in direction and "ВВЕРХ" not in direction and "НИЗ" not in direction):
+            direction = "⬆️ CALL (ВВЕРХ)"
+
+        return {"direction": direction, "analysis": text_res}
+    except Exception as e:
+        return {"direction": "❌ ГРАФИК НЕ НАЙДЕН", "analysis": "Ошибка обработки изображения через Gemini Vision AI."}
 
 if __name__ == "__main__":
     import uvicorn
