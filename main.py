@@ -216,7 +216,6 @@ ASSETS_DATA_JS = {
   }
 }
 
-# Генерация массива из 50 полноценных профессиональных стратегий
 EDU_50 = []
 strategy_names = [
     "Smart Money Order Block", "ICT Fair Value Gap (FVG)", "Price Action Pin-Bar", "Scalping EMA 9/21", "Trend Reversal RSI Divergence",
@@ -1435,7 +1434,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
 
 @app.get("/", response_class=HTMLResponse)
 def serve_terminal():
-    return HTML_CONTENT
+    return HTML_UI
 
 @app.get("/get_signal")
 async def get_signal(asset: str = "EUR/USD OTC", timeframe: str = "1min", tg_username: str = Cookie(None)):
