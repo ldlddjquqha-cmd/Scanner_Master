@@ -40,28 +40,6 @@ def save_db(data):
     with open(DB_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
-async def send_tg_notification(username):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    reply_markup = {
-        "inline_keyboard": [
-            [
-                {"text": "❌ Забанить", "callback_data": f"ban:{username}"},
-                {"text": "✅ Разблокировать", "callback_data": f"unban:{username}"}
-            ]
-        ]
-    }
-    payload = {
-        "chat_id": ADMIN_CHAT_ID,
-        "text": f"🔔 Новый ученик вошел в систему!\n\nНик: @{username}\nСтатус: ✅ Доступ разрешен",
-        "parse_mode": "Markdown",
-        "reply_markup": reply_markup
-    }
-    async with httpx.AsyncClient() as client:
-        try:
-            await client.post(url, json=payload, timeout=5.0)
-        except Exception as e:
-            pass
-
 async def send_tg_signal_alert(username, asset, timeframe):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     payload = {
@@ -488,17 +466,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .scan-placeholder{height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700;gap:8px;text-align:center;padding:12px}
 .scan-frame{position:relative}
 .scan-frame.live::after{content:"";position:absolute;inset:12px;border:2px solid rgba(255,215,0,.5);border-radius:8px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.2)}
-.scan-tips{font-size:10.5px;color:#b0b8c8;line-height:1.55;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px}
-.scan-tips b{color:var(--gold)}
 .fav-list{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
 .fav-item{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--inner);border:1px solid var(--border);border-radius:11px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s}
 .fav-item:hover{background:rgba(255,215,0,.08)}
 .fav-item span:first-child{color:var(--gold)}
-.admin-profile-box{background:var(--inner);border:2px solid var(--gold);border-radius:14px;padding:14px;margin-top:12px;animation:fu .3s ease}
-.users-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-top:8px;padding-right:4px}
-.admin-search-input{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:#fff;font-size:11.5px;font-weight:700;outline:none;margin-bottom:8px}
-.admin-search-input:focus{border-color:var(--gold)}
-.user-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);padding:9px 11px;border-radius:9px;border:1px solid var(--border);font-size:11px;font-weight:700}
 .catalog-category-header{font-size:11px;font-weight:900;color:var(--gold);text-transform:uppercase;margin:12px 0 6px 4px;letter-spacing:.6px;border-bottom:1px solid var(--border-g);padding-bottom:4px}
 .chat-container{display:flex;flex-direction:column;height:380px;background:var(--inner);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
@@ -511,6 +482,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .profile-photo-upload{width:90px;height:90px;border-radius:50%;border:2px dashed var(--gold);background:var(--inner);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 12px;overflow:hidden;position:relative}
 .profile-photo-upload img{width:100%;height:100%;object-fit:cover}
 .about-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:16px;font-size:11.5px;color:#c5cdd8;line-height:1.75}
+.input{width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:12px;font-weight:700;outline:none;margin-bottom:8px}
+.input:focus{border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -586,8 +559,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="gap2"></div>
 <button class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<div class="grid2" style="grid-template-columns: 1fr;">
-<button class="btn btn-dark btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ актив</button>
+<div class="grid2">
+<button class="btn btn-dark btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ</button>
+<a href="#" id="poDeepLink" target="_blank" class="btn btn-green btn-sm" data-t="btnOpenPo">🚀 Открыть Pocket Option</a>
 </div>
 
 <div class="sig" id="sigBox">
@@ -660,14 +634,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <input type="text" class="input" id="profPocketId" placeholder="Введите Pocket ID" oninput="saveProfileSettings()">
 <span class="lbl">ЛЮБИМАЯ СТРАТЕГИЯ</span>
 <input type="text" class="input" id="profFavStrat" placeholder="Например: Price Action" oninput="saveProfileSettings()">
-<div class="gap"></div>
-<button class="btn btn-red" onclick="logout()" data-t="btnLogout">🚪 Выйти</button>
-
-<div class="admin-profile-box hidden" id="adminProfileBox">
-<h4 style="font-size:12px;color:var(--gold);margin-bottom:6px">👑 АДМИН-ПАНЕЛЬ: УПРАВЛЕНИЕ УЧАСТНИКАМИ</h4>
-<input type="text" class="admin-search-input" id="adminSearchInput" placeholder="Поиск участника по ТГ..." oninput="renderAdminData(this.value)">
-<div class="users-list" id="adminUsersList"></div>
-</div>
 </div>
 </div>
 
@@ -676,7 +642,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <h3 class="gate-title" style="font-size:15px;margin-bottom:4px">📷 ИИ Сканер (Анализ по свечам)</h3>
 <p style="font-size:10.5px;color:var(--muted);margin-bottom:10px">Инструкция ИИ-сканера свечей:<br>1️⃣ Настройте параметры ниже<br>2️⃣ Откройте камеру или загрузите скриншот<br>3️⃣ Нажмите «ЗАПУСК»</p>
 
-<span class="lbl">ИНТЕРВАЛ СВЕЧЕЙ</span>
+<span class="lbl">ИНТЕРВАЙМ СВЕЧЕЙ</span>
 <div class="cats" style="margin-bottom:6px">
 <button class="cat" onclick="setScanCfg(this, 'интервал', 'S5')">S5</button>
 <button class="cat" onclick="setScanCfg(this, 'интервал', 'S15')">S15</button>
@@ -790,10 +756,6 @@ TEAM MASTER VIP — это элитное международное сообщ�
 </div>
 
 <script>
-const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
-const USER_SECRET_KEY = "MASTER_TRADING_777_";
-let tgUser = localStorage.getItem("tmv_tgUser")||"@user";
-let isAdmin = false;
 let timer=null,scanTimer=null,stream=null,camReady=false;
 let favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]");
 let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
@@ -802,23 +764,15 @@ let currentLang="ru";
 let modalCategory="all";
 let uploadedImageBlob = null;
 let scanCfg = {интервал: 'M1', экспирация: '1м', стратегия: 'Smart Money'};
-let allUsersReg = [];
 const ASSETS_DATA_JS = JSON.parse('__ASSETS_JSON_PLACEHOLDER__');
 const I18N = {
     ru: {
-        gateTitle: "Добро пожаловать",
-        btnConfirmId: "✅ Войти в терминал",
-        depTitle: "Проверка депозита",
-        btnCheckDep: "🔍 Проверить депозит",
-        btnBack: "← Назад",
-        accOpenTitle: "Доступ открыт",
-        accOpenDesc: "Активация прошла успешно. Все функции терминала доступны.",
-        btnEnterTerm: "🚀 Войти в терминал",
         lblActiveAsset: "АКТИВ POCKET OPTION",
         lblTf: "ИНТЕРВАЙМ (ТАЙМФРЕЙМ)",
         lblExp: "ЭКСПИРАЦИЯ СДЕЛКИ",
         btnCalcSig: "⚡ Просчитать сигнал",
-        btnAutoSig: "🤖 Выбрать топ актив",
+        btnAutoSig: "🤖 Выбрать топ",
+        btnOpenPo: "🚀 Открыть Pocket Option",
         lblCombo: "Связка",
         btnCancel: "✖ Отменить",
         btnNewSig: "⚡ Новый сигнал",
@@ -826,15 +780,9 @@ const I18N = {
         btnBackEdu: "← Назад к списку",
         btnRandomStrat: "🎲 Рандом стратегия",
         profTitle: "👤 Профиль",
-        profStatus: "Статус",
-        profIdLbl: "Ваш ТГ",
-        profSigsLbl: "Сигналов",
-        profFavLbl: "⭐ ИЗБРАННЫЕ АКТИВЫ",
         favTabTitle: "⭐ Избранные активы",
         favTabDesc: "Нажмите на любой актив из списка для перехода.",
         profFavEmpty: "Пока пусто — добавь актив из полного каталога",
-        btnClearFav: "🗑 Очистить избранное",
-        btnLogout: "🚪 Выйти",
         btnOpenCam: "📷 Открыть камеру",
         camOff: "Камера отключена или файл не выбран",
         camOffSub: "нажмите кнопку выше для запуска или загрузите скрин",
@@ -842,7 +790,6 @@ const I18N = {
         btnCloseCam: "⏹ Закрыть камеру / Сбросить",
         btnNewScan: "⚡ Новый скан",
         aboutTitle: "👑 О нашей команде (Team Master)",
-        aboutRisk: "Торгуйте осознанно. Риск на сделку 1-2% от банка.",
         btnTgChan: "📢 Наш Telegram канал",
         navSig: "Сигналы",
         navFavs: "Избранное",
@@ -850,23 +797,15 @@ const I18N = {
         navProf: "Профиль",
         navScan: "Сканер",
         navAbout: "О нас",
-        modalCatalogTitle: "📋 Полный каталог активов Pocket Option",
-        modalSearchPlaceholder: "Поиск актива..."
+        modalCatalogTitle: "📋 Полный каталог активов Pocket Option"
     },
     en: {
-        gateTitle: "Welcome",
-        btnConfirmId: "✅ Enter Terminal",
-        depTitle: "Deposit Check",
-        btnCheckDep: "🔍 Check Deposit",
-        btnBack: "← Back",
-        accOpenTitle: "Access Granted",
-        accOpenDesc: "Activation successful.",
-        btnEnterTerm: "🚀 Enter Terminal",
         lblActiveAsset: "POCKET OPTION ASSET",
         lblTf: "TIMEFRAME",
         lblExp: "EXPIRATION",
         btnCalcSig: "⚡ Calculate Signal",
         btnAutoSig: "🤖 Choose Top",
+        btnOpenPo: "🚀 Open Pocket Option",
         lblCombo: "Combo",
         btnCancel: "✖ Cancel",
         btnNewSig: "⚡ New Signal",
@@ -874,15 +813,9 @@ const I18N = {
         btnBackEdu: "← Back",
         btnRandomStrat: "🎲 Random Strategy",
         profTitle: "👤 Profile",
-        profStatus: "Status",
-        profIdLbl: "Your TG",
-        profSigsLbl: "Signals",
-        profFavLbl: "⭐ FAVORITE ASSETS",
         favTabTitle: "⭐ Favorite Assets",
         favTabDesc: "Click any asset to switch.",
         profFavEmpty: "Empty yet",
-        btnClearFav: "🗑 Clear",
-        btnLogout: "🚪 Logout",
         btnOpenCam: "📷 Open Camera",
         camOff: "Camera is off or no file",
         camOffSub: "click to start or upload screenshot",
@@ -890,7 +823,6 @@ const I18N = {
         btnCloseCam: "⏹ Close / Reset",
         btnNewScan: "⚡ New Scan",
         aboutTitle: "👑 About Our Team",
-        aboutRisk: "Trade wisely.",
         btnTgChan: "📢 Telegram",
         navSig: "Signals",
         navFavs: "Favorites",
@@ -898,23 +830,15 @@ const I18N = {
         navProf: "Profile",
         navScan: "Scanner",
         navAbout: "About",
-        modalCatalogTitle: "📋 Full Assets Catalog",
-        modalSearchPlaceholder: "Search asset..."
+        modalCatalogTitle: "📋 Full Assets Catalog"
     },
     ua: {
-        gateTitle: "Ласкаво просимо",
-        btnConfirmId: "✅ Увійти в термінал",
-        depTitle: "Перевірка депозиту",
-        btnCheckDep: "🔍 Перевірити депозит",
-        btnBack: "← Назад",
-        accOpenTitle: "Доступ відкрито",
-        accOpenDesc: "Активацію успішно пройдено.",
-        btnEnterTerm: "🚀 Увійти в термінал",
         lblActiveAsset: "АКТИВ POCKET OPTION",
         lblTf: "ІНТЕРВАЛ (ТАЙМФРЕЙМ)",
         lblExp: "ЕКСПИРАЦИЯ УГОДИ",
         btnCalcSig: "⚡ Прорахувати сигнал",
         btnAutoSig: "🤖 Обрати топ",
+        btnOpenPo: "🚀 Відкрити Pocket Option",
         lblCombo: "Зв'язка",
         btnCancel: "✖ Скасувати",
         btnNewSig: "⚡ Новий сигнал",
@@ -922,15 +846,9 @@ const I18N = {
         btnBackEdu: "← Назад",
         btnRandomStrat: "🎲 Рандом стратегія",
         profTitle: "👤 Профіль",
-        profStatus: "Статус",
-        profIdLbl: "Ваш ТГ",
-        profSigsLbl: "Сигналів",
-        profFavLbl: "⭐ ОБРАНІ АКТИВИ",
         favTabTitle: "⭐ Обрані активи",
         favTabDesc: "Натисніть на будь-який актив.",
         profFavEmpty: "Поки порожньо",
-        btnClearFav: "🗑 Очистити",
-        btnLogout: "🚪 Вийти",
         btnOpenCam: "📷 Відкрити камеру",
         camOff: "Камера вимкнена або файл не обрано",
         camOffSub: "натисніть для запуску або завантажте скрін",
@@ -938,7 +856,6 @@ const I18N = {
         btnCloseCam: "⏹ Закрити / Скинути",
         btnNewScan: "⚡ Новий скан",
         aboutTitle: "👑 Про нашу команду",
-        aboutRisk: "Торгуйте усвідомлено.",
         btnTgChan: "📢 Telegram",
         navSig: "Сигнали",
         navFavs: "Обране",
@@ -946,14 +863,23 @@ const I18N = {
         navProf: "Профіль",
         navScan: "Сканер",
         navAbout: "Про нас",
-        modalCatalogTitle: "📋 Повний каталог активів Pocket Option",
-        modalSearchPlaceholder: "Пошук активу..."
+        modalCatalogTitle: "📋 Повний каталог активів Pocket Option"
     }
 };
 const EDU = JSON.parse('__EDU_JSON_PLACEHOLDER__');
 
 function getAssetBadge(symbol) {
     return symbol.includes("OTC") ? "OTC" : "LIVE";
+}
+
+function updatePoDeepLink() {
+    const btn = document.getElementById("poDeepLink");
+    if(!btn) return;
+    let cleanAsset = currentAsset.replace(/^[^\w]+/, "").trim();
+    let formattedAsset = cleanAsset.replace("/", "").replace(/ /g, "_").toLowerCase();
+    const baseUrl = "https://u3.shortink.io/cabinet/demo-quick-high-low";
+    const queryParams = "?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50";
+    btn.href = `${baseUrl}/${formattedAsset}${queryParams}`;
 }
 
 function renderAssetButtons() {
@@ -979,6 +905,7 @@ function updateSelectedAssetUI() {
     if(displayEl) displayEl.textContent = currentAsset;
     const badgeEl = document.getElementById("currentAssetBadge");
     if(badgeEl) badgeEl.textContent = getAssetBadge(currentAsset);
+    updatePoDeepLink();
 }
 
 function openCatalogModal(){
@@ -1232,12 +1159,6 @@ function handleProfilePhoto(event) {
     reader.readAsDataURL(file);
 }
 
-function logout(){
-    localStorage.removeItem("tmv_tgUser");
-    localStorage.removeItem("tmv_isAdmin");
-    location.reload();
-}
-
 function openCam(){
     uploadedImageBlob = null;
     const video = document.getElementById("scanVideo");
@@ -1443,9 +1364,8 @@ def serve_terminal():
     return rendered_html
 
 @app.get("/get_signal")
-async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str = "1min", tg_username: str = Cookie(None)):
-    user_for_alert = tg_username if tg_username else "Неизвестный ученик"
-    asyncio.create_task(send_tg_signal_alert(user_for_alert, asset, timeframe))
+async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str = "1min"):
+    asyncio.create_task(send_tg_signal_alert("Гость_Терминала", asset, timeframe))
 
     await asyncio.sleep(1.2)
     is_otc = "OTC" in asset
