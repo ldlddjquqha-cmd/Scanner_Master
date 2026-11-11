@@ -129,7 +129,7 @@ class ScannerAnalyzer:
             "Внимательно проанализируй расположение свечей, их тела, тени, цвета, текущую тенденцию, уровни и паттерны на данном скриншоте графика. "
             "Выдай торговый сигнал: направление (BUY / ВВЕРХ или SELL / ВНИЗ), таймфрейм, стратегию ("
             + config.get("стратегия", "Smart Money")
-            + ") и подробный технический анализ на основе расположения свечей. Используй эмодзи 📈📉⚡🔥💎."
+            + ") и подробный технический анализ на основе расположения свечей. Используй эмодзи 📈📉⚡🔥💎🎯🚀."
         )
         response = model.generate_content([prompt, image])
         return response.text if response and response.text else None
@@ -160,27 +160,32 @@ class ScannerAnalyzer:
 
             candle_ratio = (green_candles + red_candles) / total_pixels
             if candle_ratio < 0.0015:
-                return "❌ ГРАФИК СО СВЕЧАМИ НЕ ОБНАРУЖЕН. Убедитесь, что на скриншоте четко виден график."
+                return "❌ ГРАФИК СО СВЕЧАМИ НЕ ОБНАРУЖЕН. Убедитесь, что на скриншоте четко виден график. 📷🔍"
 
             bullish = green_candles >= red_candles
-            direction = "BUY (ВВЕРХ)" if bullish else "SELL (ВНИЗ)"
+            direction = "BUY (ВВЕРХ) 📈" if bullish else "SELL (ВНИЗ) 📉"
             trend_desc = (
-                "Преобладание бычьих зеленых тел свечей указывает на покупателей."
+                "Преобладание бычьих зелёных тел свечей указывает на активных покупателей. 🟢💪"
                 if bullish
-                else "Доминирование медвежьих красных свечей говорит о давлении продавцов."
+                else "Доминирование медвежьих красных свечей говорит о давлении продавцов. 🔴⚔️"
             )
+            rsi_note = "Импульс подтверждён закрытием последних свечей. ⚡"
+            level_note = "Уровни поддержки и сопротивления визуально подтверждены на графике. 🎯💎"
 
             return (
                 f"--- TEAM MASTER SIGNAL V4.0 ---\n"
-                f"СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')}\n"
-                f"ТАЙМФРЕЙМ: {config.get('интервал', 'M1')}\n"
-                f"ЭКСПИРАЦИЯ: {config.get('экспирация', '1м')}\n"
+                f"📊 СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')}\n"
+                f"⏱ ТАЙМФРЕЙМ: {config.get('интервал', 'M1')}\n"
+                f"⏳ ЭКСПИРАЦИЯ: {config.get('экспирация', '1м')}\n"
                 f"-------------------------------\n"
-                f"ВЕРДИКТ: {direction}\n"
-                f"ПРИЧИНА: Расположение и анализ свечных тел: {trend_desc} Уровни сопротивления и поддержки подтверждены."
+                f"🔥 ВЕРДИКТ: {direction}\n"
+                f"📌 ПРИЧИНА: Расположение и анализ свечных тел: {trend_desc}\n"
+                f"{rsi_note}\n"
+                f"{level_note}\n"
+                f"🚀 Сигнал готов к входу!"
             )
         except Exception as e:
-            return f"❌ Ошибка анализа изображения: {str(e)}"
+            return f"❌ Ошибка анализа изображения: {str(e)} ⚠️"
 
 
 scanner_core = ScannerAnalyzer()
@@ -349,8 +354,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 @keyframes sh{to{background-position:200% center}}
 @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.04)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes bounceSmile{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .btn{width:100%;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:12px;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s,opacity .2s}
 .btn:active{transform:scale(.97)}.btn:disabled{opacity:.4;pointer-events:none}
 .btn-gold{background:var(--gold-g);background-size:200% auto;animation:sh 3s linear infinite;color:#111;box-shadow:0 5px 18px rgba(191,149,63,.3)}
@@ -405,7 +411,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .gap{height:6px}.gap2{height:9px}
 .analyze-overlay{position:fixed;inset:0;background:rgba(4,6,10,.94);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .2s ease}
 .analyze-wheel{width:56px;height:56px;border:3px solid rgba(255,215,0,.12);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:14px}
-.analyze-text{font-size:13px;font-weight:800;color:var(--gold);text-align:center;animation:pulse 1.2s ease infinite;max-width:240px;line-height:1.45}
+.analyze-text{font-size:13px;font-weight:800;color:var(--gold);text-align:center;animation:pulse 1.1s ease infinite;max-width:260px;line-height:1.5}
+.analyze-smile{font-size:28px;margin-bottom:10px;animation:bounceSmile 1s ease infinite}
 .scan-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;overflow:hidden;margin-bottom:10px}
 .scan-video{width:100%;height:210px;object-fit:cover;background:#000;display:block}
 .scan-placeholder{height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700;gap:8px;text-align:center;padding:12px}
@@ -418,14 +425,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .fav-item:hover{background:rgba(255,215,0,.08)}
 .fav-item>span:first-child{color:var(--gold)}
 .catalog-category-header{font-size:11px;font-weight:900;color:var(--gold);text-transform:uppercase;margin:12px 0 6px 4px;letter-spacing:.6px;border-bottom:1px solid var(--border-g);padding-bottom:4px}
-.chat-container{display:flex;flex-direction:column;height:380px;background:var(--inner);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
-.chat-msg{padding:8px 11px;border-radius:10px;font-size:11.5px;line-height:1.4;max-width:85%;white-space:pre-wrap}
-.chat-msg.user{background:rgba(255,215,0,0.15);color:var(--gold);align-self:flex-end;border:1px solid rgba(255,215,0,0.3)}
-.chat-msg.ai{background:var(--card);color:var(--text);align-self:flex-start;border:1px solid var(--border)}
-.chat-input-row{display:flex;gap:6px;padding:8px;background:var(--card);border-top:1px solid var(--border)}
-.chat-input{flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:11.5px;outline:none}
-.chat-input:focus{border-color:var(--gold)}
 .profile-photo-upload{width:90px;height:90px;border-radius:50%;border:2px dashed var(--gold);background:var(--inner);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 12px;overflow:hidden;position:relative}
 .profile-photo-upload img{width:100%;height:100%;object-fit:cover}
 .about-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:16px;font-size:11.5px;color:#c5cdd8;line-height:1.75}
@@ -509,23 +508,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <div id="mainFavEmpty" style="text-align:center;padding:24px;color:var(--muted);font-size:11px;font-weight:600" data-t="profFavEmpty">Пока пусто — добавь актив из полного каталога</div>
     <div class="gap2"></div>
     <button class="btn btn-dark btn-sm" onclick="clearFavs()" data-t="btnClearFav">🗑 Очистить избранное</button>
-  </div>
-
-  <!-- ИИ ЧАТ -->
-  <div class="card tab hidden" id="tabChat">
-    <h3 class="g-text" style="font-size:13px;margin-bottom:8px" data-t="chatTitle">🤖 ИИ Помощник по Трейдингу</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:10px" data-t="chatDesc">Спросите о трейдинге, стратегии, технических вопросах или если что-то не работает. Неприличные и сторонние вопросы не обрабатываются.</p>
-    <div class="chat-container">
-      <div class="chat-messages" id="chatMessagesBox">
-        <div class="chat-msg ai">Привет, друг! 🤝 Я твой ИИ-помощник в Team Master VIP. Отвечаю на вопросы по трейдингу, стратегиям, техническим вопросам и сигналам! 📈🚀</div>
-      </div>
-      <div class="chat-input-row">
-        <input type="text" class="chat-input" id="chatInputText" data-ph="chatPlaceholder" placeholder="Спросите по трейдингу или технической проблеме..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
-        <button class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
-      </div>
-    </div>
-    <div class="gap2"></div>
-    <a class="btn btn-dark btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" rel="noopener" style="color:var(--gold)" data-t="btnTgCommunity">💬 Наши чаты и сообщество в Telegram</a>
   </div>
 
   <!-- ОБУЧЕНИЕ -->
@@ -660,7 +642,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="bnav" id="bnav">
   <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
   <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
-  <div class="nav" onclick="tab('tabChat',this)"><span>🤖</span><span data-t="navChat">ИИ Чат</span></div>
   <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
   <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
   <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
@@ -668,8 +649,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="analyze-overlay hidden" id="analyzeBox">
+  <div class="analyze-smile" id="analyzeSmile">😊</div>
   <div class="analyze-wheel"></div>
-  <div class="analyze-text" id="analyzeTxt">🤖 ИИ сканирует расположение свечей...</div>
+  <div class="analyze-text" id="analyzeTxt">⚡ Подключаюсь к рынку...</div>
 </div>
 
 <div class="modal-overlay hidden" id="catalogModal">
@@ -722,10 +704,6 @@ const I18N = {
     phPocketId: "Введите ваш Pocket ID...", phFavStrat: "Например: Smart Money, Price Action...",
     favTabTitle: "⭐ Избранные активы", favTabDesc: "Нажмите на любой актив из списка для перехода.",
     profFavEmpty: "Пока пусто — добавь актив из полного каталога", btnClearFav: "🗑 Очистить избранное",
-    chatTitle: "🤖 ИИ Помощник по Трейдингу",
-    chatDesc: "Спросите о трейдинге, стратегии, технических вопросах или если что-то не работает. Неприличные и сторонние вопросы не обрабатываются.",
-    chatPlaceholder: "Спросите по трейдингу или технической проблеме...",
-    btnTgCommunity: "💬 Наши чаты и сообщество в Telegram",
     scanTitle: "📷 ИИ Сканер (Анализ по свечам)", scanInstr: "Инструкция ИИ-сканера свечей:",
     scanStep1: "1️⃣ Настройте параметры и стратегию ниже",
     scanStep2: "2️⃣ Откройте камеру или загрузите скриншот графика со свечами",
@@ -743,7 +721,7 @@ const I18N = {
     aboutL3: "• Поддержка команды и торговые чаты",
     aboutRisk: "⚠️ Торговля бинарными опционами связана с высоким риском потери капитала. Сигналы не гарантируют прибыль. Риск на сделку — 1-2% от депозита.",
     btnTgChan: "📢 Наш Telegram канал",
-    navSig: "Сигналы", navFavs: "Избранное", navChat: "ИИ Чат", navEdu: "Связки", navProf: "Профиль", navScan: "Сканер", navAbout: "О нас",
+    navSig: "Сигналы", navFavs: "Избранное", navEdu: "Связки", navProf: "Профиль", navScan: "Сканер", navAbout: "О нас",
     modalCatalogTitle: "📋 Полный каталог активов Pocket Option", searchPlaceholder: "Поиск актива...",
     catAll: "🌟 Все", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сырьё", catStocks: "📈 Акции", catIdx: "📊 Индексы"
   },
@@ -759,10 +737,6 @@ const I18N = {
     phPocketId: "Enter your Pocket ID...", phFavStrat: "E.g.: Smart Money, Price Action...",
     favTabTitle: "⭐ Favorite Assets", favTabDesc: "Tap any asset to switch to it.",
     profFavEmpty: "Empty yet — add an asset from the full catalog", btnClearFav: "🗑 Clear favorites",
-    chatTitle: "🤖 AI Trading Assistant",
-    chatDesc: "Ask about trading, strategies, technical issues or if something doesn't work. Off-topic and inappropriate questions are not processed.",
-    chatPlaceholder: "Ask about trading or a technical issue...",
-    btnTgCommunity: "💬 Our Telegram chats and community",
     scanTitle: "📷 AI Scanner (Candle Analysis)", scanInstr: "AI candle scanner instructions:",
     scanStep1: "1️⃣ Set the parameters and strategy below",
     scanStep2: "2️⃣ Open the camera or upload a chart screenshot with candles",
@@ -780,7 +754,7 @@ const I18N = {
     aboutL3: "• Team support and trading chats",
     aboutRisk: "⚠️ Binary options trading carries a high risk of losing capital. Signals do not guarantee profit. Risk per trade — 1-2% of the deposit.",
     btnTgChan: "📢 Our Telegram Channel",
-    navSig: "Signals", navFavs: "Favorites", navChat: "AI Chat", navEdu: "Combos", navProf: "Profile", navScan: "Scanner", navAbout: "About",
+    navSig: "Signals", navFavs: "Favorites", navEdu: "Combos", navProf: "Profile", navScan: "Scanner", navAbout: "About",
     modalCatalogTitle: "📋 Full Pocket Option Assets Catalog", searchPlaceholder: "Search asset...",
     catAll: "🌟 All", catCur: "💱 Currency", catCrypto: "🔥 Crypto", catComm: "🛢️ Commodities", catStocks: "📈 Stocks", catIdx: "📊 Indices"
   },
@@ -796,10 +770,6 @@ const I18N = {
     phPocketId: "Введіть ваш Pocket ID...", phFavStrat: "Наприклад: Smart Money, Price Action...",
     favTabTitle: "⭐ Обрані активи", favTabDesc: "Натисніть на будь-який актив зі списку для переходу.",
     profFavEmpty: "Поки порожньо — додай актив з повного каталогу", btnClearFav: "🗑 Очистити обране",
-    chatTitle: "🤖 ШІ Помічник з Трейдингу",
-    chatDesc: "Питайте про трейдинг, стратегії, технічні питання або якщо щось не працює. Непристойні та сторонні питання не обробляються.",
-    chatPlaceholder: "Запитайте про трейдинг або технічну проблему...",
-    btnTgCommunity: "💬 Наші чати та спільнота в Telegram",
     scanTitle: "📷 ШІ Сканер (Аналіз за свічками)", scanInstr: "Інструкція ШІ-сканера свічок:",
     scanStep1: "1️⃣ Налаштуйте параметри та стратегію нижче",
     scanStep2: "2️⃣ Відкрийте камеру або завантажте скріншот графіка зі свічками",
@@ -817,7 +787,7 @@ const I18N = {
     aboutL3: "• Підтримка команди та торгові чати",
     aboutRisk: "⚠️ Торгівля бінарними опціонами пов'язана з високим ризиком втрати капіталу. Сигнали не гарантують прибуток. Ризик на угоду — 1-2% від депозиту.",
     btnTgChan: "📢 Наш Telegram канал",
-    navSig: "Сигнали", navFavs: "Обране", navChat: "ШІ Чат", navEdu: "Зв'язки", navProf: "Профіль", navScan: "Сканер", navAbout: "Про нас",
+    navSig: "Сигнали", navFavs: "Обране", navEdu: "Зв'язки", navProf: "Профіль", navScan: "Сканер", navAbout: "Про нас",
     modalCatalogTitle: "📋 Повний каталог активів Pocket Option", searchPlaceholder: "Пошук активу...",
     catAll: "🌟 Всі", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сировина", catStocks: "📈 Акції", catIdx: "📊 Індекси"
   }
@@ -874,9 +844,9 @@ function renderCatalogList(filter) {
       items.forEach(item => {
         const isFav = favs.includes(item);
         html += `<div class="fav-item">
-          <span data-a="${esc(item)}" onclick="selectCatalogAsset(this.dataset.a)" style="flex:1">${esc(item)}</span>
+          <span data-a="\( {esc(item)}" onclick="selectCatalogAsset(this.dataset.a)" style="flex:1"> \){esc(item)}</span>
           <div style="display:flex;gap:10px;align-items:center">
-            <span style="cursor:pointer;font-size:15px" data-a="${esc(item)}" onclick="toggleFav(this.dataset.a)">${isFav ? "⭐" : "☆"}</span>
+            <span style="cursor:pointer;font-size:15px" data-a="\( {esc(item)}" onclick="toggleFav(this.dataset.a)"> \){isFav ? "⭐" : "☆"}</span>
             <span style="color:var(--gold);font-size:11px;cursor:pointer" data-a="${esc(item)}" onclick="selectCatalogAsset(this.dataset.a)">➔</span>
           </div>
         </div>`;
@@ -950,16 +920,28 @@ function updateTimerDisplay(el, sec) {
 function runAnalyzer(callback) {
   const overlay = document.getElementById("analyzeBox");
   const txtEl = document.getElementById("analyzeTxt");
+  const smileEl = document.getElementById("analyzeSmile");
   overlay.classList.remove("hidden");
+  const phrases = [
+    "⚡ Подключаюсь к рынку... 😊",
+    "📊 Анализирую котировки... 🔍",
+    "💎 Сканирую индикаторы... ✨",
+    "🚀 Формирую точный сигнал... 🎯"
+  ];
+  const smiles = ["😊", "😎", "🤩", "🔥"];
   let step = 0;
-  const phrases = ["Запрос к ИИ сканеру...", "Анализ расположения свечей...", "Проверка тел и теней свечей...", "Генерация сигнала..."];
   txtEl.textContent = phrases[0];
-  const interval = setInterval(() => { step++; txtEl.textContent = phrases[step % phrases.length]; }, 450);
+  smileEl.textContent = smiles[0];
+  const interval = setInterval(() => {
+    step++;
+    txtEl.textContent = phrases[step % phrases.length];
+    smileEl.textContent = smiles[step % smiles.length];
+  }, 480);
   setTimeout(() => {
     clearInterval(interval);
     overlay.classList.add("hidden");
     if (callback) callback();
-  }, 2200);
+  }, 2400);
 }
 
 function incSig() {
@@ -976,7 +958,7 @@ function getSig() {
     let stratText = `Технический анализ котировок для актива (${currentAsset}) по таймфрейму ${tf} с экспирацией ${expSec} сек.`;
 
     try {
-      const res = await fetch(`/get_signal?asset=${encodeURIComponent(currentAsset)}&timeframe=${encodeURIComponent(tf)}`);
+      const res = await fetch(`/get_signal?asset=\( {encodeURIComponent(currentAsset)}&timeframe= \){encodeURIComponent(tf)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.signal) {
@@ -1020,7 +1002,7 @@ function cancelSig() {
 function renderEdu() {
   let html = "";
   EDU.forEach((ed, i) => {
-    html += `<div class="edu-item" onclick="openEdu(${i})"><h4>${esc(ed.t)}</h4><span style="color:var(--gold)">➔</span></div>`;
+    html += `<div class="edu-item" onclick="openEdu(\( {i})"><h4> \){esc(ed.t)}</h4><span style="color:var(--gold)">➔</span></div>`;
   });
   document.getElementById("eduItems").innerHTML = html;
 }
@@ -1031,7 +1013,7 @@ function openEdu(idx) {
   document.getElementById("eduView").classList.remove("hidden");
   let tagsHtml = "";
   ed.tags.forEach(t => { tagsHtml += `<span class="tag">${esc(t)}</span>`; });
-  document.getElementById("eduBody").innerHTML = `<h3>${esc(ed.t)}</h3><div class="tag-row">${tagsHtml}</div><p>${esc(ed.d)}</p>`;
+  document.getElementById("eduBody").innerHTML = `<h3>\( {esc(ed.t)}</h3><div class="tag-row"> \){tagsHtml}</div><p>${esc(ed.d)}</p>`;
 }
 function closeEdu() {
   document.getElementById("eduView").classList.add("hidden");
@@ -1193,7 +1175,7 @@ function processImageBlobForScan(blob, expSec) {
       const iBuy = Math.min(...["BUY", "ВВЕРХ"].map(w => upper.indexOf(w) < 0 ? 1e9 : upper.indexOf(w)));
       const iSell = Math.min(...["SELL", "ВНИЗ"].map(w => upper.indexOf(w) < 0 ? 1e9 : upper.indexOf(w)));
       const buy = iBuy <= iSell;
-      dirEl.textContent = buy ? "BUY (ВВЕРХ)" : "SELL (ВНИЗ)";
+      dirEl.textContent = buy ? "BUY (ВВЕРХ) 📈" : "SELL (ВНИЗ) 📉";
       dirEl.className = "sig-dir " + (buy ? "call" : "put");
       incSig();
     }
@@ -1218,36 +1200,6 @@ function processImageBlobForScan(blob, expSec) {
 function cancelScan() {
   if (timers.scan) clearInterval(timers.scan);
   document.getElementById("scanSigBox").style.display = "none";
-}
-
-async function sendAiChatMessage() {
-  const inputEl = document.getElementById("chatInputText");
-  const msgBox = document.getElementById("chatMessagesBox");
-  const text = inputEl.value.trim();
-  if (!text) return;
-
-  msgBox.insertAdjacentHTML("beforeend", `<div class="chat-msg user">${esc(text)}</div>`);
-  inputEl.value = "";
-  msgBox.scrollTop = msgBox.scrollHeight;
-
-  const loadingId = "ai_load_" + Date.now();
-  msgBox.insertAdjacentHTML("beforeend", `<div class="chat-msg ai" id="${loadingId}">Ассистент анализирует вопрос... 🤖</div>`);
-  msgBox.scrollTop = msgBox.scrollHeight;
-
-  let reply = "⚠️ Ошибка связи с сервером.";
-  try {
-    const fd = new FormData();
-    fd.append("prompt", text);
-    const response = await fetch("/ai-chat", { method: "POST", body: fd });
-    if (response.ok) {
-      const data = await response.json();
-      reply = data.reply || reply;
-    }
-  } catch (e) {}
-  const loadEl = document.getElementById(loadingId);
-  if (loadEl) loadEl.remove();
-  msgBox.insertAdjacentHTML("beforeend", `<div class="chat-msg ai">${esc(reply)}</div>`);
-  msgBox.scrollTop = msgBox.scrollHeight;
 }
 
 function changeLanguage(lang) {
@@ -1323,40 +1275,6 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
         config = {}
     result_text = await scanner_core.compute(image_bytes, config)
     return {"text": result_text}
-
-
-def _chat_sync(chat_prompt):
-    model = genai.GenerativeModel(GEMINI_MODEL)
-    response = model.generate_content(chat_prompt)
-    return response.text.strip() if response and response.text else "Нет ответа от ИИ. 🤖"
-
-
-@app.post("/ai-chat")
-async def ai_chat(prompt: str = Form(...)):
-    user_prompt = prompt.strip()
-    if not GEMINI_API_KEY:
-        return {"reply": "⚠️ Ключ GEMINI_API_KEY не настроен в окружении Render."}
-
-    chat_prompt = (
-        "Ты профессиональный трейдер, наставник и ИИ-помощник по торговле в команде 'Team Master VIP' на платформе Pocket Option. "
-        "Отвечай на вопросы пользователя ИСКЛЮЧИТЕЛЬНО по теме трейдинга, финансовых рынков, технических индикаторов, стратегий, "
-        "сигналов, а также помогай с техническими вопросами терминала. "
-        "Используй эмодзи в ответах (📈,📉,⚡,🚀,💎,👑,🎯,🤖,⭐,🔥,📊).\n\n"
-        "ПРАВИЛА:\n"
-        "1. Отвечай ТОЛЬКО на вопросы по трейдингу, стратегиям, рынкам, сигналам и техническим вопросам терминала. Если вопрос на постороннюю тему "
-        "(политика, личная жизнь, фильмы, кулинария, погода и т.д.), откажись: "
-        "'Я консультирую исключительно по вопросам трейдинга, рынков, сигналов и техническим вопросам Team Master VIP! 📈📉'\n"
-        "2. На неприличные, пошлые или оскорбительные вопросы не отвечай, напиши: "
-        "'Я общаюсь только на темы профессионального трейдинга и рынков! Никаких посторонних или неприличных тем. ❌💎'\n"
-        "3. Если просят сигнал, актив, направление (CALL/PUT) или разбор сделки — дай подробный разбор и напомни о рисках бинарных опционов.\n"
-        "4. Отвечай на том языке, на котором написан вопрос.\n\n"
-        f"Вопрос пользователя: {user_prompt}"
-    )
-    try:
-        reply = await asyncio.to_thread(_chat_sync, chat_prompt)
-        return {"reply": reply}
-    except Exception as e:
-        return {"reply": f"⚠️ Ошибка связи с ИИ: {str(e)}"}
 
 
 if __name__ == "__main__":
