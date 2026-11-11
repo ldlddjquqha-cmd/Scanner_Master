@@ -11,7 +11,7 @@ import httpx
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="29.0")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="28.5")
 
 DB_FILE = "requests.json"
 BOT_TOKEN = "8847524172:AAF3um77sDqsX6IWq_W-D-Hb8TQJSpK-0qo"
