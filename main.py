@@ -15,7 +15,7 @@ import httpx
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="23.0")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="24.0")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
@@ -144,8 +144,8 @@ class ScannerAnalyzer:
 
         try:
             image = Image.open(io.BytesIO(image_bytes))
-            # Исправленная стабильная модель Gemini для работы с API
-            model = genai.GenerativeModel('gemini-1.5-flash-latest')
+            # Исправленное стабильное имя модели
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
             prompt = (
                 "ВНИМАНИЕ: Проанализируй данное изображение графика. Сначала строго проверь, присутствуют ли на изображении "
@@ -194,7 +194,6 @@ class ScannerAnalyzer:
 
 scanner_core = ScannerAnalyzer()
 
-# Точные активы из карманного терминала Pocket Option (без процентов выплаты)
 ASSETS_DATA_JS = {
   "ru": {
     "💱 Валютные пары": [
@@ -287,7 +286,7 @@ ASSETS_DATA_JS = {
       "USD/IDR OTC", "USD/PHP OTC", "USD/INR OTC", "USD/BDT OTC", "USD/CLP OTC", "GBP/CAD", 
       "QAR/CNY OTC", "USD/JPY OTC", "EUR/CHF", "BHD/CNY OTC", "CAD/JPY", "EUR/USD OTC", 
       "GBP/JPY", "USD/SGD OTC", "CHF/NOK OTC", "LBP/USD OTC", "USD/CNH OTC", "YER/USD OTC", 
-      "EUR/GBP OTC", "USD/CHF", "USD/PKR OTC", "EUR/CHF OTC", "EUR/JPY", "ZAR/USD ос", 
+      "EUR/GBP OTC", "USD/CHF", "USD/PKR OTC", "EUR/CHF OTC", "EUR/JPY", "ZAR/USD OTC", 
       "CAD/CHF", "EUR/CAD", "EUR/AUD"
     ],
     "🔥 Криптовалюти": [
@@ -315,7 +314,6 @@ ASSETS_DATA_JS = {
   }
 }
 
-# Стратегии из реального терминала Pocket Option (с точными связками индикаторов с фото пользователя)
 EDU_50 = [
   {
     "t": "1. Accelerator Oscillator + Alligator",
@@ -359,7 +357,6 @@ EDU_50 = [
   }
 ]
 
-# Дополняем список до 50 профессиональных стратегий в том же ключе
 for i in range(9, 51):
     strat_title = f"{i}. Профессиональная связка индикаторов №{i}"
     strat_desc = (
@@ -1599,7 +1596,8 @@ async def ai_chat(prompt: str = Form(...)):
         return {"reply": "⚠️ Ключ GEMINI_API_KEY не настроен в окружении Render."}
 
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        # Исправленное стабильное имя модели
+        model = genai.GenerativeModel('gemini-1.5-flash')
         chat_prompt = (
             "Ты профессиональный элитный трейдер и помощник по торговле на платформе Pocket Option. Твоя задача — отвечать на вопросы пользователя "
             "ИСКЛЮЧИТЕЛЬНО по теме трейдинга, финансовых рынков, технических индикаторов, связок индикаторов, риск-менеджмента и психологии торговли. "
