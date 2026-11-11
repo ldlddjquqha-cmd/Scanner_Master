@@ -17,7 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.2")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.3")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
@@ -297,18 +297,18 @@ _CRYPTO = [
     "🪙 Dash", "🪙 Chainlink", "🪙 BCH/EUR", "🪙 BCH/GBP", "🪙 BCH/JPY", "🪙 BTC/GBP", "🪙 BTC/JPY",
 ]
 _COMMODITIES = [
-    "🛢️ Brent Oil OTC", "🛢️ WTI Crude Oil OTC", "🪙 Silver OTC", "🪙 Gold OTC",
-    "⛽ Natural Gas OTC", "🪙 Palladium spot OTC", "🪙 Platinum spot",
+    "🛢️ Brent Oil OTC", "🛢️ WTI Crude Oil OTC", "🥈 Silver OTC", "🥇 Gold OTC",
+    "⛽ Natural Gas OTC", "⚪ Palladium spot OTC", "🔘 Platinum spot",
 ]
 _STOCKS = [
     "🍎 Apple OTC", "🚗 Tesla OTC", "💳 VISA OTC", "💻 Intel OTC", "🛒 Amazon OTC",
-    "🎬 Netflix OTC", "📘 FACEBOOK INC OTC", "📦 Microsoft OTC", "💊 Johnson & Johnson OTC",
-    "🛒 Alibaba OTC", "📊 VIX OTC", "🛢️ ExxonMobil OTC", "🤖 Palantir Technologies OTC",
+    "🎬 Netflix OTC", "📘 FACEBOOK INC OTC", "🪟 Microsoft OTC", "💊 Johnson & Johnson OTC",
+    "🛒 Alibaba OTC", "📉 VIX OTC", "⛽ ExxonMobil OTC", "🤖 Palantir Technologies OTC",
     "🪙 Coinbase Global OTC", "🍔 McDonald's OTC", "✈️ Boeing Company OTC", "💊 Pfizer Inc OTC",
     "🏦 Citigroup Inc OTC", "📦 FedEx OTC", "🎮 GameStop Corp OTC", "💳 American Express OTC",
-    "🌐 Cisco OTC", "💻 Advanced Micro Devices OTC", "📦 Marathon Digital Holdings OTC",
+    "🌐 Cisco OTC", "⚡ Advanced Micro Devices OTC", "⛏️ Marathon Digital Holdings OTC",
 ]
-_INDICES = ["📊 US100 OTC", "📈 SP500", "📊 SP500 OTC", "📊 AUS 200"]
+_INDICES = ["📊 US100 OTC", "📈 SP500", "📊 SP500 OTC", "🇦🇺 AUS 200"]
 
 ASSETS_DATA_JS = {
     "ru": {
@@ -636,13 +636,24 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
   <div class="card tab hidden" id="tabChat">
     <h3 class="g-text" style="font-size:13px;margin-bottom:8px" data-t="chatTitle">🤖 ИИ Помощник Team Master</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:10px" data-t="chatDesc">Вопросы по рынку, стратегиям, терминалу и команде Team Master Trade (аналитики 7+ лет, академия).</p>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:10px" data-t="chatDesc">Рынок, стратегии, терминал, команда. Можно прикрепить скрин графика 📎</p>
     <div class="chat-container">
       <div class="chat-messages" id="chatMessagesBox">
-        <div class="chat-msg ai">Привет! 🤝 Я ИИ-помощник Team Master VIP. Спрашивай про рынок, сигналы, стратегии, технику терминала и про нашу команду Master Trade. 📈🚀</div>
+        <div class="chat-msg ai">Привет! 🤝 Я наставник Team Master VIP. Пиши вопрос или кидай скрин графика — разберу вход CALL/PUT по правилам. 📈🚀</div>
+      </div>
+      <div id="chatPreviewWrap" style="display:none;padding:6px 8px">
+        <div style="display:flex;align-items:center;gap:8px;background:#0a0e18;border:1px solid #2a3344;border-radius:10px;padding:6px">
+          <img id="chatImgPreview" src="" alt="preview" style="width:56px;height:56px;object-fit:cover;border-radius:8px"/>
+          <span style="font-size:10px;color:var(--muted);flex:1">Скрин прикреплён</span>
+          <button type="button" class="btn btn-dark btn-sm" style="width:auto;padding:4px 8px" onclick="clearChatImage()">✕</button>
+        </div>
       </div>
       <div class="chat-input-row">
-        <input type="text" class="chat-input" id="chatInputText" data-ph="chatPlaceholder" placeholder="Спросите про рынок, команду или терминал..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
+        <label class="btn btn-dark btn-sm" style="width:auto;padding:8px 10px;margin:0;cursor:pointer" title="Прикрепить скрин">
+          📎
+          <input type="file" id="chatImageInput" accept="image/*" style="display:none" onchange="onChatImageSelected(this)">
+        </label>
+        <input type="text" class="chat-input" id="chatInputText" data-ph="chatPlaceholder" placeholder="Вопрос по рынку или стратегии..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
         <button class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
       </div>
     </div>
@@ -1530,44 +1541,74 @@ function cancelScan() {
   document.getElementById("scanSigBox").style.display = "none";
 }
 
+var chatImageFile = null;
+
+function onChatImageSelected(input) {
+  var f = input.files && input.files[0];
+  if (!f) return;
+  chatImageFile = f;
+  var url = URL.createObjectURL(f);
+  document.getElementById("chatImgPreview").src = url;
+  document.getElementById("chatPreviewWrap").style.display = "block";
+}
+
+function clearChatImage() {
+  chatImageFile = null;
+  var inp = document.getElementById("chatImageInput");
+  if (inp) inp.value = "";
+  document.getElementById("chatPreviewWrap").style.display = "none";
+  document.getElementById("chatImgPreview").src = "";
+}
+
+function formatAiReply(text) {
+  var t = String(text || "");
+  t = t.replace(/\*\*/g, "");
+  t = t.replace(/`/g, "");
+  return esc(t).replace(/\n/g, "<br>");
+}
+
 async function sendAiChatMessage() {
   var inputEl = document.getElementById("chatInputText");
   var msgBox = document.getElementById("chatMessagesBox");
   var text = (inputEl.value || "").trim();
-  if (!text) return;
+  if (!text && !chatImageFile) return;
 
-  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg user">' + esc(text) + '</div>');
+  var userHtml = esc(text || "📷 Скрин графика");
+  if (chatImageFile) userHtml = "📎 " + userHtml;
+  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg user">' + userHtml + '</div>');
   inputEl.value = "";
   msgBox.scrollTop = msgBox.scrollHeight;
 
   var loadingId = "ai_load_" + Date.now();
-  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai" id="' + loadingId + '">Ассистент анализирует вопрос... 🤖</div>');
+  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai" id="' + loadingId + '">Разбираю… ⚡</div>');
   msgBox.scrollTop = msgBox.scrollHeight;
 
   var reply = "⚠️ Ошибка связи с сервером.";
   var controller = new AbortController();
-  var to = setTimeout(function() { controller.abort(); }, 55000);
+  var to = setTimeout(function() { controller.abort(); }, 45000);
   try {
     var fd = new FormData();
-    fd.append("prompt", text);
+    fd.append("prompt", text || "Разбери этот график: направление CALL или PUT, где вход, на каком таймфрейме.");
+    if (chatImageFile) fd.append("image", chatImageFile);
     var response = await fetch("/ai-chat", { method: "POST", body: fd, signal: controller.signal });
     if (response.ok) {
       var data = await response.json();
       reply = data.reply || reply;
     } else {
-      reply = "⚠️ Сервер вернул ошибку " + response.status + ". Проверь GEMINI_API_KEY на Render.";
+      reply = "⚠️ Ошибка сервера " + response.status + ". Проверь GEMINI_API_KEY на Render.";
     }
   } catch (e) {
     if (e && e.name === "AbortError") {
-      reply = "⚠️ Таймаут ожидания ответа ИИ. Попробуй ещё раз.";
+      reply = "⚠️ Долго отвечает. Попробуй ещё раз короче вопрос.";
     } else {
-      reply = "⚠️ Сеть или сервер недоступны. Обнови страницу.";
+      reply = "⚠️ Сеть недоступна. Обнови страницу.";
     }
   }
   clearTimeout(to);
+  clearChatImage();
   var loadEl = document.getElementById(loadingId);
   if (loadEl) loadEl.remove();
-  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai">' + esc(reply) + '</div>');
+  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai">' + formatAiReply(reply) + '</div>');
   msgBox.scrollTop = msgBox.scrollHeight;
 }
 
@@ -1734,7 +1775,16 @@ async def get_news():
         except Exception as ex:
             logging.warning(f"PipAtlas news error: {ex}")
 
-    events.sort(key=lambda x: x.get("date") or "")
+    def _sort_key(ev):
+        dt = _parse_event_dt(ev.get("date") or "")
+        ts = dt.timestamp() if dt else 0
+        # upcoming first (soonest), then released (newest first)
+        is_up = 0 if ev.get("status") == "upcoming" else 1
+        if is_up == 0:
+            return (0, ts)
+        return (1, -ts)
+
+    events.sort(key=_sort_key)
     return {
         "events": events[:100],
         "updated": updated,
@@ -1779,7 +1829,11 @@ def _gemini_rest_text(prompt_text: str) -> str:
         )
         body = json.dumps({
             "contents": [{"parts": [{"text": prompt_text}]}],
-            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1024},
+            "generationConfig": {
+                "temperature": 0.45,
+                "maxOutputTokens": 700,
+                "topP": 0.9,
+            },
         }).encode("utf-8")
         req = urllib.request.Request(
             url,
@@ -1854,10 +1908,20 @@ def _chat_sync(chat_prompt):
 
 
 @app.post("/ai-chat")
-async def ai_chat(prompt: str = Form(...)):
+async def ai_chat(prompt: str = Form(""), image: UploadFile = File(None)):
     user_prompt = (prompt or "").strip()
-    if not user_prompt:
-        return {"reply": "Напишите вопрос ✍️"}
+    img_bytes = None
+    if image is not None:
+        try:
+            img_bytes = await image.read()
+            if not img_bytes or len(img_bytes) < 50:
+                img_bytes = None
+        except Exception:
+            img_bytes = None
+
+    if not user_prompt and not img_bytes:
+        return {"reply": "Напиши вопрос или прикрепи скрин ✍️"}
+
     if not GEMINI_API_KEY:
         return {
             "reply": (
@@ -1867,28 +1931,47 @@ async def ai_chat(prompt: str = Form(...)):
         }
 
     chat_prompt = (
-        "Ты профессиональный трейдер-наставник и ИИ-помощник команды Team Master VIP / Team Master Trade "
-        "на платформе Pocket Option.\n"
-        "О команде: Team Master Trade — аналитики с опытом 7+ лет, академия, торговые чаты, "
-        "сопровождение, обучение Price Action, Smart Money, ICT, скальпингу, форекс и бинарным опционам.\n"
-        "Отвечай по: трейдингу, форекс, валютным парам, новостям рынка, индикаторам, стратегиям, сигналам, "
-        "терминалу Team Master VIP, команде и академии.\n"
-        "Используй эмодзи (📈📉⚡🚀💎👑🎯🤖⭐🔥📊).\n\n"
-        "ПРАВИЛА:\n"
-        "1. Только трейдинг/рынки/команда/терминал. Постороннее — вежливо откажи.\n"
-        "2. Неприличные темы — отказ.\n"
-        "3. Сигнал/направление — разбор + риски (1–2% на сделку).\n"
-        "4. Язык ответа = язык вопроса.\n\n"
-        f"Вопрос пользователя: {user_prompt}"
+        "Ты опытный трейдер-наставник Team Master VIP / Team Master Trade (аналитики 7+ лет, академия, Pocket Option).\n"
+        "Отвечай ТОЛЬКО как профессионал трейдинга: форекс, валютные пары, крипта, индексы, бинарные опционы, "
+        "Price Action, Smart Money, ICT, риски, терминал, команда.\n\n"
+        "ЖЁСТКИЕ ПРАВИЛА ОТВЕТА:\n"
+        "1. Язык: русский, если вопрос на русском. Без английских служебных фраз.\n"
+        "2. НИКОГДА не пиши: Review against Constraints, Persona maintained, Topic valid, Emojis used и любой meta-текст.\n"
+        "3. Без markdown ** и ##. Обычный текст + эмодзи.\n"
+        "4. Кратко и чётко. Без воды.\n"
+        "5. Если просят стратегию — структура:\n"
+        "   • Название\n"
+        "   • Таймфрейм\n"
+        "   • Условия CALL (ВВЕРХ)\n"
+        "   • Условия PUT (ВНИЗ)\n"
+        "   • Когда НЕ входить\n"
+        "   • Риск 1–2% депозита\n"
+        "6. Если прислали график — сразу: направление, точка входа, почему, экспирация.\n"
+        "7. Посторонние темы — вежливый отказ.\n\n"
+        f"Вопрос: {user_prompt or 'Разбери график на скрине'}"
     )
+
     try:
-        reply = await asyncio.wait_for(asyncio.to_thread(_chat_sync, chat_prompt), timeout=50)
+        if img_bytes:
+            # vision path
+            def _run():
+                return _gemini_rest_vision(chat_prompt, img_bytes, mime="image/jpeg") or _gemini_rest_text(chat_prompt)
+            reply = await asyncio.wait_for(asyncio.to_thread(_run), timeout=40)
+        else:
+            reply = await asyncio.wait_for(asyncio.to_thread(_chat_sync, chat_prompt), timeout=35)
+        if not reply:
+            reply = "Не удалось получить ответ. Попробуй ещё раз ⚡"
+        # sanitize meta leaks
+        bad = ["Review against Constraints", "Persona maintained", "Topic valid", "Emojis used"]
+        for b in bad:
+            if b in reply:
+                reply = reply.split(b)[0].strip() or "Готов помочь по рынку и стратегиям. Уточни вопрос 📈"
         return {"reply": reply}
     except asyncio.TimeoutError:
-        return {"reply": "⚠️ ИИ не успел ответить (таймаут). Попробуй ещё раз через несколько секунд."}
+        return {"reply": "⚠️ Долго думает. Задай вопрос короче или без скрина."}
     except Exception as e:
         logging.exception("ai-chat error")
-        return {"reply": f"⚠️ Ошибка связи с ИИ: {str(e)}"}
+        return {"reply": f"⚠️ Ошибка ИИ: {str(e)}"}
 
 
 if __name__ == "__main__":
