@@ -6,7 +6,7 @@ import time
 import random
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 import httpx
 import numpy as np
@@ -17,14 +17,13 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="26.7")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="26.8")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-# Токен и чат админа задаются в Render -> Environment (BOT_TOKEN, ADMIN_CHAT_ID)
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_CHAT_ID = os.environ.get("ADMIN_CHAT_ID", "")
 
@@ -146,7 +145,6 @@ class ScannerAnalyzer:
                 except Exception as ex:
                     logging.warning(f"Gemini error: {ex}")
 
-            # Резервный расчет по расположению пикселей свечей
             img_rgb = image.convert("RGB")
             np_img = np.array(img_rgb)
 
@@ -189,8 +187,6 @@ class ScannerAnalyzer:
 
 
 scanner_core = ScannerAnalyzer()
-
-# ----------------------------- АКТИВЫ -----------------------------
 
 _CURRENCY = [
     "🇪🇺🇺🇸 EUR/USD OTC", "🇬🇧🇺🇸 GBP/USD OTC", "🇺🇸🇯🇵 USD/JPY OTC", "🇦🇺🇺🇸 AUD/USD OTC", "🇪🇺🇯🇵 EUR/JPY OTC",
@@ -336,8 +332,6 @@ for i in range(6, 51):
         ),
     })
 
-# ----------------------------- HTML -----------------------------
-
 HTML_UI = r"""<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -405,7 +399,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
 .tag{font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;background:rgba(255,215,0,.08);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
 .bnav{position:fixed;bottom:0;left:0;right:0;background:#05070d;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 10px;z-index:100}
-.nav{display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--muted);font-size:8.5px;font-weight:800;cursor:pointer;min-width:44px;padding:3px 1px;transition:color .2s}
+.nav{display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--muted);font-size:8.5px;font-weight:800;cursor:pointer;min-width:40px;padding:3px 1px;transition:color .2s}
 .nav.on{color:var(--gold)}.nav span:first-child{font-size:15px}
 .hidden{display:none!important}
 .gap{height:6px}.gap2{height:9px}
@@ -428,6 +422,21 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .profile-photo-upload{width:90px;height:90px;border-radius:50%;border:2px dashed var(--gold);background:var(--inner);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 12px;overflow:hidden;position:relative}
 .profile-photo-upload img{width:100%;height:100%;object-fit:cover}
 .about-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:16px;font-size:11.5px;color:#c5cdd8;line-height:1.75}
+.news-item{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 12px;margin-bottom:7px}
+.news-item.high{border-color:rgba(255,82,82,.45);background:rgba(255,82,82,.06)}
+.news-item.medium{border-color:rgba(255,167,38,.4);background:rgba(255,167,38,.05)}
+.news-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px}
+.news-cur{font-size:11px;font-weight:900;color:var(--gold)}
+.news-time{font-size:10px;color:var(--muted);font-weight:700}
+.news-name{font-size:12px;font-weight:800;color:var(--text);margin-bottom:6px;line-height:1.35}
+.news-meta{display:flex;flex-wrap:wrap;gap:6px;font-size:10px;font-weight:700;color:#b0b8c8}
+.news-meta span{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:3px 7px}
+.news-impact{font-size:9px;font-weight:900;padding:2px 7px;border-radius:6px}
+.news-impact.high{background:rgba(255,82,82,.2);color:var(--red)}
+.news-impact.medium{background:rgba(255,167,38,.2);color:#FFA726}
+.news-impact.low{background:rgba(255,215,0,.12);color:var(--gold)}
+.news-updated{font-size:10px;color:var(--muted);font-weight:700;text-align:center;margin-bottom:8px}
+.news-list{max-height:420px;overflow-y:auto}
 </style>
 </head>
 <body>
@@ -447,7 +456,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div id="app">
 
-  <!-- СИГНАЛЫ -->
   <div class="card tab" id="tabSig">
     <div class="live-bar">
       <span class="live" id="apiStatusBadge">● POCKET OPTION API: ONLINE 🟢</span>
@@ -500,7 +508,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     </div>
   </div>
 
-  <!-- ИЗБРАННОЕ -->
   <div class="card tab hidden" id="tabFavs">
     <h3 class="g-text" style="font-size:13px;margin-bottom:8px" data-t="favTabTitle">⭐ Избранные активы</h3>
     <p style="font-size:11px;color:var(--muted);margin-bottom:10px" data-t="favTabDesc">Нажмите на любой актив из списка для перехода.</p>
@@ -510,7 +517,19 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <button class="btn btn-dark btn-sm" onclick="clearFavs()" data-t="btnClearFav">🗑 Очистить избранное</button>
   </div>
 
-  <!-- ОБУЧЕНИЕ -->
+  <!-- НОВОСТИ -->
+  <div class="card tab hidden" id="tabNews">
+    <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Экономические новости</h3>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Календарь High/Medium событий. Автообновление — новые новости появляются сами.</p>
+    <div class="news-updated" id="newsUpdated">—</div>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <button class="btn btn-gold btn-sm" style="flex:1" onclick="loadNews(true)" data-t="btnRefreshNews">🔄 Обновить сейчас</button>
+    </div>
+    <div class="news-list" id="newsList">
+      <div style="text-align:center;padding:20px;color:var(--muted);font-size:11px" data-t="newsLoading">Загрузка новостей...</div>
+    </div>
+  </div>
+
   <div class="card tab hidden" id="tabEdu">
     <div style="display:flex;gap:6px;margin-bottom:10px">
       <button class="btn btn-gold btn-sm" style="flex:1" onclick="openRandomEdu()" data-t="btnRandomStrat">🎲 Рандом стратегия</button>
@@ -525,7 +544,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     </div>
   </div>
 
-  <!-- ПРОФИЛЬ -->
   <div class="card tab hidden" id="tabProf">
     <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:12px" data-t="profTitle">👤 Профиль</h3>
     <label class="profile-photo-upload" title="Фото профиля">
@@ -553,7 +571,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <button class="btn btn-red btn-sm" onclick="resetProfile()" data-t="btnResetProfile">🗑 Сбросить данные профиля</button>
   </div>
 
-  <!-- СКАНЕР -->
   <div class="card tab hidden" id="tabScan">
     <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px" data-t="scanTitle">📷 ИИ Сканер (Анализ по свечам)</h3>
     <div class="scan-tips" id="scanTipsHtml">
@@ -621,7 +638,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     </div>
   </div>
 
-  <!-- О НАС -->
   <div class="card tab hidden" id="tabAbout">
     <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="aboutTitle">👑 О нашей команде (Team Master)</h3>
     <div class="about-box">
@@ -630,7 +646,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       💡 <b data-t="aboutWhyT">Что внутри:</b><br>
       <span data-t="aboutL1">• Технические сигналы и ИИ-сканирование графиков</span><br>
       <span data-t="aboutL2">• База знаний из 50 связок и методик</span><br>
-      <span data-t="aboutL3">• Поддержка команды и торговые чаты</span><br><br>
+      <span data-t="aboutL3">• Экономический календарь новостей с автообновлением</span><br><br>
       <span data-t="aboutRisk">⚠️ Торговля бинарными опционами связана с высоким риском потери капитала. Сигналы не гарантируют прибыль. Риск на сделку — 1-2% от депозита.</span>
     </div>
     <div class="gap"></div>
@@ -642,6 +658,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="bnav" id="bnav">
   <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
   <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
+  <div class="nav" onclick="tab('tabNews',this)"><span>📰</span><span data-t="navNews">Новости</span></div>
   <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
   <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
   <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
@@ -690,6 +707,8 @@ let currentLang = "ru";
 let modalCategory = "all";
 let uploadedImageBlob = null;
 let scanCfg = {"интервал": "M1", "экспирация": "1м", "стратегия": "Smart Money"};
+let newsTimer = null;
+let lastNewsHash = "";
 
 const I18N = {
   ru: {
@@ -704,6 +723,8 @@ const I18N = {
     phPocketId: "Введите ваш Pocket ID...", phFavStrat: "Например: Smart Money, Price Action...",
     favTabTitle: "⭐ Избранные активы", favTabDesc: "Нажмите на любой актив из списка для перехода.",
     profFavEmpty: "Пока пусто — добавь актив из полного каталога", btnClearFav: "🗑 Очистить избранное",
+    newsTitle: "📰 Экономические новости", newsDesc: "Календарь High/Medium событий. Автообновление — новые новости появляются сами.",
+    btnRefreshNews: "🔄 Обновить сейчас", newsLoading: "Загрузка новостей...",
     scanTitle: "📷 ИИ Сканер (Анализ по свечам)", scanInstr: "Инструкция ИИ-сканера свечей:",
     scanStep1: "1️⃣ Настройте параметры и стратегию ниже",
     scanStep2: "2️⃣ Откройте камеру или загрузите скриншот графика со свечами",
@@ -718,10 +739,10 @@ const I18N = {
     aboutGoal: "предоставить каждому участнику современные инструменты, включая ИИ-сканер графиков по свечам, авторские связки индикаторов и стратегии Price Action и Smart Money.",
     aboutWhyT: "Что внутри:",
     aboutL1: "• Технические сигналы и ИИ-сканирование графиков", aboutL2: "• База знаний из 50 связок и методик",
-    aboutL3: "• Поддержка команды и торговые чаты",
+    aboutL3: "• Экономический календарь новостей с автообновлением",
     aboutRisk: "⚠️ Торговля бинарными опционами связана с высоким риском потери капитала. Сигналы не гарантируют прибыль. Риск на сделку — 1-2% от депозита.",
     btnTgChan: "📢 Наш Telegram канал",
-    navSig: "Сигналы", navFavs: "Избранное", navEdu: "Связки", navProf: "Профиль", navScan: "Сканер", navAbout: "О нас",
+    navSig: "Сигналы", navFavs: "Избранное", navNews: "Новости", navEdu: "Связки", navProf: "Профиль", navScan: "Сканер", navAbout: "О нас",
     modalCatalogTitle: "📋 Полный каталог активов Pocket Option", searchPlaceholder: "Поиск актива...",
     catAll: "🌟 Все", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сырьё", catStocks: "📈 Акции", catIdx: "📊 Индексы"
   },
@@ -737,6 +758,8 @@ const I18N = {
     phPocketId: "Enter your Pocket ID...", phFavStrat: "E.g.: Smart Money, Price Action...",
     favTabTitle: "⭐ Favorite Assets", favTabDesc: "Tap any asset to switch to it.",
     profFavEmpty: "Empty yet — add an asset from the full catalog", btnClearFav: "🗑 Clear favorites",
+    newsTitle: "📰 Economic News", newsDesc: "High/Medium impact calendar. Auto-refresh — new events appear automatically.",
+    btnRefreshNews: "🔄 Refresh now", newsLoading: "Loading news...",
     scanTitle: "📷 AI Scanner (Candle Analysis)", scanInstr: "AI candle scanner instructions:",
     scanStep1: "1️⃣ Set the parameters and strategy below",
     scanStep2: "2️⃣ Open the camera or upload a chart screenshot with candles",
@@ -751,10 +774,10 @@ const I18N = {
     aboutGoal: "to give every member modern tools, including an AI candle chart scanner, author indicator combos and Price Action and Smart Money strategies.",
     aboutWhyT: "What's inside:",
     aboutL1: "• Technical signals and AI chart scanning", aboutL2: "• Knowledge base of 50 combos and methods",
-    aboutL3: "• Team support and trading chats",
+    aboutL3: "• Economic news calendar with auto-refresh",
     aboutRisk: "⚠️ Binary options trading carries a high risk of losing capital. Signals do not guarantee profit. Risk per trade — 1-2% of the deposit.",
     btnTgChan: "📢 Our Telegram Channel",
-    navSig: "Signals", navFavs: "Favorites", navEdu: "Combos", navProf: "Profile", navScan: "Scanner", navAbout: "About",
+    navSig: "Signals", navFavs: "Favorites", navNews: "News", navEdu: "Combos", navProf: "Profile", navScan: "Scanner", navAbout: "About",
     modalCatalogTitle: "📋 Full Pocket Option Assets Catalog", searchPlaceholder: "Search asset...",
     catAll: "🌟 All", catCur: "💱 Currency", catCrypto: "🔥 Crypto", catComm: "🛢️ Commodities", catStocks: "📈 Stocks", catIdx: "📊 Indices"
   },
@@ -770,6 +793,8 @@ const I18N = {
     phPocketId: "Введіть ваш Pocket ID...", phFavStrat: "Наприклад: Smart Money, Price Action...",
     favTabTitle: "⭐ Обрані активи", favTabDesc: "Натисніть на будь-який актив зі списку для переходу.",
     profFavEmpty: "Поки порожньо — додай актив з повного каталогу", btnClearFav: "🗑 Очистити обране",
+    newsTitle: "📰 Економічні новини", newsDesc: "Календар High/Medium подій. Автооновлення — нові новини з'являються самі.",
+    btnRefreshNews: "🔄 Оновити зараз", newsLoading: "Завантаження новин...",
     scanTitle: "📷 ШІ Сканер (Аналіз за свічками)", scanInstr: "Інструкція ШІ-сканера свічок:",
     scanStep1: "1️⃣ Налаштуйте параметри та стратегію нижче",
     scanStep2: "2️⃣ Відкрийте камеру або завантажте скріншот графіка зі свічками",
@@ -784,10 +809,10 @@ const I18N = {
     aboutGoal: "надати кожному учаснику сучасні інструменти, зокрема ШІ-сканер графіків за свічками, авторські зв'язки індикаторів та стратегії Price Action і Smart Money.",
     aboutWhyT: "Що всередині:",
     aboutL1: "• Технічні сигнали та ШІ-сканування графіків", aboutL2: "• База знань з 50 зв'язок і методик",
-    aboutL3: "• Підтримка команди та торгові чати",
+    aboutL3: "• Економічний календар новин з автооновленням",
     aboutRisk: "⚠️ Торгівля бінарними опціонами пов'язана з високим ризиком втрати капіталу. Сигнали не гарантують прибуток. Ризик на угоду — 1-2% від депозиту.",
     btnTgChan: "📢 Наш Telegram канал",
-    navSig: "Сигнали", navFavs: "Обране", navEdu: "Зв'язки", navProf: "Профіль", navScan: "Сканер", navAbout: "Про нас",
+    navSig: "Сигнали", navFavs: "Обране", navNews: "Новини", navEdu: "Зв'язки", navProf: "Профіль", navScan: "Сканер", navAbout: "Про нас",
     modalCatalogTitle: "📋 Повний каталог активів Pocket Option", searchPlaceholder: "Пошук активу...",
     catAll: "🌟 Всі", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сировина", catStocks: "📈 Акції", catIdx: "📊 Індекси"
   }
@@ -810,6 +835,7 @@ function tab(tabId, el) {
   if (el) el.classList.add("on");
   if (tabId === "tabFavs") renderMainFavs();
   if (tabId === "tabProf") updateProfileStats();
+  if (tabId === "tabNews") { loadNews(false); startNewsAuto(); }
 }
 
 function openCatalogModal() {
@@ -997,6 +1023,86 @@ function autoSig() {
 function cancelSig() {
   if (timers.sig) clearInterval(timers.sig);
   document.getElementById("sigBox").style.display = "none";
+}
+
+function formatNewsTime(iso) {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso || "—";
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    return `\( {dd}. \){mm} \( {hh}: \){mi}`;
+  } catch (e) { return iso || "—"; }
+}
+
+function impactClass(imp) {
+  const x = (imp || "").toLowerCase();
+  if (x === "high") return "high";
+  if (x === "medium") return "medium";
+  return "low";
+}
+
+function impactEmoji(imp) {
+  const x = (imp || "").toLowerCase();
+  if (x === "high") return "🔴 High";
+  if (x === "medium") return "🟠 Medium";
+  return "🟡 Low";
+}
+
+function renderNewsList(events) {
+  const list = document.getElementById("newsList");
+  if (!events || !events.length) {
+    list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Нет событий на ближайшие дни</div>`;
+    return;
+  }
+  let html = "";
+  events.forEach(ev => {
+    const ic = impactClass(ev.impact);
+    const actual = (ev.actual || "").trim();
+    const forecast = (ev.forecast || "").trim();
+    const previous = (ev.previous || "").trim();
+    html += `<div class="news-item ${ic}">
+      <div class="news-top">
+        <span class="news-cur">${esc(ev.currency || "—")} · <span class="news-impact \( {ic}"> \){impactEmoji(ev.impact)}</span></span>
+        <span class="news-time">🕒 ${esc(formatNewsTime(ev.date))}</span>
+      </div>
+      <div class="news-name">${esc(ev.name || "Событие")}</div>
+      <div class="news-meta">
+        ${forecast ? `<span>📈 Прогноз: ${esc(forecast)}</span>` : ""}
+        ${previous ? `<span>📉 Пред.: ${esc(previous)}</span>` : ""}
+        ${actual ? `<span style="color:var(--green)">✅ Факт: ${esc(actual)}</span>` : `<span>⏳ Ожидается</span>`}
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+async function loadNews(force) {
+  const upd = document.getElementById("newsUpdated");
+  try {
+    const res = await fetch("/news");
+    if (!res.ok) throw new Error("fail");
+    const data = await res.json();
+    const events = data.events || [];
+    const hash = JSON.stringify(events.map(e => [e.name, e.date, e.actual, e.forecast]));
+    if (force || hash !== lastNewsHash) {
+      lastNewsHash = hash;
+      renderNewsList(events);
+    }
+    const t = data.updated ? formatNewsTime(data.updated) : formatNewsTime(new Date().toISOString());
+    upd.textContent = `🔄 Обновлено: ${t} · событий: ${events.length}`;
+  } catch (e) {
+    if (!document.getElementById("newsList").innerHTML.includes("news-item")) {
+      document.getElementById("newsList").innerHTML = `<div style="text-align:center;padding:20px;color:var(--red);font-size:11px">Не удалось загрузить новости. Нажмите обновить.</div>`;
+    }
+  }
+}
+
+function startNewsAuto() {
+  if (newsTimer) clearInterval(newsTimer);
+  newsTimer = setInterval(() => loadNews(false), 90000);
 }
 
 function renderEdu() {
@@ -1223,6 +1329,8 @@ window.addEventListener("DOMContentLoaded", () => {
   renderMainFavs();
   renderEdu();
   loadProfile();
+  loadNews(true);
+  startNewsAuto();
 });
 </script>
 </body>
@@ -1264,6 +1372,73 @@ async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str
     ema = calculate_ema(prices)
     signal, reason = smart_market_analysis(prices, rsi, ema)
     return {"signal": signal, "reason": reason}
+
+
+@app.get("/news")
+async def get_news():
+    events = []
+    updated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    # 1) ShowMyTrades — high/medium + actual
+    try:
+        url = (
+            "https://showmytrades.com/api/public/calendar/v1"
+            "?currency=USD,EUR,GBP,JPY,AUD,NZD,CAD,CHF"
+            "&impact=high,medium&days=5"
+        )
+        async with httpx.AsyncClient() as client:
+            res = await client.get(url, timeout=10.0)
+            if res.status_code == 200:
+                data = res.json()
+                for e in data.get("events", []):
+                    events.append({
+                        "name": e.get("title") or "",
+                        "currency": (e.get("currency") or "").upper(),
+                        "impact": (e.get("impact") or "medium").capitalize(),
+                        "date": e.get("time") or "",
+                        "forecast": e.get("forecast") or "",
+                        "previous": e.get("previous") or "",
+                        "actual": e.get("actual") or "",
+                    })
+                if data.get("generated_at"):
+                    updated = data["generated_at"]
+    except Exception as ex:
+        logging.warning(f"ShowMyTrades news error: {ex}")
+
+    # 2) Fallback — PipAtlas
+    if not events:
+        try:
+            async with httpx.AsyncClient() as client:
+                res = await client.get("https://pipatlas.com/api/calendar", timeout=10.0)
+                if res.status_code == 200:
+                    data = res.json()
+                    for e in data.get("events", []):
+                        imp = (e.get("impact") or "").capitalize()
+                        if imp not in ("High", "Medium"):
+                            continue
+                        events.append({
+                            "name": e.get("name") or "",
+                            "currency": (e.get("currency") or "").upper(),
+                            "impact": imp,
+                            "date": e.get("date") or "",
+                            "forecast": e.get("forecast") or "",
+                            "previous": e.get("previous") or "",
+                            "actual": e.get("actual") or "",
+                        })
+                    if data.get("updated"):
+                        updated = data["updated"]
+        except Exception as ex:
+            logging.warning(f"PipAtlas news error: {ex}")
+
+    # ближайшие сверху
+    def sort_key(x):
+        try:
+            return x.get("date") or ""
+        except Exception:
+            return ""
+
+    events.sort(key=sort_key)
+    return {"events": events[:80], "updated": updated}
 
 
 @app.post("/analyze")
