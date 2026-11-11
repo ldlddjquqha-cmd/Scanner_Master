@@ -17,7 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.3")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.4")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
@@ -1168,7 +1168,11 @@ function formatNewsTime(iso) {
   try {
     var d = new Date(iso);
     if (isNaN(d.getTime())) return iso || "—";
-    return pad2(d.getDate()) + "." + pad2(d.getMonth() + 1) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+    var now = new Date();
+    var sameDay = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    var tm = pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+    if (sameDay) return "сегодня " + tm;
+    return pad2(d.getDate()) + "." + pad2(d.getMonth() + 1) + " " + tm;
   } catch (e) { return iso || "—"; }
 }
 
@@ -1686,6 +1690,20 @@ def _parse_event_dt(iso_str: str):
         return None
 
 
+
+MAJOR_FX = {"USD", "EUR", "GBP", "JPY", "AUD", "NZD", "CAD", "CHF"}
+PAIR_HINTS = {
+    "USD": "EUR/USD · GBP/USD · USD/JPY",
+    "EUR": "EUR/USD · EUR/GBP · EUR/JPY",
+    "GBP": "GBP/USD · EUR/GBP · GBP/JPY",
+    "JPY": "USD/JPY · EUR/JPY · GBP/JPY",
+    "AUD": "AUD/USD · AUD/JPY · EUR/AUD",
+    "NZD": "NZD/USD · AUD/NZD",
+    "CAD": "USD/CAD · EUR/CAD",
+    "CHF": "USD/CHF · EUR/CHF · GBP/CHF",
+}
+
+
 @app.get("/news")
 async def get_news():
     """Форекс-календарь: валюты, High/Medium, сегодня вышло + скоро выйдет."""
@@ -1729,7 +1747,7 @@ async def get_news():
                         "actual": actual,
                         "status": status,
                         "status_ru": status_ru,
-                        "pair_hint": (e.get("currency") or "").upper() + "/USD",
+                        "pair_hint": PAIR_HINTS.get((e.get("currency") or "").upper(), (e.get("currency") or "").upper()),
                     })
                 if data.get("generated_at"):
                     updated = data["generated_at"]
@@ -1768,7 +1786,7 @@ async def get_news():
                             "actual": actual,
                             "status": status,
                             "status_ru": status_ru,
-                            "pair_hint": (e.get("currency") or "").upper() + "/USD",
+                            "pair_hint": PAIR_HINTS.get((e.get("currency") or "").upper(), (e.get("currency") or "").upper()),
                         })
                     if data.get("updated"):
                         updated = data["updated"]
@@ -1784,9 +1802,11 @@ async def get_news():
             return (0, ts)
         return (1, -ts)
 
+    # только мажорные валюты форекс
+    events = [ev for ev in events if (ev.get("currency") or "") in MAJOR_FX]
     events.sort(key=_sort_key)
     return {
-        "events": events[:100],
+        "events": events[:80],
         "updated": updated,
         "server_time": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "focus": "forex",
@@ -1804,60 +1824,131 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
     return {"text": result_text}
 
 
+LOCAL_STRATEGIES = [
+    {
+        "name": "Отбой от уровня (Price Action)",
+        "tf": "M1–M5",
+        "call": "Цена у поддержки + пин-бар / длинная нижняя тень вверх. Вход на закрытии свечи.",
+        "put": "Цена у сопротивления + пин-бар вниз / медвежье поглощение. Вход на закрытии.",
+        "no": "Нет уровня, High-новость через 0–5 мин, хаотичный флэт без структуры.",
+    },
+    {
+        "name": "Пробой + ретест",
+        "tf": "M5–M15",
+        "call": "Пробой сопротивления → откат к уровню → отбой вверх. CALL на ретесте.",
+        "put": "Пробой поддержки → откат → отбой вниз. PUT на ретесте.",
+        "no": "Ложный пробой (сразу вернули внутрь диапазона).",
+    },
+    {
+        "name": "Тренд по EMA(20)",
+        "tf": "M1–M5",
+        "call": "Цена выше EMA, откат к EMA без закрытия ниже, разворотная свеча вверх → CALL.",
+        "put": "Цена ниже EMA, откат к EMA без закрытия выше, разворот вниз → PUT.",
+        "no": "Цена пилит EMA туда-сюда.",
+    },
+]
+
+
+def _local_ai_reply(user_text: str) -> str:
+    t = (user_text or "").lower().strip()
+    greet = any(w in t for w in ("привет", "здравств", "hello", "hi", "добрый"))
+    wants_strat = any(w in t for w in ("стратег", "связк", "как торг", "вход", "call", "put", "сигнал", "описан"))
+    wants_risk = any(w in t for w in ("риск", "депозит", "манименедж", "лот"))
+    about_team = any(w in t for w in ("команд", "master trade", "академи", "аналитик"))
+    about_news = any(w in t for w in ("новост", "календар", "nfp", "cpi", "фрс"))
+
+    parts = []
+    if greet:
+        parts.append("Привет! 🤝 Чем помочь по рынку или стратегии?")
+
+    if wants_strat or (t and not greet and not wants_risk and not about_team and not about_news):
+        s = random.choice(LOCAL_STRATEGIES)
+        parts.append(
+            "Стратегия: " + s["name"] + " 🎯\n"
+            "Таймфрейм: " + s["tf"] + "\n\n"
+            "CALL (ВВЕРХ) 📈\n" + s["call"] + "\n\n"
+            "PUT (ВНИЗ) 📉\n" + s["put"] + "\n\n"
+            "Когда НЕ входить ❌\n" + s["no"] + "\n\n"
+            "Риск: 1–2% депозита. Экспирация = 1–3 свечи выбранного ТФ."
+        )
+    elif wants_risk:
+        parts.append(
+            "Манименеджмент Team Master 💎\n"
+            "• Риск на сделку: 1–2% депозита\n"
+            "• Не более 2–3 входов подряд в одну сторону\n"
+            "• После 2 убытков — пауза\n"
+            "• За 5 мин до High-новости лучше не входить"
+        )
+    elif about_team:
+        parts.append(
+            "Team Master Trade — аналитики 7+ лет, академия, сопровождение и чаты. "
+            "Терминал Team Master VIP: сигналы, сканер, форекс-новости. 👑"
+        )
+    elif about_news:
+        parts.append(
+            "Вкладка «Новости» — только валюты (EUR, USD, GBP, JPY…). "
+            "Сверху то, что скоро выйдет, со временем. На High волатильность резко растёт. 📰"
+        )
+    elif not parts:
+        parts.append(
+            "Напиши, что нужно: стратегия на M5, риски, новости по EUR/USD. ⚡"
+        )
+    return "\n\n".join(parts)
+
+
 def _gemini_rest_text(prompt_text: str) -> str:
-    """Прямой REST к Gemini — работает надёжнее старого SDK."""
     if not GEMINI_API_KEY:
         raise RuntimeError("GEMINI_API_KEY не задан")
     models_try = [
         GEMINI_MODEL or "gemini-3.8-flash",
         "gemini-3.8-flash",
-        "gemini-3.6-flash",
-        "gemini-2.5-flash",
+        "gemini-3.5-flash-lite",
+        "gemini-flash-lite-latest",
+        "gemini-flash-latest",
         "gemini-2.0-flash",
+        "gemini-2.0-flash-001",
+        "gemini-3.6-flash",
     ]
     seen = set()
     last_err = None
     import urllib.request
-    import urllib.error
     for m in models_try:
         if not m or m in seen:
             continue
         seen.add(m)
-        url = (
-            f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent"
-            f"?key={GEMINI_API_KEY}"
-        )
-        body = json.dumps({
-            "contents": [{"parts": [{"text": prompt_text}]}],
-            "generationConfig": {
-                "temperature": 0.45,
-                "maxOutputTokens": 700,
-                "topP": 0.9,
-            },
-        }).encode("utf-8")
-        req = urllib.request.Request(
-            url,
-            data=body,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=40) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            candidates = data.get("candidates") or []
-            if candidates:
-                parts = (candidates[0].get("content") or {}).get("parts") or []
-                texts = [p.get("text", "") for p in parts if p.get("text")]
-                if texts:
-                    return "\n".join(texts).strip()
-            last_err = RuntimeError(f"Пустой ответ модели {m}: {json.dumps(data)[:300]}")
-        except Exception as e:
-            last_err = e
-            logging.warning(f"Gemini REST {m} failed: {e}")
-            continue
+        for ver in ("v1beta", "v1"):
+            url = (
+                f"https://generativelanguage.googleapis.com/{ver}/models/{m}:generateContent"
+                f"?key={GEMINI_API_KEY}"
+            )
+            body = json.dumps({
+                "contents": [{"parts": [{"text": prompt_text}]}],
+                "generationConfig": {
+                    "temperature": 0.3,
+                    "maxOutputTokens": 420,
+                    "topP": 0.85,
+                },
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                url, data=body, headers={"Content-Type": "application/json"}, method="POST"
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=18) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                candidates = data.get("candidates") or []
+                if candidates:
+                    parts = (candidates[0].get("content") or {}).get("parts") or []
+                    texts = [p.get("text", "") for p in parts if p.get("text")]
+                    if texts:
+                        return "\n".join(texts).strip()
+                last_err = RuntimeError(f"empty {m}/{ver}")
+            except Exception as e:
+                last_err = e
+                logging.warning(f"Gemini REST {m} {ver}: {e}")
+                continue
     if last_err:
         raise last_err
-    return "Нет ответа от ИИ. 🤖"
+    return ""
 
 
 def _gemini_rest_vision(prompt_text: str, image_bytes: bytes, mime: str = "image/jpeg") -> str:
@@ -1866,40 +1957,47 @@ def _gemini_rest_vision(prompt_text: str, image_bytes: bytes, mime: str = "image
     import base64
     import urllib.request
     b64 = base64.b64encode(image_bytes).decode("ascii")
-    models_try = [GEMINI_MODEL or "gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-2.5-flash"]
+    models_try = [
+        GEMINI_MODEL or "gemini-3.8-flash",
+        "gemini-3.8-flash",
+        "gemini-flash-lite-latest",
+        "gemini-2.0-flash",
+        "gemini-3.5-flash-lite",
+    ]
     seen = set()
     for m in models_try:
         if not m or m in seen:
             continue
         seen.add(m)
-        url = (
-            f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent"
-            f"?key={GEMINI_API_KEY}"
-        )
-        body = json.dumps({
-            "contents": [{
-                "parts": [
-                    {"text": prompt_text},
-                    {"inline_data": {"mime_type": mime, "data": b64}},
-                ]
-            }],
-            "generationConfig": {"temperature": 0.4, "maxOutputTokens": 1024},
-        }).encode("utf-8")
-        req = urllib.request.Request(
-            url, data=body, headers={"Content-Type": "application/json"}, method="POST"
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=45) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            candidates = data.get("candidates") or []
-            if candidates:
-                parts = (candidates[0].get("content") or {}).get("parts") or []
-                texts = [p.get("text", "") for p in parts if p.get("text")]
-                if texts:
-                    return "\n".join(texts).strip()
-        except Exception as e:
-            logging.warning(f"Gemini vision REST {m} failed: {e}")
-            continue
+        for ver in ("v1beta", "v1"):
+            url = (
+                f"https://generativelanguage.googleapis.com/{ver}/models/{m}:generateContent"
+                f"?key={GEMINI_API_KEY}"
+            )
+            body = json.dumps({
+                "contents": [{
+                    "parts": [
+                        {"text": prompt_text},
+                        {"inline_data": {"mime_type": mime, "data": b64}},
+                    ]
+                }],
+                "generationConfig": {"temperature": 0.3, "maxOutputTokens": 420},
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                url, data=body, headers={"Content-Type": "application/json"}, method="POST"
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=22) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                candidates = data.get("candidates") or []
+                if candidates:
+                    parts = (candidates[0].get("content") or {}).get("parts") or []
+                    texts = [p.get("text", "") for p in parts if p.get("text")]
+                    if texts:
+                        return "\n".join(texts).strip()
+            except Exception as e:
+                logging.warning(f"Gemini vision {m} {ver}: {e}")
+                continue
     return None
 
 
@@ -1922,56 +2020,50 @@ async def ai_chat(prompt: str = Form(""), image: UploadFile = File(None)):
     if not user_prompt and not img_bytes:
         return {"reply": "Напиши вопрос или прикрепи скрин ✍️"}
 
-    if not GEMINI_API_KEY:
-        return {
-            "reply": (
-                "⚠️ GEMINI_API_KEY не найден в Environment на Render.\n"
-                "Добавь ключ из Google AI Studio → Environment → GEMINI_API_KEY → Redeploy."
-            )
-        }
-
     chat_prompt = (
-        "Ты опытный трейдер-наставник Team Master VIP / Team Master Trade (аналитики 7+ лет, академия, Pocket Option).\n"
-        "Отвечай ТОЛЬКО как профессионал трейдинга: форекс, валютные пары, крипта, индексы, бинарные опционы, "
-        "Price Action, Smart Money, ICT, риски, терминал, команда.\n\n"
-        "ЖЁСТКИЕ ПРАВИЛА ОТВЕТА:\n"
-        "1. Язык: русский, если вопрос на русском. Без английских служебных фраз.\n"
-        "2. НИКОГДА не пиши: Review against Constraints, Persona maintained, Topic valid, Emojis used и любой meta-текст.\n"
-        "3. Без markdown ** и ##. Обычный текст + эмодзи.\n"
-        "4. Кратко и чётко. Без воды.\n"
-        "5. Если просят стратегию — структура:\n"
-        "   • Название\n"
-        "   • Таймфрейм\n"
-        "   • Условия CALL (ВВЕРХ)\n"
-        "   • Условия PUT (ВНИЗ)\n"
-        "   • Когда НЕ входить\n"
-        "   • Риск 1–2% депозита\n"
-        "6. Если прислали график — сразу: направление, точка входа, почему, экспирация.\n"
-        "7. Посторонние темы — вежливый отказ.\n\n"
-        f"Вопрос: {user_prompt or 'Разбери график на скрине'}"
+        "Ты трейдер-наставник Team Master VIP. Отвечай по-русски, кратко, по делу.\n"
+        "НЕ пиши приветствие, если пользователь сам не поздоровался.\n"
+        "НЕ пиши Review/Constraints/Persona/Topic valid и любой meta-текст.\n"
+        "Без markdown **.\n"
+        "Стратегия только так:\n"
+        "Название / ТФ / CALL / PUT / Когда не входить / Риск 1-2%.\n"
+        "Если график — сразу направление, вход, экспирация.\n"
+        f"Вопрос: {user_prompt or 'Разбери график'}"
     )
 
-    try:
-        if img_bytes:
-            # vision path
-            def _run():
-                return _gemini_rest_vision(chat_prompt, img_bytes, mime="image/jpeg") or _gemini_rest_text(chat_prompt)
-            reply = await asyncio.wait_for(asyncio.to_thread(_run), timeout=40)
-        else:
-            reply = await asyncio.wait_for(asyncio.to_thread(_chat_sync, chat_prompt), timeout=35)
-        if not reply:
-            reply = "Не удалось получить ответ. Попробуй ещё раз ⚡"
-        # sanitize meta leaks
-        bad = ["Review against Constraints", "Persona maintained", "Topic valid", "Emojis used"]
-        for b in bad:
-            if b in reply:
-                reply = reply.split(b)[0].strip() or "Готов помочь по рынку и стратегиям. Уточни вопрос 📈"
-        return {"reply": reply}
-    except asyncio.TimeoutError:
-        return {"reply": "⚠️ Долго думает. Задай вопрос короче или без скрина."}
-    except Exception as e:
-        logging.exception("ai-chat error")
-        return {"reply": f"⚠️ Ошибка ИИ: {str(e)}"}
+    reply = None
+    # 1) Gemini (если есть ключ)
+    if GEMINI_API_KEY:
+        try:
+            if img_bytes:
+                def _run():
+                    return _gemini_rest_vision(chat_prompt, img_bytes, mime="image/jpeg") or _gemini_rest_text(chat_prompt)
+                reply = await asyncio.wait_for(asyncio.to_thread(_run), timeout=25)
+            else:
+                reply = await asyncio.wait_for(asyncio.to_thread(_chat_sync, chat_prompt), timeout=20)
+        except Exception as e:
+            logging.warning(f"ai-chat gemini fail: {e}")
+            reply = None
+
+    # 2) Локальный быстрый ответ — всегда есть план Б
+    if not reply or not str(reply).strip():
+        reply = _local_ai_reply(user_prompt)
+
+    bad = ["Review against Constraints", "Persona maintained", "Topic valid", "Emojis used", "HTTP Error"]
+    for b in bad:
+        if b in reply:
+            reply = _local_ai_reply(user_prompt)
+            break
+
+    # убрать лишнее приветствие, если пользователь не здоровался
+    low = user_prompt.lower()
+    if not any(w in low for w in ("привет", "здравств", "hello", "hi", "добрый")):
+        for g in ("Привет! 🤝", "Привет!", "Здравствуй!", "Приветствую!"):
+            if reply.startswith(g):
+                reply = reply[len(g):].lstrip(" \n")
+
+    return {"reply": reply}
+
 
 
 if __name__ == "__main__":
