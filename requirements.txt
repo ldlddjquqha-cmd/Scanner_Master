@@ -1,7 +1,7 @@
 fastapi
-uvicorn
-pydantic
-httpx
+uvicorn[standard]
 google-generativeai
 python-multipart
-Pillow
+numpy
+pillow
+httpx
