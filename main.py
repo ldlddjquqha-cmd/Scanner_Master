@@ -17,7 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - Ultimate Trading Terminal", version="29.2")
+app = FastAPI(title="TEAM MASTER VIP - Ultimate Trading Terminal", version="29.3")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
@@ -25,7 +25,7 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-ADMIN_CHAT_ID = os..get("ADMIN_CHAT_ID", "")
+ADMIN_CHAT_ID = os.environ.get("ADMIN_CHAT_ID", "")
 
 NEWS_RU_MAP = {
     "non-farm payrolls": "Занятость вне с/х (NFP)",
@@ -427,6 +427,7 @@ for i in range(6, 51):
         ),
     })
 
+# ===== HTML =====
 HTML_UI = r"""<!DOCTYPE html>
 <html lang="ru">
 <head>
