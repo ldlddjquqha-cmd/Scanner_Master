@@ -17,7 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="28.0")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="28.1")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
@@ -145,10 +145,26 @@ async def send_tg_signal_alert(asset, timeframe):
             pass
 
 
+# Расширенный маппинг реальных активов (не-OTC) → Binance
 BINANCE_MAPPING = {
     "EUR/USD": "EURUSDT", "GBP/USD": "GBPUSDT", "AUD/USD": "AUDUSDT",
-    "NZD/USD": "NZDUSDT", "EUR/GBP": "EURGBP",
+    "NZD/USD": "NZDUSDT", "EUR/GBP": "EURGBP", "USD/JPY": "JPYUSDT",
+    "USD/CAD": "CADUSDT", "USD/CHF": "CHFUSDT", "EUR/JPY": "EURJPY",
+    "GBP/JPY": "GBPJPY", "AUD/JPY": "AUDJPY", "EUR/AUD": "EURAUD",
+    "GBP/AUD": "GBPAUD", "EUR/CHF": "EURCHF", "GBP/CHF": "GBPCHF",
+    "AUD/CHF": "AUDCHF", "CAD/JPY": "CADJPY", "CHF/JPY": "CHFJPY",
+    "AUD/CAD": "AUDCAD", "AUD/NZD": "AUDNZD", "EUR/CAD": "EURCAD",
+    "GBP/CAD": "GBPCAD", "NZD/JPY": "NZDJPY",
     "Bitcoin": "BTCUSDT", "Ethereum": "ETHUSDT", "Solana": "SOLUSDT",
+    "BNB": "BNBUSDT", "Dogecoin": "DOGEUSDT", "Chainlink": "LINKUSDT",
+    "Cardano": "ADAUSDT", "Polkadot": "DOTUSDT", "Polygon": "MATICUSDT",
+    "Litecoin": "LTCUSDT", "TRON": "TRXUSDT", "Avalanche": "AVAXUSDT",
+    "Toncoin": "TONUSDT", "Dash": "DASHUSDT",
+    "Apple": "AAPLUSDT", "Tesla": "TSLAUSDT", "Microsoft": "MSFTUSDT",
+    "Amazon": "AMZNUSDT", "Netflix": "NFLXUSDT", "Intel": "INTCUSDT",
+    "VISA": "VUSDT", "Coinbase": "COINUSDT", "Palantir": "PLTRUSDT",
+    "AMD": "AMDUSDT", "Cisco": "CSCOUSDT",
+    "Gold": "PAXGUSDT", "Silver": "XAGUSDT",
 }
 
 
@@ -229,7 +245,6 @@ class ScannerAnalyzer:
             image = Image.open(io.BytesIO(image_bytes))
             if GEMINI_API_KEY:
                 try:
-                    # перекодируем в JPEG для REST
                     buf = io.BytesIO()
                     image.convert("RGB").save(buf, format="JPEG", quality=85)
                     jpeg_bytes = buf.getvalue()
@@ -288,7 +303,7 @@ _CURRENCY = [
     "🇺🇸🇧🇷 USD/BRL OTC", "🇺🇸🇨🇱 USD/CLP OTC", "🇺🇸🇨🇴 USD/COP OTC", "🇺🇸🇩🇿 USD/DZD OTC", "🇺🇸🇪🇬 USD/EGP OTC",
     "🇺🇸🇮🇩 USD/IDR OTC", "🇺🇸🇮🇳 USD/INR OTC", "🇺🇸🇲🇽 USD/MXN OTC", "🇺🇸🇲🇾 USD/MYR OTC", "🇺🇸🇵🇭 USD/PHP OTC",
     "🇺🇸🇵🇰 USD/PKR OTC", "🇺🇸🇸🇬 USD/SGD OTC", "🇺🇸🇹🇭 USD/THB OTC", "🇺🇸🇻🇳 USD/VND OTC", "🇿🇦🇺🇸 ZAR/USD OTC",
-    "🇺🇦🇺🇸 UAH/USD OTC", "🇳🇬🇺🇸 NGN/USD OTC", "🇰🇪🇺🇸 KES/USD OTC",
+    "🇺🇦🇺🇸 UAH/USD OTC", "🇳🇬🇺🇸 NGN/USD OTC", "🇰🇪🇺🇸 KES/USD OTC", "🇺🇸🇷🇺 USD/RUB OTC", "🇺🇸🇷🇺 USD/RUB",
 ]
 _CRYPTO = [
     "₿ Bitcoin", "Ξ Ethereum", "🪙 Solana", "🪙 BNB OTC", "🪙 Dogecoin OTC", "🪙 Chainlink OTC",
@@ -545,6 +560,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .strat-visual svg{width:100%;height:auto;display:block}
 .strat-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;font-weight:700;color:#b0b8c8}
 .strat-legend span{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:7px;padding:4px 8px}
+.hist-item{background:var(--inner);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:8px;font-size:11.5px}
+.hist-item .h-dir{font-weight:900;font-size:13px;margin:4px 0}
+.hist-item .h-meta{color:var(--muted);font-size:10px;margin-bottom:4px}
+.hist-item .h-reason{color:#c5cdd8;line-height:1.5;margin-top:6px}
+.filter-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.filter-btn{padding:6px 12px;border-radius:10px;border:1px solid var(--border-g);background:var(--inner);color:var(--muted);font-size:10px;font-weight:800;cursor:pointer}
+.filter-btn.on{background:var(--gold-g);color:#111;border:none}
 </style>
 </head>
 <body>
@@ -622,9 +644,21 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   </div>
 
   <div class="card tab hidden" id="tabNews">
-    <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Экономические новости</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Календарь по валютам (USD EUR GBP JPY…). Сегодня вышло + скоро выйдет. High/Medium. Автообновление каждую минуту.</p>
+    <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Форекс-новости</h3>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Только форекс (USD EUR GBP JPY AUD NZD CAD CHF RUB). High/Medium. Фильтр по валюте. Автообновление каждую минуту.</p>
     <div class="news-updated" id="newsUpdated">—</div>
+    <div class="filter-row" id="newsFilterRow">
+      <button class="filter-btn on" data-cur="ALL" onclick="setNewsFilter('ALL',this)">Все</button>
+      <button class="filter-btn" data-cur="USD" onclick="setNewsFilter('USD',this)">USD</button>
+      <button class="filter-btn" data-cur="EUR" onclick="setNewsFilter('EUR',this)">EUR</button>
+      <button class="filter-btn" data-cur="GBP" onclick="setNewsFilter('GBP',this)">GBP</button>
+      <button class="filter-btn" data-cur="JPY" onclick="setNewsFilter('JPY',this)">JPY</button>
+      <button class="filter-btn" data-cur="AUD" onclick="setNewsFilter('AUD',this)">AUD</button>
+      <button class="filter-btn" data-cur="RUB" onclick="setNewsFilter('RUB',this)">RUB</button>
+      <button class="filter-btn" data-cur="CAD" onclick="setNewsFilter('CAD',this)">CAD</button>
+      <button class="filter-btn" data-cur="CHF" onclick="setNewsFilter('CHF',this)">CHF</button>
+      <button class="filter-btn" data-cur="NZD" onclick="setNewsFilter('NZD',this)">NZD</button>
+    </div>
     <div style="display:flex;gap:6px;margin-bottom:10px">
       <button class="btn btn-gold btn-sm" style="flex:1" onclick="loadNews(true)" data-t="btnRefreshNews">🔄 Обновить сейчас</button>
     </div>
@@ -667,6 +701,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <span style="color:var(--muted)" data-t="profFavCountLbl">Избранных активов</span>
       <b id="profFavCount" style="color:var(--gold)">0</b>
     </div>
+    <button class="btn btn-gold btn-sm" style="margin-bottom:8px" onclick="openHistoryModal()" data-t="btnHistory">📜 История сигналов</button>
     <button class="btn btn-red btn-sm" onclick="resetProfile()" data-t="btnResetProfile">🗑 Сбросить данные профиля</button>
   </div>
 
@@ -782,6 +817,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="historyModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>📜 История сигналов</h3>
+      <button class="modal-close" onclick="closeHistoryModal()">✕</button>
+    </div>
+    <div class="modal-body" id="historyBody" style="max-height:70vh"></div>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -802,6 +847,9 @@ var scanCfg = {"интервал": "M1", "экспирация": "1м", "стр�
 var newsTimer = null;
 var lastNewsHash = "";
 var newsCache = [];
+var newsFilter = "ALL";
+var signalHistory = [];
+try { signalHistory = JSON.parse(localStorage.getItem("tmv_history") || "[]"); } catch(e) { signalHistory = []; }
 
 var I18N = {
   ru: {
@@ -816,7 +864,7 @@ var I18N = {
     phPocketId: "Введите ваш Pocket ID...", phFavStrat: "Например: Smart Money, Price Action...",
     favTabTitle: "⭐ Избранные активы", favTabDesc: "Нажмите на любой актив из списка для перехода.",
     profFavEmpty: "Пока пусто — добавь актив из полного каталога", btnClearFav: "🗑 Очистить избранное",
-    newsTitle: "📰 Форекс-новости", newsDesc: "Календарь по валютам (USD EUR GBP JPY…). Сегодня вышло + скоро выйдет. High/Medium. Автообновление каждую минуту.",
+    newsTitle: "📰 Форекс-новости", newsDesc: "Только форекс (USD EUR GBP JPY AUD NZD CAD CHF RUB). High/Medium. Фильтр по валюте. Автообновление каждую минуту.",
     btnRefreshNews: "🔄 Обновить сейчас", newsLoading: "Загрузка новостей...",
     chatTitle: "🤖 ИИ Помощник Team Master",
     chatDesc: "Вопросы по рынку, стратегиям, терминалу и команде Team Master Trade (аналитики 7+ лет, академия).",
@@ -841,7 +889,8 @@ var I18N = {
     btnTgChan: "📢 Наш Telegram канал",
     navSig: "Сигналы", navFavs: "Избранное", navNews: "Новости", navChat: "ИИ Чат", navEdu: "Связки", navProf: "Профиль", navScan: "Сканер", navAbout: "О нас",
     modalCatalogTitle: "📋 Полный каталог активов Pocket Option", searchPlaceholder: "Поиск актива...",
-    catAll: "🌟 Все", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сырьё", catStocks: "📈 Акции", catIdx: "📊 Индексы"
+    catAll: "🌟 Все", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сырьё", catStocks: "📈 Акции", catIdx: "📊 Индексы",
+    btnHistory: "📜 История сигналов"
   },
   en: {
     syncLbl: "⚡ SYNCING",
@@ -855,7 +904,7 @@ var I18N = {
     phPocketId: "Enter your Pocket ID...", phFavStrat: "E.g.: Smart Money, Price Action...",
     favTabTitle: "⭐ Favorite Assets", favTabDesc: "Tap any asset to switch to it.",
     profFavEmpty: "Empty yet — add an asset from the full catalog", btnClearFav: "🗑 Clear favorites",
-    newsTitle: "📰 Economic News", newsDesc: "High/Medium calendar. Tap a news item to expand. Auto-refresh.",
+    newsTitle: "📰 Forex News", newsDesc: "Forex only (USD EUR GBP JPY AUD NZD CAD CHF RUB). High/Medium. Currency filter. Auto-refresh.",
     btnRefreshNews: "🔄 Refresh now", newsLoading: "Loading news...",
     chatTitle: "🤖 AI Assistant Team Master",
     chatDesc: "Ask about markets, strategies, the terminal and Team Master Trade (7+ years analysts, academy).",
@@ -880,7 +929,8 @@ var I18N = {
     btnTgChan: "📢 Our Telegram Channel",
     navSig: "Signals", navFavs: "Favorites", navNews: "News", navChat: "AI Chat", navEdu: "Combos", navProf: "Profile", navScan: "Scanner", navAbout: "About",
     modalCatalogTitle: "📋 Full Pocket Option Assets Catalog", searchPlaceholder: "Search asset...",
-    catAll: "🌟 All", catCur: "💱 Currency", catCrypto: "🔥 Crypto", catComm: "🛢️ Commodities", catStocks: "📈 Stocks", catIdx: "📊 Indices"
+    catAll: "🌟 All", catCur: "💱 Currency", catCrypto: "🔥 Crypto", catComm: "🛢️ Commodities", catStocks: "📈 Stocks", catIdx: "📊 Indices",
+    btnHistory: "📜 Signal History"
   },
   ua: {
     syncLbl: "⚡ СИНХРОНІЗАЦІЯ",
@@ -894,7 +944,7 @@ var I18N = {
     phPocketId: "Введіть ваш Pocket ID...", phFavStrat: "Наприклад: Smart Money, Price Action...",
     favTabTitle: "⭐ Обрані активи", favTabDesc: "Натисніть на будь-який актив зі списку для переходу.",
     profFavEmpty: "Поки порожньо — додай актив з повного каталогу", btnClearFav: "🗑 Очистити обране",
-    newsTitle: "📰 Економічні новини", newsDesc: "Календар High/Medium. Натисніть на новину, щоб розкрити. Автооновлення.",
+    newsTitle: "📰 Форекс-новини", newsDesc: "Тільки форекс (USD EUR GBP JPY AUD NZD CAD CHF RUB). High/Medium. Фільтр по валюті. Автооновлення.",
     btnRefreshNews: "🔄 Оновити зараз", newsLoading: "Завантаження новин...",
     chatTitle: "🤖 ШІ Помічник Team Master",
     chatDesc: "Питання про ринок, стратегії, термінал і команду Team Master Trade (аналітики 7+ років, академія).",
@@ -919,7 +969,8 @@ var I18N = {
     btnTgChan: "📢 Наш Telegram канал",
     navSig: "Сигнали", navFavs: "Обране", navNews: "Новини", navChat: "ШІ Чат", navEdu: "Зв'язки", navProf: "Профіль", navScan: "Сканер", navAbout: "Про нас",
     modalCatalogTitle: "📋 Повний каталог активів Pocket Option", searchPlaceholder: "Пошук активу...",
-    catAll: "🌟 Всі", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сировина", catStocks: "📈 Акції", catIdx: "📊 Індекси"
+    catAll: "🌟 Всі", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сировина", catStocks: "📈 Акції", catIdx: "📊 Індекси",
+    btnHistory: "📜 Історія сигналів"
   }
 };
 
@@ -1031,26 +1082,63 @@ function clearFavs() {
   updateProfileStats();
 }
 
-function startTimer(key, elementId, seconds, onComplete) {
+function startTimer(key, elementId, seconds, onComplete, persistKey) {
   if (timers[key]) clearInterval(timers[key]);
-  var rem = seconds;
-  var el = document.getElementById(elementId);
-  updateTimerDisplay(el, rem);
-  timers[key] = setInterval(function() {
-    rem--;
+  var endTs = Date.now() + seconds * 1000;
+  if (persistKey) {
+    try { localStorage.setItem(persistKey, String(endTs)); } catch(e) {}
+  }
+  function tick() {
+    var rem = Math.max(0, Math.ceil((endTs - Date.now()) / 1000));
+    var el = document.getElementById(elementId);
+    if (!el) return;
     if (rem <= 0) {
       clearInterval(timers[key]);
       el.textContent = "00:00 ✔";
+      if (persistKey) try { localStorage.removeItem(persistKey); } catch(e) {}
       if (onComplete) onComplete();
       return;
     }
     updateTimerDisplay(el, rem);
-  }, 1000);
+  }
+  tick();
+  timers[key] = setInterval(tick, 250);
 }
 
 function updateTimerDisplay(el, sec) {
   var m = Math.floor(sec / 60), s = sec % 60;
   el.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+}
+
+function resumeTimers() {
+  // Сигнал
+  try {
+    var end = parseInt(localStorage.getItem("tmv_sig_end") || "0");
+    if (end > Date.now()) {
+      var rem = Math.ceil((end - Date.now()) / 1000);
+      document.getElementById("sigBox").style.display = "block";
+      document.getElementById("btnCancel").style.display = "block";
+      document.getElementById("btnNew").style.display = "none";
+      startTimer("sig", "cd", rem, function() {
+        document.getElementById("btnCancel").style.display = "none";
+        document.getElementById("btnNew").style.display = "block";
+      }, "tmv_sig_end");
+    }
+  } catch(e) {}
+  // Скан
+  try {
+    var end2 = parseInt(localStorage.getItem("tmv_scan_end") || "0");
+    if (end2 > Date.now()) {
+      var rem2 = Math.ceil((end2 - Date.now()) / 1000);
+      document.getElementById("scanSigBox").style.display = "block";
+      document.getElementById("btnScanCancel").style.display = "block";
+      document.getElementById("btnScanNew").style.display = "none";
+      startTimer("scan", "scanCd", rem2, function() {
+        document.getElementById("btnScanCancel").style.display = "none";
+        document.getElementById("btnScanNew").style.display = "block";
+      }, "tmv_scan_end");
+    }
+  } catch(e) {}
 }
 
 function runAnalyzer(callback) {
@@ -1086,6 +1174,32 @@ function incSig() {
   updateProfileStats();
 }
 
+function saveToHistory(entry) {
+  signalHistory.unshift(entry);
+  if (signalHistory.length > 100) signalHistory = signalHistory.slice(0, 100);
+  try { localStorage.setItem("tmv_history", JSON.stringify(signalHistory)); } catch(e) {}
+}
+
+function openHistoryModal() {
+  var body = document.getElementById("historyBody");
+  if (!signalHistory.length) {
+    body.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:12px">История пуста. Сигналы появятся после расчёта.</div>';
+  } else {
+    var html = "";
+    signalHistory.forEach(function(h) {
+      var dirClass = (h.dir || "").indexOf("CALL") >= 0 || (h.dir || "").indexOf("UP") >= 0 || (h.dir || "").indexOf("ВВЕРХ") >= 0 ? "call" : "put";
+      html += '<div class="hist-item">';
+      html += '<div class="h-meta">' + esc(h.time || "") + ' · ' + esc(h.asset || "") + ' · ' + esc(h.tf || "") + ' · эксп. ' + esc(String(h.exp || "")) + ' сек</div>';
+      html += '<div class="h-dir ' + dirClass + '">' + esc(h.dir || "") + '</div>';
+      if (h.reason) html += '<div class="h-reason">' + esc(h.reason) + '</div>';
+      html += '</div>';
+    });
+    body.innerHTML = html;
+  }
+  document.getElementById("historyModal").classList.remove("hidden");
+}
+function closeHistoryModal() { document.getElementById("historyModal").classList.add("hidden"); }
+
 function getSig() {
   runAnalyzer(async function() {
     var tf = document.getElementById("tf").value;
@@ -1112,10 +1226,19 @@ function getSig() {
     document.getElementById("btnCancel").style.display = "block";
     document.getElementById("btnNew").style.display = "none";
     incSig();
+    var nowStr = new Date().toLocaleString("ru-RU");
+    saveToHistory({
+      time: nowStr,
+      asset: currentAsset,
+      tf: tf,
+      exp: expSec,
+      dir: dir,
+      reason: stratText
+    });
     startTimer("sig", "cd", expSec, function() {
       document.getElementById("btnCancel").style.display = "none";
       document.getElementById("btnNew").style.display = "block";
-    });
+    }, "tmv_sig_end");
   });
 }
 
@@ -1130,6 +1253,7 @@ function autoSig() {
 
 function cancelSig() {
   if (timers.sig) clearInterval(timers.sig);
+  try { localStorage.removeItem("tmv_sig_end"); } catch(e) {}
   document.getElementById("sigBox").style.display = "none";
 }
 
@@ -1184,14 +1308,25 @@ function newsDetailText(ev) {
   return lines.join("\n");
 }
 
+function setNewsFilter(cur, el) {
+  newsFilter = cur;
+  document.querySelectorAll("#newsFilterRow .filter-btn").forEach(function(b) { b.classList.remove("on"); });
+  if (el) el.classList.add("on");
+  renderNewsList(newsCache);
+}
+
 function renderNewsList(events) {
   var list = document.getElementById("newsList");
-  if (!events || !events.length) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Нет форекс-событий High/Medium на ближайшие дни</div>';
+  var filtered = events || [];
+  if (newsFilter && newsFilter !== "ALL") {
+    filtered = filtered.filter(function(e) { return (e.currency || "").toUpperCase() === newsFilter; });
+  }
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Нет форекс-событий High/Medium по выбранному фильтру</div>';
     return;
   }
-  var released = events.filter(function(e) { return e.status === "released"; });
-  var upcoming = events.filter(function(e) { return e.status !== "released"; });
+  var released = filtered.filter(function(e) { return e.status === "released"; });
+  var upcoming = filtered.filter(function(e) { return e.status !== "released"; });
   var ordered = upcoming.concat(released);
   var html = "";
   if (upcoming.length) {
@@ -1273,7 +1408,6 @@ function tickClock() {
 }
 
 function strategyVisual(kind) {
-  // Полноценные схемы входа на графике
   if (kind === "range") {
     return '<div class="strat-visual"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">' +
       '<rect width="360" height="200" fill="#05070d"/>' +
@@ -1326,7 +1460,6 @@ function strategyVisual(kind) {
       '<text x="24" y="32" fill="#FF5252" font-size="11" font-weight="700">Верхняя полоса → PUT</text>' +
       '</svg><div class="strat-legend"><span>🟢 Отскок от низа = CALL</span><span>🔴 Отскок от верха = PUT</span><span>Bollinger / уровень</span></div></div>';
   }
-  // levels default
   return '<div class="strat-visual"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">' +
     '<rect width="360" height="200" fill="#05070d"/>' +
     '<line x1="25" y1="45" x2="340" y2="45" stroke="#FF5252" stroke-width="2.5"/>' +
@@ -1404,8 +1537,10 @@ function resetProfile() {
     localStorage.removeItem("tmv_favStrat");
     localStorage.removeItem("tmv_profPhoto");
     localStorage.removeItem("tmv_sigs");
+    localStorage.removeItem("tmv_history");
   } catch(e) {}
   sigCount = 0;
+  signalHistory = [];
   document.getElementById("profPocketId").value = "";
   document.getElementById("profFavStrat").value = "";
   document.getElementById("profilePhotoImg").classList.add("hidden");
@@ -1530,6 +1665,15 @@ function processImageBlobForScan(blob, expSec) {
       dirEl.textContent = buy ? "BUY (ВВЕРХ) 📈" : "SELL (ВНИЗ) 📉";
       dirEl.className = "sig-dir " + (buy ? "call" : "put");
       incSig();
+      var nowStr = new Date().toLocaleString("ru-RU");
+      saveToHistory({
+        time: nowStr,
+        asset: "AI Scanner",
+        tf: scanCfg["интервал"] || "M1",
+        exp: expSec,
+        dir: dirEl.textContent,
+        reason: resText.substring(0, 300)
+      });
     }
 
     document.getElementById("scanStrat").innerHTML = '<pre style="white-space:pre-wrap;font-family:inherit;margin:0">' + esc(resText) + '</pre>';
@@ -1541,7 +1685,7 @@ function processImageBlobForScan(blob, expSec) {
       startTimer("scan", "scanCd", expSec, function() {
         document.getElementById("btnScanCancel").style.display = "none";
         document.getElementById("btnScanNew").style.display = "block";
-      });
+      }, "tmv_scan_end");
     } else {
       document.getElementById("btnScanCancel").style.display = "none";
       document.getElementById("btnScanNew").style.display = "block";
@@ -1551,6 +1695,7 @@ function processImageBlobForScan(blob, expSec) {
 
 function cancelScan() {
   if (timers.scan) clearInterval(timers.scan);
+  try { localStorage.removeItem("tmv_scan_end"); } catch(e) {}
   document.getElementById("scanSigBox").style.display = "none";
 }
 
@@ -1579,6 +1724,7 @@ window.addEventListener("DOMContentLoaded", function() {
   startNewsAuto();
   tickClock();
   setInterval(tickClock, 1000);
+  resumeTimers();
 });
 </script>
 </body>
@@ -1600,22 +1746,31 @@ async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str
     asyncio.create_task(send_tg_signal_alert(asset, timeframe))
     await asyncio.sleep(1.0)
     is_otc = "OTC" in asset
+    # Очищаем эмодзи и лишнее
     clean_asset = re.sub(r"[^\x00-\x7F]+", "", asset).replace("OTC", "").strip()
+    # Дополнительная очистка для маппинга
+    for k in list(BINANCE_MAPPING.keys()):
+        if k.lower() in clean_asset.lower() or clean_asset.lower() in k.lower():
+            clean_asset = k
+            break
     prices = None
     if not is_otc and clean_asset in BINANCE_MAPPING:
         try:
-            url = f"https://api.binance.com/api/v3/klines?symbol={BINANCE_MAPPING[clean_asset]}&interval=1m&limit=50"
+            symbol = BINANCE_MAPPING[clean_asset]
+            url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval=1m&limit=50"
             async with httpx.AsyncClient() as client:
-                res = await client.get(url, timeout=3.0)
-                prices = [float(c[4]) for c in res.json()]
-        except Exception:
+                res = await client.get(url, timeout=4.0)
+                if res.status_code == 200:
+                    prices = [float(c[4]) for c in res.json()]
+        except Exception as e:
+            logging.warning(f"Binance error for {clean_asset}: {e}")
             prices = None
     if not prices:
         prices = generate_otc_candles(asset, count=50)
     rsi = calculate_rsi(prices)
     ema = calculate_ema(prices)
     signal, reason = smart_market_analysis(prices, rsi, ema)
-    return {"signal": signal, "reason": reason}
+    return {"signal": signal, "reason": reason, "source": "real" if not is_otc and clean_asset in BINANCE_MAPPING else "otc"}
 
 
 def _parse_event_dt(iso_str: str):
@@ -1628,10 +1783,9 @@ def _parse_event_dt(iso_str: str):
         return None
 
 
-
-MAJOR_FX = {"USD", "EUR", "GBP", "JPY", "AUD", "NZD", "CAD", "CHF"}
+MAJOR_FX = {"USD", "EUR", "GBP", "JPY", "AUD", "NZD", "CAD", "CHF", "RUB"}
 PAIR_HINTS = {
-    "USD": "EUR/USD · GBP/USD · USD/JPY",
+    "USD": "EUR/USD · GBP/USD · USD/JPY · USD/RUB",
     "EUR": "EUR/USD · EUR/GBP · EUR/JPY",
     "GBP": "GBP/USD · EUR/GBP · GBP/JPY",
     "JPY": "USD/JPY · EUR/JPY · GBP/JPY",
@@ -1639,19 +1793,20 @@ PAIR_HINTS = {
     "NZD": "NZD/USD · AUD/NZD",
     "CAD": "USD/CAD · EUR/CAD",
     "CHF": "USD/CHF · EUR/CHF · GBP/CHF",
+    "RUB": "USD/RUB · EUR/RUB",
 }
 
 
 @app.get("/news")
 async def get_news():
-    """Форекс-календарь: валюты, High/Medium, сегодня вышло + скоро выйдет."""
+    """Форекс-календарь: валюты (включая RUB), High/Medium, сегодня вышло + скоро выйдет."""
     events = []
     updated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     now = datetime.now(timezone.utc)
     try:
         url = (
             "https://showmytrades.com/api/public/calendar/v1"
-            "?currency=USD,EUR,GBP,JPY,AUD,NZD,CAD,CHF"
+            "?currency=USD,EUR,GBP,JPY,AUD,NZD,CAD,CHF,RUB"
             "&impact=high,medium&days=3"
         )
         async with httpx.AsyncClient() as client:
@@ -1734,13 +1889,11 @@ async def get_news():
     def _sort_key(ev):
         dt = _parse_event_dt(ev.get("date") or "")
         ts = dt.timestamp() if dt else 0
-        # upcoming first (soonest), then released (newest first)
         is_up = 0 if ev.get("status") == "upcoming" else 1
         if is_up == 0:
             return (0, ts)
         return (1, -ts)
 
-    # только мажорные валюты форекс
     events = [ev for ev in events if (ev.get("currency") or "") in MAJOR_FX]
     events.sort(key=_sort_key)
     return {
@@ -1760,7 +1913,6 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
         config = {}
     result_text = await scanner_core.compute(image_bytes, config)
     return {"text": result_text}
-
 
 
 def _gemini_rest_text(prompt_text: str) -> str:
@@ -1870,8 +2022,6 @@ def _gemini_rest_vision(prompt_text: str, image_bytes: bytes, mime: str = "image
 
 def _chat_sync(chat_prompt):
     return _gemini_rest_text(chat_prompt)
-
-
 
 
 if __name__ == "__main__":
