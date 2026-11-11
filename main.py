@@ -20,25 +20,8 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-DB_FILE = "requests.json"
 BOT_TOKEN = "8847524172:AAF3um77sDqsX6IWq_W-D-Hb8TQJSpK-0qo"
 ADMIN_CHAT_ID = "6765689893"
-
-def get_db():
-    if not os.path.exists(DB_FILE):
-        return {"users": {}, "history": []}
-    with open(DB_FILE, "r", encoding="utf-8") as f:
-        try:
-            data = json.load(f)
-            if "users" not in data: data = {"users": data, "history": []}
-            if "history" not in data: data["history"] = []
-            return data
-        except:
-            return {"users": {}, "history": []}
-
-def save_db(data):
-    with open(DB_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
 
 async def send_tg_signal_alert(username, asset, timeframe):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -423,7 +406,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
 .cat{flex-shrink:0;padding:8px 14px;background:var(--inner);border:1px solid var(--border-g);border-radius:12px;color:var(--muted);font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
 .cat.on{background:var(--gold-g);color:#111;border:none;box-shadow:0 3px 12px rgba(255,215,0,.3)}
-.cat-payout{background:rgba(0,230,118,0.2);color:var(--green);padding:2px 5px;border-radius:4px;font-size:9px;font-weight:900}
 .lbl{display:block;font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.3px;margin-bottom:4px}
 .selected-asset-box{background:var(--inner);border:1.5px solid var(--gold);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
 .selected-asset-box:hover{background:rgba(255,215,0,0.05)}
@@ -559,9 +541,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="gap2"></div>
 <button class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<div class="grid2">
-<button class="btn btn-dark btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ</button>
-<a href="#" id="poDeepLink" target="_blank" class="btn btn-green btn-sm" data-t="btnOpenPo">🚀 Открыть Pocket Option</a>
+<div class="grid2" style="grid-template-columns: 1fr;">
+<button class="btn btn-green btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ актив</button>
 </div>
 
 <div class="sig" id="sigBox">
@@ -772,7 +753,6 @@ const I18N = {
         lblExp: "ЭКСПИРАЦИЯ СДЕЛКИ",
         btnCalcSig: "⚡ Просчитать сигнал",
         btnAutoSig: "🤖 Выбрать топ",
-        btnOpenPo: "🚀 Открыть Pocket Option",
         lblCombo: "Связка",
         btnCancel: "✖ Отменить",
         btnNewSig: "⚡ Новый сигнал",
@@ -805,7 +785,6 @@ const I18N = {
         lblExp: "EXPIRATION",
         btnCalcSig: "⚡ Calculate Signal",
         btnAutoSig: "🤖 Choose Top",
-        btnOpenPo: "🚀 Open Pocket Option",
         lblCombo: "Combo",
         btnCancel: "✖ Cancel",
         btnNewSig: "⚡ New Signal",
@@ -838,7 +817,6 @@ const I18N = {
         lblExp: "ЕКСПИРАЦИЯ УГОДИ",
         btnCalcSig: "⚡ Прорахувати сигнал",
         btnAutoSig: "🤖 Обрати топ",
-        btnOpenPo: "🚀 Відкрити Pocket Option",
         lblCombo: "Зв'язка",
         btnCancel: "✖ Скасувати",
         btnNewSig: "⚡ Новий сигнал",
@@ -872,16 +850,6 @@ function getAssetBadge(symbol) {
     return symbol.includes("OTC") ? "OTC" : "LIVE";
 }
 
-function updatePoDeepLink() {
-    const btn = document.getElementById("poDeepLink");
-    if(!btn) return;
-    let cleanAsset = currentAsset.replace(/^[^\w]+/, "").trim();
-    let formattedAsset = cleanAsset.replace("/", "").replace(/ /g, "_").toLowerCase();
-    const baseUrl = "https://u3.shortink.io/cabinet/demo-quick-high-low";
-    const queryParams = "?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50";
-    btn.href = `${baseUrl}/${formattedAsset}${queryParams}`;
-}
-
 function renderAssetButtons() {
     const container = document.getElementById("assetCatsContainer");
     if(!container) return;
@@ -905,7 +873,6 @@ function updateSelectedAssetUI() {
     if(displayEl) displayEl.textContent = currentAsset;
     const badgeEl = document.getElementById("currentAssetBadge");
     if(badgeEl) badgeEl.textContent = getAssetBadge(currentAsset);
-    updatePoDeepLink();
 }
 
 function openCatalogModal(){
