@@ -440,21 +440,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .header h1{font-size:15px}.header small{font-size:9px;color:var(--gold);font-weight:700}
 .lang{background:var(--inner);color:#fff;border:1px solid var(--border);padding:5px 8px;border-radius:8px;font-weight:700;font-size:10px;outline:none}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 3px 16px rgba(0,0,0,.35);animation:fu .3s ease}
-.gate{background:var(--card);border:1px solid var(--border-g);border-radius:18px;padding:22px 16px;text-align:center;animation:fu .4s ease}
-.progress{display:flex;justify-content:center;align-items:center;margin-bottom:18px}
-.p-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .3s}
-.p-dot.done{background:var(--green)}.p-dot.cur{background:var(--gold);transform:scale(1.2);box-shadow:0 0 10px rgba(255,215,0,.45)}
-.p-line{width:28px;height:2px;background:var(--border);margin:0 3px}.p-line.done{background:var(--green)}
-.gate-icon{font-size:44px;margin-bottom:6px}
-.gate-title{font-size:17px;font-weight:900;margin-bottom:8px;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.gate-desc{font-size:11.5px;color:#b0b8c8;line-height:1.6;text-align:left;margin-bottom:16px;background:var(--inner);padding:11px 13px;border-radius:11px;border:1px solid var(--border)}
-.gate-desc b{color:var(--gold)}
-.input{width:100%;padding:12px;border-radius:11px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:14px;font-weight:700;text-align:center;outline:none;margin-bottom:9px}
-.input:focus{border-color:var(--gold)}
-.msg{font-size:11px;font-weight:700;padding:9px 11px;border-radius:10px;margin-bottom:9px;display:none}
-.msg.ok{display:block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.28)}
-.msg.err{display:block;background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.28)}
-.step{display:none!important}.step.on{display:block!important;animation:fu .3s ease}
 .live-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .live{font-size:8px;background:rgba(0,230,118,.12);color:var(--green);padding:3px 8px;border-radius:6px;border:1px solid rgba(0,230,118,.3);font-weight:800}
 .cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
@@ -542,8 +527,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </select>
 </div>
 
-<div id="gate" class="hidden"></div>
-
 <div id="app">
 <div class="live-bar">
 <div class="live" id="poApiStatus">● POCKET OPTION API: ONLINE 🟢</div>
@@ -603,9 +586,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="gap2"></div>
 <button class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<div class="grid2">
+<div class="grid2" style="grid-template-columns: 1fr;">
 <button class="btn btn-dark btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ актив</button>
-<a id="poDeepLink" href="#" target="_blank" class="btn btn-green btn-sm" data-t="btnOpenPo">🚀 Открыть Pocket Option</a>
 </div>
 
 <div class="sig" id="sigBox">
@@ -837,7 +819,6 @@ const I18N = {
         lblExp: "ЭКСПИРАЦИЯ СДЕЛКИ",
         btnCalcSig: "⚡ Просчитать сигнал",
         btnAutoSig: "🤖 Выбрать топ актив",
-        btnOpenPo: "🚀 Открыть Pocket Option",
         lblCombo: "Связка",
         btnCancel: "✖ Отменить",
         btnNewSig: "⚡ Новый сигнал",
@@ -886,7 +867,6 @@ const I18N = {
         lblExp: "EXPIRATION",
         btnCalcSig: "⚡ Calculate Signal",
         btnAutoSig: "🤖 Choose Top",
-        btnOpenPo: "🚀 Open Pocket Option",
         lblCombo: "Combo",
         btnCancel: "✖ Cancel",
         btnNewSig: "⚡ New Signal",
@@ -935,7 +915,6 @@ const I18N = {
         lblExp: "ЕКСПИРАЦИЯ УГОДИ",
         btnCalcSig: "⚡ Прорахувати сигнал",
         btnAutoSig: "🤖 Обрати топ",
-        btnOpenPo: "🚀 Відкрити Pocket Option",
         lblCombo: "Зв'язка",
         btnCancel: "✖ Скасувати",
         btnNewSig: "⚡ Новий сигнал",
@@ -977,16 +956,6 @@ function getAssetBadge(symbol) {
     return symbol.includes("OTC") ? "OTC" : "LIVE";
 }
 
-function updatePoDeepLink() {
-    const btn = document.getElementById("poDeepLink");
-    if(!btn) return;
-    let cleanAsset = currentAsset.replace(/^[^\w]+/, "").trim();
-    let formattedAsset = cleanAsset.replace("/", "").replace(/ /g, "_").toLowerCase();
-    const baseUrl = "https://u3.shortink.io/cabinet/demo-quick-high-low";
-    const queryParams = "?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50";
-    btn.href = `${baseUrl}/${formattedAsset}${queryParams}`;
-}
-
 function renderAssetButtons() {
     const container = document.getElementById("assetCatsContainer");
     if(!container) return;
@@ -1010,7 +979,6 @@ function updateSelectedAssetUI() {
     if(displayEl) displayEl.textContent = currentAsset;
     const badgeEl = document.getElementById("currentAssetBadge");
     if(badgeEl) badgeEl.textContent = getAssetBadge(currentAsset);
-    updatePoDeepLink();
 }
 
 function openCatalogModal(){
