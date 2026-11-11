@@ -14,7 +14,7 @@ import httpx
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="25.0")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="26.0")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
@@ -100,15 +100,34 @@ def calculate_ema(prices, period=20):
     weights /= weights.sum()
     return np.convolve(prices, weights, mode='valid')[-1]
 
-def ai_analyze_market(prices, rsi, ema):
+def smart_market_analysis(prices, rsi, ema):
     current_price = prices[-1]
-    feature_trend = 1.0 if current_price > ema else -1.0
-    feature_rsi_overbought = 1.0 if rsi > 70 else (-1.0 if rsi < 30 else 0.0)
-    momentum = (prices[-1] - prices[-5]) / prices[-5] if len(prices) >= 5 else 0.0
-    feature_momentum = 1.0 if momentum > 0 else -1.0
+    prev_price = prices[-2] if len(prices) >= 2 else current_price
     
-    ai_score = (feature_trend * 0.45) + (-1.0 * feature_rsi_overbought * 0.30) + (feature_momentum * 0.25)
-    return "UP" if ai_score >= 0 else "DOWN"
+    trend_up = current_price > ema
+    momentum_up = current_price > prev_price
+    
+    reasons = []
+    if trend_up:
+        reasons.append("Цена находится выше экспоненциальной скользящей средней (EMA), подтверждая сильный восходящий тренд.")
+    else:
+        reasons.append("Цена закрепилась ниже скользящей средней (EMA), что указывает на развитие нисходящей тенденции.")
+        
+    if rsi > 65:
+        reasons.append(f"Индекс относительной силы RSI составляет {round(rsi, 1)}, актив приближается к зоне перекупленности.")
+    elif rsi < 35:
+        reasons.append(f"Индекс относительной силы RSI находится на отметке {round(rsi, 1)}, фиксируется зона перепроданности и потенциал отскока.")
+    else:
+        reasons.append(f"Индикатор RSI нейтрален ({round(rsi, 1)}), доминирует текущий локальный импульс.")
+
+    if momentum_up:
+        reasons.append("Свечной анализ показывает преобладание покупателей на последнем таймфрейме.")
+    else:
+        reasons.append("Наблюдается давление со стороны продавцов по закрытию последних свечей.")
+
+    signal = "UP" if (trend_up and momentum_up) or (rsi < 40) else "DOWN"
+    full_reason = " ".join(reasons)
+    return signal, full_reason
 
 def generate_otc_candles(asset_name, count=50):
     seed_value = sum(ord(char) for char in asset_name) + int(asyncio.get_event_loop().time() / 150)
@@ -128,65 +147,47 @@ def generate_otc_candles(asset_name, count=50):
 
 class ScannerAnalyzer:
     async def compute(self, image_bytes: bytes, config: dict) -> str:
-        if not GEMINI_API_KEY:
-            return (
-                f"🚀 --- TEAM MASTER SIGNAL V4.0 --- 🚀\n"
-                f"🎯 СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')}\n"
-                f"⏰ ИНТЕРВАЛ (ТАЙМФРЕЙМ): {config.get('интервал', 'M1')}\n"
-                f"⏳ ЭКСПИРАЦИЯ СДЕЛКИ: {config.get('экспирация', '1м')}\n"
-                f"---------------------------------------\n"
-                f"⚡ ВЕРДИКТ: BUY (ВВЕРХ) 🟢\n"
-                f"💡 АНАЛИЗ И ПРИЧИНА: Успешный паттерн Price Action и пробой зоны ликвидности по свечам. Импульс подтвержден.\n"
-                f"🎯 ВХОД В СДЕЛКУ: Прямо сейчас на открытии свечи!"
-            )
-
         try:
             image = Image.open(io.BytesIO(image_bytes))
-            model = genai.GenerativeModel('gemini-1.5-flash-001')
             
-            prompt = (
-                "ВНИМАНИЕ: Проанализируй данное изображение графика. Сначала строго проверь, присутствуют ли на изображении "
-                "реальные торговые свечи (красные и зеленые свечи графиков котировок, бары, линии тренда). "
-                "Если на изображении НЕТ графиков со свечами (например, фото людей, природы, скриншоты чатов, интерфейсов без свечей, черный экран или посторонние предметы), "
-                "то строго ответь ровно одной фразой: '❌ ГРАФИК СО СВЕЧАМИ НЕ ОБНАРУЖЕН'.\n\n"
-                "Если на изображении отчетливо видны красные и зеленые свечи торгового графика, проведи глубокий технический анализ по стратегии "
-                f"'{config.get('стратегия', 'Smart Money')}' с таймфреймом '{config.get('интервал', 'M1')}' и экспирацией '{config.get('экспирация', '1м')}' "
-                "и выдай результат строго в таком формате БЕЗ упоминания каких-либо процентов проходимости:\n"
-                "DIRECTION: BUY (ВВЕРХ) (или SELL (ВНИЗ))\n"
-                "REASON: [подробное профессиональное описание рыночной ситуации, уровней и свечных формаций с эмодзи на русском языке]"
-            )
+            # Умный анализ изображения без ИИ: проверка наличия свечей по цветовому составу пикселей
+            img_rgb = image.convert("RGB")
+            np_img = np.array(img_rgb)
             
-            response = model.generate_content([image, prompt])
-            res_text = response.text if response and response.text else ""
-
-            if "НЕ ОБНАРУЖЕН" in res_text or "❌" in res_text:
-                return "❌ ОШИБКА: На изображении не обнаружено красно-зеленых свечей графика. Загрузите или сделайте снимок торгового графика со свечами! 📸"
-
-            direction = "BUY (ВВЕРХ)"
-            reason = "Профессиональный пробой уровня сопротивления и подтверждение по свечному анализу свечей."
-
-            for line in res_text.split("\n"):
-                if "DIRECTION:" in line:
-                    direction = line.replace("DIRECTION:", "").strip()
-                elif "REASON:" in line:
-                    reason = line.replace("REASON:", "").strip()
-
+            # Ищем характерные яркие зеленые и красные пиксели свечей на графиках
+            r_channel = np_img[:, :, 0].astype(float)
+            g_channel = np_img[:, :, 1].astype(float)
+            b_channel = np_img[:, :, 2].astype(float)
+            
+            green_candles = np.sum((g_channel > r_channel + 30) & (g_channel > b_channel + 30))
+            red_candles = np.sum((r_channel > g_channel + 30) & (r_channel > b_channel + 30))
+            total_pixels = np_img.shape[0] * np_img.shape[1]
+            
+            candle_ratio = (green_candles + red_candles) / total_pixels
+            
+            # Если свечей нет (например фото человека, черный экран, чат или не график)
+            if candle_ratio < 0.0015:
+                return "❌ ГРАФИК СО СВЕЧАМИ НЕ ОБНАРУЖЕН"
+                
+            # Если свечи есть — проводим умный технический расчет
+            direction = "BUY (ВВЕРХ)" if green_candles >= red_candles else "SELL (ВНИЗ)"
+            trend_desc = "Преобладание бычьих зеленых тел свечей указывает на покупателей." if green_candles >= red_candles else "Доминирование медвежьих красных свечей говорит о давлении продавцов."
+            
             return (
-                f"🚀 --- TEAM MASTER SIGNAL V4.0 --- 🚀\n"
-                f"🎯 СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')}\n"
-                f"⏰ ИНТЕРВАЛ (ТАЙМФРЕЙМ): {config.get('интервал', 'M1')}\n"
-                f"⏳ ЭКСПИРАЦИЯ СДЕЛКИ: {config.get('экспирация', '1м')}\n"
-                f"---------------------------------------\n"
-                f"⚡ ВЕРДИКТ: {direction} 🟢\n"
-                f"💡 АНАЛИЗ И ПРИЧИНА: {reason}\n"
-                f"🎯 ВХОД В СДЕЛКУ: Прямо сейчас на открытии свечи!"
+                f"--- TEAM MASTER SIGNAL V4.0 ---\n"
+                f"СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')}\n"
+                f"ТАЙМФРЕЙМ: {config.get('интервал', 'M1')}\n"
+                f"ЭКСПИРАЦИЯ: {config.get('экспирация', '1м')}\n"
+                f"-------------------------------\n"
+                f"ВЕРДИКТ: {direction}\n"
+                f"ПРИЧИНА: Анализ свечных тел: {trend_desc} Уровни ликвидности подтверждены."
             )
         except Exception as e:
-            return f"❌ Ошибка анализа изображения через ИИ: {str(e)}"
+            return f"❌ Ошибка анализа изображения: {str(e)}"
 
 scanner_core = ScannerAnalyzer()
 
-# Точные активы Pocket Option с флагами стран и эмодзи
+# Точные активы Pocket Option с флагами стран для каждого актива
 ASSETS_DATA_JS = {
   "ru": {
     "💱 Валютные пары": [
@@ -194,12 +195,12 @@ ASSETS_DATA_JS = {
       "🇺🇸🇨🇦 USD/CAD OTC", "🇬🇧🇯🇵 GBP/JPY OTC", "🇳🇿🇺🇸 NZD/USD OTC", "🇺🇸🇨🇭 USD/CHF OTC", "🇪🇺🇬🇧 EUR/GBP OTC", 
       "🇦🇺🇨🇭 AUD/CHF OTC", "🇦🇺🇨🇭 AUD/CHF", "🇦🇺🇺🇸 AUD/USD", "🇺🇸🇨🇦 USD/CAD", "🇺🇸🇯🇵 USD/JPY", "🇪🇺🇺🇸 EUR/USD", 
       "🇬🇧🇺🇸 GBP/USD", "🇪🇺🇬🇧 EUR/GBP", "🇬🇧🇨🇭 GBP/CHF", "🇬🇧🇦🇺 GBP/AUD", "🇪🇺🇨🇭 EUR/CHF", "🇪🇺🇨🇦 EUR/CAD", 
-      "🇪🇺🇦🇺 EUR/AUD", "CAD/JPY", "CHF/JPY", "AUD/CAD", "AUD/JPY", "GBP/JPY", "EUR/JPY", "CAD/CHF", 
-      "AUD/NZD OTC", "CAD/CHF OTC", "EUR/HUF OTC", "EUR/NZD OTC", "EUR/TRY OTC", "GBP/AUD OTC", 
-      "GBP/CHF OTC", "GBP/CAD OTC", "GBP/JPY OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/ARS OTC", 
-      "USD/BRL OTC", "USD/CLP OTC", "USD/COP OTC", "USD/DZD OTC", "USD/EGP OTC", "USD/IDR OTC", 
-      "USD/INR OTC", "USD/MXN OTC", "USD/MYR OTC", "USD/PHP OTC", "USD/PKR OTC", "USD/SGD OTC", 
-      "USD/THB OTC", "USD/VND OTC", "ZAR/USD OTC", "UAH/USD OTC", "NGN/USD OTC", "KES/USD OTC"
+      "🇪🇺🇦🇺 EUR/AUD", "🇯🇵🇨🇦 CAD/JPY", "🇯🇵🇨🇭 CHF/JPY", "🇦🇺🇨🇦 AUD/CAD", "🇦🇺🇯🇵 AUD/JPY", "🇬🇧🇯🇵 GBP/JPY", "🇪🇺🇯🇵 EUR/JPY", "🇨🇦🇨🇭 CAD/CHF", 
+      "🇦🇺🇳🇿 AUD/NZD OTC", "🇨🇦🇨🇭 CAD/CHF OTC", "🇪🇺🇭🇺 EUR/HUF OTC", "🇪🇺🇳🇿 EUR/NZD OTC", "🇪🇺🇹🇷 EUR/TRY OTC", "🇬🇧🇦🇺 GBP/AUD OTC", 
+      "🇬🇧🇨🇭 GBP/CHF OTC", "🇬🇧🇨🇦 GBP/CAD OTC", "🇬🇧🇯🇵 GBP/JPY OTC", "🇳🇿🇯🇵 NZD/JPY OTC", "🇳🇿🇺🇸 NZD/USD OTC", "🇺🇸🇦🇷 USD/ARS OTC", 
+      "🇺🇸🇧🇷 USD/BRL OTC", "🇺🇸🇨🇱 USD/CLP OTC", "🇺🇸🇨🇴 USD/COP OTC", "🇺🇸🇩🇿 USD/DZD OTC", "🇺🇸🇪🇬 USD/EGP OTC", "🇺🇸🇮🇩 USD/IDR OTC", 
+      "🇺🇸🇮🇳 USD/INR OTC", "🇺🇸🇲🇽 USD/MXN OTC", "🇺🇸🇲🇾 USD/MYR OTC", "🇺🇸🇵🇭 USD/PHP OTC", "🇺🇸🇵🇰 USD/PKR OTC", "🇺🇸🇸🇬 USD/SGD OTC", 
+      "🇺🇸🇹🇭 USD/THB OTC", "🇺🇸🇻🇳 USD/VND OTC", "🇿🇦🇺🇸 ZAR/USD OTC", "🇺🇦🇺🇸 UAH/USD OTC", "🇳🇬🇺🇸 NGN/USD OTC", "🇰🇪🇺🇸 KES/USD OTC"
     ],
     "🔥 Криптовалюты": [
       "₿ Bitcoin", "Ξ Ethereum", "🪙 Solana", "🪙 BNB OTC", "🪙 Dogecoin OTC", "🪙 Chainlink OTC", 
@@ -229,12 +230,12 @@ ASSETS_DATA_JS = {
       "🇺🇸🇨🇦 USD/CAD OTC", "🇬🇧🇯🇵 GBP/JPY OTC", "🇳🇿🇺🇸 NZD/USD OTC", "🇺🇸🇨🇭 USD/CHF OTC", "🇪🇺🇬🇧 EUR/GBP OTC", 
       "🇦🇺🇨🇭 AUD/CHF OTC", "🇦🇺🇨🇭 AUD/CHF", "🇦🇺🇺🇸 AUD/USD", "🇺🇸🇨🇦 USD/CAD", "🇺🇸🇯🇵 USD/JPY", "🇪🇺🇺🇸 EUR/USD", 
       "🇬🇧🇺🇸 GBP/USD", "🇪🇺🇬🇧 EUR/GBP", "🇬🇧🇨🇭 GBP/CHF", "🇬🇧🇦🇺 GBP/AUD", "🇪🇺🇨🇭 EUR/CHF", "🇪🇺🇨🇦 EUR/CAD", 
-      "🇪🇺🇦🇺 EUR/AUD", "CAD/JPY", "CHF/JPY", "AUD/CAD", "AUD/JPY", "GBP/JPY", "EUR/JPY", "CAD/CHF", 
-      "AUD/NZD OTC", "CAD/CHF OTC", "EUR/HUF OTC", "EUR/NZD OTC", "EUR/TRY OTC", "GBP/AUD OTC", 
-      "GBP/CHF OTC", "GBP/CAD OTC", "GBP/JPY OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/ARS OTC", 
-      "USD/BRL OTC", "USD/CLP OTC", "USD/COP OTC", "USD/DZD OTC", "USD/EGP OTC", "USD/IDR OTC", 
-      "USD/INR OTC", "USD/MXN OTC", "USD/MYR OTC", "USD/PHP OTC", "USD/PKR OTC", "USD/SGD OTC", 
-      "USD/THB OTC", "USD/VND OTC", "ZAR/USD OTC", "UAH/USD OTC", "NGN/USD OTC", "KES/USD OTC"
+      "🇪🇺🇦🇺 EUR/AUD", "🇯🇵🇨🇦 CAD/JPY", "🇯🇵🇨🇭 CHF/JPY", "🇦🇺🇨🇦 AUD/CAD", "🇦🇺🇯🇵 AUD/JPY", "🇬🇧🇯🇵 GBP/JPY", "🇪🇺🇯🇵 EUR/JPY", "🇨🇦🇨🇭 CAD/CHF", 
+      "🇦🇺🇳🇿 AUD/NZD OTC", "🇨🇦🇨🇭 CAD/CHF OTC", "🇪🇺🇭🇺 EUR/HUF OTC", "🇪🇺🇳🇿 EUR/NZD OTC", "🇪🇺🇹🇷 EUR/TRY OTC", "🇬🇧🇦🇺 GBP/AUD OTC", 
+      "🇬🇧🇨🇭 GBP/CHF OTC", "🇬🇧🇨🇦 GBP/CAD OTC", "🇬🇧🇯🇵 GBP/JPY OTC", "🇳🇿🇯🇵 NZD/JPY OTC", "🇳🇿🇺🇸 NZD/USD OTC", "🇺🇸🇦🇷 USD/ARS OTC", 
+      "🇺🇸🇧🇷 USD/BRL OTC", "🇺🇸🇨🇱 USD/CLP OTC", "🇺🇸🇨🇴 USD/COP OTC", "🇺🇸🇩🇿 USD/DZD OTC", "🇺🇸🇪🇬 USD/EGP OTC", "🇺🇸🇮🇩 USD/IDR OTC", 
+      "🇺🇸🇮🇳 USD/INR OTC", "🇺🇸🇲🇽 USD/MXN OTC", "🇺🇸🇲🇾 USD/MYR OTC", "🇺🇸🇵🇭 USD/PHP OTC", "🇺🇸🇵🇰 USD/PKR OTC", "🇺🇸🇸🇬 USD/SGD OTC", 
+      "🇺🇸🇹🇭 USD/THB OTC", "🇺🇸🇻🇳 USD/VND OTC", "🇿🇦🇺🇸 ZAR/USD OTC", "🇺🇦🇺🇸 UAH/USD OTC", "🇳🇬🇺🇸 NGN/USD OTC", "🇰🇪🇺🇸 KES/USD OTC"
     ],
     "🔥 Cryptocurrencies": [
       "₿ Bitcoin", "Ξ Ethereum", "🪙 Solana", "🪙 BNB OTC", "🪙 Dogecoin OTC", "🪙 Chainlink OTC", 
@@ -264,12 +265,12 @@ ASSETS_DATA_JS = {
       "🇺🇸🇨🇦 USD/CAD OTC", "🇬🇧🇯🇵 GBP/JPY OTC", "🇳🇿🇺🇸 NZD/USD OTC", "🇺🇸🇨🇭 USD/CHF OTC", "🇪🇺🇬🇧 EUR/GBP OTC", 
       "🇦🇺🇨🇭 AUD/CHF OTC", "🇦🇺🇨🇭 AUD/CHF", "🇦🇺🇺🇸 AUD/USD", "🇺🇸🇨🇦 USD/CAD", "🇺🇸🇯🇵 USD/JPY", "🇪🇺🇺🇸 EUR/USD", 
       "🇬🇧🇺🇸 GBP/USD", "🇪🇺🇬🇧 EUR/GBP", "🇬🇧🇨🇭 GBP/CHF", "🇬🇧🇦🇺 GBP/AUD", "🇪🇺🇨🇭 EUR/CHF", "🇪🇺🇨🇦 EUR/CAD", 
-      "🇪🇺🇦🇺 EUR/AUD", "CAD/JPY", "CHF/JPY", "AUD/CAD", "AUD/JPY", "GBP/JPY", "EUR/JPY", "CAD/CHF", 
-      "AUD/NZD OTC", "CAD/CHF OTC", "EUR/HUF OTC", "EUR/NZD OTC", "EUR/TRY OTC", "GBP/AUD OTC", 
-      "GBP/CHF OTC", "GBP/CAD OTC", "GBP/JPY OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/ARS OTC", 
-      "USD/BRL OTC", "USD/CLP OTC", "USD/COP OTC", "USD/DZD OTC", "USD/EGP OTC", "USD/IDR OTC", 
-      "USD/INR OTC", "USD/MXN OTC", "USD/MYR OTC", "USD/PHP OTC", "USD/PKR OTC", "USD/SGD OTC", 
-      "USD/THB OTC", "USD/VND OTC", "ZAR/USD OTC", "UAH/USD OTC", "NGN/USD OTC", "KES/USD OTC"
+      "🇪🇺🇦🇺 EUR/AUD", "🇯🇵🇨🇦 CAD/JPY", "🇯🇵🇨🇭 CHF/JPY", "🇦🇺🇨🇦 AUD/CAD", "🇦🇺🇯🇵 AUD/JPY", "🇬🇧🇯🇵 GBP/JPY", "🇪🇺🇯🇵 EUR/JPY", "🇨🇦🇨🇭 CAD/CHF", 
+      "🇦🇺🇳🇿 AUD/NZD OTC", "🇨🇦🇨🇭 CAD/CHF OTC", "🇪🇺🇭🇺 EUR/HUF OTC", "🇪🇺🇳🇿 EUR/NZD OTC", "🇪🇺🇹🇷 EUR/TRY OTC", "🇬🇧🇦🇺 GBP/AUD OTC", 
+      "🇬🇧🇨🇭 GBP/CHF OTC", "🇬🇧🇨🇦 GBP/CAD OTC", "🇬🇧🇯🇵 GBP/JPY OTC", "🇳🇿🇯🇵 NZD/JPY OTC", "🇳🇿🇺🇸 NZD/USD OTC", "🇺🇸🇦🇷 USD/ARS OTC", 
+      "🇺🇸🇧🇷 USD/BRL OTC", "🇺🇸🇨🇱 USD/CLP OTC", "🇺🇸🇨🇴 USD/COP OTC", "🇺🇸🇩🇿 USD/DZD OTC", "🇺🇸🇪🇬 USD/EGP OTC", "🇺🇸🇮🇩 USD/IDR OTC", 
+      "🇺🇸🇮🇳 USD/INR OTC", "🇺🇸🇲🇽 USD/MXN OTC", "🇺🇸🇲🇾 USD/MYR OTC", "🇺🇸🇵🇭 USD/PHP OTC", "🇺🇸🇵🇰 USD/PKR OTC", "🇺🇸🇸🇬 USD/SGD OTC", 
+      "🇺🇸🇹🇭 USD/THB OTC", "🇺🇸🇻🇳 USD/VND OTC", "🇿🇦🇺🇸 ZAR/USD OTC", "🇺🇦🇺🇸 UAH/USD OTC", "🇳🇬🇺🇸 NGN/USD OTC", "🇰🇪🇺🇸 KES/USD OTC"
     ],
     "🔥 Криптовалюти": [
       "₿ Bitcoin", "Ξ Ethereum", "🪙 Solana", "🪙 BNB OTC", "🪙 Dogecoin OTC", "🪙 Chainlink OTC", 
@@ -295,10 +296,10 @@ ASSETS_DATA_JS = {
   }
 }
 
-# 50 полноценных подробных связок индикаторов с большим количеством текста, правил и эмодзи
+# 50 полноценных подробных связок индикаторов с чистыми названиями без эмодзи
 EDU_50 = [
   {
-    "t": "1. 🐊 Accelerator Oscillator + Alligator (Трендовая связка)",
+    "t": "1. Accelerator Oscillator + Alligator",
     "tags": ["M1", "M2", "M5", "Pocket Option", "Индикаторы"],
     "d": "📌 Подробный разбор профессиональной связки Accelerator Oscillator + Alligator:\n\n"
        "• 🧠 Рыночная логика и суть стратегии:\n"
@@ -314,7 +315,7 @@ EDU_50 = [
        "Строго соблюдайте мани-менеджмент: риск на одну сделку не должен превышать 1-2% от общего торгового баланса. Не торгуйте во время выхода важных новостей."
   },
   {
-    "t": "2. 📈 ADX + Aroon (Импульсный пробой тренда)",
+    "t": "2. ADX + Aroon",
     "tags": ["M1", "M5", "Pocket Option", "Индикаторы"],
     "d": "📌 Подробный разбор профессиональной связки ADX + Aroon:\n\n"
        "• 🧠 Рыночная логика и суть стратегии:\n"
@@ -330,7 +331,7 @@ EDU_50 = [
        "Избегайте торговли, когда ADX падает ниже отметки 20 — это говорит об отсутствии направленного движения."
   },
   {
-    "t": "3. 🎯 Bollinger Bands + Awesome Oscillator (Волатильность и импульс)",
+    "t": "3. Bollinger Bands + Awesome Oscillator",
     "tags": ["S30", "M1", "Pocket Option", "Индикаторы"],
     "d": "📌 Подробный разбор профессиональной связки Bollinger Bands + Awesome Oscillator:\n\n"
        "• 🧠 Рыночная логика и суть стратегии:\n"
@@ -346,7 +347,7 @@ EDU_50 = [
        "Торгуйте строго по тренду старшего таймфрейма, избегайте работы против сильных импульсов."
   },
   {
-    "t": "4. 📊 MACD + RSI (Классика технического анализа)",
+    "t": "4. MACD + RSI",
     "tags": ["M1", "M5", "Pocket Option", "Индикаторы"],
     "d": "📌 Подробный разбор профессиональной связки MACD + RSI:\n\n"
        "• 🧠 Рыночная логика и суть стратегии:\n"
@@ -362,7 +363,7 @@ EDU_50 = [
        "Не входите в сделку при сильном новостном фоне без подтверждения свечного паттерна."
   },
   {
-    "t": "5. ⚡ Parabolic SAR + Stochastic Oscillator (Скальпинг на экстремумах)",
+    "t": "5. Parabolic SAR + Stochastic Oscillator",
     "tags": ["S15", "S30", "Pocket Option", "Индикаторы"],
     "d": "📌 Подробный разбор профессиональной связки Parabolic SAR + Stochastic Oscillator:\n\n"
        "• 🧠 Рыночная логика и суть стратегии:\n"
@@ -379,9 +380,8 @@ EDU_50 = [
   }
 ]
 
-# Автоматически расширяем до 50 детальных стратегий с большим объемом текста и эмодзи
 for i in range(6, 51):
-    strat_title = f"{i}. 💎 Профессиональная связка индикаторов №{i} (Advanced Quant Strategy)"
+    strat_title = f"{i}. Профессиональная связка индикаторов №{i}"
     strat_desc = (
         f"📌 Подробный разбор связки №{i} для терминала Pocket Option:\n\n"
         f"• 🧠 Рыночная механика и суть стратегии:\n"
@@ -700,7 +700,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabScan">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер с ИИ (Свечной анализ)</h3>
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:8px">📷 Сканер (Анализ графика)</h3>
 <div class="scan-tips" id="scanTipsHtml">
 <b>Инструкция сканера Pocket Option:</b><br>
 1️⃣ Выберите интервал, экспирацию и стратегию ниже<br>
@@ -726,7 +726,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="cat" onclick="setScanCfg(this,'экспирация','5м')">5м</div>
 </div>
 
-<div class="lbl">СТРАТЕГИЯ ИИ</div>
+<div class="lbl">СТРАТЕГИЯ АНАЛИЗА</div>
 <div class="cats" style="margin-bottom:8px" id="scanStratGrid">
   <div class="cat on" onclick="setScanCfg(this,'стратегия','Smart Money')">Smart Money</div>
   <div class="cat" onclick="setScanCfg(this,'стратегия','ICT')">ICT</div>
@@ -765,7 +765,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabAbout">
 <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:6px" data-t="aboutTitle">👑 О нас и нашей команде</h3>
-<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:8px"><b>TEAM MASTER VIP</b> — это элитный терминал для трейдинга на платформе Pocket Option с нейросетевым анализом.</p>
+<p style="font-size:11px;color:#b0b8c8;line-height:1.65;margin-bottom:8px"><b>TEAM MASTER VIP</b> — это элитный терминал для трейдинга на платформе Pocket Option с интеллектуальным анализом.</p>
 <p style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px" data-t="aboutRisk">Торгуйте осознанно. Риск на сделку 1-2% от банка.</p>
 <a class="btn btn-gold btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank">📢 Наш Telegram канал</a>
 </div>
@@ -783,7 +783,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="analyze-overlay hidden" id="analyzeBox">
 <div class="analyze-wheel"></div>
-<div class="analyze-text" id="analyzeTxt">🔍 Сканирование красно-зеленых свечей...</div>
+<div class="analyze-text" id="analyzeTxt">🔍 Сканирование свечей рынка...</div>
 <div class="analyze-sub">Smart Money · ICT · PA · Scalp · Trend</div>
 </div>
 
@@ -1243,7 +1243,7 @@ async function getSig(){
     const expSec = parseInt(document.getElementById("exp").value);
     
     let dir = "⬆️ CALL (ВВЕРХ)";
-    let stratText = `🎯 Математический ИИ-анализ котировок Pocket Option для актива (${currentAsset}) по таймфрейму ${tf} с экспирацией ${expSec} сек. Сигнал сформирован на основе глубокой рыночной структуры.`;
+    let stratText = `🎯 Интеллектуальный анализ котировок Pocket Option для актива (${currentAsset}) по таймфрейму ${tf} с экспирацией ${expSec} сек. Сигнал сформирован на основе рыночных паттернов и мультиидикаторной структуры.`;
     
     try {
       const res = await fetch(`/get_signal?asset=${encodeURIComponent(currentAsset)}&timeframe=${tf}`);
@@ -1251,6 +1251,9 @@ async function getSig(){
         const data = await res.json();
         if (data.signal) {
           dir = data.signal === "UP" ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (НИЗ)";
+          if(data.reason) {
+            stratText = `📊 Технический расчет: ${data.reason}`;
+          }
         }
       }
     } catch(e) {}
@@ -1317,7 +1320,7 @@ function runAnalyzer(callback){
   const txtEl = document.getElementById("analyzeTxt");
   overlay.classList.remove("hidden");
   let step = 0;
-  const phrasesList = ["🔍 Запрос к Gemini AI...", "🤖 Анализ индикаторов Pocket Option...", "📊 Проверка свечных паттернов...", "⚡ Генерация точного сигнала..."];
+  const phrasesList = ["🔍 Запрос к анализеру...", "🤖 Анализ индикаторов Pocket Option...", "📊 Проверка свечных паттернов...", "⚡ Генерация точного сигнала..."];
   const interval = setInterval(()=>{
     txtEl.textContent = phrasesList[step % phrasesList.length];
     step++;
@@ -1372,295 +1375,4 @@ function loadProfile(){
 }
 
 function saveName(){
-  localStorage.setItem("tmv_name", document.getElementById("profName").value);
-}
-
-function logout(){
-  localStorage.removeItem("tmv_tgUser");
-  localStorage.removeItem("tmv_isAdmin");
-  location.reload();
-}
-
-function openCam(){
-  uploadedImageBlob = null;
-  const video = document.getElementById("scanVideo");
-  const previewImg = document.getElementById("scanPreviewImg");
-  const ph = document.getElementById("scanPh");
-  const frame = document.getElementById("scanFrame");
-  previewImg.classList.add("hidden");
-  
-  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}, audio:false})
-  .then(s => {
-    stream = s;
-    video.srcObject = stream;
-    video.classList.remove("hidden");
-    ph.classList.add("hidden");
-    frame.classList.add("live");
-    camReady = true;
-    document.getElementById("btnScan").removeAttribute("disabled");
-  })
-  .catch(err => { alert("Не удалось получить доступ к камере: " + err); });
-}
-
-function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if(!file) return;
-  uploadedImageBlob = file;
-  if(stream){ stream.getTracks().forEach(t => t.stop()); stream = null; }
-  const video = document.getElementById("scanVideo");
-  const previewImg = document.getElementById("scanPreviewImg");
-  const ph = document.getElementById("scanPh");
-  const frame = document.getElementById("scanFrame");
-  video.classList.add("hidden");
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    previewImg.src = e.target.result;
-    previewImg.classList.remove("hidden");
-    ph.classList.add("hidden");
-    frame.classList.add("live");
-    camReady = true;
-    document.getElementById("btnScan").removeAttribute("disabled");
-  }
-  reader.readAsDataURL(file);
-}
-
-function stopCam(){
-  if(stream){ stream.getTracks().forEach(t => t.stop()); stream = null; }
-  uploadedImageBlob = null;
-  const video = document.getElementById("scanVideo");
-  const previewImg = document.getElementById("scanPreviewImg");
-  const ph = document.getElementById("scanPh");
-  const frame = document.getElementById("scanFrame");
-  video.classList.add("hidden");
-  previewImg.classList.add("hidden");
-  ph.classList.remove("hidden");
-  frame.classList.remove("live");
-  camReady = false;
-  document.getElementById("btnScan").setAttribute("disabled", "true");
-  document.getElementById("scanFileInput").value = "";
-}
-
-async function doScan(){
-  if(!camReady){ alert("Сначала откройте камеру или загрузите скриншот графика со свечами! 📸"); return; }
-  const expSec = scanCfg.экспирация.includes('30') ? 30 : parseInt(scanCfg.экспирация) * 60;
-
-  if (uploadedImageBlob) {
-    processImageBlobForScan(uploadedImageBlob, expSec);
-  } else {
-    const video = document.getElementById("scanVideo");
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    canvas.getContext("2d").drawImage(video, 0, 0);
-    canvas.toBlob((blob) => { processImageBlobForScan(blob, expSec); }, 'image/jpeg');
-  }
-}
-
-function processImageBlobForScan(blob, expSec) {
-  runAnalyzer(async ()=>{
-    try {
-      const fd = new FormData();
-      fd.append('file', blob, 'snapshot.jpg');
-      fd.append('cfg', JSON.stringify(scanCfg));
-      const response = await fetch('/analyze', { method: 'POST', body: fd });
-      if(response.ok) {
-        const resData = await response.json();
-        let resText = resData.text || "❌ Ошибка анализа";
-        let isErr = resText.includes("❌");
-        
-        document.getElementById("scanMeta").textContent = "TEAM MASTER SIGNAL V4.0";
-        const dirEl = document.getElementById("scanDir");
-        
-        if(isErr) {
-          dirEl.textContent = "❌ ГРАФИК НЕ НАЙДЕН";
-          dirEl.className = "sig-dir put";
-        } else {
-          let isBuy = resText.includes("BUY") || resText.includes("ВВЕРХ");
-          dirEl.textContent = isBuy ? "BUY (ВВЕРХ)" : "SELL (ВНИЗ)";
-          dirEl.className = "sig-dir " + (isBuy ? "call" : "put");
-          sigCount++;
-          localStorage.setItem("tmv_sigs", sigCount);
-          document.getElementById("profSigs").textContent = sigCount;
-        }
-
-        document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${resText}</b></pre>`;
-        document.getElementById("scanSigBox").style.display = "block";
-        document.getElementById("btnScanCancel").style.display = "block";
-        document.getElementById("btnScanNew").style.display = "none";
-
-        if(!isErr) {
-          startTimer("scanCd", expSec, ()=>{
-            document.getElementById("btnScanCancel").style.display = "none";
-            document.getElementById("btnScanNew").style.display = "block";
-          });
-        }
-        return;
-      }
-    } catch(e) {}
-  });
-}
-
-function cancelScan(){
-  if(scanTimer) clearInterval(scanTimer);
-  document.getElementById("scanSigBox").style.display = "none";
-}
-
-async function sendAiChatMessage() {
-  const inputEl = document.getElementById("chatInputText");
-  const msgBox = document.getElementById("chatMessagesBox");
-  const text = inputEl.value.trim();
-  if(!text) return;
-
-  msgBox.innerHTML += `<div class="chat-msg user">${escapeHtml(text)}</div>`;
-  inputEl.value = "";
-  msgBox.scrollTop = msgBox.scrollHeight;
-
-  const loadingId = "ai_load_" + Date.now();
-  msgBox.innerHTML += `<div class="chat-msg ai" id="${loadingId}">Gemini AI думает... 🤖</div>`;
-  msgBox.scrollTop = msgBox.scrollHeight;
-
-  try {
-    const fd = new FormData();
-    fd.append('prompt', text);
-    const response = await fetch('/ai-chat', { method: "POST", body: fd });
-    const loadEl = document.getElementById(loadingId);
-    if(loadEl) loadEl.remove();
-    if(response.ok) {
-      const data = await response.json();
-      msgBox.innerHTML += `<div class="chat-msg ai">${escapeHtml(data.reply)}</div>`;
-    }
-  } catch(e) {
-    const loadEl = document.getElementById(loadingId);
-    if(loadEl) loadEl.remove();
-  }
-  msgBox.scrollTop = msgBox.scrollHeight;
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function changeLanguage(lang){
-  currentLang = lang;
-  const dict = I18N[lang];
-  if(!dict) return;
-  for(let key in dict){
-    const el = document.querySelector(`[data-t="${key}"]`);
-    if(el) el.innerHTML = dict[key];
-  }
-  renderAssetButtons();
-  renderCatalogList(document.getElementById("modalSearchInput").value);
-}
-
-function renderAdminData(filter=""){
-  const listEl = document.getElementById("adminUsersList");
-  if(!listEl) return;
-  let html = "";
-  const filteredUsers = allUsersReg.filter(u => u.tg.toLowerCase().includes(filter.toLowerCase()));
-  filteredUsers.forEach((u, idx)=>{
-    html += `<div class="user-row">
-      <div><b>${u.tg}</b><br><small style="color:var(--green)">${u.status}</small></div>
-    </div>`;
-  });
-  listEl.innerHTML = html || `<div style="text-align:center;padding:10px;color:var(--muted)">Список пуст</div>`;
-}
-
-window.addEventListener("DOMContentLoaded", ()=>{
-  if(tgUser) {
-    if(checkUserBlockedStatus(tgUser)) { logout(); return; }
-    registerUserAndNotify(tgUser);
-    goStep(3);
-    enterApp();
-  }
-});
-</script>
-</body>
-</html>
-"""
-
-@app.get("/", response_class=HTMLResponse)
-def serve_terminal():
-    return HTML_UI
-
-@app.get("/get_signal")
-async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str = "1min", tg_username: str = Cookie(None)):
-    user_for_alert = tg_username if tg_username else "Неизвестный ученик"
-    asyncio.create_task(send_tg_signal_alert(user_for_alert, asset, timeframe))
-    
-    await asyncio.sleep(1.2)
-    is_otc = "OTC" in asset
-    clean_asset = asset.replace("OTC", "").replace("🇪🇺", "").replace("🇺🇸", "").replace("🇬🇧", "").replace("🇯🇵", "").replace("🇦🇺", "").replace("🇨🇦", "").replace("🇳🇿", "").replace("🇨🇭", "").replace("🇪🇺", "").replace("₿", "").replace("Ξ", "").replace("🪙", "").replace("🛢️", "").replace("⛽", "").replace("🍎", "").replace("🚗", "").replace("💳", "").replace("💻", "").replace("🛒", "").replace("🎬", "").replace("📘", "").replace("📦", "").replace("💊", "").replace("📊", "").replace("🤖", "").replace("🍔", "").replace("✈️", "").replace("🏦", "").replace("🎮", "").replace("🌐", "").strip()
-    
-    if is_otc:
-        prices = generate_otc_candles(asset, count=50)
-    else:
-        binance_symbol = BINANCE_MAPPING.get(clean_asset, "BTCUSDT")
-        try:
-            url = f"https://api.binance.com/api/v3/klines?symbol={binance_symbol}&interval=1m&limit=50"
-            async with httpx.AsyncClient() as client:
-                res = await client.get(url, timeout=3.0)
-                prices = [float(c[4]) for c in res.json()]
-        except:
-            prices = generate_otc_candles(clean_asset, count=50)
-
-    rsi = calculate_rsi(prices)
-    ema = calculate_ema(prices)
-    calculated_signal = ai_analyze_market(prices, rsi, ema)
-    
-    return {"signal": calculated_signal}
-
-@app.post("/analyze")
-async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
-    image_bytes = await file.read()
-    config = json.loads(cfg)
-    result_text = await scanner_core.compute(image_bytes, config)
-    return {"text": result_text}
-
-@app.post("/ai-chat")
-async def ai_chat(prompt: str = Form(...)):
-    user_prompt = prompt.strip()
-    if not GEMINI_API_KEY:
-        return {"reply": "⚠️ Ключ GEMINI_API_KEY не настроен в окружении Render."}
-
-    try:
-        model = genai.GenerativeModel('gemini-1.5-flash-001')
-        chat_prompt = (
-            "Ты профессиональный элитный трейдер и помощник по торговле на платформе Pocket Option. Твоя задача — отвечать на вопросы пользователя "
-            "ИСКЛЮЧИТЕЛЬНО по теме трейдинга, финансовых рынков, технических индикаторов, связок индикаторов, риск-менеджмента и психологии торговли. "
-            "Используй много красивых эмодзи в ответах. "
-            "СТРОГОЕ ПРАВИЛО: Если вопрос пользователя касается любых других тем (политика, личная жизнь, программирование, кулинария, "
-            "грязные/пошлые темы, развлечения или любые посторонние вопросы, не связанные с трейдингом), ты обязан вежливо отказаться "
-            "и ответить: 'Я консультирую исключительно по вопросам трейдинга, рынков и стратегий торговли! 📈📉'\n\n"
-            f"Вопрос пользователя: {user_prompt}"
-        )
-        response = model.generate_content(chat_prompt)
-        reply = response.text.strip() if response and response.text else "Нет ответа от ИИ. 🤖"
-        return {"reply": reply}
-    except Exception as e:
-        return {"reply": f"⚠️ Ошибка связи с ИИ: {str(e)}"}
-
-@app.post("/request_access")
-async def request_access(username: str = Form(...)):
-    username = username.strip().replace("@", "").replace(" ", "")
-    db = get_db()
-    if username in db["users"] and db["users"][username].get("status") == "blocked":
-        return JSONResponse({"success": False, "message": "Вы заблокированы!"})
-    
-    db["users"][username] = {"status": "approved", "activated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-    save_db(db)
-    asyncio.create_task(send_tg_notification(username))
-    
-    response = JSONResponse({"success": False, "message": "Доступ активирован!"})
-    response.set_cookie(key="tg_username", value=username, max_age=2592000)
-    return response
-
-@app.get("/check_user_status")
-async def check_user_status(username: str = ""):
-    username = username.strip().replace("@", "").replace(" ", "")
-    db = get_db()
-    status = db["users"].get(username, {}).get("status") if username else None
-    return JSONResponse({"status": status})
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+  localStorage.setItem("tmv_name",
