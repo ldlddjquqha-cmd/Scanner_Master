@@ -542,44 +542,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </select>
 </div>
 
-<div id="gate" class="gate">
-<div class="progress">
-<div class="p-dot cur" id="d1"></div>
-<div class="p-line" id="l1"></div>
-<div class="p-dot" id="d2"></div>
-<div class="p-line" id="l2"></div>
-<div class="p-dot" id="d3"></div>
-</div>
+<div id="gate" class="hidden"></div>
 
-<div class="step on" id="s1">
-<div class="gate-icon">👑</div>
-<div class="gate-title" data-t="gateTitle">Добро пожаловать</div>
-<div class="gate-desc">Авторизация в системе<br><br>Введите ваш реальный Telegram юзернейм (например, <b>@username</b>).</div>
-<input type="text" class="input" id="tgUserInput" placeholder="@username">
-<div class="msg" id="regMsg"></div>
-<button class="btn btn-gold" onclick="doReg()" data-t="btnConfirmId">✅ Войти в терминал</button>
-</div>
-
-<div class="step" id="s2">
-<div class="gate-icon">💎</div>
-<div class="gate-title" data-t="depTitle">Проверка депозита</div>
-<div class="gate-desc">Статус аккаунта<br><br>Введите промокод <b>WELCOME50</b> для подтверждения доступа.<br><br>🎁 <b>Нет аккаунта Pocket Option?</b><br>Зарегистрируйтесь по ссылке с бонусом +50% к депозиту:<br><a href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank" style="color:var(--gold);text-decoration:underline;">🔗 Регистрация в Pocket Option</a></div>
-<input type="text" class="input" id="promoInput" placeholder="WELCOME50">
-<div class="msg" id="depMsg"></div>
-<button class="btn btn-gold" onclick="doDep()" data-t="btnCheckDep">🔍 Проверить депозит</button>
-<div class="gap2"></div>
-<button class="btn btn-dark btn-sm" onclick="goStep(1)" data-t="btnBack">← Назад</button>
-</div>
-
-<div class="step" id="s3">
-<div class="gate-icon">🎉</div>
-<div class="gate-title" data-t="accOpenTitle">Доступ открыт</div>
-<div class="gate-desc" data-t="accOpenDesc">Активация прошла успешно. Все функции терминала доступны.</div>
-<button class="btn btn-gold" onclick="enterApp()" data-t="btnEnterTerm">🚀 Войти в терминал</button>
-</div>
-</div>
-
-<div id="app" class="hidden">
+<div id="app">
 <div class="live-bar">
 <div class="live" id="poApiStatus">● POCKET OPTION API: ONLINE 🟢</div>
 <div class="live" style="background:rgba(255,215,0,.1);color:var(--gold);border-color:rgba(255,215,0,.3)">⚡ СИНХРОНИЗАЦИЯ</div>
@@ -845,8 +810,8 @@ TEAM MASTER VIP — это элитное международное сообщ�
 <script>
 const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
 const USER_SECRET_KEY = "MASTER_TRADING_777_";
-let tgUser = localStorage.getItem("tmv_tgUser")||null;
-let isAdmin = localStorage.getItem("tmv_isAdmin") === "true";
+let tgUser = localStorage.getItem("tmv_tgUser")||"@user";
+let isAdmin = false;
 let timer=null,scanTimer=null,stream=null,camReady=false;
 let favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]");
 let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
@@ -855,9 +820,7 @@ let currentLang="ru";
 let modalCategory="all";
 let uploadedImageBlob = null;
 let scanCfg = {интервал: 'M1', экспирация: '1м', стратегия: 'Smart Money'};
-let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.stringify([
-    {tg: "@master_admin", status: "Активен", role: "ADMIN"}
-]));
+let allUsersReg = [];
 const ASSETS_DATA_JS = JSON.parse('__ASSETS_JSON_PLACEHOLDER__');
 const I18N = {
     ru: {
@@ -887,7 +850,7 @@ const I18N = {
         profSigsLbl: "Сигналов",
         profFavLbl: "⭐ ИЗБРАННЫЕ АКТИВЫ",
         favTabTitle: "⭐ Избранные активы",
-        favTabDesc: "Нажмите на любой актив для перехода.",
+        favTabDesc: "Нажмите на любой актив из списка для перехода.",
         profFavEmpty: "Пока пусто — добавь актив из полного каталога",
         btnClearFav: "🗑 Очистить избранное",
         btnLogout: "🚪 Выйти",
@@ -1048,106 +1011,6 @@ function updateSelectedAssetUI() {
     const badgeEl = document.getElementById("currentAssetBadge");
     if(badgeEl) badgeEl.textContent = getAssetBadge(currentAsset);
     updatePoDeepLink();
-}
-
-function goStep(n){
-    document.querySelectorAll(".step").forEach(s=>s.classList.remove("on"));
-    document.getElementById("s"+n).classList.add("on");
-    for(let i=1;i<=3;i++){
-        const d=document.getElementById("d"+i);
-        if(d){
-            d.className="p-dot";
-            if(i<n) d.classList.add("done");
-            else if(i===n) d.classList.add("cur");
-        }
-    }
-    for(let i=1;i<=2;i++){
-        const l=document.getElementById("l"+i);
-        if(l){
-            l.className="p-line";
-            if(i<n) l.classList.add("done");
-        }
-    }
-}
-
-function showMsg(id, txt, isErr=false){
-    const el=document.getElementById(id);
-    if(el){
-        el.className="msg "+(isErr?"err":"ok");
-        el.innerHTML=txt;
-    }
-}
-
-function checkUserBlockedStatus(user) {
-    let foundUser = allUsersReg.find(u => u.tg.toLowerCase() === user.toLowerCase());
-    if(foundUser && foundUser.status === "Заблокирован") {
-        alert("⛔ Ваш аккаунт заблокирован администратором!");
-        return true;
-    }
-    return false;
-}
-
-function registerUserAndNotify(username) {
-    if(!username) return;
-    let formattedTg = username.startsWith("@") ? username : "@" + username;
-    let foundUser = allUsersReg.find(u => u.tg.toLowerCase() === formattedTg.toLowerCase());
-    if(!foundUser) {
-        allUsersReg.push({tg: formattedTg, status: "Активен", role: "USER"});
-        localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
-    }
-}
-
-function doReg(){
-    const user = document.getElementById("tgUserInput").value.trim();
-    if(!user || !user.startsWith("@")){
-        showMsg("regMsg", "❌ Укажите ваш Telegram юзернейм начиная с @", true);
-        return;
-    }
-    if(checkUserBlockedStatus(user)) {
-        showMsg("regMsg", "❌ Этот аккаунт заблокирован!", true);
-        return;
-    }
-    isAdmin = false;
-    localStorage.setItem("tmv_isAdmin", "false");
-    tgUser = user;
-    localStorage.setItem("tmv_tgUser", user);
-    registerUserAndNotify(tgUser);
-    showMsg("regMsg", "✅ Юзернейм принят!");
-    setTimeout(()=>{
-        goStep(2);
-    }, 1000);
-}
-
-function doDep(){
-    const promo = document.getElementById("promoInput").value.trim();
-    if(promo.toUpperCase() !== "WELCOME50"){
-        showMsg("depMsg", "❌ Неверный промокод! Введите WELCOME50", true);
-        return;
-    }
-    showMsg("depMsg", "✅ Депозит подтвержден!");
-    setTimeout(()=>{
-        goStep(3);
-    }, 1000);
-}
-
-function enterApp(){
-    document.getElementById("gate").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
-    document.getElementById("bnav").classList.remove("hidden");
-    renderAssetButtons();
-    updateSelectedAssetUI();
-    renderFavs();
-    renderEdu();
-    loadProfile();
-}
-
-function tab(tabId, el){
-    document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
-    document.getElementById(tabId).classList.remove("hidden");
-    document.querySelectorAll(".bnav .nav").forEach(n=>n.classList.remove("on"));
-    if(el) el.classList.add("on");
-    if(tabId === 'tabFavs') renderMainFavs();
-    if(tabId === 'tabProf' && isAdmin) renderAdminData();
 }
 
 function openCatalogModal(){
@@ -1584,13 +1447,20 @@ function changeLanguage(lang){
     renderCatalogList(document.getElementById("modalSearchInput").value);
 }
 
+function tab(tabId, el){
+    document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
+    document.getElementById(tabId).classList.remove("hidden");
+    document.querySelectorAll(".bnav .nav").forEach(n=>n.classList.remove("on"));
+    if(el) el.classList.add("on");
+    if(tabId === 'tabFavs') renderMainFavs();
+}
+
 window.addEventListener("DOMContentLoaded", ()=>{
-    if(tgUser) {
-        if(checkUserBlockedStatus(tgUser)) { logout(); return; }
-        registerUserAndNotify(tgUser);
-        goStep(3);
-        enterApp();
-    }
+    renderAssetButtons();
+    updateSelectedAssetUI();
+    renderFavs();
+    renderEdu();
+    loadProfile();
 });
 </script>
 </body>
