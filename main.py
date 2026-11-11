@@ -3,7 +3,7 @@ import asyncio
 import json
 import logging
 import random
-from fastapi import FastAPI, UploadFile, File, Form, Cookie
+from fastapi import FastAPI, UploadFile, File, Form, Request, Cookie
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
 import google.generativeai as genai
@@ -20,8 +20,47 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
+DB_FILE = "requests.json"
 BOT_TOKEN = "8847524172:AAF3um77sDqsX6IWq_W-D-Hb8TQJSpK-0qo"
 ADMIN_CHAT_ID = "6765689893"
+
+def get_db():
+    if not os.path.exists(DB_FILE): 
+        return {"users": {}, "history": []}
+    with open(DB_FILE, "r", encoding="utf-8") as f:
+        try: 
+            data = json.load(f)
+            if "users" not in data: data = {"users": data, "history": []}
+            if "history" not in data: data["history"] = []
+            return data
+        except: 
+            return {"users": {}, "history": []}
+
+def save_db(data):
+    with open(DB_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+async def send_tg_notification(username):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    reply_markup = {
+        "inline_keyboard": [
+            [
+                {"text": "❌ Забанить", "callback_data": f"ban:{username}"},
+                {"text": "✅ Разблокировать", "callback_data": f"unban:{username}"}
+            ]
+        ]
+    }
+    payload = {
+        "chat_id": ADMIN_CHAT_ID,
+        "text": f"🔔 **Новый ученик вошел в систему!**\n\n**Ник:** @{username}\n**Статус:** ✅ Доступ разрешен",
+        "parse_mode": "Markdown",
+        "reply_markup": reply_markup
+    }
+    async with httpx.AsyncClient() as client:
+        try: 
+            await client.post(url, json=payload, timeout=5.0)
+        except Exception:
+            pass
 
 async def send_tg_signal_alert(username, asset, timeframe):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -356,15 +395,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .header h1{font-size:15px}.header small{font-size:9px;color:var(--gold);font-weight:700}
 .lang{background:var(--inner);color:#fff;border:1px solid var(--border);padding:5px 8px;border-radius:8px;font-weight:700;font-size:10px;outline:none}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 3px 16px rgba(0,0,0,.35);animation:fu .3s ease}
-.gate{background:var(--card);border:1px solid var(--border-g);border-radius:18px;padding:22px 16px;text-align:center;animation:fu .4s ease}
-.gate-icon{font-size:44px;margin-bottom:6px}
-.gate-title{font-size:17px;font-weight:900;margin-bottom:8px;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.gate-desc{font-size:11.5px;color:#b0b8c8;line-height:1.6;text-align:left;margin-bottom:16px;background:var(--inner);padding:11px 13px;border-radius:11px;border:1px solid var(--border)}
-.gate-desc b{color:var(--gold)}
-.input{width:100%;padding:12px;border-radius:11px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:14px;font-weight:700;text-align:center;outline:none;margin-bottom:9px}
-.input:focus{border-color:var(--gold)}
-.msg{font-size:11px;font-weight:700;padding:9px 11px;border-radius:10px;margin-bottom:9px;display:none}
-.msg.ok{display:block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.28)}
 .live-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .live{font-size:8px;background:rgba(0,230,118,.12);color:var(--green);padding:3px 8px;border-radius:6px;border:1px solid rgba(0,230,118,.3);font-weight:800}
 .cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
@@ -448,16 +478,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </select>
 </div>
 
-<div class="gate" id="gate">
-<div class="gate-icon">👑</div>
-<div class="gate-title" data-t="gateTitle">Добро пожаловать в Team Master</div>
-<div class="gate-desc" id="gateDesc1"><b>Быстрый вход в терминал</b><br><br>Введите ваш Telegram юзернейм (например, <b>@username</b>) для мгновенного доступа к сигналам и ИИ-сканеру.</div>
-<input class="input" id="tgUserInput" type="text" placeholder="Ваш ТГ юзернейм (@username)">
-<div class="msg" id="regMsg"></div>
-<button class="btn btn-gold" id="btnReg" onclick="enterAppDirect()" data-t="btnConfirmId">🚀 Войти в терминал</button>
-</div>
-
-<div id="app" class="hidden">
+<div id="app">
 <div class="card tab" id="tabSig">
 <div class="live-bar">
   <span class="live" id="apiStatusBadge">● POCKET OPTION API: ONLINE 🟢</span>
@@ -653,7 +674,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 </div>
 
-<div class="bnav hidden" id="bnav">
+<div class="bnav" id="bnav">
 <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
 <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
 <div class="nav" onclick="tab('tabChat',this)"><span>🤖</span><span>ИИ Чат</span></div>
@@ -690,7 +711,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <script>
-let tgUser = localStorage.getItem("tmv_tgUser")||null;
 let timer=null,scanTimer=null,stream=null,camReady=false;
 let favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]");
 let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
@@ -704,8 +724,6 @@ const ASSETS_DATA_JS = JSON.parse('__ASSETS_JSON_PLACEHOLDER__');
 
 const I18N = {
   ru: {
-    gateTitle: "Добро пожаловать в Team Master",
-    btnConfirmId: "🚀 Войти в терминал",
     lblActiveAsset: "АКТИВ POCKET OPTION",
     lblTf: "ИНТЕРВАЙМ (ТАЙМФРЕЙМ)",
     lblExp: "ЭКСПИРАЦИЯ СДЕЛКИ",
@@ -783,30 +801,6 @@ function updateSelectedAssetUI() {
   const badgeEl = document.getElementById("currentAssetBadge");
   if(badgeEl) badgeEl.textContent = getAssetBadge(currentAsset);
   updatePoDeepLink();
-}
-
-function enterAppDirect(){
-  const user = document.getElementById("tgUserInput").value.trim();
-  if(!user || !user.startsWith("@")){
-    const el = document.getElementById("regMsg");
-    el.className = "msg ok";
-    el.innerHTML = "✅ Вход выполнен!";
-  } else {
-    tgUser = user;
-    localStorage.setItem("tmv_tgUser", user);
-  }
-  enterApp();
-}
-
-function enterApp(){
-  document.getElementById("gate").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
-  document.getElementById("bnav").classList.remove("hidden");
-  renderAssetButtons();
-  updateSelectedAssetUI();
-  renderFavs();
-  renderEdu();
-  loadProfile();
 }
 
 function tab(tabId, el){
@@ -1071,7 +1065,6 @@ function handleProfilePhoto(event) {
 }
 
 function logout(){
-  localStorage.removeItem("tmv_tgUser");
   location.reload();
 }
 
@@ -1271,10 +1264,11 @@ function changeLanguage(lang){
 }
 
 window.addEventListener("DOMContentLoaded", ()=>{
-  if(tgUser) {
-    document.getElementById("tgUserInput").value = tgUser;
-    enterApp();
-  }
+  renderAssetButtons();
+  updateSelectedAssetUI();
+  renderFavs();
+  renderEdu();
+  loadProfile();
 });
 </script>
 </body>
@@ -1344,14 +1338,6 @@ async def ai_chat(prompt: str = Form(...)):
         return {"reply": reply}
     except Exception:
         return {"reply": "Отличный вопрос по трейдингу! 📈 Дисциплина и грамотный риск-менеджмент — ключ к успеху в Team Master VIP. 🚀💎"}
-
-@app.post("/request_access")
-async def request_access(username: str = Form(...)):
-    username = username.strip().replace("@", "").replace(" ", "")
-    asyncio.create_task(send_tg_notification(username))
-    response = JSONResponse({"success": True, "message": "Доступ разрешен!"})
-    response.set_cookie(key="tg_username", value=username, max_age=2592000)
-    return response
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
