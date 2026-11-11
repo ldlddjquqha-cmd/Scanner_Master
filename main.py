@@ -6,12 +6,19 @@ import random
 from fastapi import FastAPI, UploadFile, File, Form, Request, Cookie
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
+import google.generativeai as genai
+from PIL import Image
+import io
 import numpy as np
 import httpx
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="28.5")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="26.3")
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 DB_FILE = "requests.json"
 BOT_TOKEN = "8847524172:AAF3um77sDqsX6IWq_W-D-Hb8TQJSpK-0qo"
@@ -32,6 +39,28 @@ def get_db():
 def save_db(data):
     with open(DB_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
+
+async def send_tg_notification(username):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    reply_markup = {
+        "inline_keyboard": [
+            [
+                {"text": "❌ Забанить", "callback_data": f"ban:{username}"},
+                {"text": "✅ Разблокировать", "callback_data": f"unban:{username}"}
+            ]
+        ]
+    }
+    payload = {
+        "chat_id": ADMIN_CHAT_ID,
+        "text": f"🔔 **Новый ученик вошел в систему!**\n\n**Ник:** @{username}\n**Статус:** ✅ Доступ разрешен",
+        "parse_mode": "Markdown",
+        "reply_markup": reply_markup
+    }
+    async with httpx.AsyncClient() as client:
+        try: 
+            await client.post(url, json=payload, timeout=5.0)
+        except Exception as e:
+            pass
 
 async def send_tg_signal_alert(username, asset, timeframe):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -80,21 +109,21 @@ def smart_market_analysis(prices, rsi, ema):
     
     reasons = []
     if trend_up:
-        reasons.append("📈 Цена находится выше экспоненциальной скользящей средней (EMA), подтверждая сильный восходящий тренд и мощный импульс покупателей! 🚀")
+        reasons.append("Цена находится выше экспоненциальной скользящей средней (EMA), подтверждая сильный восходящий тренд.")
     else:
-        reasons.append("📉 Цена закрепилась ниже скользящей средней (EMA), что указывает на уверенное развитие нисходящей тенденции и давление продавцов! ⚡")
+        reasons.append("Цена закрепилась ниже скользящей средней (EMA), что указывает на развитие нисходящей тенденции.")
         
     if rsi > 65:
-        reasons.append(f"🔥 Индекс относительной силы RSI составляет {round(rsi, 1)}, актив приближается к зоне перекупленности, будьте аккуратны! ⚠️")
+        reasons.append(f"Индекс относительной силы RSI составляет {round(rsi, 1)}, актив приближается к зоне перекупленности.")
     elif rsi < 35:
-        reasons.append(f"💎 Индекс относительной силы RSI находится на отметке {round(rsi, 1)}, фиксируется сильная зона перепроданности и огромный потенциал для крутого отскока вверх! ✨")
+        reasons.append(f"Индекс относительной силы RSI находится на отметке {round(rsi, 1)}, фиксируется зона перепроданности и потенциал отскока.")
     else:
-        reasons.append(f"⚖️ Индикатор RSI абсолютно нейтрален ({round(rsi, 1)}), доминирует стабильный текущий локальный импульс рынка! 🎯")
+        reasons.append(f"Индикатор RSI нейтрален ({round(rsi, 1)}), доминирует текущий локальный импульс.")
 
     if momentum_up:
-        reasons.append("🟢 Свечной анализ показывает абсолютное преобладание покупателей и зеленых тел на последнем таймфрейме! 🚀")
+        reasons.append("Свечной анализ показывает преобладание покупателей на последнем таймфрейме.")
     else:
-        reasons.append("🔴 Наблюдается жесткое давление со стороны продавцов и красных свечей по закрытию последних периодов! ⚡")
+        reasons.append("Наблюдается давление со стороны продавцов по закрытию последних свечей.")
 
     signal = "UP" if (trend_up and momentum_up) or (rsi < 40) else "DOWN"
     full_reason = " ".join(reasons)
@@ -119,47 +148,37 @@ def generate_otc_candles(asset_name, count=50):
 class ScannerAnalyzer:
     async def compute(self, image_bytes: bytes, config: dict) -> str:
         try:
-            from PIL import Image
-            import io
             image = Image.open(io.BytesIO(image_bytes))
             img_rgb = image.convert("RGB")
             np_img = np.array(img_rgb)
             
-            h, w, _ = np_img.shape
-            crop = np_img[int(h*0.05):int(h*0.95), int(w*0.05):int(w*0.95)]
+            r_channel = np_img[:, :, 0].astype(float)
+            g_channel = np_img[:, :, 1].astype(float)
+            b_channel = np_img[:, :, 2].astype(float)
             
-            r_channel = crop[:, :, 0].astype(float)
-            g_channel = crop[:, :, 1].astype(float)
-            b_channel = crop[:, :, 2].astype(float)
+            green_candles = np.sum((g_channel > r_channel + 30) & (g_channel > b_channel + 30))
+            red_candles = np.sum((r_channel > g_channel + 30) & (r_channel > b_channel + 30))
+            total_pixels = np_img.shape[0] * np_img.shape[1]
             
-            green_candles = np.sum((g_channel > r_channel + 10) & (g_channel > b_channel + 10))
-            red_candles = np.sum((r_channel > g_channel + 10) & (r_channel > b_channel + 10))
+            candle_ratio = (green_candles + red_candles) / total_pixels
             
-            is_buy = green_candles >= red_candles
-            direction = "BUY (ВВЕРХ) 🚀✨" if is_buy else "SELL (ВНИЗ) 📉🔥"
-            trend_desc = "🟢 Обнаружено преобладание зеленых тел свечей, импульс направлен вверх по тренду! 🚀" if is_buy else "🔴 Зафиксировано преобладание красных тел свечей, давление продавцов доминирует! ⚡"
+            if candle_ratio < 0.0015:
+                return "❌ ГРАФИК СО СВЕЧАМИ НЕ ОБНАРУЖЕН"
+                
+            direction = "BUY (ВВЕРХ)" if green_candles >= red_candles else "SELL (ВНИЗ)"
+            trend_desc = "Преобладание бычьих зеленых тел свечей указывает на покупателей." if green_candles >= red_candles else "Доминирование медвежьих красных свечей говорит о давлении продавцов."
             
             return (
-                f"🚀📊 УСПЕШНЫЙ СКАН СВЕЧЕЙ И ГРАФИКА TEAM MASTER VIP 💎✨\n\n"
-                f"🎯 СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')} 🧠🔥\n"
-                f"⏱ ТАЙМФРЕЙМ: {config.get('интервал', 'M1')} ⚡\n"
-                f"⏳ ЭКСПИРАЦИЯ: {config.get('экспирация', '1м')} 🕒\n"
-                f"---------------------------------------------------\n"
-                f"📈 НАПРАВЛЕНИЕ: {direction}\n\n"
-                f"💡 АНАЛИЗ РАСПОЛОЖЕНИЯ СВЕЧЕЙ И ТЕКСТУРЫ:\n"
-                f"{trend_desc} 🌟 Уровни сопротивления, поддержки и волатильность полностью подтверждены по пиксельному анализу изображения свечного графика! 🎯💎🚀"
+                f"--- TEAM MASTER SIGNAL V4.0 ---\n"
+                f"СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')}\n"
+                f"ТАЙМФРЕЙМ: {config.get('интервал', 'M1')}\n"
+                f"ЭКСПИРАЦИЯ: {config.get('экспирация', '1м')}\n"
+                f"-------------------------------\n"
+                f"ВЕРДИКТ: {direction}\n"
+                f"ПРИЧИНА: Умный анализ свечных тел: {trend_desc} Уровни сопротивления и боковика подтверждены."
             )
         except Exception as e:
-            return (
-                f"🚀📊 УСПЕШНЫЙ СКАН СВЕЧЕЙ И ГРАФИКА TEAM MASTER VIP 💎✨\n\n"
-                f"🎯 СТРАТЕГИЯ: Smart Money 🧠🔥\n"
-                f"⏱ ТАЙМФРЕЙМ: M1 ⚡\n"
-                f"⏳ ЭКСПИРАЦИЯ: 1м 🕒\n"
-                f"---------------------------------------------------\n"
-                f"📈 НАПРАВЛЕНИЕ: BUY (ВВЕРХ) 🚀✨\n\n"
-                f"💡 АНАЛИЗ РАСПОЛОЖЕНИЯ СВЕЧЕЙ И ТЕКСТУРЫ:\n"
-                f"🟢 Скриншот успешно обработан сканером! Структура свечей и уровни подтверждены! 🎯💎🚀"
-            )
+            return f"❌ Ошибка анализа изображения: {str(e)}"
 
 scanner_core = ScannerAnalyzer()
 
@@ -273,109 +292,109 @@ ASSETS_DATA_JS = {
 
 EDU_50 = [
   {
-    "t": "1. 🚀💎 Элитная торговля от мощных уровней поддержки и сопротивления! 🎯🔥",
-    "tags": ["M1", "M5", "Pocket Option", "Уровни", "Price Action", "🚀 Золотой Стандарт"],
-    "d": "📌 🌟 ПОДРОБНЫЙ ПРОФЕССИОНАЛЬНЫЙ РАЗБОР СТРАТЕГИИ ТОРГОВЛИ ОТ УРОВНЕЙ ПОДДЕРЖКИ И СОПРОТИВЛЕНИЯ В POCKET OPTION! 💎🔥\n\n"
-       "• 🧠 ⚡ РЫНОЧНАЯ ЛОГИКА И СУТЬ СТРАТЕГИИ:\n"
-       "Уровни поддержки и сопротивления — это абсолютные бастионы ликвидности и ключевые ценовые зоны, где баланс сил между покупателями и продавцами кардинально меняется! 🚀 Уровень сопротивления — это мощная область сверху, где крупные продавцы останавливают вертикальный рост цены и начинают агрессивно давить вниз! 📉 Уровень поддержки — надежная область снизу, где киты и покупатели защищают свои позиции и толкают график ракетой вверх! 📈 Когда цена филигранно приближается к таким барьерам, участники фиксируют прибыль, вызывая красивый технический отскок или мощнейший импульсный пробой! 💎✨\n\n"
-       "• ⏱ ⚡ РЕКОМЕНДУЕМЫЕ ТАЙМФРЕЙМЫ ГРАФИКА:\n"
-       "Таймфреймы M1 (1 минута), M2 и M5 идеально подходят для скальпинга и точной отработки бинарных опционов! 🎯🔥\n\n"
-       "• ⏳ 🕒 ОПТИМАЛЬНАЯ ЭКСПИРАЦИЯ СДЕЛКИ:\n"
-       "От 2 до 4 минут для идеальной отработки импульса и защиты от рыночного шума! 🚀💎\n\n"
-       "• 🎯 ✨ ЧЕТКИЕ ПРАВИЛА ОТКРЫТИЯ ПОЗИЦИЙ (CALL / PUT):\n"
-       "  1️⃣ 📉 Для входа ВНИЗ (PUT): Дождитесь аккуратного подхода цены к сильному зеркальному уровню сопротивления. Проанализируйте закрытие свечей: если появляются длинные тени и замедление импульса, открывайте сделку на понижение с уверенностью! 🔥\n"
-       "  2️⃣ 📈 Для входа ВВЕРХ (CALL): При касании ценой подтвержденного уровня поддержки и формировании зеленой поглощающей свечи открывайте сделку на повышение ракетой! 🚀✨\n\n"
-       "• 🛡️ 💎 УПРАВЛЕНИЕ КАПИТАЛОМ И РИСКИ:\n"
-       "Никогда не входите напролом при затяжном импульсе! Ждите подтверждения паттерна и соблюдайте риск-менеджмент 1-2% на сделку! 🌟🎯"
+    "t": "1. Торговля от уровней поддержки и сопротивления",
+    "tags": ["M1", "M5", "Pocket Option", "Уровни", "Price Action"],
+    "d": "📌 Подробный разбор стратегии торговли от уровней поддержки и сопротивления:\n\n"
+       "• 🧠 Рыночная логика и суть стратегии:\n"
+       "Уровни поддержки и сопротивления — это ключевые ценовые зоны, где баланс сил между покупателями и продавцами кардинально меняется. Уровень сопротивления — это область сверху, где продавцы останавливают рост цены и начинают агрессивно давить вниз. Уровень поддержки — область снизу, где покупатели защищают свои позиции и толкают цену вверх. Когда цена приближается к таким барьерам, крупные участники рынка часто фиксируют прибыль, что приводит к техническому отскоку или мощному пробою.\n\n"
+       "• ⏱ Рекомендуемые таймфреймы графика:\n"
+       "Таймфреймы M1, M2 и M5 идеально подходят для анализа бинарных опционов.\n\n"
+       "• ⏳ Оптимальная экспирация сделки:\n"
+       "От 2 до 4 минут в зависимости от силы и ширины ценового уровня.\n\n"
+       "• 🎯 Четкие правила открытия позиций (CALL / PUT):\n"
+       "  1️⃣ Для входа ВНИЗ (PUT): Дождитесь подхода цены к сильному уровню сопротивления. Проанализируйте закрытие свечей: если появляются тени и замедление импульса, открывайте сделку на понижение.\n"
+       "  2️⃣ Для входа ВВЕРХ (CALL): При касании ценой подтвержденного уровня поддержки и формировании зеленой поглощающей свечи открывайте сделку на повышение.\n\n"
+       "• 🛡️ Управление капиталом и риски:\n"
+       "Никогда не входите напролом при затяжном импульсе. Ждите подтверждения свечного паттерна."
   },
   {
-    "t": "2. 🚀💎 Профессиональная торговля в боковике (Флэт и диапазон)! 🎯🔥",
-    "tags": ["M1", "M5", "Pocket Option", "Флэт", "Боковик", "💎 Топ Стратегия"],
-    "d": "📌 🌟 ПОДРОБНЫЙ РАЗБОР СТРАТЕГИИ ТОРГОВЛИ В ГОРИЗОНТАЛЬНОМ БОКОВИКЕ (ФЛЭТЕ)! 💎🔥\n\n"
-       "• 🧠 ⚡ РЫНОЧНАЯ ЛОГИКА И СУТЬ СТРАТЕГИИ:\n"
-       "Боковое движение (флэт) возникает тогда, когда на рынке нет тренда, а цена движется внутри четкого канала между поддержкой и сопротивлением! 🚀 Стратегия основана на возвращении цены к средним значениям диапазона (меан-реверсия). Трейдер продает у верхней границы канала и покупает у нижней! 💎✨\n\n"
-       "• ⏱ ⚡ РЕКОМЕНДУЕМЫЕ ТАЙМФРЕЙМЫ:\n"
-       "Таймфреймы M1 и M5 для мгновенной реакции на границы канала! 🎯🔥\n\n"
-       "• ⏳ 🕒 ОПТИМАЛЬНАЯ ЭКСПИРАЦИЯ:\n"
-       "1 – 3 минуты для точной отработки отскока от границ! 🚀\n\n"
-       "• 🎯 ✨ ПРАВИЛА ВХОДА (CALL / PUT):\n"
-       "  1️⃣ 📈 CALL: Цена касается нижней границы канала, формируется пин-бар. Открываем сделку вверх к середине флэта! 🚀✨\n"
-       "  2️⃣ 📉 PUT: Цена доходит до верхней границы горизонтального диапазона, импульс угасает, открываем сделку вниз! 🔥\n\n"
-       "• 🛡️ 💎 РИСК-МЕНЕДЖМЕНТ:\n"
-       "Всегда проверяйте отсутствие новостей, способных пробить узкий коридор! 🌟🎯"
+    "t": "2. Торговля в боковике (Флэт и диапазон)",
+    "tags": ["M1", "M5", "Pocket Option", "Флэт", "Боковик"],
+    "d": "📌 Подробный разбор стратегии торговли в боковике (флэте):\n\n"
+       "• 🧠 Рыночная логика и суть стратегии:\n"
+       "Боковое движение (флэт) возникает тогда, когда на рынке нет ярко выраженного тренда, а цена движется внутри четкого горизонтального коридора между границами поддержки снизу и сопротивления сверху. Стратегия основана на возвращении цены к средним значениям диапазона (методика возврата к меану). Трейдер продает у верхней границы канала и покупает у нижней.\n\n"
+       "• ⏱ Рекомендуемые таймфреймы графика:\n"
+       "Таймфреймы M1 и M5.\n\n"
+       "• ⏳ Оптимальная экспирация сделки:\n"
+       "1 – 3 минуты.\n\n"
+       "• 🎯 Четкие правила открытия позиций (CALL / PUT):\n"
+       "  1️⃣ Для входа ВВЕРХ (CALL): Цена аккуратно касается нижней границы бокового канала, формируется паттерн ложного пробоя или пин-бар. Открываем сделку вверх к середине или верхней границе флэта.\n"
+       "  2️⃣ Для входа ВНИЗ (PUT): Цена доходит до верхней границы горизонтального диапазона, импульс угасает, открываем сделку на понижение.\n\n"
+       "• 🛡️ Управление капиталом и риски:\n"
+       "Обязательно проверяйте отсутствие новостного фона, способного пробить узкий коридор."
   },
   {
-    "t": "3. 🚀💎 Связка Accelerator Oscillator + Alligator! 🎯🔥",
-    "tags": ["M1", "M2", "M5", "Pocket Option", "Индикаторы", "🔥 Индикаторная система"],
-    "d": "📌 🌟 ПОДРОБНЫЙ РАЗБОР ПРОФЕССИОНАЛЬНОЙ СВЯЗКИ ACCELERATOR OSCILLATOR + ALLIGATOR! 💎🔥\n\n"
-       "• 🧠 ⚡ РЫНОЧНАЯ ЛОГИКА И СУТЬ СТРАТЕГИИ:\n"
-       "Индикатор Alligator моделирует рыночные циклы и тренды, а Accelerator Oscillator (AC) измеряет ускорение движущей силы рынка! 🚀 Их комбинация дает убийственную точность входов в Pocket Option! 💎✨\n\n"
-       "• ⏱ ⚡ ТАЙМФРЕЙМЫ:\n"
-       "M1, M2 и M5 для стабильной отработки сигналов! 🎯\n\n"
-       "• ⏳ 🕒 ЭКСПИРАЦИЯ:\n"
-       "От 1 до 3 минут! 🚀\n\n"
-       "• 🎯 ✨ ПРАВИЛА ВХОДА:\n"
-       "  1️⃣ 📈 CALL: Линии Аллигатора развернуты вверх, гистограмма AC переходит в зеленую зону выше нуля! 🚀✨\n"
-       "  2️⃣ 📉 PUT: Пасть Аллигатора направлена вниз, гистограмма AC находится в красной зоне! 🔥\n\n"
-       "• 🛡️ 💎 УПРАВЛЕНИЕ КАПИТАЛОМ:\n"
-       "Риск на сделку не более 1-2% от банка! 🌟🎯"
+    "t": "3. Accelerator Oscillator + Alligator",
+    "tags": ["M1", "M2", "M5", "Pocket Option", "Индикаторы"],
+    "d": "📌 Подробный разбор профессиональной связки Accelerator Oscillator + Alligator:\n\n"
+       "• 🧠 Рыночная логика и суть стратегии:\n"
+       "Индикатор Alligator моделирует рыночные циклы, а Accelerator Oscillator (AC) измеряет ускорение движущей силы рынка.\n\n"
+       "• ⏱ Рекомендуемые таймфреймы:\n"
+       "M1, M2 и M5.\n\n"
+       "• ⏳ Оптимальная экспирация:\n"
+       "От 1 до 3 минут.\n\n"
+       "• 🎯 Четкие правила открытия позиций (CALL / PUT):\n"
+       "  1️⃣ CALL: Линии Аллигатора развернуты вверх, гистограмма AC переходит в зеленую зону выше нуля.\n"
+       "  2️⃣ PUT: Пасть Аллигатора направлена вниз, гистограмма AC в красной зоне.\n\n"
+       "• 🛡️ Управление капиталом:\n"
+       "Риск на сделку не более 1-2%."
   },
   {
-    "t": "4. 🚀💎 Мощная связка ADX + Aroon! 🎯🔥",
-    "tags": ["M1", "M5", "Pocket Option", "Индикаторы", "⚡ Тренд"],
-    "d": "📌 🌟 ПОДРОБНЫЙ РАЗБОР СВЯЗКИ ADX + AROON ДЛЯ ТРЕЙДИНГА! 💎🔥\n\n"
-       "• 🧠 ⚡ РЫНОЧНАЯ ЛОГИКА:\n"
-       "ADX измеряет силу текущего тренда, а Aroon находит экстремумы цены и зарождение нового импульса! 🚀 Идеально для ловли сильных движений! 💎✨\n\n"
-       "• ⏱ ⚡ ТАЙМФРЕЙМЫ:\n"
-       "M1 и M5! 🎯\n\n"
-       "• ⏳ 🕒 ЭКСПИРАЦИЯ:\n"
-       "От 2 до 3 минут! 🚀\n\n"
-       "• 🎯 ✨ ПРАВИЛА ВХОДА:\n"
-       "  1️⃣ 📈 CALL: ADX выше 25, Aroon Up пересекает Aroon Down снизу вверх! 🚀✨\n"
-       "  2️⃣ 📉 PUT: ADX выше 25, Aroon Down уходит в верхнюю зону! 🔥\n\n"
-       "• 🛡️ 💎 РИСК-МЕНЕДЖМЕНТ:\n"
-       "Избегайте торговли при слабом ADX ниже 20! 🌟🎯"
+    "t": "4. ADX + Aroon",
+    "tags": ["M1", "M5", "Pocket Option", "Индикаторы"],
+    "d": "📌 Подробный разбор связки ADX + Aroon:\n\n"
+       "• 🧠 Рыночная логика:\n"
+       "ADX измеряет силу тренда, а Aroon находит экстремумы цены.\n\n"
+       "• ⏱ Рекомендуемые таймфреймы:\n"
+       "M1 и M5.\n\n"
+       "• ⏳ Оптимальная экспирация:\n"
+       "От 2 до 3 минут.\n\n"
+       "• 🎯 Четкие правила открытия позиций:\n"
+       "  1️⃣ CALL: ADX выше 25, Aroon Up пересекает Aroon Down снизу вверх.\n"
+       "  2️⃣ PUT: ADX выше 25, Aroon Down уходит в верхнюю зону.\n\n"
+       "• 🛡️ Риск-менеджмент:\n"
+       "Избегать торговли при ADX ниже 20."
   },
   {
-    "t": "5. 🚀💎 Bollinger Bands + Awesome Oscillator! 🎯🔥",
-    "tags": ["S30", "M1", "Pocket Option", "Индикаторы", "💎 Скальпинг"],
-    "d": "📌 🌟 ПОДРОБНЫЙ РАЗБОР СВЯЗКИ BOLLINGER BANDS + AWESOME OSCILLATOR! 💎🔥\n\n"
-       "• 🧠 ⚡ РЫНОЧНАЯ ЛОГИКА:\n"
-       "Полосы Боллинджера фиксируют волатильность и пробой границ, а AO оценивает импульс гистограммы! 🚀 Отличная система для быстрых сделок! 💎✨\n\n"
-       "• ⏱ ⚡ ТАЙМФРЕЙМЫ:\n"
-       "S30 и M1! 🎯\n\n"
-       "• ⏳ 🕒 ЭКСПИРАЦИЯ:\n"
-       "1 минута! 🚀\n\n"
-       "• 🎯 ✨ ПРАВИЛА ВХОДА:\n"
-       "  1️⃣ 📈 CALL: Касание нижней границы Bollinger Bands, гистограмма AO переходит в зеленую зону! 🚀✨\n"
-       "  2️⃣ 📉 PUT: Касание верхней границы, разворот гистограммы AO вниз! 🔥\n\n"
-       "• 🛡️ 💎 РИСК-МЕНЕДЖМЕНТ:\n"
-       "Торговать строго по тренду старшего таймфрейма! 🌟🎯"
+    "t": "5. Bollinger Bands + Awesome Oscillator",
+    "tags": ["S30", "M1", "Pocket Option", "Индикаторы"],
+    "d": "📌 Подробный разбор связки Bollinger Bands + Awesome Oscillator:\n\n"
+       "• 🧠 Рыночная логика:\n"
+       "Полосы Боллинджера фиксируют волатильность и пробой границ, а AO оценивает импульс.\n\n"
+       "• ⏱ Рекомендуемые таймфреймы:\n"
+       "S30 и M1.\n\n"
+       "• ⏳ Оптимальная экспирация:\n"
+       "1 минута.\n\n"
+       "• 🎯 Четкие правила открытия позиций:\n"
+       "  1️⃣ CALL: Касание нижней границы Bollinger Bands, гистограмма AO переходит в зеленую зону.\n"
+       "  2️⃣ PUT: Касание верхней границы, разворот гистограммы AO вниз.\n\n"
+       "• 🛡️ Риск-менеджмент:\n"
+       "Торговать по тренду старшего таймфрейма."
   }
 ]
 
 for i in range(6, 51):
-    strat_title = f"{i}. 🚀💎 Профессиональная авторская стратегия и связка индикаторов №{i} ✨🔥"
+    strat_title = f"{i}. Профессиональная стратегия и связка индикаторов №{i}"
     strat_desc = (
-        f"📌 🌟 ПОДРОБНЫЙ РАЗБОР АВТОРСКОЙ СТРАТЕГИИ И МЕТОДИКИ №{i} ДЛЯ ТЕРМИНАЛА POCKET OPTION! 💎🔥\n\n"
-        f"• 🧠 ⚡ РЫНОЧНАЯ МЕХАНИКА И СУТЬ СТРАТЕГИИ:\n"
-        f"Данная элитная торговая система построена на комплексном анализе уровней ликвидности, динамических зон перекупленности/перепроданности "
-        f"и фильтрации рыночного шума! 🚀 Она создана для уверенной прибыльной торговли бинарными опционами на любых валютных парах, акциях и криптовалютах, "
-        f"позволяя с хирургической точностью определять моменты разворота тренда и импульсного движения! 💎✨\n\n"
-        f"• ⏱ ⚡ РЕКОМЕНДУЕМЫЕ ТАЙМФРЕЙМЫ ГРАФИКА:\n"
-        f"Оптимально использовать таймфреймы M1 (1 минута), M2 и M5 для стабильной и надежной отработки сигналов! 🎯🔥\n\n"
-        f"• ⏳ 🕒 ОПТИМАЛЬНАЯ ЭКСПИРАЦИЯ СДЕЛКИ В POCKET OPTION:\n"
-        f"Рекомендуемое время экспирации составляет от 1 до 3 минут для максимальной эффективности! 🚀💎\n\n"
-        f"• 🎯 ✨ ЧЕТКИЕ ПРАВИЛА ОТКРЫТИЯ ПОЗИЦИЙ (CALL / PUT):\n"
-        f"  1️⃣ 🌟 Шаг первый: Дождитесь точного подхода цены к ключевой зоне интереса или подтверждения сигнала по основному индикатору! 🔥\n"
-        f"  2️⃣ ⚡ Шаг второй: Убедитесь в отсутствии сильного противонаправленного импульса на младшем таймфрейме! 🚀\n"
-        f"  3️⃣ 💎 Шаг третий: Открывайте позицию ВВЕРХ (CALL) 📈 или ВНИЗ (PUT) 📉 строго на закрытии сигнальной свечи без спешки и эмоций! ✨\n\n"
-        f"• 🛡️ 🎯 УПРАВЛЕНИЕ КАПИТАЛОМ И РИСКИ:\n"
-        f"Никогда не превышайте риск в 1-2% от вашего депозита на одну сделку! Дисциплина и железный мани-менеджмент — ваш главный залог успеха и богатства! 🌟💎🚀"
+        f"📌 Подробный разбор стратегии и методики №{i} для терминала Pocket Option:\n\n"
+        f"• 🧠 Рыночная механика и суть стратегии:\n"
+        f"Данная авторская торговая система построена на комплексном анализе уровней ликвидности, динамических зон перекупленности/перепроданности "
+        f"и фильтрации рыночного шума. Она создана для уверенной торговли бинарными опционами на любых валютных парах, акциях и криптовалютах, "
+        f"позволяя точно определять моменты разворота тренда и импульсного продолжения движения.\n\n"
+        f"• ⏱ Рекомендуемые таймфреймы графика:\n"
+        f"Оптимально использовать таймфреймы M1 (1 минута), M2 и M5 для стабильной отработки сигналов.\n\n"
+        f"• ⏳ Оптимальная экспирация сделки в Pocket Option:\n"
+        f"Рекомендуемое время экспирации составляет от 1 до 3 минут.\n\n"
+        f"• 🎯 Четкие правила открытия позиций (CALL / PUT):\n"
+        f"  1️⃣ Шаг первый: Дождитесь подхода цены к ключевой зоне интереса или подтверждения сигнала по основному индикатору.\n"
+        f"  2️⃣ Шаг второй: Убедитесь в отсутствии сильного противонаправленного импульса на младшем таймфрейме.\n"
+        f"  3️⃣ Шаг третий: Открывайте позицию ВВЕРХ (CALL) или ВНИЗ (PUT) строго на закрытии сигнальной свечи без спешки.\n\n"
+        f"• 🛡️ Управление капиталом и риски:\n"
+        f"Никогда не превышайте риск в 1-2% от вашего депозита на одну сделку. Дисциплина и строгий мани-менеджмент — главный залог успеха."
     )
     EDU_50.append({
         "t": strat_title,
-        "tags": ["M1", "Pocket Option", "Стратегии", "💎 Premium"],
+        "tags": ["M1", "Pocket Option", "Стратегии"],
         "d": strat_desc
     })
 
@@ -408,6 +427,21 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .header h1{font-size:15px}.header small{font-size:9px;color:var(--gold);font-weight:700}
 .lang{background:var(--inner);color:#fff;border:1px solid var(--border);padding:5px 8px;border-radius:8px;font-weight:700;font-size:10px;outline:none}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 3px 16px rgba(0,0,0,.35);animation:fu .3s ease}
+.gate{background:var(--card);border:1px solid var(--border-g);border-radius:18px;padding:22px 16px;text-align:center;animation:fu .4s ease}
+.progress{display:flex;justify-content:center;align-items:center;margin-bottom:18px}
+.p-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .3s}
+.p-dot.done{background:var(--green)}.p-dot.cur{background:var(--gold);transform:scale(1.2);box-shadow:0 0 10px rgba(255,215,0,.45)}
+.p-line{width:28px;height:2px;background:var(--border);margin:0 3px}.p-line.done{background:var(--green)}
+.gate-icon{font-size:44px;margin-bottom:6px}
+.gate-title{font-size:17px;font-weight:900;margin-bottom:8px;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.gate-desc{font-size:11.5px;color:#b0b8c8;line-height:1.6;text-align:left;margin-bottom:16px;background:var(--inner);padding:11px 13px;border-radius:11px;border:1px solid var(--border)}
+.gate-desc b{color:var(--gold)}
+.input{width:100%;padding:12px;border-radius:11px;border:1.5px solid var(--border-g);background:var(--inner);color:#fff;font-size:14px;font-weight:700;text-align:center;outline:none;margin-bottom:9px}
+.input:focus{border-color:var(--gold)}
+.msg{font-size:11px;font-weight:700;padding:9px 11px;border-radius:10px;margin-bottom:9px;display:none}
+.msg.ok{display:block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.28)}
+.msg.err{display:block;background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.28)}
+.step{display:none!important}.step.on{display:block!important;animation:fu .3s ease}
 .live-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .live{font-size:8px;background:rgba(0,230,118,.12);color:var(--green);padding:3px 8px;border-radius:6px;border:1px solid rgba(0,230,118,.3);font-weight:800}
 .cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
@@ -464,6 +498,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .fav-item{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--inner);border:1px solid var(--border);border-radius:11px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s}
 .fav-item:hover{background:rgba(255,215,0,.08)}
 .fav-item span:first-child{color:var(--gold)}
+.admin-profile-box {background:var(--inner);border:2px solid var(--gold);border-radius:14px;padding:14px;margin-top:12px;animation:fu .3s ease}
+.users-list {display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-top:8px;padding-right:4px}
+.admin-search-input {width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:#fff;font-size:11.5px;font-weight:700;outline:none;margin-bottom:8px}
+.admin-search-input:focus {border-color:var(--gold)}
+.user-row {display:flex;justify-content:space-between;align-items:center;background:var(--card);padding:9px 11px;border-radius:9px;border:1px solid var(--border);font-size:11px;font-weight:700}
 .catalog-category-header {font-size:11px;font-weight:900;color:var(--gold);text-transform:uppercase;margin:12px 0 6px 4px;letter-spacing:.6px;border-bottom:1px solid var(--border-g);padding-bottom:4px}
 .chat-container{display:flex;flex-direction:column;height:380px;background:var(--inner);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
@@ -473,7 +512,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .chat-input-row{display:flex;gap:6px;padding:8px;background:var(--card);border-top:1px solid var(--border)}
 .chat-input{flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:11.5px;outline:none}
 .chat-input:focus{border-color:var(--gold)}
-.avatar-preview{width:72px;height:72px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;background:var(--inner);display:block;margin:0 auto 8px}
 </style>
 </head>
 <body>
@@ -491,7 +529,47 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </select>
 </div>
 
-<div id="app">
+<div class="gate" id="gate">
+<div class="progress">
+<div class="p-dot cur" id="d1"></div><div class="p-line" id="l1"></div>
+<div class="p-dot" id="d2"></div><div class="p-line" id="l2"></div>
+<div class="p-dot" id="d3"></div>
+</div>
+<div class="step on" id="s1">
+<div class="gate-icon">👑</div>
+<div class="gate-title" data-t="gateTitle">Добро пожаловать</div>
+<div class="gate-desc" id="gateDesc1"><b>Авторизация в системе</b><br><br>Введите секретный ключ доступа и ваш реальный Telegram юзернейм (например, <b>@username</b>).</div>
+<input class="input" id="masterCodeInput" type="text" placeholder="Введите ключ доступа...">
+<input class="input" id="tgUserInput" type="text" placeholder="Ваш ТГ юзернейм (@username)">
+<div class="msg" id="regMsg"></div>
+<button class="btn btn-gold" id="btnReg" onclick="doReg()" data-t="btnConfirmId">✅ Войти в терминал</button>
+</div>
+<div class="step" id="s2">
+<div class="gate-icon">💎</div>
+<div class="gate-title" data-t="depTitle">Проверка депозита</div>
+<div class="gate-desc" id="gateDesc2"><b>Статус аккаунта</b><br><br>Введите промокод <b>WELCOME50</b> для подтверждения доступа.</div>
+<input class="input" id="promoInput" type="text" value="WELCOME50">
+<div class="msg" id="depMsg"></div>
+<button class="btn btn-green" id="btnDep" onclick="doDep()" data-t="btnCheckDep">🔍 Проверить депозит</button>
+
+<div style="background:var(--inner);border:1px solid var(--border-g);border-radius:12px;padding:10px 12px;margin-top:12px;text-align:left">
+<div style="font-size:11px;font-weight:800;color:var(--gold);margin-bottom:4px">🎁 Нет аккаунта Pocket Option?</div>
+<div style="font-size:10px;color:#b0b8c8;line-height:1.4;margin-bottom:8px">Зарегистрируйтесь по официальной ссылке с бонусом +50% к депозиту:</div>
+<a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank">🔗 Регистрация в Pocket Option</a>
+</div>
+
+<div class="gap2"></div>
+<button class="btn btn-dark btn-sm" onclick="goStep(1)" data-t="btnBack">← Назад</button>
+</div>
+<div class="step" id="s3">
+<div class="gate-icon">🎉</div>
+<div class="gate-title" data-t="accOpenTitle">Доступ открыт</div>
+<div class="gate-desc" style="text-align:center" data-t="accOpenDesc">Активация прошла успешно. Все функции терминала доступны.</div>
+<button class="btn btn-gold" onclick="enterApp()" data-t="btnEnterTerm">🚀 Войти в терминал</button>
+</div>
+</div>
+
+<div id="app" class="hidden">
 <div class="card tab" id="tabSig">
 <div class="live-bar">
   <span class="live" id="apiStatusBadge">● POCKET OPTION API: ONLINE 🟢</span>
@@ -514,7 +592,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="grid2" style="margin-bottom:10px">
 <div>
 <label class="lbl" data-t="lblTf">ИНТЕРВАЙМ (ТАЙМФРЕЙМ)</label>
-<select class="sel" id="tf" onchange="syncExpiration()">
+<select class="sel" id="tf">
 <option value="S5">5 сек</option><option value="S15">15 сек</option><option value="S30">30 сек</option>
 <option value="M1" selected>1 мин</option><option value="M2">2 мин</option><option value="M3">3 мин</option>
 <option value="M5">5 мин</option><option value="M10">10 мин</option><option value="M15">15 мин</option>
@@ -533,9 +611,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </select>
 </div>
 </div>
-<button type="button" class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
+<button class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<button type="button" class="btn btn-green btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ актив</button>
+<button class="btn btn-green btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ актив</button>
 <div class="gap"></div>
 <a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank" id="poDeepLink" data-t="btnOpenPo">🚀 Открыть Pocket Option</a>
 <div class="sig" id="sigBox">
@@ -544,8 +622,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="timer">⏱ <span id="cd">01:00</span></div>
 <div class="strat" id="sigStrat"></div>
 <div class="sig-stats"><span><span data-t="lblCombo">Связка</span>: <b id="sigCombo">Multi-Factor</b></span></div>
-<button type="button" class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none" data-t="btnCancel">✖ Отменить</button>
-<button type="button" class="btn btn-gold btn-sm" id="btnNew" onclick="getSig()" style="display:none" data-t="btnNewSig">⚡ Новый сигнал</button>
+<button class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none" data-t="btnCancel">✖ Отменить</button>
+<button class="btn btn-gold btn-sm" id="btnNew" onclick="getSig()" style="display:none" data-t="btnNewSig">⚡ Новый сигнал</button>
 </div>
 </div>
 
@@ -557,15 +635,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabChat">
-<h3 class="g-text" style="font-size:13px;margin-bottom:8px">🤖 ИИ Помощник (Трейдинг)</h3>
-<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px">Спросите у ИИ о трейдинге, рынках, командах и стратегиях! На неприличные вопросы ИИ не отвечает.</p>
+<h3 class="g-text" style="font-size:13px;margin-bottom:8px">🤖 ИИ Умный Чат (Трейдинг)</h3>
+<p style="font-size:10.5px;color:var(--muted);margin-bottom:10px">Спросите у ИИ о рынках, командах, стратегиях Pocket Option и сигналах.</p>
 <div class="chat-container">
   <div class="chat-messages" id="chatMessagesBox">
-    <div class="chat-msg ai">Привет! Я твой ИИ-помощник. Отвечаю только на вопросы по поводу трейдинга, рынка, команды и стратегий! 🚀📈✨</div>
+    <div class="chat-msg ai">Привет, друг! 🤝 Я твой ИИ-помощник по трейдингу в Team Master VIP. Отвечаю только на вопросы по рынкам, сигналам, стратегиям и нашей команде! 📈🚀 Задавай вопрос или попроси дать сигнал!</div>
   </div>
   <div class="chat-input-row">
-    <input type="text" class="chat-input" id="chatInputText" placeholder="Введите вопрос по трейдингу..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
-    <button type="button" class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
+    <input type="text" class="chat-input" id="chatInputText" placeholder="Например: Дай сигнал на EUR/USD или как торговать?" onkeydown="if(event.key==='Enter') sendAiChatMessage()">
+    <button class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
   </div>
 </div>
 <div class="gap2"></div>
@@ -573,8 +651,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <div class="card tab hidden" id="tabEdu">
+<!-- Кнопки управления сверху для связок -->
 <div style="display:flex;gap:6px;margin-bottom:10px">
-  <button type="button" class="btn btn-gold btn-sm" style="flex:1" onclick="openRandomEdu()" data-t="btnRandomStrat">🎲 Рандом стратегия</button>
+  <button class="btn btn-gold btn-sm" style="flex:1" onclick="openRandomEdu()" data-t="btnRandomStrat">🎲 Рандом стратегия</button>
 </div>
 
 <div id="eduList">
@@ -582,36 +661,35 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div id="eduItems"></div>
 </div>
 <div id="eduView" class="hidden">
-<button type="button" class="btn btn-gold btn-sm" style="margin-bottom:10px" onclick="closeEdu()" data-t="btnBackEdu">← Назад к списку</button>
+<button class="btn btn-gold btn-sm" style="margin-bottom:10px" onclick="closeEdu()" data-t="btnBackEdu">← Назад к списку</button>
 <div class="edu-detail" id="eduBody"></div>
 </div>
 </div>
 
 <div class="card tab hidden" id="tabProf">
-<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="profTitle">👤 Профиль трейдера</h3>
-
-<div style="text-align:center; margin-bottom:10px;">
-  <img id="profileAvatarImg" class="avatar-preview" src="" alt="Avatar">
-  <label class="btn btn-dark btn-sm" style="cursor:pointer; display:inline-block; width:auto; padding:6px 12px; font-size:10px;">
-    📷 Изменить фото <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
-  </label>
-</div>
-
-<label class="lbl" data-t="profNameLbl">ВАШ НИКНЕЙМ</label>
-<input class="name-input" id="profName" placeholder="Введите ник" onchange="saveProfileData()" onblur="saveProfileData()">
-
-<label class="lbl" data-t="profFavStratLbl">ЛЮБИМАЯ СТРАТЕГИЯ</label>
-<input class="name-input" id="profFavStrat" placeholder="Например: Smart Money / Уровни" onchange="saveProfileData()" onblur="saveProfileData()">
+<h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="profTitle">👤 Профиль</h3>
+<label class="lbl" data-t="profNameLbl">ВАШЕ ИМЯ</label>
+<input class="name-input" id="profName" placeholder="Введите имя" onchange="saveName()" onblur="saveName()">
 
 <div class="prof-row"><span data-t="profStatus">Статус</span><b style="color:var(--green)">VIP UNLIMITED</b></div>
-<div class="prof-row"><span data-t="profIdLbl">Ваш ID / ТГ</span><b id="profId">—</b></div>
+<div class="prof-row"><span data-t="profIdLbl">Ваш ТГ</span><b id="profId">—</b></div>
 <div class="prof-row"><span data-t="profSigsLbl">Сигналов</span><b id="profSigs">0</b></div>
 <div class="gap2"></div>
 <label class="lbl" data-t="profFavLbl">⭐ ИЗБРАННЫЕ АКТИВЫ</label>
 <div class="fav-list" id="favList"></div>
 <div id="favEmpty" style="text-align:center;padding:16px;color:var(--muted);font-size:11px;font-weight:600" data-t="profFavEmpty">Пока пусто — добавь актив из полного каталога</div>
 <div class="gap2"></div>
-<button type="button" class="btn btn-dark btn-sm" onclick="clearFavs()" data-t="btnClearFav">🗑 Очистить избранное</button>
+<button class="btn btn-dark btn-sm" onclick="clearFavs()" data-t="btnClearFav">🗑 Очистить избранное</button>
+<div class="gap"></div>
+<button class="btn btn-red btn-sm" onclick="logout()" data-t="btnLogout">🚪 Выйти</button>
+
+<div class="admin-profile-box hidden" id="adminProfileBox">
+<h3 class="g-text" style="font-size:12px;margin-bottom:8px">👑 АДМИН-ПАНЕЛЬ: УПРАВЛЕНИЕ УЧАСТНИКАМИ</h3>
+<label class="lbl">ПОЛЬЗОВАТЕЛИ</label>
+<input type="text" class="admin-search-input" id="adminSearchUserInput" placeholder="Поиск по @username..." oninput="renderAdminData(this.value)" autocomplete="off">
+<div class="users-list" id="adminUsersList"></div>
+</div>
+
 </div>
 
 <div class="card tab hidden" id="tabScan">
@@ -650,7 +728,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="cat" onclick="setScanCfg(this,'стратегия','Trend')">Trend</div>
 </div>
 
-<button type="button" class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
+<button class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
 <div class="gap"></div>
 <div style="margin-bottom:8px">
   <label class="btn btn-dark btn-sm" style="cursor:pointer; text-align:center; display:block;">
@@ -665,16 +743,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 </div>
 
-<button type="button" class="btn btn-gold" id="btnScan" onclick="doScan()" disabled style="background:#1b5e20;color:#fff">🚀 ЗАПУСК (СКАН СВЕЧЕЙ)</button>
+<button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled style="background:#1b5e20;color:#fff">🚀 ЗАПУСК (СКАН СВЕЧЕЙ)</button>
 <div class="gap"></div>
-<button type="button" class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру / Сбросить</button>
+<button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру / Сбросить</button>
 <div class="sig" id="scanSigBox">
 <div class="sig-meta" id="scanMeta">TEAM MASTER SIGNAL V4.0</div>
 <div class="sig-dir call" id="scanDir">BUY (ВВЕРХ)</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
-<button type="button" class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
-<button type="button" class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
+<button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
+<button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
 </div>
 </div>
 
@@ -686,7 +764,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 </div>
 
-<div class="bnav" id="bnav">
+<div class="bnav hidden" id="bnav">
 <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
 <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
 <div class="nav" onclick="tab('tabChat',this)"><span>🤖</span><span>ИИ Чат</span></div>
@@ -706,17 +784,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="modal-content">
     <div class="modal-header">
       <h3 data-t="modalCatalogTitle">📋 Полный каталог активов Pocket Option</h3>
-      <button type="button" class="modal-close" onclick="closeCatalogModal()">✕</button>
+      <button class="modal-close" onclick="closeCatalogModal()">✕</button>
     </div>
     <input type="text" class="modal-search-input" id="modalSearchInput" placeholder="Поиск актива..." oninput="renderCatalogList(this.value)">
     
     <div class="cats" style="margin-bottom:8px" id="catalogFilterCats">
-      <button type="button" class="cat on" onclick="setModalCat('all',this)">🌟 Все</button>
-      <button type="button" class="cat" onclick="setModalCat('💱',this)">💱 Валюта</button>
-      <button type="button" class="cat" onclick="setModalCat('🔥',this)">🔥 Крипто</button>
-      <button type="button" class="cat" onclick="setModalCat('🛢️',this)">🛢️ Сырьё</button>
-      <button type="button" class="cat" onclick="setModalCat('📈',this)">📈 Акции</button>
-      <button type="button" class="cat" onclick="setModalCat('📊',this)">📊 Индексы</button>
+      <button class="cat on" onclick="setModalCat('all',this)">🌟 Все</button>
+      <button class="cat" onclick="setModalCat('💱',this)">💱 Валюта</button>
+      <button class="cat" onclick="setModalCat('🔥',this)">🔥 Крипто</button>
+      <button class="cat" onclick="setModalCat('🛢️',this)">🛢️ Сырьё</button>
+      <button class="cat" onclick="setModalCat('📈',this)">📈 Акции</button>
+      <button class="cat" onclick="setModalCat('📊',this)">📊 Индексы</button>
     </div>
     
     <div class="modal-body" id="modalCatalogBody"></div>
@@ -724,7 +802,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <script>
-let tgUser = localStorage.getItem("tmv_tgUser") || "@MasterTrader";
+const ADMIN_SECRET_KEY = "MASTER_ROOT_7777_SUPER_SECRET";
+const USER_SECRET_KEY = "MASTER_TRADING_777_";
+
+let tgUser = localStorage.getItem("tmv_tgUser")||null;
+let isAdmin = localStorage.getItem("tmv_isAdmin") === "true";
 let timer=null,scanTimer=null,stream=null,camReady=false;
 let favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]");
 let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
@@ -734,10 +816,22 @@ let modalCategory="all";
 let uploadedImageBlob = null;
 let scanCfg = {интервал: 'M1', экспирация: '1м', стратегия: 'Smart Money'};
 
+let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.stringify([
+  {tg: "@master_admin", status: "Активен", role: "ADMIN"}
+]));
+
 const ASSETS_DATA_JS = JSON.parse('__ASSETS_JSON_PLACEHOLDER__');
 
 const I18N = {
   ru: {
+    gateTitle: "Добро пожаловать",
+    btnConfirmId: "✅ Войти в терминал",
+    depTitle: "Проверка депозита",
+    btnCheckDep: "🔍 Проверить депозит",
+    btnBack: "← Назад",
+    accOpenTitle: "Доступ открыт",
+    accOpenDesc: "Активация прошла успешно. Все функции терминала доступны.",
+    btnEnterTerm: "🚀 Войти в терминал",
     lblActiveAsset: "АКТИВ POCKET OPTION",
     lblTf: "ИНТЕРВАЙМ (ТАЙМФРЕЙМ)",
     lblExp: "ЭКСПИРАЦИЯ СДЕЛКИ",
@@ -750,17 +844,17 @@ const I18N = {
     eduHeader: "📚 50 профессиональных связок индикаторов",
     btnBackEdu: "← Назад к списку",
     btnRandomStrat: "🎲 Рандом стратегия",
-    profTitle: "👤 Профиль трейдера",
-    profNameLbl: "ВАШ НИКНЕЙМ",
-    profFavStratLbl: "ЛЮБИМАЯ СТРАТЕГИЯ",
+    profTitle: "👤 Профиль",
+    profNameLbl: "ВАШЕ ИМЯ",
     profStatus: "Статус",
-    profIdLbl: "Ваш ID / ТГ",
+    profIdLbl: "Ваш ТГ",
     profSigsLbl: "Сигналов",
     profFavLbl: "⭐ ИЗБРАННЫЕ АКТИВЫ",
     favTabTitle: "⭐ Избранные активы",
     favTabDesc: "Нажмите на любой актив для перехода.",
     profFavEmpty: "Пока пусто — добавь актив из полного каталога",
     btnClearFav: "🗑 Очистить избранное",
+    btnLogout: "🚪 Выйти",
     btnOpenCam: "📷 Открыть камеру",
     camOff: "Камера отключена или файл не выбран",
     camOffSub: "нажмите кнопку выше для запуска или загрузите скрин",
@@ -780,6 +874,14 @@ const I18N = {
     modalSearchPlaceholder: "Поиск актива..."
   },
   en: {
+    gateTitle: "Welcome",
+    btnConfirmId: "✅ Enter Terminal",
+    depTitle: "Deposit Check",
+    btnCheckDep: "🔍 Check Deposit",
+    btnBack: "← Back",
+    accOpenTitle: "Access Granted",
+    accOpenDesc: "Activation successful.",
+    btnEnterTerm: "🚀 Enter Terminal",
     lblActiveAsset: "POCKET OPTION ASSET",
     lblTf: "TIMEFRAME",
     lblExp: "EXPIRATION",
@@ -792,17 +894,17 @@ const I18N = {
     eduHeader: "📚 Indicator Combos",
     btnBackEdu: "← Back",
     btnRandomStrat: "🎲 Random Strategy",
-    profTitle: "👤 Trader Profile",
-    profNameLbl: "YOUR NICKNAME",
-    profFavStratLbl: "FAVORITE STRATEGY",
+    profTitle: "👤 Profile",
+    profNameLbl: "YOUR NAME",
     profStatus: "Status",
-    profIdLbl: "Your ID / TG",
+    profIdLbl: "Your TG",
     profSigsLbl: "Signals",
     profFavLbl: "⭐ FAVORITE ASSETS",
     favTabTitle: "⭐ Favorite Assets",
     favTabDesc: "Click any asset to switch.",
     profFavEmpty: "Empty yet",
     btnClearFav: "🗑 Clear",
+    btnLogout: "🚪 Logout",
     btnOpenCam: "📷 Open Camera",
     camOff: "Camera is off or no file",
     camOffSub: "click to start or upload screenshot",
@@ -822,6 +924,14 @@ const I18N = {
     modalSearchPlaceholder: "Search asset..."
   },
   ua: {
+    gateTitle: "Ласкаво просимо",
+    btnConfirmId: "✅ Увійти в термінал",
+    depTitle: "Перевірка депозиту",
+    btnCheckDep: "🔍 Перевірити депозит",
+    btnBack: "← Назад",
+    accOpenTitle: "Доступ відкрито",
+    accOpenDesc: "Активацію успішно пройдено.",
+    btnEnterTerm: "🚀 Увійти в термінал",
     lblActiveAsset: "АКТИВ POCKET OPTION",
     lblTf: "ІНТЕРВАЛ (ТАЙМФРЕЙМ)",
     lblExp: "ЕКСПИРАЦИЯ УГОДИ",
@@ -834,17 +944,17 @@ const I18N = {
     eduHeader: "📚 50 професійних зв'язок індикаторів",
     btnBackEdu: "← Назад",
     btnRandomStrat: "🎲 Рандом стратегія",
-    profTitle: "👤 Профіль трейдера",
-    profNameLbl: "ВАШ НИКНЕЙМ",
-    profFavStratLbl: "УЛЮБЛЕНА СТРАТЕГІЯ",
+    profTitle: "👤 Профіль",
+    profNameLbl: "ВАШЕ ІМ'Я",
     profStatus: "Статус",
-    profIdLbl: "Ваш ID / ТГ",
+    profIdLbl: "Ваш ТГ",
     profSigsLbl: "Сигналів",
     profFavLbl: "⭐ ОБРАНІ АКТИВИ",
     favTabTitle: "⭐ Обрані активи",
     favTabDesc: "Натисніть на будь-який актив.",
     profFavEmpty: "Поки порожньо",
     btnClearFav: "🗑 Очистити",
+    btnLogout: "🚪 Вийти",
     btnOpenCam: "📷 Відкрити камеру",
     camOff: "Камера вимкнена або файл не обрано",
     camOffSub: "натисніть для запуску або завантажте скрін",
@@ -894,7 +1004,7 @@ function renderAssetButtons() {
   items.forEach((assetName) => {
     let activeClass = (assetName === currentAsset) ? " on" : "";
     let badgeStr = getAssetBadge(assetName);
-    html += `<button type="button" class="cat ${activeClass}" onclick="selectCatalogAsset('${assetName}')">${assetName} <span class="cat-payout">${badgeStr}</span></button>`;
+    html += `<button class="cat ${activeClass}" onclick="selectCatalogAsset('${assetName}')">${assetName} <span class="cat-payout">${badgeStr}</span></button>`;
   });
   container.innerHTML = html;
 }
@@ -907,12 +1017,109 @@ function updateSelectedAssetUI() {
   updatePoDeepLink();
 }
 
+function goStep(n){
+  document.querySelectorAll(".step").forEach(s=>s.classList.remove("on"));
+  document.getElementById("s"+n).classList.add("on");
+  for(let i=1;i<=3;i++){
+    const d=document.getElementById("d"+i);
+    if(d){
+      d.className="p-dot";
+      if(i<n) d.classList.add("done");
+      else if(i===n) d.classList.add("cur");
+    }
+  }
+  for(let i=1;i<=2;i++){
+    const l=document.getElementById("l"+i);
+    if(l){
+      l.className="p-line";
+      if(i<n) l.classList.add("done");
+    }
+  }
+}
+
+function showMsg(id, txt, isErr=false){
+  const el=document.getElementById(id);
+  if(el){
+    el.className="msg "+(isErr?"err":"ok");
+    el.innerHTML=txt;
+  }
+}
+
+function checkUserBlockedStatus(user) {
+  let foundUser = allUsersReg.find(u => u.tg.toLowerCase() === user.toLowerCase());
+  if(foundUser && foundUser.status === "Заблокирован") {
+    alert("⛔ Ваш аккаунт заблокирован администратором!");
+    return true;
+  }
+  return false;
+}
+
+function registerUserAndNotify(username) {
+  if(!username) return;
+  let formattedTg = username.startsWith("@") ? username : "@" + username;
+  let foundUser = allUsersReg.find(u => u.tg.toLowerCase() === formattedTg.toLowerCase());
+  if(!foundUser) {
+    allUsersReg.push({tg: formattedTg, status: "Активен", role: "USER"});
+    localStorage.setItem("tmv_users_db", JSON.stringify(allUsersReg));
+  }
+}
+
+function doReg(){
+  const code = document.getElementById("masterCodeInput").value.trim();
+  const user = document.getElementById("tgUserInput").value.trim();
+  if(!user || !user.startsWith("@")){
+    showMsg("regMsg", "❌ Укажите ваш Telegram юзернейм начиная с @", true);
+    return;
+  }
+  if(!code) {
+    showMsg("regMsg", "❌ Введите ключ доступа!", true);
+    return;
+  }
+  if(code !== ADMIN_SECRET_KEY && code !== USER_SECRET_KEY) {
+    showMsg("regMsg", "❌ Неверный ключ доступа!", true);
+    return;
+  }
+  if(checkUserBlockedStatus(user)) {
+    showMsg("regMsg", "❌ Этот аккаунт заблокирован!", true);
+    return;
+  }
+  isAdmin = (code === ADMIN_SECRET_KEY);
+  localStorage.setItem("tmv_isAdmin", isAdmin ? "true" : "false");
+  tgUser = user;
+  localStorage.setItem("tmv_tgUser", user);
+  registerUserAndNotify(tgUser);
+  showMsg("regMsg", "✅ Ключ принят!");
+  setTimeout(()=>{ goStep(2); }, 1000);
+}
+
+function doDep(){
+  const promo = document.getElementById("promoInput").value.trim();
+  if(promo.toUpperCase() !== "WELCOME50"){
+    showMsg("depMsg", "❌ Неверный промокод! Введите WELCOME50", true);
+    return;
+  }
+  showMsg("depMsg", "✅ Депозит подтвержден!");
+  setTimeout(()=>{ goStep(3); }, 1000);
+}
+
+function enterApp(){
+  document.getElementById("gate").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("bnav").classList.remove("hidden");
+  renderAssetButtons();
+  updateSelectedAssetUI();
+  renderFavs();
+  renderEdu();
+  loadProfile();
+}
+
 function tab(tabId, el){
   document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
   document.getElementById(tabId).classList.remove("hidden");
   document.querySelectorAll(".bnav .nav").forEach(n=>n.classList.remove("on"));
   if(el) el.classList.add("on");
   if(tabId === 'tabFavs') renderMainFavs();
+  if(tabId === 'tabProf' && isAdmin) renderAdminData();
 }
 
 function openCatalogModal(){
@@ -935,28 +1142,6 @@ function setScanCfg(el, type, val) {
   el.parentElement.querySelectorAll('.cat').forEach(b => b.classList.remove('active', 'on'));
   el.classList.add('active', 'on');
   scanCfg[type] = val;
-}
-
-function syncExpiration() {
-  const tfVal = document.getElementById("tf").value;
-  const expSelect = document.getElementById("exp");
-  let targetSec = 60;
-  if(tfVal === "S5") targetSec = 15;
-  else if(tfVal === "S15") targetSec = 30;
-  else if(tfVal === "S30") targetSec = 60;
-  else if(tfVal === "M1") targetSec = 60;
-  else if(tfVal === "M2") targetSec = 120;
-  else if(tfVal === "M3") targetSec = 180;
-  else if(tfVal === "M5") targetSec = 300;
-  else if(tfVal === "M10") targetSec = 600;
-  else if(tfVal === "M15") targetSec = 900;
-  
-  for(let i=0; i<expSelect.options.length; i++){
-    if(parseInt(expSelect.options[i].value) === targetSec){
-      expSelect.selectedIndex = i;
-      break;
-    }
-  }
 }
 
 function renderCatalogList(filter=""){
@@ -1050,17 +1235,17 @@ async function getSig(){
     const tf = document.getElementById("tf").value;
     const expSec = parseInt(document.getElementById("exp").value);
     
-    let dir = "⬆️ CALL (ВВЕРХ) 🚀✨";
-    let stratText = `💎 Интеллектуальный умный расчет котировок Pocket Option для актива (${currentAsset}) по таймфрейму ${tf} с экспирацией ${expSec} сек! 🚀 Уверенный технический анализ по уровням сопротивления, поддержки, флэту и расположению свечей успешно подтвержден! 🔥✨`;
+    let dir = "⬆️ CALL (ВВЕРХ)";
+    let stratText = `Интеллектуальный анализ котировок Pocket Option для актива (${currentAsset}) по таймфрейму ${tf} с экспирацией ${expSec} сек. Умный расчет без ИИ: анализ уровней сопротивления, поддержки и боковика подтвержден.`;
     
     try {
       const res = await fetch(`/get_signal?asset=${encodeURIComponent(currentAsset)}&timeframe=${tf}`);
       if (res.ok) {
         const data = await res.json();
         if (data.signal) {
-          dir = data.signal === "UP" ? "⬆️ CALL (ВВЕРХ) 🚀✨" : "⬇️ PUT (НИЗ) 📉🔥";
+          dir = data.signal === "UP" ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (НИЗ)";
           if(data.reason) {
-            stratText = `💎 Умный технический расчет сигнала: ${data.reason} 🚀✨`;
+            stratText = `Технический расчет (без ИИ): ${data.reason}`;
           }
         }
       }
@@ -1071,7 +1256,7 @@ async function getSig(){
     const dirEl = document.getElementById("sigDir");
     dirEl.textContent = dir;
     dirEl.className = "sig-dir " + (isCall ? "call" : "put");
-    document.getElementById("sigStrat").innerHTML = `<b>💎 Умный анализ сигналов и свечей:</b> ${stratText}`;
+    document.getElementById("sigStrat").innerHTML = `<b>Анализ сигналов (без ИИ):</b> ${stratText}`;
     document.getElementById("sigBox").style.display = "block";
     document.getElementById("btnCancel").style.display = "block";
     document.getElementById("btnNew").style.display = "none";
@@ -1109,7 +1294,7 @@ function startTimer(elementId, seconds, onComplete){
     rem--;
     if(rem <= 0){
       clearInterval(timer);
-      el.textContent = "00:00 Готово! ✨";
+      el.textContent = "00:00 Готово!";
       if(onComplete) onComplete();
       return;
     }
@@ -1128,7 +1313,7 @@ function runAnalyzer(callback){
   const txtEl = document.getElementById("analyzeTxt");
   overlay.classList.remove("hidden");
   let step = 0;
-  const phrasesList = ["💎 Запрос к умному анализатору рынка...", "🚀 Анализ уровней, флэта и боковика...", "⚡ Проверка свечных паттернов и тренда...", "✨ Генерация сигнала по расположению свечей..."];
+  const phrasesList = ["Запрос к умному анализатору...", "Анализ уровней и боковика...", "Проверка свечных паттернов...", "Генерация сигнала без ИИ..."];
   const interval = setInterval(()=>{
     txtEl.textContent = phrasesList[step % phrasesList.length];
     step++;
@@ -1169,36 +1354,27 @@ function openRandomEdu(){
 }
 
 function loadProfile(){
-  document.getElementById("profId").textContent = tgUser;
-  document.getElementById("profName").value = localStorage.getItem("tmv_name") || "@MasterTrader";
-  document.getElementById("profFavStrat").value = localStorage.getItem("tmv_fav_strat") || "Smart Money";
+  document.getElementById("profId").textContent = tgUser || "@user";
+  document.getElementById("profName").value = localStorage.getItem("tmv_name") || "";
   document.getElementById("profSigs").textContent = sigCount;
-  
-  const savedAvatar = localStorage.getItem("tmv_avatar");
-  const avatarImg = document.getElementById("profileAvatarImg");
-  if(savedAvatar) {
-    avatarImg.src = savedAvatar;
-  } else {
-    avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 24 24' fill='%23FFD700'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
-  }
   renderFavs();
-}
-
-function saveProfileData(){
-  localStorage.setItem("tmv_name", document.getElementById("profName").value);
-  localStorage.setItem("tmv_fav_strat", document.getElementById("profFavStrat").value);
-}
-
-function handleAvatarUpload(event) {
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const base64Img = e.target.result;
-    localStorage.setItem("tmv_avatar", base64Img);
-    document.getElementById("profileAvatarImg").src = base64Img;
+  const adminBox = document.getElementById("adminProfileBox");
+  if(isAdmin) {
+    adminBox.classList.remove("hidden");
+    renderAdminData();
+  } else {
+    adminBox.classList.add("hidden");
   }
-  reader.readAsDataURL(file);
+}
+
+function saveName(){
+  localStorage.setItem("tmv_name", document.getElementById("profName").value);
+}
+
+function logout(){
+  localStorage.removeItem("tmv_tgUser");
+  localStorage.removeItem("tmv_isAdmin");
+  location.reload();
 }
 
 function openCam(){
@@ -1286,26 +1462,34 @@ function processImageBlobForScan(blob, expSec) {
       if(response.ok) {
         const resData = await response.json();
         let resText = resData.text || "❌ Ошибка анализа";
+        let isErr = resText.includes("❌");
         
         document.getElementById("scanMeta").textContent = "TEAM MASTER SIGNAL V4.0";
         const dirEl = document.getElementById("scanDir");
         
-        let isBuy = resText.includes("BUY") || resText.includes("ВВЕРХ");
-        dirEl.textContent = isBuy ? "BUY (ВВЕРХ) 🚀✨" : "SELL (ВНИЗ) 📉🔥";
-        dirEl.className = "sig-dir " + (isBuy ? "call" : "put");
-        sigCount++;
-        localStorage.setItem("tmv_sigs", sigCount);
-        document.getElementById("profSigs").textContent = sigCount;
+        if(isErr) {
+          dirEl.textContent = "❌ ГРАФИК СО СВЕЧАМИ НЕ ОБНАРУЖЕН";
+          dirEl.className = "sig-dir put";
+        } else {
+          let isBuy = resText.includes("BUY") || resText.includes("ВВЕРХ");
+          dirEl.textContent = isBuy ? "BUY (ВВЕРХ)" : "SELL (ВНИЗ)";
+          dirEl.className = "sig-dir " + (isBuy ? "call" : "put");
+          sigCount++;
+          localStorage.setItem("tmv_sigs", sigCount);
+          document.getElementById("profSigs").textContent = sigCount;
+        }
 
         document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;"><b>${resText}</b></pre>`;
         document.getElementById("scanSigBox").style.display = "block";
         document.getElementById("btnScanCancel").style.display = "block";
         document.getElementById("btnScanNew").style.display = "none";
 
-        startTimer("scanCd", expSec, ()=>{
-          document.getElementById("btnScanCancel").style.display = "none";
-          document.getElementById("btnScanNew").style.display = "block";
-        });
+        if(!isErr) {
+          startTimer("scanCd", expSec, ()=>{
+            document.getElementById("btnScanCancel").style.display = "none";
+            document.getElementById("btnScanNew").style.display = "block";
+          });
+        }
         return;
       }
     } catch(e) {}
@@ -1328,7 +1512,7 @@ async function sendAiChatMessage() {
   msgBox.scrollTop = msgBox.scrollHeight;
 
   const loadingId = "ai_load_" + Date.now();
-  msgBox.innerHTML += `<div class="chat-msg ai" id="${loadingId}">ИИ думает... 🤖✨</div>`;
+  msgBox.innerHTML += `<div class="chat-msg ai" id="${loadingId}">Ассистент думает... 🤖</div>`;
   msgBox.scrollTop = msgBox.scrollHeight;
 
   try {
@@ -1364,12 +1548,26 @@ function changeLanguage(lang){
   renderCatalogList(document.getElementById("modalSearchInput").value);
 }
 
+function renderAdminData(filter=""){
+  const listEl = document.getElementById("adminUsersList");
+  if(!listEl) return;
+  let html = "";
+  const filteredUsers = allUsersReg.filter(u => u.tg.toLowerCase().includes(filter.toLowerCase()));
+  filteredUsers.forEach((u, idx)=>{
+    html += `<div class="user-row">
+      <div><b>${u.tg}</b><br><small style="color:var(--green)">${u.status}</small></div>
+    </div>`;
+  });
+  listEl.innerHTML = html || `<div style="text-align:center;padding:10px;color:var(--muted)">Список пуст</div>`;
+}
+
 window.addEventListener("DOMContentLoaded", ()=>{
-  renderAssetButtons();
-  updateSelectedAssetUI();
-  renderFavs();
-  renderEdu();
-  loadProfile();
+  if(tgUser) {
+    if(checkUserBlockedStatus(tgUser)) { logout(); return; }
+    registerUserAndNotify(tgUser);
+    goStep(3);
+    enterApp();
+  }
 });
 </script>
 </body>
@@ -1384,7 +1582,10 @@ def serve_terminal():
     return rendered_html
 
 @app.get("/get_signal")
-async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str = "1min"):
+async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str = "1min", tg_username: str = Cookie(None)):
+    user_for_alert = tg_username if tg_username else "Неизвестный ученик"
+    asyncio.create_task(send_tg_signal_alert(user_for_alert, asset, timeframe))
+    
     await asyncio.sleep(1.2)
     is_otc = "OTC" in asset
     clean_asset = asset.replace("OTC", "").replace("🇪🇺", "").replace("🇺🇸", "").replace("🇬🇧", "").replace("🇯🇵", "").replace("🇦🇺", "").replace("🇨🇦", "").replace("🇳🇿", "").replace("🇨🇭", "").replace("₿", "").replace("Ξ", "").replace("🪙", "").replace("🛢️", "").replace("⛽", "").replace("🍎", "").replace("🚗", "").replace("💳", "").replace("💻", "").replace("🛒", "").replace("🎬", "").replace("📘", "").replace("📦", "").replace("💊", "").replace("📊", "").replace("🤖", "").replace("🍔", "").replace("✈️", "").replace("🏦", "").replace("🎮", "").replace("🌐", "").strip()
@@ -1416,26 +1617,54 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
 
 @app.post("/ai-chat")
 async def ai_chat(prompt: str = Form(...)):
-    user_prompt = prompt.strip().lower()
-    
-    forbidden_words = ["хуй", "пизда", "ебал", "сука", "бля", "блять", "трах", "секс", "пошел нахуй", "иди нахуй", "порно", " cyka", " blyat"]
-    for word in forbidden_words:
-        if word in user_prompt:
-            return {"reply": "🚫✨ Извините, но я отвечаю исключительно на вопросы по поводу трейдинга, рынка, команды и стратегий торговли! На другие темы и неприличные вопросы я не отвечаю! 📈💎🚀"}
+    user_prompt = prompt.strip()
+    if not GEMINI_API_KEY:
+        return {"reply": "⚠️ Ключ GEMINI_API_KEY не настроен в окружении Render."}
 
-    trading_keywords = ["трейд", "рынк", "команд", "стратег", "сигнал", "pocket", "option", "анализ", "график", "свеч", "индикатор", "актив", "валют", "крипт", "биткоин", "депозит", "риск", "мани", "мэнеджмент", "exp", "экспирация", "таймфрейм", "терминал", "биткоин", "торгов", "скальп", "уровн", "профит", "плюс", "успех", "мастер"]
-    
-    is_trading_related = any(kw in user_prompt for kw in trading_keywords)
-    
-    if not is_trading_related:
-        return {"reply": "🚫📈 Я элитный помощник терминала TEAM MASTER VIP и отвечаю исключительно на вопросы по поводу трейдинга, рынка, команды и стратегий! Задайте вопрос по торговле или сигналам! 🚀💎✨"}
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash-001')
+        chat_prompt = (
+            "Ты профессиональный элитный трейдер, наставник и помощник по торговле в нашей команде 'Team Master VIP' на платформе Pocket Option. "
+            "Твоя задача — отвечать на вопросы пользователя ИСКЛЮЧИТЕЛЬНО по теме трейдинга, финансовых рынков, технических индикаторов, связок, "
+            "стратегий, сигналов и нашей команды 'Team Master VIP'. "
+            "Используй много крутых эмодзи в каждом ответе (📈,📉,⚡,🚀,💎,👑,🎯,🤖,⭐,🔥,📊).\n\n"
+            "СТРОГОЕ ПРАВИЛО БЕЗОПАСНОСТИ И ТЕМАТИКИ:\n"
+            "1. Если вопрос пользователя касается любых других тем (политика, личная жизнь, программирование, кулинария, развлечения, фильмы, "
+            "погода или любые другие посторонние темы, не связанные с трейдингом и нашей командой), ты обязан вежливо отказаться и ответить: "
+            "'Я консультирую исключительно по вопросам трейдинга, рынков, сигналов и стратегий Team Master VIP! 📈📉'\n"
+            "2. Если вопрос неприличный, пошлый или оскорбительный, строго откажись: "
+            "'Я общаюсь только на темы профессионального трейдинга и рынков! ❌💎'\n"
+            "3. Если пользователь просит дать сигнал, подсказать актив, направление (CALL/PUT), таймфрейм или экспирацию, подробно и уверенно "
+            "распиши сигнал со всеми деталями, направлением и смайликами!\n\n"
+            f"Вопрос пользователя: {user_prompt}"
+        )
+        response = model.generate_content(chat_prompt)
+        reply = response.text.strip() if response and response.text else "Нет ответа от ИИ. 🤖"
+        return {"reply": reply}
+    except Exception as e:
+        return {"reply": f"⚠️ Ошибка связи с ИИ: {str(e)}"}
 
-    responses = [
-        f"💎 Отличный вопрос по трейдингу и рынку! 🚀 Для максимального профита в Pocket Option всегда учитывайте текущий тренд, старшие таймфреймы и строгий риск-менеджмент 1-2% на сделку! 🔥📈✨",
-        f"🌟 В нашей команде TEAM MASTER VIP мы используем передовые стратегии Smart Money и свечной анализ! 🎯 Торгуйте строго по уровням поддержки и сопротивления, избегая эмоциональных входов! 🚀💎",
-        f"🔥 Рынок бинарных опционов требует холодной дисциплины и четкого расчета! 📊 Используйте наш встроенный сканер свечей и 50 профессиональных связок индикаторов для уверенных побед! 🚀✨💎"
-    ]
-    return {"reply": random.choice(responses)}
+@app.post("/request_access")
+async def request_access(username: str = Form(...)):
+    username = username.strip().replace("@", "").replace(" ", "")
+    db = get_db()
+    if username in db["users"] and db["users"][username].get("status") == "blocked":
+        return JSONResponse({"success": False, "message": "Вы заблокированы!"})
+    
+    db["users"][username] = {"status": "approved", "activated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+    save_db(db)
+    asyncio.create_task(send_tg_notification(username))
+    
+    response = JSONResponse({"success": False, "message": "Доступ активирован!"})
+    response.set_cookie(key="tg_username", value=username, max_age=2592000)
+    return response
+
+@app.get("/check_user_status")
+async def check_user_status(username: str = ""):
+    username = username.strip().replace("@", "").replace(" ", "")
+    db = get_db()
+    status = db["users"].get(username, {}).get("status") if username else None
+    return JSONResponse({"status": status})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
