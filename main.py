@@ -15,7 +15,7 @@ import httpx
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="20.0")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="22.0")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
@@ -79,7 +79,8 @@ async def send_tg_signal_alert(username, asset, timeframe):
 BINANCE_MAPPING = {
     "EUR/USD": "EURUSDT", "GBP/USD": "GBPUSDT", "USD/JPY": "USDJPY",
     "AUD/USD": "AUDUSDT", "EUR/JPY": "EURJPY", "USD/CAD": "USDCAD",
-    "GBP/JPY": "GBPJPY", "NZD/USD": "NZDUSDT", "USD/CHF": "USDCHF", "EUR/GBP": "EURGBP"
+    "GBP/JPY": "GBPJPY", "NZD/USD": "NZDUSDT", "USD/CHF": "USDCHF", "EUR/GBP": "EURGBP",
+    "Bitcoin": "BTCUSDT", "Ethereum": "ETHUSDT", "Solana": "SOLUSDT"
 }
 
 def calculate_rsi(prices, period=14):
@@ -155,7 +156,7 @@ class ScannerAnalyzer:
                 "и выдай результат строго в таком формате:\n"
                 "DIRECTION: BUY (ВВЕРХ) (или SELL (ВНИЗ))\n"
                 "PROB: [число от 70 до 95]%\n"
-                "REASON: [краткая профессиональная причина по свечным паттернам, уровням и структуре рынка]"
+                "REASON: [краткая профессиональная причина на русском языке по свечным паттернам, уровням и структуре рынка]"
             )
             
             response = model.generate_content([image, prompt])
@@ -192,30 +193,128 @@ class ScannerAnalyzer:
 
 scanner_core = ScannerAnalyzer()
 
+# Точные списки всех активов по категориям БЕЗ процентов выплаты
 ASSETS_DATA_JS = {
   "ru": {
-    "💱 Валютные пары": ["EUR/USD OTC", "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/CAD OTC", "GBP/USD OTC", "USD/JPY OTC", "EUR/USD", "GBP/USD"],
-    "🔥 Криптовалюты": ["BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin OTC", "Ethereum OTC", "Solana OTC", "Cardano OTC", "TRON OTC"],
-    "🛢️ Сырьевые товары": ["Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", "Natural Gas OTC"],
-    "📈 Акции компаний": ["American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", "Microsoft OTC", "Netflix OTC", "Amazon OTC", "Apple OTC"],
-    "📊 Биржевые индексы": ["US100 OTC", "SP500 OTC"]
+    "💱 Валютные пары": [
+      "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NGN/USD OTC", "NZD/JPY OTC", "NZD/USD OTC", 
+      "SAR/CNY OTC", "UAH/USD OTC", "USD/ARS OTC", "USD/CAD OTC", "USD/COP OTC", "USD/MYR OTC", 
+      "KES/USD OTC", "GBP/USD OTC", "USD/MXN OTC", "AED/CNY OTC", "AUD/JPY", "AUD/NZD OTC", 
+      "CAD/CHF OTC", "CHF/JPY", "AUD/CAD", "EUR/USD", "EUR/JPY OTC", "GBP/AUD", "USD/JPY", 
+      "AUD/JPY OTC", "EUR/TRY OTC", "GBP/CHF", "USD/VND OTC", "AUD/CHF", "MAD/USD OTC", 
+      "USD/DZD OTC", "GBP/AUD OTC", "USD/BRL OTC", "AUD/USD", "USD/CAD", "USD/CHF OTC", 
+      "EUR/HUF OTC", "USD/THB OTC", "GBP/JPY OTC", "GBP/USD", "JOD/CNY OTC", "AUD/CAD OTC", 
+      "EUR/GBP", "CAD/JPY OTC", "OMR/CNY OTC", "TND/USD OTC", "USD/EGP OTC", "CHF/JPY OTC", 
+      "USD/IDR OTC", "USD/PHP OTC", "USD/INR OTC", "USD/BDT OTC", "USD/CLP OTC", "GBP/CAD", 
+      "QAR/CNY OTC", "USD/JPY OTC", "EUR/CHF", "BHD/CNY OTC", "CAD/JPY", "EUR/USD OTC", 
+      "GBP/JPY", "USD/SGD OTC", "CHF/NOK OTC", "LBP/USD OTC", "USD/CNH OTC", "YER/USD OTC", 
+      "EUR/GBP OTC", "USD/CHF", "USD/PKR OTC", "EUR/CHF OTC", "EUR/JPY", "ZAR/USD OTC", 
+      "CAD/CHF", "EUR/CAD", "EUR/AUD"
+    ],
+    "🔥 Криптовалюты": [
+      "BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin ETF OTC", 
+      "Bitcoin OTC", "Avalanche OTC", "Cardano OTC", "Ethereum OTC", "Polkadot OTC", 
+      "Polygon OTC", "Litecoin OTC", "TRON OTC", "Ethereum", "Dash", "Solana OTC", 
+      "BCH/EUR", "BCH/GBP", "BCH/JPY", "BTC/GBP", "BTC/JPY", "Bitcoin", "Chainlink"
+    ],
+    "🛢️ Сырьевые товары": [
+      "Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", 
+      "Natural Gas OTC", "Palladium spot OTC", "Platinum spot"
+    ],
+    "📈 Акции компаний": [
+      "American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", 
+      "Marathon Digital Holdings OTC", "Cisco OTC", "Advanced Micro Devices OTC", 
+      "Microsoft OTC", "Johnson & Johnson OTC", "Alibaba OTC", "VIX OTC", 
+      "ExxonMobil OTC", "Netflix OTC", "FACEBOOK INC OTC", "Amazon OTC", 
+      "Palantir Technologies OTC", "Coinbase Global OTC", "McDonald's OTC", 
+      "Boeing Company OTC", "Pfizer Inc OTC", "Citigroup Inc OTC", "FedEx OTC", 
+      "GameStop Corp OTC", "Apple OTC"
+    ],
+    "📊 Биржевые индексы": [
+      "US100 OTC", "SP500", "SP500 OTC", "AUS 200"
+    ]
   },
   "en": {
-    "💱 Currency Pairs": ["EUR/USD OTC", "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/CAD OTC", "GBP/USD OTC", "USD/JPY OTC", "EUR/USD", "GBP/USD"],
-    "🔥 Cryptocurrencies": ["BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin OTC", "Ethereum OTC", "Solana OTC", "Cardano OTC", "TRON OTC"],
-    "🛢️ Commodities": ["Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", "Natural Gas OTC"],
-    "📈 Company Stocks": ["American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", "Microsoft OTC", "Netflix OTC", "Amazon OTC", "Apple OTC"],
-    "📊 Market Indices": ["US100 OTC", "SP500 OTC"]
+    "💱 Currency Pairs": [
+      "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NGN/USD OTC", "NZD/JPY OTC", "NZD/USD OTC", 
+      "SAR/CNY OTC", "UAH/USD OTC", "USD/ARS OTC", "USD/CAD OTC", "USD/COP OTC", "USD/MYR OTC", 
+      "KES/USD OTC", "GBP/USD OTC", "USD/MXN OTC", "AED/CNY OTC", "AUD/JPY", "AUD/NZD OTC", 
+      "CAD/CHF OTC", "CHF/JPY", "AUD/CAD", "EUR/USD", "EUR/JPY OTC", "GBP/AUD", "USD/JPY", 
+      "AUD/JPY OTC", "EUR/TRY OTC", "GBP/CHF", "USD/VND OTC", "AUD/CHF", "MAD/USD OTC", 
+      "USD/DZD OTC", "GBP/AUD OTC", "USD/BRL OTC", "AUD/USD", "USD/CAD", "USD/CHF OTC", 
+      "EUR/HUF OTC", "USD/THB OTC", "GBP/JPY OTC", "GBP/USD", "JOD/CNY OTC", "AUD/CAD OTC", 
+      "EUR/GBP", "CAD/JPY OTC", "OMR/CNY OTC", "TND/USD OTC", "USD/EGP OTC", "CHF/JPY OTC", 
+      "USD/IDR OTC", "USD/PHP OTC", "USD/INR OTC", "USD/BDT OTC", "USD/CLP OTC", "GBP/CAD", 
+      "QAR/CNY OTC", "USD/JPY OTC", "EUR/CHF", "BHD/CNY OTC", "CAD/JPY", "EUR/USD OTC", 
+      "GBP/JPY", "USD/SGD OTC", "CHF/NOK OTC", "LBP/USD OTC", "USD/CNH OTC", "YER/USD OTC", 
+      "EUR/GBP OTC", "USD/CHF", "USD/PKR OTC", "EUR/CHF OTC", "EUR/JPY", "ZAR/USD OTC", 
+      "CAD/CHF", "EUR/CAD", "EUR/AUD"
+    ],
+    "🔥 Cryptocurrencies": [
+      "BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin ETF OTC", 
+      "Bitcoin OTC", "Avalanche OTC", "Cardano OTC", "Ethereum OTC", "Polkadot OTC", 
+      "Polygon OTC", "Litecoin OTC", "TRON OTC", "Ethereum", "Dash", "Solana OTC", 
+      "BCH/EUR", "BCH/GBP", "BCH/JPY", "BTC/GBP", "BTC/JPY", "Bitcoin", "Chainlink"
+    ],
+    "🛢️ Commodities": [
+      "Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", 
+      "Natural Gas OTC", "Palladium spot OTC", "Platinum spot"
+    ],
+    "📈 Company Stocks": [
+      "American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", 
+      "Marathon Digital Holdings OTC", "Cisco OTC", "Advanced Micro Devices OTC", 
+      "Microsoft OTC", "Johnson & Johnson OTC", "Alibaba OTC", "VIX OTC", 
+      "ExxonMobil OTC", "Netflix OTC", "FACEBOOK INC OTC", "Amazon OTC", 
+      "Palantir Technologies OTC", "Coinbase Global OTC", "McDonald's OTC", 
+      "Boeing Company OTC", "Pfizer Inc OTC", "Citigroup Inc OTC", "FedEx OTC", 
+      "GameStop Corp OTC", "Apple OTC"
+    ],
+    "📊 Market Indices": [
+      "US100 OTC", "SP500", "SP500 OTC", "AUS 200"
+    ]
   },
   "ua": {
-    "💱 Валютні пари": ["EUR/USD OTC", "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/CAD OTC", "GBP/USD OTC", "USD/JPY OTC", "EUR/USD", "GBP/USD"],
-    "🔥 Криптовалюти": ["BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin OTC", "Ethereum OTC", "Solana OTC", "Cardano OTC", "TRON OTC"],
-    "🛢️ Сировинні товари": ["Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", "Natural Gas OTC"],
-    "📈 Акції компаній": ["American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", "Microsoft OTC", "Netflix OTC", "Amazon OTC", "Apple OTC"],
-    "📊 Біржові індекси": ["US100 OTC", "SP500 OTC"]
+    "💱 Валютні пари": [
+      "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NGN/USD OTC", "NZD/JPY OTC", "NZD/USD OTC", 
+      "SAR/CNY OTC", "UAH/USD OTC", "USD/ARS OTC", "USD/CAD OTC", "USD/COP OTC", "USD/MYR OTC", 
+      "KES/USD OTC", "GBP/USD OTC", "USD/MXN OTC", "AED/CNY OTC", "AUD/JPY", "AUD/NZD OTC", 
+      "CAD/CHF OTC", "CHF/JPY", "AUD/CAD", "EUR/USD", "EUR/JPY OTC", "GBP/AUD", "USD/JPY", 
+      "AUD/JPY OTC", "EUR/TRY OTC", "GBP/CHF", "USD/VND OTC", "AUD/CHF", "MAD/USD OTC", 
+      "USD/DZD OTC", "GBP/AUD OTC", "USD/BRL OTC", "AUD/USD", "USD/CAD", "USD/CHF OTC", 
+      "EUR/HUF OTC", "USD/THB OTC", "GBP/JPY OTC", "GBP/USD", "JOD/CNY OTC", "AUD/CAD OTC", 
+      "EUR/GBP", "CAD/JPY OTC", "OMR/CNY OTC", "TND/USD OTC", "USD/EGP OTC", "CHF/JPY OTC", 
+      "USD/IDR OTC", "USD/PHP OTC", "USD/INR OTC", "USD/BDT OTC", "USD/CLP OTC", "GBP/CAD", 
+      "QAR/CNY OTC", "USD/JPY OTC", "EUR/CHF", "BHD/CNY OTC", "CAD/JPY", "EUR/USD OTC", 
+      "GBP/JPY", "USD/SGD OTC", "CHF/NOK OTC", "LBP/USD OTC", "USD/CNH OTC", "YER/USD OTC", 
+      "EUR/GBP OTC", "USD/CHF", "USD/PKR OTC", "EUR/CHF OTC", "EUR/JPY", "ZAR/USD OTC", 
+      "CAD/CHF", "EUR/CAD", "EUR/AUD"
+    ],
+    "🔥 Криптовалюти": [
+      "BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin ETF OTC", 
+      "Bitcoin OTC", "Avalanche OTC", "Cardano OTC", "Ethereum OTC", "Polkadot OTC", 
+      "Polygon OTC", "Litecoin OTC", "TRON OTC", "Ethereum", "Dash", "Solana OTC", 
+      "BCH/EUR", "BCH/GBP", "BCH/JPY", "BTC/GBP", "BTC/JPY", "Bitcoin", "Chainlink"
+    ],
+    "🛢️ Сировинні товари": [
+      "Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", 
+      "Natural Gas OTC", "Palladium spot OTC", "Platinum spot"
+    ],
+    "📈 Акції компаній": [
+      "American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", 
+      "Marathon Digital Holdings OTC", "Cisco OTC", "Advanced Micro Devices OTC", 
+      "Microsoft OTC", "Johnson & Johnson OTC", "Alibaba OTC", "VIX OTC", 
+      "ExxonMobil OTC", "Netflix OTC", "FACEBOOK INC OTC", "Amazon OTC", 
+      "Palantir Technologies OTC", "Coinbase Global OTC", "McDonald's OTC", 
+      "Boeing Company OTC", "Pfizer Inc OTC", "Citigroup Inc OTC", "FedEx OTC", 
+      "GameStop Corp OTC", "Apple OTC"
+    ],
+    "📊 Біржові індекси": [
+      "US100 OTC", "SP500", "SP500 OTC", "AUS 200"
+    ]
   }
 }
 
+# Генерация 50 детальных стратегий на русском языке с четкими правилами и профессиональными графическими иллюстрациями
 EDU_50 = []
 strategy_names = [
     "Smart Money Order Block", "ICT Fair Value Gap (FVG)", "Price Action Pin-Bar", "Scalping EMA 9/21", "Trend Reversal RSI Divergence",
@@ -234,18 +333,22 @@ for i, name in enumerate(strategy_names, 1):
     tf_choice = random.choice(["S30, M1", "M1, M2", "M2, M5", "M5, M15"])
     exp_choice = random.choice(["30 сек – 1 мин", "1 мин – 2 мин", "2 мин – 5 мин", "5 мин"])
     desc = (
-        f"📌 ДЕТАЛЬНЫЙ АНАЛИЗ СТРАТЕГИИ №{i} ({name}):\n\n"
-        f"• Рыночная механика: Стратегия построена на выявлении дисбаланса спроса и предложения, институциональных ордеров и ключевых зон ликвидности на торговых графиках.\n"
-        f"• Рекомендуемые таймфреймы: {tf_choice}.\n"
-        f"• Экспирация сделки: {exp_choice}.\n"
-        f"• Правила входа в позицию: Дождитесь закрытия сигнальной свечи в зоне интереса (POI) и входите строго по направлению импульса. Избегайте торговли за 5 минут до и после важных новостей."
+        f"📌 ДЕТАЛЬНЫЙ АНАЛИЗ И РУКОВОДСТВО К СТРАТЕГИИ №{i} ({name}):\n\n"
+        f"• Рыночная механика и логика: Данная стратегия базируется на анализе ордеров крупных институциональных игроков, дисбалансах ликвидности и кластерных точках разворота тренда.\n"
+        f"• Рекомендуемые таймфреймы графика: {tf_choice}.\n"
+        f"• Оптимальная экспирация сделки: {exp_choice}.\n"
+        f"• Четкие правила входа в позицию:\n"
+        f"  1. Дождитесь формирования четкого паттерна на выбранном таймфрейме.\n"
+        f"  2. Проверьте совпадение импульса свечей с общим трендом актива.\n"
+        f"  3. Открывайте сделку (CALL/PUT) строго при закрытии сигнальной свечи в зоне интереса.\n"
+        f"• Риск-менеджмент: Используйте не более 1-2% от торгового депозита на одну позицию. Воздержитесь от торговли во время публикации ключевых новостей."
     )
     img_url = f"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&sig={i}"
     EDU_50.append({
         "t": f"{i}. {name}",
         "d": desc,
         "img": img_url,
-        "tags": [tf_choice.split(",")[0].strip(), "VIP Master"]
+        "tags": [tf_choice.split(",")[0].strip(), "VIP Master", "Русский"]
     })
 
 HTML_UI = """<!DOCTYPE html>
@@ -432,10 +535,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="selected-asset-box" onclick="openCatalogModal()">
   <div class="selected-asset-info">
     <span data-t="lblActiveAsset">АКТИВ ДЛЯ АНАЛИЗА</span>
-    <span id="currentAssetDisplay">EUR/USD OTC</span>
+    <span id="currentAssetDisplay">AUD/CHF OTC</span>
   </div>
   <div style="display:flex;align-items:center;gap:6px">
-    <span id="currentAssetPayout" class="cat-payout">92%</span>
+    <span id="currentAssetPayout" class="cat-payout">TRADING</span>
     <span style="font-size:16px">📋</span>
   </div>
 </div>
@@ -658,7 +761,7 @@ let isAdmin = localStorage.getItem("tmv_isAdmin") === "true";
 let timer=null,scanTimer=null,stream=null,camReady=false;
 let favs=JSON.parse(localStorage.getItem("tmv_favs")||"[]");
 let sigCount=parseInt(localStorage.getItem("tmv_sigs")||"0");
-let currentAsset="EUR/USD OTC";
+let currentAsset="AUD/CHF OTC";
 let currentLang="ru";
 let modalCategory="all";
 let uploadedImageBlob = null;
@@ -668,29 +771,7 @@ let allUsersReg = JSON.parse(localStorage.getItem("tmv_users_db") || JSON.string
   {tg: "@master_admin", status: "Активен", role: "ADMIN"}
 ]));
 
-const ASSETS_DATA_JS = {
-  ru: {
-    "💱 Валютные пары": ["EUR/USD OTC", "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/CAD OTC", "GBP/USD OTC", "USD/JPY OTC", "EUR/USD", "GBP/USD"],
-    "🔥 Криптовалюты": ["BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin OTC", "Ethereum OTC", "Solana OTC", "Cardano OTC", "TRON OTC"],
-    "🛢️ Сырьевые товары": ["Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", "Natural Gas OTC"],
-    "📈 Акции компаний": ["American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", "Microsoft OTC", "Netflix OTC", "Amazon OTC", "Apple OTC"],
-    "📊 Биржевые индексы": ["US100 OTC", "SP500 OTC"]
-  },
-  en: {
-    "💱 Currency Pairs": ["EUR/USD OTC", "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/CAD OTC", "GBP/USD OTC", "USD/JPY OTC", "EUR/USD", "GBP/USD"],
-    "🔥 Cryptocurrencies": ["BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin OTC", "Ethereum OTC", "Solana OTC", "Cardano OTC", "TRON OTC"],
-    "🛢️ Commodities": ["Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", "Natural Gas OTC"],
-    "📈 Company Stocks": ["American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", "Microsoft OTC", "Netflix OTC", "Amazon OTC", "Apple OTC"],
-    "📊 Market Indices": ["US100 OTC", "SP500 OTC"]
-  },
-  ua: {
-    "💱 Валютні пари": ["EUR/USD OTC", "AUD/CHF OTC", "AUD/USD OTC", "EUR/NZD OTC", "NZD/JPY OTC", "NZD/USD OTC", "USD/CAD OTC", "GBP/USD OTC", "USD/JPY OTC", "EUR/USD", "GBP/USD"],
-    "🔥 Криптовалюти": ["BNB OTC", "Dogecoin OTC", "Chainlink OTC", "Toncoin OTC", "Bitcoin OTC", "Ethereum OTC", "Solana OTC", "Cardano OTC", "TRON OTC"],
-    "🛢️ Сировинні товари": ["Brent Oil OTC", "WTI Crude Oil OTC", "Silver OTC", "Gold OTC", "Natural Gas OTC"],
-    "📈 Акції компаній": ["American Express OTC", "Tesla OTC", "VISA OTC", "Intel OTC", "Microsoft OTC", "Netflix OTC", "Amazon OTC", "Apple OTC"],
-    "📊 Біржові індекси": ["US100 OTC", "SP500 OTC"]
-  }
-};
+const ASSETS_DATA_JS = """ + json.dumps(ASSETS_DATA_JS, ensure_ascii=False) + """;
 
 const I18N = {
   ru: {
@@ -845,7 +926,7 @@ const I18N = {
 const EDU = """ + json.dumps(EDU_50, ensure_ascii=False) + """;
 
 function getAssetPayout(symbol) {
-  return symbol.includes("OTC") ? "92%" : "82%";
+  return "OTC";
 }
 
 function updatePoDeepLink() {
@@ -1115,7 +1196,7 @@ async function getSig(){
     } catch(e) {}
 
     let isCall = dir.includes("CALL") || dir.includes("ВВЕРХ");
-    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf} · Выплата: ${getAssetPayout(currentAsset)}`;
+    document.getElementById("sigMeta").textContent = `${currentAsset} · ${tf}`;
     const dirEl = document.getElementById("sigDir");
     dirEl.textContent = dir;
     dirEl.className = "sig-dir " + (isCall ? "call" : "put");
@@ -1437,7 +1518,7 @@ def serve_terminal():
     return HTML_UI
 
 @app.get("/get_signal")
-async def get_signal(asset: str = "EUR/USD OTC", timeframe: str = "1min", tg_username: str = Cookie(None)):
+async def get_signal(asset: str = "AUD/CHF OTC", timeframe: str = "1min", tg_username: str = Cookie(None)):
     user_for_alert = tg_username if tg_username else "Неизвестный ученик"
     asyncio.create_task(send_tg_signal_alert(user_for_alert, asset, timeframe))
     
@@ -1464,7 +1545,7 @@ async def get_signal(asset: str = "EUR/USD OTC", timeframe: str = "1min", tg_use
     base_accuracy = 70.0 + (abs(rsi - 50.0) * 0.5)
     accuracy = round(min(max(base_accuracy, 65.0), 94.5), 1)
     
-    return {"signal": calculated_signal, "payout": 92 if is_otc else 82, "accuracy": accuracy}
+    return {"signal": calculated_signal, "accuracy": accuracy}
 
 @app.post("/analyze")
 async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
