@@ -17,15 +17,113 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.0")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.1")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_CHAT_ID = os.environ.get("ADMIN_CHAT_ID", "")
+
+NEWS_RU_MAP = {
+    "non-farm payrolls": "Занятость вне с/х (NFP)",
+    "nonfarm payrolls": "Занятость вне с/х (NFP)",
+    "unemployment rate": "Уровень безработицы",
+    "cpi": "Индекс потребительских цен (CPI)",
+    "core cpi": "Базовый CPI",
+    "ppi": "Индекс цен производителей (PPI)",
+    "producer price index": "Индекс цен производителей (PPI)",
+    "gdp": "ВВП (GDP)",
+    "gross domestic product": "ВВП (GDP)",
+    "interest rate decision": "Решение по процентной ставке",
+    "rate decision": "Решение по ставке",
+    "fomc": "Заседание ФРС (FOMC)",
+    "federal funds rate": "Ставка ФРС",
+    "retail sales": "Розничные продажи",
+    "core retail sales": "Базовые розничные продажи",
+    "ism manufacturing": "ISM Производство",
+    "ism services": "ISM Услуги",
+    "pmi": "Индекс PMI",
+    "consumer confidence": "Индекс потребительского доверия",
+    "consumer inflation expectations": "Ожидания инфляции потребителей",
+    "building permits": "Разрешения на строительство",
+    "housing starts": "Начало строительства жилья",
+    "existing home sales": "Продажи вторичного жилья",
+    "new home sales": "Продажи нового жилья",
+    "durable goods": "Заказы на товары длит. пользования",
+    "trade balance": "Торговый баланс",
+    "current account": "Платёжный баланс",
+    "industrial production": "Промышленное производство",
+    "capacity utilization": "Загрузка мощностей",
+    "initial jobless claims": "Первичные заявки по безработице",
+    "continuing jobless claims": "Повторные заявки по безработице",
+    "average hourly earnings": "Средняя почасовая оплата",
+    "adp non-farm employment": "Занятость ADP",
+    "adp employment": "Занятость ADP",
+    "michigan consumer sentiment": "Индекс настроений Мичигана",
+    "cb consumer confidence": "Индекс доверия потребителей CB",
+    "beige book": "Бежевая книга ФРС",
+    "president lagarde speech": "Выступление президента ЕЦБ Лагард",
+    "ecb's president lagarde speech": "Выступление президента ЕЦБ Лагард",
+    "lagarde speech": "Выступление Лагард (ЕЦБ)",
+    "bank of england": "Банк Англии",
+    "bank of japan": "Банк Японии",
+    "reserve bank of australia": "РБА Австралия",
+    "bank of canada": "Банк Канады",
+    "press conference": "Пресс-конференция",
+    "monetary policy statement": "Заявление по ДКП",
+    "core pce": "Базовый PCE",
+    "pce price index": "Индекс цен PCE",
+    "jolts job openings": "Вакансии JOLTS",
+    "philadelphia fed": "Индекс ФРБ Филадельфии",
+    "empire state manufacturing": "Индекс Empire State",
+    "flash manufacturing pmi": "Предварительный PMI пр-ва",
+    "flash services pmi": "Предварительный PMI услуг",
+    "composite pmi": "Сводный PMI",
+    "ifo business climate": "Индекс IFO",
+    "sentix investor confidence": "Индекс Sentix",
+    "leading indicators": "Опережающие индикаторы",
+    "crude oil inventories": "Запасы сырой нефти",
+    "natural gas storage": "Запасы природного газа",
+    "speech": "Выступление",
+}
+
+
+def translate_news_title(title: str) -> str:
+    if not title:
+        return title
+    low = title.lower().strip()
+    for en, ru in sorted(NEWS_RU_MAP.items(), key=lambda x: -len(x[0])):
+        if en in low:
+            suffix = ""
+            if "mom" in low or "m/m" in low:
+                suffix = " (м/м)"
+            elif "yoy" in low or "y/y" in low:
+                suffix = " (г/г)"
+            elif "qoq" in low or "q/q" in low:
+                suffix = " (кв/кв)"
+            if any(x in ru for x in ("м/м", "г/г", "кв/кв")):
+                return ru
+            return ru + suffix
+    out = title
+    for a, b in [
+        ("MoM", "м/м"), ("YoY", "г/г"), ("QoQ", "кв/кв"),
+        ("m/m", "м/м"), ("y/y", "г/г"), ("q/q", "кв/кв"),
+        ("Speech", "Выступление"), ("Decision", "Решение"),
+    ]:
+        out = out.replace(a, b)
+    return out
+
+
+def impact_ru(imp: str) -> str:
+    x = (imp or "").lower()
+    if x == "high":
+        return "Высокая"
+    if x == "medium":
+        return "Средняя"
+    return "Низкая"
 
 
 async def send_tg_signal_alert(asset, timeframe):
@@ -117,7 +215,6 @@ def generate_otc_candles(asset_name, count=50):
 
 class ScannerAnalyzer:
     def _gemini_sync(self, image, config):
-        model = genai.GenerativeModel(GEMINI_MODEL)
         prompt = (
             "Ты профессиональный ИИ-сканер графиков бинарных опционов Pocket Option. "
             "Внимательно проанализируй расположение свечей, их тела, тени, цвета, текущую тенденцию, уровни и паттерны на данном скриншоте графика. "
@@ -125,8 +222,21 @@ class ScannerAnalyzer:
             + config.get("стратегия", "Smart Money")
             + ") и подробный технический анализ на основе расположения свечей. Используй эмодзи 📈📉⚡🔥💎🎯🚀."
         )
-        response = model.generate_content([prompt, image])
-        return response.text if response and response.text else None
+        models_try = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-3.6-flash", "gemini-2.5-flash"]
+        seen = set()
+        for m in models_try:
+            if not m or m in seen:
+                continue
+            seen.add(m)
+            try:
+                model = genai.GenerativeModel(m)
+                response = model.generate_content([prompt, image])
+                if response and response.text:
+                    return response.text
+            except Exception as ex:
+                logging.warning(f"Scanner Gemini model {m} failed: {ex}")
+                continue
+        return None
 
     async def compute(self, image_bytes: bytes, config: dict) -> str:
         try:
@@ -468,7 +578,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="card tab" id="tabSig">
     <div class="live-bar">
       <span class="live" id="apiStatusBadge">● POCKET OPTION API: ONLINE 🟢</span>
-      <span style="font-size:9px;color:var(--gold);font-weight:800" id="apiTimerDisplay" data-t="syncLbl">⚡ СИНХРОНИЗАЦИЯ</span>
+      <span style="font-size:10px;color:var(--gold);font-weight:800" id="liveClock">🕒 --:--:--</span>
     </div>
     <div class="selected-asset-box" onclick="openCatalogModal()">
       <div class="selected-asset-info">
@@ -524,7 +634,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
   <div class="card tab hidden" id="tabNews">
     <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Экономические новости</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Календарь High/Medium. Нажмите на новость, чтобы раскрыть. Автообновление.</p>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Реальные события High/Medium, влияющие на рынок. На русском. Нажмите — подробности. Обновление каждую минуту.</p>
     <div class="news-updated" id="newsUpdated">—</div>
     <div style="display:flex;gap:6px;margin-bottom:10px">
       <button class="btn btn-gold btn-sm" style="flex:1" onclick="loadNews(true)" data-t="btnRefreshNews">🔄 Обновить сейчас</button>
@@ -734,7 +844,7 @@ var I18N = {
     phPocketId: "Введите ваш Pocket ID...", phFavStrat: "Например: Smart Money, Price Action...",
     favTabTitle: "⭐ Избранные активы", favTabDesc: "Нажмите на любой актив из списка для перехода.",
     profFavEmpty: "Пока пусто — добавь актив из полного каталога", btnClearFav: "🗑 Очистить избранное",
-    newsTitle: "📰 Экономические новости", newsDesc: "Календарь High/Medium. Нажмите на новость, чтобы раскрыть. Автообновление.",
+    newsTitle: "📰 Экономические новости", newsDesc: "Реальные события High/Medium, влияющие на рынок. На русском. Нажмите — подробности. Обновление каждую минуту.",
     btnRefreshNews: "🔄 Обновить сейчас", newsLoading: "Загрузка новостей...",
     chatTitle: "🤖 ИИ Помощник Team Master",
     chatDesc: "Вопросы по рынку, стратегиям, терминалу и команде Team Master Trade (аналитики 7+ лет, академия).",
@@ -1068,11 +1178,16 @@ function impactClass(imp) {
   return "low";
 }
 
-function impactLabel(imp) {
+function impactLabel(imp, impRu) {
   var x = String(imp || "").toLowerCase();
-  if (x === "high") return "🔴 High";
-  if (x === "medium") return "🟠 Medium";
-  return "🟡 Low";
+  if (impRu) {
+    if (x === "high") return "🔴 " + impRu;
+    if (x === "medium") return "🟠 " + impRu;
+    return "🟡 " + impRu;
+  }
+  if (x === "high") return "🔴 Высокая";
+  if (x === "medium") return "🟠 Средняя";
+  return "🟡 Низкая";
 }
 
 function newsDetailText(ev) {
@@ -1103,10 +1218,13 @@ function renderNewsList(events) {
     var previous = String(ev.previous || "").trim();
     html += '<div class="news-item ' + ic + '" data-idx="' + idx + '" onclick="toggleNews(' + idx + ')">';
     html += '<div class="news-top">';
-    html += '<span class="news-cur">' + esc(ev.currency || "—") + ' · <span class="news-impact ' + ic + '">' + impactLabel(ev.impact) + '</span></span>';
+    html += '<span class="news-cur">' + esc(ev.currency || "—") + ' · <span class="news-impact ' + ic + '">' + impactLabel(ev.impact, ev.impact_ru) + '</span></span>';
     html += '<span class="news-time">🕒 ' + esc(formatNewsTime(ev.date)) + '</span>';
     html += '</div>';
     html += '<div class="news-name">' + esc(ev.name || "Событие") + '</div>';
+    if (ev.name_en && ev.name_en !== ev.name) {
+      html += '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">' + esc(ev.name_en) + '</div>';
+    }
     html += '<div class="news-meta">';
     if (forecast) html += '<span>📈 Прогноз: ' + esc(forecast) + '</span>';
     if (previous) html += '<span>📉 Пред.: ' + esc(previous) + '</span>';
@@ -1152,7 +1270,14 @@ async function loadNews(force) {
 
 function startNewsAuto() {
   if (newsTimer) clearInterval(newsTimer);
-  newsTimer = setInterval(function() { loadNews(false); }, 90000);
+  newsTimer = setInterval(function() { loadNews(false); }, 60000);
+}
+
+function tickClock() {
+  var el = document.getElementById("liveClock");
+  if (!el) return;
+  var d = new Date();
+  el.textContent = "🕒 " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
 }
 
 function strategyVisual(kind) {
@@ -1456,6 +1581,8 @@ window.addEventListener("DOMContentLoaded", function() {
   loadProfile();
   loadNews(true);
   startNewsAuto();
+  tickClock();
+  setInterval(tickClock, 1000);
 });
 </script>
 </body>
@@ -1510,10 +1637,14 @@ async def get_news():
             if res.status_code == 200:
                 data = res.json()
                 for e in data.get("events", []):
+                    raw_title = e.get("title") or ""
+                    imp = (e.get("impact") or "medium").capitalize()
                     events.append({
-                        "name": e.get("title") or "",
+                        "name": translate_news_title(raw_title),
+                        "name_en": raw_title,
                         "currency": (e.get("currency") or "").upper(),
-                        "impact": (e.get("impact") or "medium").capitalize(),
+                        "impact": imp,
+                        "impact_ru": impact_ru(imp),
                         "date": e.get("time") or "",
                         "forecast": e.get("forecast") or "",
                         "previous": e.get("previous") or "",
@@ -1534,10 +1665,13 @@ async def get_news():
                         imp = (e.get("impact") or "").capitalize()
                         if imp not in ("High", "Medium"):
                             continue
+                        raw_title = e.get("name") or ""
                         events.append({
-                            "name": e.get("name") or "",
+                            "name": translate_news_title(raw_title),
+                            "name_en": raw_title,
                             "currency": (e.get("currency") or "").upper(),
                             "impact": imp,
+                            "impact_ru": impact_ru(imp),
                             "date": e.get("date") or "",
                             "forecast": e.get("forecast") or "",
                             "previous": e.get("previous") or "",
@@ -1549,7 +1683,7 @@ async def get_news():
             logging.warning(f"PipAtlas news error: {ex}")
 
     events.sort(key=lambda x: x.get("date") or "")
-    return {"events": events[:80], "updated": updated}
+    return {"events": events[:80], "updated": updated, "server_time": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
 
 
 @app.post("/analyze")
@@ -1564,9 +1698,25 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
 
 
 def _chat_sync(chat_prompt):
-    model = genai.GenerativeModel(GEMINI_MODEL)
-    response = model.generate_content(chat_prompt)
-    return response.text.strip() if response and response.text else "Нет ответа от ИИ. 🤖"
+    models_try = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-3.6-flash", "gemini-2.5-flash"]
+    seen = set()
+    last_err = None
+    for m in models_try:
+        if not m or m in seen:
+            continue
+        seen.add(m)
+        try:
+            model = genai.GenerativeModel(m)
+            response = model.generate_content(chat_prompt)
+            if response and response.text:
+                return response.text.strip()
+        except Exception as e:
+            last_err = e
+            logging.warning(f"Gemini model {m} failed: {e}")
+            continue
+    if last_err:
+        raise last_err
+    return "Нет ответа от ИИ. 🤖"
 
 
 @app.post("/ai-chat")
