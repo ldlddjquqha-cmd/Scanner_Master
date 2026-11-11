@@ -17,7 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.1")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.2")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
@@ -214,36 +214,26 @@ def generate_otc_candles(asset_name, count=50):
 
 
 class ScannerAnalyzer:
-    def _gemini_sync(self, image, config):
+    def _gemini_sync(self, image_bytes: bytes, config: dict):
         prompt = (
             "Ты профессиональный ИИ-сканер графиков бинарных опционов Pocket Option. "
             "Внимательно проанализируй расположение свечей, их тела, тени, цвета, текущую тенденцию, уровни и паттерны на данном скриншоте графика. "
             "Выдай торговый сигнал: направление (BUY / ВВЕРХ или SELL / ВНИЗ), таймфрейм, стратегию ("
-            + config.get("стратегия", "Smart Money")
+            + str(config.get("стратегия", "Smart Money"))
             + ") и подробный технический анализ на основе расположения свечей. Используй эмодзи 📈📉⚡🔥💎🎯🚀."
         )
-        models_try = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-3.6-flash", "gemini-2.5-flash"]
-        seen = set()
-        for m in models_try:
-            if not m or m in seen:
-                continue
-            seen.add(m)
-            try:
-                model = genai.GenerativeModel(m)
-                response = model.generate_content([prompt, image])
-                if response and response.text:
-                    return response.text
-            except Exception as ex:
-                logging.warning(f"Scanner Gemini model {m} failed: {ex}")
-                continue
-        return None
+        return _gemini_rest_vision(prompt, image_bytes, mime="image/jpeg")
 
     async def compute(self, image_bytes: bytes, config: dict) -> str:
         try:
             image = Image.open(io.BytesIO(image_bytes))
             if GEMINI_API_KEY:
                 try:
-                    text = await asyncio.to_thread(self._gemini_sync, image, config)
+                    # перекодируем в JPEG для REST
+                    buf = io.BytesIO()
+                    image.convert("RGB").save(buf, format="JPEG", quality=85)
+                    jpeg_bytes = buf.getvalue()
+                    text = await asyncio.to_thread(self._gemini_sync, jpeg_bytes, config)
                     if text:
                         return "--- TEAM MASTER AI CANDLE SCANNER ---\n" + text
                 except Exception as ex:
@@ -634,7 +624,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
   <div class="card tab hidden" id="tabNews">
     <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Экономические новости</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Реальные события High/Medium, влияющие на рынок. На русском. Нажмите — подробности. Обновление каждую минуту.</p>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Календарь по валютам (USD EUR GBP JPY…). Сегодня вышло + скоро выйдет. High/Medium. Автообновление каждую минуту.</p>
     <div class="news-updated" id="newsUpdated">—</div>
     <div style="display:flex;gap:6px;margin-bottom:10px">
       <button class="btn btn-gold btn-sm" style="flex:1" onclick="loadNews(true)" data-t="btnRefreshNews">🔄 Обновить сейчас</button>
@@ -844,7 +834,7 @@ var I18N = {
     phPocketId: "Введите ваш Pocket ID...", phFavStrat: "Например: Smart Money, Price Action...",
     favTabTitle: "⭐ Избранные активы", favTabDesc: "Нажмите на любой актив из списка для перехода.",
     profFavEmpty: "Пока пусто — добавь актив из полного каталога", btnClearFav: "🗑 Очистить избранное",
-    newsTitle: "📰 Экономические новости", newsDesc: "Реальные события High/Medium, влияющие на рынок. На русском. Нажмите — подробности. Обновление каждую минуту.",
+    newsTitle: "📰 Форекс-новости", newsDesc: "Календарь по валютам (USD EUR GBP JPY…). Сегодня вышло + скоро выйдет. High/Medium. Автообновление каждую минуту.",
     btnRefreshNews: "🔄 Обновить сейчас", newsLoading: "Загрузка новостей...",
     chatTitle: "🤖 ИИ Помощник Team Master",
     chatDesc: "Вопросы по рынку, стратегиям, терминалу и команде Team Master Trade (аналитики 7+ лет, академия).",
@@ -1207,11 +1197,22 @@ function newsDetailText(ev) {
 function renderNewsList(events) {
   var list = document.getElementById("newsList");
   if (!events || !events.length) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Нет событий на ближайшие дни</div>';
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Нет форекс-событий High/Medium на ближайшие дни</div>';
     return;
   }
+  var released = events.filter(function(e) { return e.status === "released"; });
+  var upcoming = events.filter(function(e) { return e.status !== "released"; });
+  var ordered = upcoming.concat(released);
   var html = "";
-  events.forEach(function(ev, idx) {
+  if (upcoming.length) {
+    html += '<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">⏳ Скоро выйдет · влияет на валютные пары</div>';
+  }
+  var shownReleasedHeader = false;
+  ordered.forEach(function(ev, idx) {
+    if (ev.status === "released" && !shownReleasedHeader) {
+      html += '<div style="font-size:11px;font-weight:800;color:var(--green);margin:12px 0 6px">✅ Уже вышло сегодня / недавно</div>';
+      shownReleasedHeader = true;
+    }
     var ic = impactClass(ev.impact);
     var actual = String(ev.actual || "").trim();
     var forecast = String(ev.forecast || "").trim();
@@ -1221,6 +1222,7 @@ function renderNewsList(events) {
     html += '<span class="news-cur">' + esc(ev.currency || "—") + ' · <span class="news-impact ' + ic + '">' + impactLabel(ev.impact, ev.impact_ru) + '</span></span>';
     html += '<span class="news-time">🕒 ' + esc(formatNewsTime(ev.date)) + '</span>';
     html += '</div>';
+    html += '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">' + esc(ev.status_ru || "") + (ev.pair_hint ? " · пары " + esc(ev.currency) + "/*" : "") + '</div>';
     html += '<div class="news-name">' + esc(ev.name || "Событие") + '</div>';
     if (ev.name_en && ev.name_en !== ev.name) {
       html += '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">' + esc(ev.name_en) + '</div>';
@@ -1543,15 +1545,26 @@ async function sendAiChatMessage() {
   msgBox.scrollTop = msgBox.scrollHeight;
 
   var reply = "⚠️ Ошибка связи с сервером.";
+  var controller = new AbortController();
+  var to = setTimeout(function() { controller.abort(); }, 55000);
   try {
     var fd = new FormData();
     fd.append("prompt", text);
-    var response = await fetch("/ai-chat", { method: "POST", body: fd });
+    var response = await fetch("/ai-chat", { method: "POST", body: fd, signal: controller.signal });
     if (response.ok) {
       var data = await response.json();
       reply = data.reply || reply;
+    } else {
+      reply = "⚠️ Сервер вернул ошибку " + response.status + ". Проверь GEMINI_API_KEY на Render.";
     }
-  } catch (e) {}
+  } catch (e) {
+    if (e && e.name === "AbortError") {
+      reply = "⚠️ Таймаут ожидания ответа ИИ. Попробуй ещё раз.";
+    } else {
+      reply = "⚠️ Сеть или сервер недоступны. Обнови страницу.";
+    }
+  }
+  clearTimeout(to);
   var loadEl = document.getElementById(loadingId);
   if (loadEl) loadEl.remove();
   msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai">' + esc(reply) + '</div>');
@@ -1622,33 +1635,60 @@ async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str
     return {"signal": signal, "reason": reason}
 
 
+def _parse_event_dt(iso_str: str):
+    if not iso_str:
+        return None
+    try:
+        s = iso_str.replace("Z", "+00:00")
+        return datetime.fromisoformat(s)
+    except Exception:
+        return None
+
+
 @app.get("/news")
 async def get_news():
+    """Форекс-календарь: валюты, High/Medium, сегодня вышло + скоро выйдет."""
     events = []
     updated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    now = datetime.now(timezone.utc)
     try:
         url = (
             "https://showmytrades.com/api/public/calendar/v1"
             "?currency=USD,EUR,GBP,JPY,AUD,NZD,CAD,CHF"
-            "&impact=high,medium&days=5"
+            "&impact=high,medium&days=3"
         )
         async with httpx.AsyncClient() as client:
-            res = await client.get(url, timeout=10.0)
+            res = await client.get(url, timeout=12.0)
             if res.status_code == 200:
                 data = res.json()
                 for e in data.get("events", []):
                     raw_title = e.get("title") or ""
                     imp = (e.get("impact") or "medium").capitalize()
+                    dt_iso = e.get("time") or ""
+                    dt = _parse_event_dt(dt_iso)
+                    actual = e.get("actual") or ""
+                    if dt and dt <= now:
+                        status = "released"
+                        status_ru = "✅ Уже вышло"
+                    else:
+                        status = "upcoming"
+                        status_ru = "⏳ Скоро выйдет"
+                    if actual:
+                        status = "released"
+                        status_ru = "✅ Уже вышло"
                     events.append({
                         "name": translate_news_title(raw_title),
                         "name_en": raw_title,
                         "currency": (e.get("currency") or "").upper(),
                         "impact": imp,
                         "impact_ru": impact_ru(imp),
-                        "date": e.get("time") or "",
+                        "date": dt_iso,
                         "forecast": e.get("forecast") or "",
                         "previous": e.get("previous") or "",
-                        "actual": e.get("actual") or "",
+                        "actual": actual,
+                        "status": status,
+                        "status_ru": status_ru,
+                        "pair_hint": (e.get("currency") or "").upper() + "/USD",
                     })
                 if data.get("generated_at"):
                     updated = data["generated_at"]
@@ -1658,7 +1698,7 @@ async def get_news():
     if not events:
         try:
             async with httpx.AsyncClient() as client:
-                res = await client.get("https://pipatlas.com/api/calendar", timeout=10.0)
+                res = await client.get("https://pipatlas.com/api/calendar", timeout=12.0)
                 if res.status_code == 200:
                     data = res.json()
                     for e in data.get("events", []):
@@ -1666,16 +1706,28 @@ async def get_news():
                         if imp not in ("High", "Medium"):
                             continue
                         raw_title = e.get("name") or ""
+                        dt_iso = e.get("date") or ""
+                        dt = _parse_event_dt(dt_iso)
+                        actual = e.get("actual") or ""
+                        if dt and dt <= now:
+                            status, status_ru = "released", "✅ Уже вышло"
+                        else:
+                            status, status_ru = "upcoming", "⏳ Скоро выйдет"
+                        if actual:
+                            status, status_ru = "released", "✅ Уже вышло"
                         events.append({
                             "name": translate_news_title(raw_title),
                             "name_en": raw_title,
                             "currency": (e.get("currency") or "").upper(),
                             "impact": imp,
                             "impact_ru": impact_ru(imp),
-                            "date": e.get("date") or "",
+                            "date": dt_iso,
                             "forecast": e.get("forecast") or "",
                             "previous": e.get("previous") or "",
-                            "actual": e.get("actual") or "",
+                            "actual": actual,
+                            "status": status,
+                            "status_ru": status_ru,
+                            "pair_hint": (e.get("currency") or "").upper() + "/USD",
                         })
                     if data.get("updated"):
                         updated = data["updated"]
@@ -1683,7 +1735,12 @@ async def get_news():
             logging.warning(f"PipAtlas news error: {ex}")
 
     events.sort(key=lambda x: x.get("date") or "")
-    return {"events": events[:80], "updated": updated, "server_time": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+    return {
+        "events": events[:100],
+        "updated": updated,
+        "server_time": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "focus": "forex",
+    }
 
 
 @app.post("/analyze")
@@ -1697,54 +1754,140 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
     return {"text": result_text}
 
 
-def _chat_sync(chat_prompt):
-    models_try = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-3.6-flash", "gemini-2.5-flash"]
+def _gemini_rest_text(prompt_text: str) -> str:
+    """Прямой REST к Gemini — работает надёжнее старого SDK."""
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY не задан")
+    models_try = [
+        GEMINI_MODEL or "gemini-3.8-flash",
+        "gemini-3.8-flash",
+        "gemini-3.6-flash",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+    ]
     seen = set()
     last_err = None
+    import urllib.request
+    import urllib.error
     for m in models_try:
         if not m or m in seen:
             continue
         seen.add(m)
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent"
+            f"?key={GEMINI_API_KEY}"
+        )
+        body = json.dumps({
+            "contents": [{"parts": [{"text": prompt_text}]}],
+            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1024},
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
         try:
-            model = genai.GenerativeModel(m)
-            response = model.generate_content(chat_prompt)
-            if response and response.text:
-                return response.text.strip()
+            with urllib.request.urlopen(req, timeout=40) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            candidates = data.get("candidates") or []
+            if candidates:
+                parts = (candidates[0].get("content") or {}).get("parts") or []
+                texts = [p.get("text", "") for p in parts if p.get("text")]
+                if texts:
+                    return "\n".join(texts).strip()
+            last_err = RuntimeError(f"Пустой ответ модели {m}: {json.dumps(data)[:300]}")
         except Exception as e:
             last_err = e
-            logging.warning(f"Gemini model {m} failed: {e}")
+            logging.warning(f"Gemini REST {m} failed: {e}")
             continue
     if last_err:
         raise last_err
     return "Нет ответа от ИИ. 🤖"
 
 
+def _gemini_rest_vision(prompt_text: str, image_bytes: bytes, mime: str = "image/jpeg") -> str:
+    if not GEMINI_API_KEY:
+        return None
+    import base64
+    import urllib.request
+    b64 = base64.b64encode(image_bytes).decode("ascii")
+    models_try = [GEMINI_MODEL or "gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-2.5-flash"]
+    seen = set()
+    for m in models_try:
+        if not m or m in seen:
+            continue
+        seen.add(m)
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent"
+            f"?key={GEMINI_API_KEY}"
+        )
+        body = json.dumps({
+            "contents": [{
+                "parts": [
+                    {"text": prompt_text},
+                    {"inline_data": {"mime_type": mime, "data": b64}},
+                ]
+            }],
+            "generationConfig": {"temperature": 0.4, "maxOutputTokens": 1024},
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            url, data=body, headers={"Content-Type": "application/json"}, method="POST"
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=45) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            candidates = data.get("candidates") or []
+            if candidates:
+                parts = (candidates[0].get("content") or {}).get("parts") or []
+                texts = [p.get("text", "") for p in parts if p.get("text")]
+                if texts:
+                    return "\n".join(texts).strip()
+        except Exception as e:
+            logging.warning(f"Gemini vision REST {m} failed: {e}")
+            continue
+    return None
+
+
+def _chat_sync(chat_prompt):
+    return _gemini_rest_text(chat_prompt)
+
+
 @app.post("/ai-chat")
 async def ai_chat(prompt: str = Form(...)):
-    user_prompt = prompt.strip()
+    user_prompt = (prompt or "").strip()
+    if not user_prompt:
+        return {"reply": "Напишите вопрос ✍️"}
     if not GEMINI_API_KEY:
-        return {"reply": "⚠️ Ключ GEMINI_API_KEY не настроен в окружении Render."}
+        return {
+            "reply": (
+                "⚠️ GEMINI_API_KEY не найден в Environment на Render.\n"
+                "Добавь ключ из Google AI Studio → Environment → GEMINI_API_KEY → Redeploy."
+            )
+        }
 
     chat_prompt = (
         "Ты профессиональный трейдер-наставник и ИИ-помощник команды Team Master VIP / Team Master Trade "
         "на платформе Pocket Option.\n"
-        "О команде: Team Master Trade — команда аналитиков с опытом 7+ лет, есть академия, торговые чаты, "
-        "сопровождение и обучение стратегиям Price Action, Smart Money, ICT, скальпингу.\n"
-        "Отвечай на вопросы по трейдингу, рынкам, индикаторам, стратегиям, сигналам, терминалу Team Master VIP, "
-        "а также по команде, академии и обучению.\n"
+        "О команде: Team Master Trade — аналитики с опытом 7+ лет, академия, торговые чаты, "
+        "сопровождение, обучение Price Action, Smart Money, ICT, скальпингу, форекс и бинарным опционам.\n"
+        "Отвечай по: трейдингу, форекс, валютным парам, новостям рынка, индикаторам, стратегиям, сигналам, "
+        "терминалу Team Master VIP, команде и академии.\n"
         "Используй эмодзи (📈📉⚡🚀💎👑🎯🤖⭐🔥📊).\n\n"
         "ПРАВИЛА:\n"
-        "1. Только темы: трейдинг, рынки, стратегии, сигналы, терминал, команда Team Master / Master Trade, академия. "
-        "Если вопрос посторонний — откажись вежливо и верни к теме.\n"
-        "2. На неприличные вопросы не отвечай.\n"
-        "3. Если просят сигнал/направление — дай разбор и напомни о рисках бинарных опционов (риск 1-2% на сделку).\n"
-        "4. Отвечай на языке вопроса пользователя.\n\n"
+        "1. Только трейдинг/рынки/команда/терминал. Постороннее — вежливо откажи.\n"
+        "2. Неприличные темы — отказ.\n"
+        "3. Сигнал/направление — разбор + риски (1–2% на сделку).\n"
+        "4. Язык ответа = язык вопроса.\n\n"
         f"Вопрос пользователя: {user_prompt}"
     )
     try:
-        reply = await asyncio.to_thread(_chat_sync, chat_prompt)
+        reply = await asyncio.wait_for(asyncio.to_thread(_chat_sync, chat_prompt), timeout=50)
         return {"reply": reply}
+    except asyncio.TimeoutError:
+        return {"reply": "⚠️ ИИ не успел ответить (таймаут). Попробуй ещё раз через несколько секунд."}
     except Exception as e:
+        logging.exception("ai-chat error")
         return {"reply": f"⚠️ Ошибка связи с ИИ: {str(e)}"}
 
 
