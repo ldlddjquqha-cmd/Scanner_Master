@@ -17,7 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.4")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="28.0")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
@@ -517,35 +517,34 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .profile-photo-upload{width:90px;height:90px;border-radius:50%;border:2px dashed var(--gold);background:var(--inner);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 12px;overflow:hidden;position:relative}
 .profile-photo-upload img{width:100%;height:100%;object-fit:cover}
 .about-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:16px;font-size:11.5px;color:#c5cdd8;line-height:1.75}
-.news-item{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 12px;margin-bottom:7px;cursor:pointer;transition:border-color .15s}
-.news-item:active{transform:scale(.99)}
-.news-item.high{border-color:rgba(255,82,82,.45);background:rgba(255,82,82,.06)}
-.news-item.medium{border-color:rgba(255,167,38,.4);background:rgba(255,167,38,.05)}
-.news-item.open{border-color:var(--gold)}
-.news-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px}
-.news-cur{font-size:11px;font-weight:900;color:var(--gold)}
-.news-time{font-size:10px;color:var(--muted);font-weight:700}
-.news-name{font-size:12px;font-weight:800;color:var(--text);margin-bottom:6px;line-height:1.35}
-.news-meta{display:flex;flex-wrap:wrap;gap:6px;font-size:10px;font-weight:700;color:#b0b8c8}
-.news-meta span{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:3px 7px}
-.news-impact{font-size:9px;font-weight:900;padding:2px 7px;border-radius:6px}
-.news-impact.high{background:rgba(255,82,82,.2);color:var(--red)}
-.news-impact.medium{background:rgba(255,167,38,.2);color:#FFA726}
+.news-sec-title{font-size:12px;font-weight:900;margin:14px 0 8px;padding:8px 10px;border-radius:10px;letter-spacing:.3px}
+.news-sec-up{background:linear-gradient(90deg,rgba(255,215,0,.18),transparent);color:var(--gold);border:1px solid rgba(255,215,0,.25)}
+.news-sec-done{background:linear-gradient(90deg,rgba(0,230,118,.12),transparent);color:var(--green);border:1px solid rgba(0,230,118,.25)}
+.news-item{background:linear-gradient(180deg,rgba(18,22,34,.95),rgba(10,12,20,.98));border:1px solid var(--border);border-radius:14px;padding:12px 13px;margin-bottom:9px;cursor:pointer;transition:all .18s;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.news-item:active{transform:scale(.985)}
+.news-item.high{border-color:rgba(255,82,82,.55);box-shadow:0 0 0 1px rgba(255,82,82,.12),0 6px 18px rgba(255,82,82,.08)}
+.news-item.medium{border-color:rgba(255,167,38,.45);box-shadow:0 0 0 1px rgba(255,167,38,.1)}
+.news-item.open{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,215,0,.25),0 8px 22px rgba(255,215,0,.1)}
+.news-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.news-cur{font-size:11px;font-weight:900;color:var(--gold);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.news-time{font-size:11px;color:#fff;font-weight:800;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.25);padding:3px 8px;border-radius:8px;white-space:nowrap}
+.news-name{font-size:13px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.35}
+.news-pairs{font-size:10.5px;color:#9aa3b5;margin-bottom:7px;font-weight:600}
+.news-meta{display:flex;flex-wrap:wrap;gap:6px;font-size:10.5px;font-weight:700;color:#c5cdd8}
+.news-meta span{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:4px 8px}
+.news-impact{font-size:9px;font-weight:900;padding:3px 8px;border-radius:7px}
+.news-impact.high{background:rgba(255,82,82,.22);color:#ff8a80}
+.news-impact.medium{background:rgba(255,167,38,.2);color:#FFB74D}
 .news-impact.low{background:rgba(255,215,0,.12);color:var(--gold)}
 .news-updated{font-size:10px;color:var(--muted);font-weight:700;text-align:center;margin-bottom:8px}
-.news-list{max-height:420px;overflow-y:auto}
-.news-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);font-size:11px;color:#c5cdd8;line-height:1.55}
+.news-list{max-height:460px;overflow-y:auto;padding-right:2px}
+.news-detail{display:none;margin-top:10px;padding:10px 11px;border-top:1px solid rgba(255,215,0,.2);border-radius:0 0 10px 10px;font-size:11.5px;color:#d7deea;line-height:1.65;background:rgba(0,0,0,.25)}
 .news-item.open .news-detail{display:block}
-.chat-container{display:flex;flex-direction:column;height:380px;background:var(--inner);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
-.chat-msg{padding:8px 11px;border-radius:10px;font-size:11.5px;line-height:1.4;max-width:85%;white-space:pre-wrap}
-.chat-msg.user{background:rgba(255,215,0,0.15);color:var(--gold);align-self:flex-end;border:1px solid rgba(255,215,0,0.3)}
-.chat-msg.ai{background:var(--card);color:var(--text);align-self:flex-start;border:1px solid var(--border)}
-.chat-input-row{display:flex;gap:6px;padding:8px;background:var(--card);border-top:1px solid var(--border)}
-.chat-input{flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:11.5px;outline:none}
-.chat-input:focus{border-color:var(--gold)}
-.strat-visual{background:#05070d;border:1px solid var(--border-g);border-radius:12px;padding:10px;margin-bottom:12px;overflow:hidden}
+.news-badge{font-size:9px;font-weight:900;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.06);color:#b0b8c8}
+.strat-visual{background:linear-gradient(180deg,#070b14,#05070d);border:1px solid var(--border-g);border-radius:14px;padding:12px;margin-bottom:14px;overflow:hidden;box-shadow:inset 0 0 30px rgba(255,215,0,.04)}
 .strat-visual svg{width:100%;height:auto;display:block}
+.strat-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;font-weight:700;color:#b0b8c8}
+.strat-legend span{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:7px;padding:4px 8px}
 </style>
 </head>
 <body>
@@ -632,33 +631,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <div class="news-list" id="newsList">
       <div style="text-align:center;padding:20px;color:var(--muted);font-size:11px" data-t="newsLoading">Загрузка новостей...</div>
     </div>
-  </div>
-
-  <div class="card tab hidden" id="tabChat">
-    <h3 class="g-text" style="font-size:13px;margin-bottom:8px" data-t="chatTitle">🤖 ИИ Помощник Team Master</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:10px" data-t="chatDesc">Рынок, стратегии, терминал, команда. Можно прикрепить скрин графика 📎</p>
-    <div class="chat-container">
-      <div class="chat-messages" id="chatMessagesBox">
-        <div class="chat-msg ai">Привет! 🤝 Я наставник Team Master VIP. Пиши вопрос или кидай скрин графика — разберу вход CALL/PUT по правилам. 📈🚀</div>
-      </div>
-      <div id="chatPreviewWrap" style="display:none;padding:6px 8px">
-        <div style="display:flex;align-items:center;gap:8px;background:#0a0e18;border:1px solid #2a3344;border-radius:10px;padding:6px">
-          <img id="chatImgPreview" src="" alt="preview" style="width:56px;height:56px;object-fit:cover;border-radius:8px"/>
-          <span style="font-size:10px;color:var(--muted);flex:1">Скрин прикреплён</span>
-          <button type="button" class="btn btn-dark btn-sm" style="width:auto;padding:4px 8px" onclick="clearChatImage()">✕</button>
-        </div>
-      </div>
-      <div class="chat-input-row">
-        <label class="btn btn-dark btn-sm" style="width:auto;padding:8px 10px;margin:0;cursor:pointer" title="Прикрепить скрин">
-          📎
-          <input type="file" id="chatImageInput" accept="image/*" style="display:none" onchange="onChatImageSelected(this)">
-        </label>
-        <input type="text" class="chat-input" id="chatInputText" data-ph="chatPlaceholder" placeholder="Вопрос по рынку или стратегии..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
-        <button class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
-      </div>
-    </div>
-    <div class="gap2"></div>
-    <a class="btn btn-dark btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" rel="noopener" style="color:var(--gold)" data-t="btnTgCommunity">💬 Наши чаты и сообщество в Telegram</a>
   </div>
 
   <div class="card tab hidden" id="tabEdu">
@@ -779,7 +751,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
   <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
   <div class="nav" onclick="tab('tabNews',this)"><span>📰</span><span data-t="navNews">Новости</span></div>
-  <div class="nav" onclick="tab('tabChat',this)"><span>🤖</span><span data-t="navChat">ИИ Чат</span></div>
   <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
   <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
   <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
@@ -1197,15 +1168,19 @@ function impactLabel(imp, impRu) {
 
 function newsDetailText(ev) {
   var lines = [];
-  lines.push("Валюта: " + (ev.currency || "—"));
-  lines.push("Важность: " + (ev.impact || "—"));
-  lines.push("Время: " + formatNewsTime(ev.date));
-  if (ev.forecast) lines.push("Прогноз рынка: " + ev.forecast);
-  if (ev.previous) lines.push("Предыдущее значение: " + ev.previous);
-  if (ev.actual) lines.push("Фактическое значение: " + ev.actual);
-  else lines.push("Фактическое значение ещё не опубликовано — следите за обновлением.");
+  lines.push("📌 Событие: " + (ev.name || "—"));
+  if (ev.name_en && ev.name_en !== ev.name) lines.push("EN: " + ev.name_en);
+  lines.push("💱 Валюта: " + (ev.currency || "—"));
+  if (ev.pair_hint) lines.push("📊 Пары: " + ev.pair_hint);
+  lines.push("⚡ Важность: " + (ev.impact_ru || ev.impact || "—"));
+  lines.push("🕒 Время: " + formatNewsTime(ev.date));
+  lines.push("📍 Статус: " + (ev.status_ru || "—"));
+  if (ev.forecast) lines.push("📈 Прогноз: " + ev.forecast);
+  if (ev.previous) lines.push("📉 Предыдущее: " + ev.previous);
+  if (ev.actual) lines.push("✅ Факт: " + ev.actual);
+  else lines.push("⏳ Факт ещё не вышел — обновится автоматически.");
   lines.push("");
-  lines.push("Совет Team Master: на High-новостях спред и волатильность растут. Лучше не открывать сделки за 2–5 минут до выхода сильной статистики, если нет чёткого плана.");
+  lines.push("💡 Team Master: на High-новостях волатильность резко растёт. Не входи за 3–5 мин до выхода, если нет плана.");
   return lines.join("\n");
 }
 
@@ -1220,12 +1195,12 @@ function renderNewsList(events) {
   var ordered = upcoming.concat(released);
   var html = "";
   if (upcoming.length) {
-    html += '<div style="font-size:11px;font-weight:800;color:var(--gold);margin:8px 0 6px">⏳ Скоро выйдет · влияет на валютные пары</div>';
+    html += '<div class="news-sec-title news-sec-up">⏳ Скоро выйдет · валютные пары</div>';
   }
   var shownReleasedHeader = false;
   ordered.forEach(function(ev, idx) {
     if (ev.status === "released" && !shownReleasedHeader) {
-      html += '<div style="font-size:11px;font-weight:800;color:var(--green);margin:12px 0 6px">✅ Уже вышло сегодня / недавно</div>';
+      html += '<div class="news-sec-title news-sec-done">✅ Уже вышло сегодня / недавно</div>';
       shownReleasedHeader = true;
     }
     var ic = impactClass(ev.impact);
@@ -1237,7 +1212,7 @@ function renderNewsList(events) {
     html += '<span class="news-cur">' + esc(ev.currency || "—") + ' · <span class="news-impact ' + ic + '">' + impactLabel(ev.impact, ev.impact_ru) + '</span></span>';
     html += '<span class="news-time">🕒 ' + esc(formatNewsTime(ev.date)) + '</span>';
     html += '</div>';
-    html += '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">' + esc(ev.status_ru || "") + (ev.pair_hint ? " · пары " + esc(ev.currency) + "/*" : "") + '</div>';
+    html += '<div class="news-pairs">' + esc(ev.status_ru || "") + (ev.pair_hint ? " · влияет на " + esc(ev.pair_hint) : "") + '</div>';
     html += '<div class="news-name">' + esc(ev.name || "Событие") + '</div>';
     if (ev.name_en && ev.name_en !== ev.name) {
       html += '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">' + esc(ev.name_en) + '</div>';
@@ -1298,42 +1273,76 @@ function tickClock() {
 }
 
 function strategyVisual(kind) {
+  // Полноценные схемы входа на графике
   if (kind === "range") {
-    return '<div class="strat-visual"><svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">' +
-      '<rect x="0" y="0" width="320" height="140" fill="#05070d"/>' +
-      '<line x1="20" y1="35" x2="300" y2="35" stroke="#FF5252" stroke-width="2" stroke-dasharray="6 4"/>' +
-      '<text x="24" y="28" fill="#FF5252" font-size="11" font-weight="700">Resistance → PUT</text>' +
-      '<path d="M30 90 C70 50, 110 110, 150 70 S230 40, 290 85" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
-      '<line x1="20" y1="105" x2="300" y2="105" stroke="#00E676" stroke-width="2" stroke-dasharray="6 4"/>' +
-      '<text x="24" y="122" fill="#00E676" font-size="11" font-weight="700">Support → CALL</text>' +
-      '</svg></div>';
+    return '<div class="strat-visual"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect width="360" height="200" fill="#05070d"/>' +
+      '<line x1="30" y1="40" x2="340" y2="40" stroke="#FF5252" stroke-width="2" stroke-dasharray="7 5"/>' +
+      '<text x="34" y="32" fill="#FF5252" font-size="12" font-weight="800">СОПРОТИВЛЕНИЕ → PUT 📉</text>' +
+      '<line x1="30" y1="160" x2="340" y2="160" stroke="#00E676" stroke-width="2" stroke-dasharray="7 5"/>' +
+      '<text x="34" y="178" fill="#00E676" font-size="12" font-weight="800">ПОДДЕРЖКА → CALL 📈</text>' +
+      '<rect x="50" y="90" width="10" height="40" fill="#00E676"/><line x1="55" y1="80" x2="55" y2="140" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="80" y="70" width="10" height="45" fill="#FF5252"/><line x1="85" y1="60" x2="85" y2="125" stroke="#FF5252" stroke-width="2"/>' +
+      '<rect x="110" y="100" width="10" height="35" fill="#00E676"/><line x1="115" y1="90" x2="115" y2="145" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="140" y="55" width="10" height="50" fill="#FF5252"/><line x1="145" y1="48" x2="145" y2="115" stroke="#FF5252" stroke-width="2"/>' +
+      '<rect x="170" y="95" width="10" height="40" fill="#00E676"/><line x1="175" y1="85" x2="175" y2="145" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="200" y="65" width="10" height="48" fill="#FF5252"/><line x1="205" y1="55" x2="205" y2="125" stroke="#FF5252" stroke-width="2"/>' +
+      '<rect x="230" y="105" width="10" height="38" fill="#00E676"/><line x1="235" y1="95" x2="235" y2="150" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="260" y="50" width="10" height="42" fill="#FF5252"/><line x1="265" y1="45" x2="265" y2="105" stroke="#FF5252" stroke-width="2"/>' +
+      '<rect x="290" y="100" width="10" height="36" fill="#00E676"/><line x1="295" y1="90" x2="295" y2="145" stroke="#00E676" stroke-width="2"/>' +
+      '<circle cx="265" cy="50" r="7" fill="none" stroke="#FFD700" stroke-width="2"/><text x="275" y="48" fill="#FFD700" font-size="11" font-weight="800">PUT</text>' +
+      '<circle cx="235" cy="145" r="7" fill="none" stroke="#FFD700" stroke-width="2"/><text x="245" y="155" fill="#FFD700" font-size="11" font-weight="800">CALL</text>' +
+      '</svg><div class="strat-legend"><span>🔴 Верх канала = PUT</span><span>🟢 Низ канала = CALL</span><span>Экспирация 1–3 мин</span></div></div>';
   }
   if (kind === "trend") {
-    return '<div class="strat-visual"><svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">' +
-      '<rect x="0" y="0" width="320" height="140" fill="#05070d"/>' +
-      '<path d="M25 115 L70 95 L110 100 L150 70 L190 75 L240 45 L295 30" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
-      '<circle cx="240" cy="45" r="6" fill="#00E676"/>' +
-      '<text x="200" y="28" fill="#00E676" font-size="11" font-weight="700">CALL по тренду</text>' +
-      '<text x="24" y="130" fill="#7a8499" font-size="10">Импульс вверх + подтверждение индикатора</text>' +
-      '</svg></div>';
+    return '<div class="strat-visual"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect width="360" height="200" fill="#05070d"/>' +
+      '<line x1="20" y1="170" x2="340" y2="40" stroke="#FFD700" stroke-width="2" stroke-dasharray="4 4" opacity=".5"/>' +
+      '<text x="24" y="24" fill="#FFD700" font-size="12" font-weight="800">ТРЕНД ВВЕРХ → CALL по откату</text>' +
+      '<rect x="40" y="140" width="12" height="28" fill="#00E676"/><line x1="46" y1="130" x2="46" y2="175" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="70" y="125" width="12" height="30" fill="#00E676"/><line x1="76" y1="115" x2="76" y2="160" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="100" y="135" width="12" height="22" fill="#FF5252"/><line x1="106" y1="128" x2="106" y2="162" stroke="#FF5252" stroke-width="2"/>' +
+      '<rect x="130" y="110" width="12" height="32" fill="#00E676"/><line x1="136" y1="100" x2="136" y2="150" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="160" y="95" width="12" height="30" fill="#00E676"/><line x1="166" y1="85" x2="166" y2="135" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="190" y="105" width="12" height="24" fill="#FF5252"/><line x1="196" y1="98" x2="196" y2="135" stroke="#FF5252" stroke-width="2"/>' +
+      '<rect x="220" y="80" width="12" height="34" fill="#00E676"/><line x1="226" y1="70" x2="226" y2="120" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="250" y="65" width="12" height="30" fill="#00E676"/><line x1="256" y1="55" x2="256" y2="105" stroke="#00E676" stroke-width="2"/>' +
+      '<rect x="280" y="75" width="12" height="22" fill="#FF5252"/><line x1="286" y1="68" x2="286" y2="105" stroke="#FF5252" stroke-width="2"/>' +
+      '<rect x="310" y="50" width="12" height="32" fill="#00E676"/><line x1="316" y1="40" x2="316" y2="90" stroke="#00E676" stroke-width="2"/>' +
+      '<circle cx="196" cy="120" r="8" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
+      '<text x="208" y="124" fill="#FFD700" font-size="12" font-weight="800">ВХОД CALL</text>' +
+      '<text x="24" y="192" fill="#9aa3b5" font-size="11">Откат к тренду / EMA → вход по направлению тренда</text>' +
+      '</svg><div class="strat-legend"><span>📈 CALL по тренду</span><span>Откат = точка входа</span><span>Не против тренда</span></div></div>';
   }
   if (kind === "bounce") {
-    return '<div class="strat-visual"><svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">' +
-      '<rect x="0" y="0" width="320" height="140" fill="#05070d"/>' +
-      '<path d="M30 40 Q90 20 130 55 Q170 100 210 110 Q250 70 290 45" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
-      '<line x1="20" y1="115" x2="300" y2="115" stroke="#00E676" stroke-width="2" stroke-dasharray="5 4"/>' +
-      '<circle cx="210" cy="110" r="6" fill="#00E676"/>' +
-      '<text x="150" y="100" fill="#00E676" font-size="11" font-weight="700">Отскок CALL</text>' +
-      '</svg></div>';
+    return '<div class="strat-visual"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect width="360" height="200" fill="#05070d"/>' +
+      '<path d="M30 50 Q80 30 120 70 Q160 130 200 145 Q240 90 300 55" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
+      '<line x1="20" y1="150" x2="340" y2="150" stroke="#00E676" stroke-width="2" stroke-dasharray="6 4"/>' +
+      '<text x="24" y="168" fill="#00E676" font-size="12" font-weight="800">НИЖНЯЯ ПОЛОСА / ПОДДЕРЖКА</text>' +
+      '<circle cx="200" cy="145" r="9" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
+      '<text x="214" y="140" fill="#FFD700" font-size="12" font-weight="800">ОТСКОК → CALL</text>' +
+      '<line x1="20" y1="40" x2="340" y2="40" stroke="#FF5252" stroke-width="1.5" stroke-dasharray="6 4" opacity=".7"/>' +
+      '<text x="24" y="32" fill="#FF5252" font-size="11" font-weight="700">Верхняя полоса → PUT</text>' +
+      '</svg><div class="strat-legend"><span>🟢 Отскок от низа = CALL</span><span>🔴 Отскок от верха = PUT</span><span>Bollinger / уровень</span></div></div>';
   }
-  return '<div class="strat-visual"><svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">' +
-    '<rect x="0" y="0" width="320" height="140" fill="#05070d"/>' +
-    '<line x1="20" y1="40" x2="300" y2="40" stroke="#FF5252" stroke-width="2" stroke-dasharray="6 4"/>' +
-    '<text x="200" y="32" fill="#FF5252" font-size="11" font-weight="700">PUT у сопротивления</text>' +
-    '<path d="M30 100 C80 95, 120 50, 160 55 S230 95, 290 60" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
-    '<line x1="20" y1="110" x2="300" y2="110" stroke="#00E676" stroke-width="2" stroke-dasharray="6 4"/>' +
-    '<text x="24" y="128" fill="#00E676" font-size="11" font-weight="700">CALL у поддержки</text>' +
-    '</svg></div>';
+  // levels default
+  return '<div class="strat-visual"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="360" height="200" fill="#05070d"/>' +
+    '<line x1="25" y1="45" x2="340" y2="45" stroke="#FF5252" stroke-width="2.5"/>' +
+    '<text x="28" y="36" fill="#FF5252" font-size="12" font-weight="800">СОПРОТИВЛЕНИЕ → PUT</text>' +
+    '<line x1="25" y1="155" x2="340" y2="155" stroke="#00E676" stroke-width="2.5"/>' +
+    '<text x="28" y="175" fill="#00E676" font-size="12" font-weight="800">ПОДДЕРЖКА → CALL</text>' +
+    '<rect x="55" y="90" width="12" height="40" fill="#00E676"/><line x1="61" y1="80" x2="61" y2="140" stroke="#00E676" stroke-width="2"/>' +
+    '<rect x="95" y="70" width="12" height="50" fill="#FF5252"/><line x1="101" y1="55" x2="101" y2="130" stroke="#FF5252" stroke-width="2"/>' +
+    '<rect x="135" y="100" width="12" height="35" fill="#00E676"/><line x1="141" y1="90" x2="141" y2="145" stroke="#00E676" stroke-width="2"/>' +
+    '<rect x="175" y="55" width="12" height="45" fill="#FF5252"/><line x1="181" y1="48" x2="181" y2="110" stroke="#FF5252" stroke-width="2"/>' +
+    '<rect x="215" y="95" width="12" height="42" fill="#00E676"/><line x1="221" y1="85" x2="221" y2="150" stroke="#00E676" stroke-width="2"/>' +
+    '<rect x="255" y="52" width="12" height="40" fill="#FF5252"/><line x1="261" y1="48" x2="261" y2="105" stroke="#FF5252" stroke-width="2"/>' +
+    '<rect x="295" y="105" width="12" height="38" fill="#00E676"/><line x1="301" y1="95" x2="301" y2="155" stroke="#00E676" stroke-width="2"/>' +
+    '<circle cx="261" cy="52" r="8" fill="none" stroke="#FFD700" stroke-width="2.5"/><text x="272" y="50" fill="#FFD700" font-size="12" font-weight="800">PUT</text>' +
+    '<circle cx="301" cy="150" r="8" fill="none" stroke="#FFD700" stroke-width="2.5"/><text x="312" y="160" fill="#FFD700" font-size="12" font-weight="800">CALL</text>' +
+    '</svg><div class="strat-legend"><span>📍 Жди касания уровня</span><span>Свечное подтверждение</span><span>Риск 1–2%</span></div></div>';
 }
 
 function renderEdu() {
@@ -1355,7 +1364,7 @@ function openEdu(idx) {
     '<h3>' + esc(ed.t) + '</h3>' +
     '<div class="tag-row">' + tagsHtml + '</div>' +
     visual +
-    '<p>' + esc(ed.d) + '</p>';
+    '<div class="edu-body-text" style="white-space:pre-wrap;font-size:12px;line-height:1.65;color:#d0d7e2">' + esc(ed.d) + '</div>';
 }
 function closeEdu() {
   document.getElementById("eduView").classList.add("hidden");
@@ -1543,77 +1552,6 @@ function processImageBlobForScan(blob, expSec) {
 function cancelScan() {
   if (timers.scan) clearInterval(timers.scan);
   document.getElementById("scanSigBox").style.display = "none";
-}
-
-var chatImageFile = null;
-
-function onChatImageSelected(input) {
-  var f = input.files && input.files[0];
-  if (!f) return;
-  chatImageFile = f;
-  var url = URL.createObjectURL(f);
-  document.getElementById("chatImgPreview").src = url;
-  document.getElementById("chatPreviewWrap").style.display = "block";
-}
-
-function clearChatImage() {
-  chatImageFile = null;
-  var inp = document.getElementById("chatImageInput");
-  if (inp) inp.value = "";
-  document.getElementById("chatPreviewWrap").style.display = "none";
-  document.getElementById("chatImgPreview").src = "";
-}
-
-function formatAiReply(text) {
-  var t = String(text || "");
-  t = t.replace(/\*\*/g, "");
-  t = t.replace(/`/g, "");
-  return esc(t).replace(/\n/g, "<br>");
-}
-
-async function sendAiChatMessage() {
-  var inputEl = document.getElementById("chatInputText");
-  var msgBox = document.getElementById("chatMessagesBox");
-  var text = (inputEl.value || "").trim();
-  if (!text && !chatImageFile) return;
-
-  var userHtml = esc(text || "📷 Скрин графика");
-  if (chatImageFile) userHtml = "📎 " + userHtml;
-  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg user">' + userHtml + '</div>');
-  inputEl.value = "";
-  msgBox.scrollTop = msgBox.scrollHeight;
-
-  var loadingId = "ai_load_" + Date.now();
-  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai" id="' + loadingId + '">Разбираю… ⚡</div>');
-  msgBox.scrollTop = msgBox.scrollHeight;
-
-  var reply = "⚠️ Ошибка связи с сервером.";
-  var controller = new AbortController();
-  var to = setTimeout(function() { controller.abort(); }, 45000);
-  try {
-    var fd = new FormData();
-    fd.append("prompt", text || "Разбери этот график: направление CALL или PUT, где вход, на каком таймфрейме.");
-    if (chatImageFile) fd.append("image", chatImageFile);
-    var response = await fetch("/ai-chat", { method: "POST", body: fd, signal: controller.signal });
-    if (response.ok) {
-      var data = await response.json();
-      reply = data.reply || reply;
-    } else {
-      reply = "⚠️ Ошибка сервера " + response.status + ". Проверь GEMINI_API_KEY на Render.";
-    }
-  } catch (e) {
-    if (e && e.name === "AbortError") {
-      reply = "⚠️ Долго отвечает. Попробуй ещё раз короче вопрос.";
-    } else {
-      reply = "⚠️ Сеть недоступна. Обнови страницу.";
-    }
-  }
-  clearTimeout(to);
-  clearChatImage();
-  var loadEl = document.getElementById(loadingId);
-  if (loadEl) loadEl.remove();
-  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai">' + formatAiReply(reply) + '</div>');
-  msgBox.scrollTop = msgBox.scrollHeight;
 }
 
 function changeLanguage(lang) {
@@ -1824,77 +1762,6 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
     return {"text": result_text}
 
 
-LOCAL_STRATEGIES = [
-    {
-        "name": "Отбой от уровня (Price Action)",
-        "tf": "M1–M5",
-        "call": "Цена у поддержки + пин-бар / длинная нижняя тень вверх. Вход на закрытии свечи.",
-        "put": "Цена у сопротивления + пин-бар вниз / медвежье поглощение. Вход на закрытии.",
-        "no": "Нет уровня, High-новость через 0–5 мин, хаотичный флэт без структуры.",
-    },
-    {
-        "name": "Пробой + ретест",
-        "tf": "M5–M15",
-        "call": "Пробой сопротивления → откат к уровню → отбой вверх. CALL на ретесте.",
-        "put": "Пробой поддержки → откат → отбой вниз. PUT на ретесте.",
-        "no": "Ложный пробой (сразу вернули внутрь диапазона).",
-    },
-    {
-        "name": "Тренд по EMA(20)",
-        "tf": "M1–M5",
-        "call": "Цена выше EMA, откат к EMA без закрытия ниже, разворотная свеча вверх → CALL.",
-        "put": "Цена ниже EMA, откат к EMA без закрытия выше, разворот вниз → PUT.",
-        "no": "Цена пилит EMA туда-сюда.",
-    },
-]
-
-
-def _local_ai_reply(user_text: str) -> str:
-    t = (user_text or "").lower().strip()
-    greet = any(w in t for w in ("привет", "здравств", "hello", "hi", "добрый"))
-    wants_strat = any(w in t for w in ("стратег", "связк", "как торг", "вход", "call", "put", "сигнал", "описан"))
-    wants_risk = any(w in t for w in ("риск", "депозит", "манименедж", "лот"))
-    about_team = any(w in t for w in ("команд", "master trade", "академи", "аналитик"))
-    about_news = any(w in t for w in ("новост", "календар", "nfp", "cpi", "фрс"))
-
-    parts = []
-    if greet:
-        parts.append("Привет! 🤝 Чем помочь по рынку или стратегии?")
-
-    if wants_strat or (t and not greet and not wants_risk and not about_team and not about_news):
-        s = random.choice(LOCAL_STRATEGIES)
-        parts.append(
-            "Стратегия: " + s["name"] + " 🎯\n"
-            "Таймфрейм: " + s["tf"] + "\n\n"
-            "CALL (ВВЕРХ) 📈\n" + s["call"] + "\n\n"
-            "PUT (ВНИЗ) 📉\n" + s["put"] + "\n\n"
-            "Когда НЕ входить ❌\n" + s["no"] + "\n\n"
-            "Риск: 1–2% депозита. Экспирация = 1–3 свечи выбранного ТФ."
-        )
-    elif wants_risk:
-        parts.append(
-            "Манименеджмент Team Master 💎\n"
-            "• Риск на сделку: 1–2% депозита\n"
-            "• Не более 2–3 входов подряд в одну сторону\n"
-            "• После 2 убытков — пауза\n"
-            "• За 5 мин до High-новости лучше не входить"
-        )
-    elif about_team:
-        parts.append(
-            "Team Master Trade — аналитики 7+ лет, академия, сопровождение и чаты. "
-            "Терминал Team Master VIP: сигналы, сканер, форекс-новости. 👑"
-        )
-    elif about_news:
-        parts.append(
-            "Вкладка «Новости» — только валюты (EUR, USD, GBP, JPY…). "
-            "Сверху то, что скоро выйдет, со временем. На High волатильность резко растёт. 📰"
-        )
-    elif not parts:
-        parts.append(
-            "Напиши, что нужно: стратегия на M5, риски, новости по EUR/USD. ⚡"
-        )
-    return "\n\n".join(parts)
-
 
 def _gemini_rest_text(prompt_text: str) -> str:
     if not GEMINI_API_KEY:
@@ -2004,65 +1871,6 @@ def _gemini_rest_vision(prompt_text: str, image_bytes: bytes, mime: str = "image
 def _chat_sync(chat_prompt):
     return _gemini_rest_text(chat_prompt)
 
-
-@app.post("/ai-chat")
-async def ai_chat(prompt: str = Form(""), image: UploadFile = File(None)):
-    user_prompt = (prompt or "").strip()
-    img_bytes = None
-    if image is not None:
-        try:
-            img_bytes = await image.read()
-            if not img_bytes or len(img_bytes) < 50:
-                img_bytes = None
-        except Exception:
-            img_bytes = None
-
-    if not user_prompt and not img_bytes:
-        return {"reply": "Напиши вопрос или прикрепи скрин ✍️"}
-
-    chat_prompt = (
-        "Ты трейдер-наставник Team Master VIP. Отвечай по-русски, кратко, по делу.\n"
-        "НЕ пиши приветствие, если пользователь сам не поздоровался.\n"
-        "НЕ пиши Review/Constraints/Persona/Topic valid и любой meta-текст.\n"
-        "Без markdown **.\n"
-        "Стратегия только так:\n"
-        "Название / ТФ / CALL / PUT / Когда не входить / Риск 1-2%.\n"
-        "Если график — сразу направление, вход, экспирация.\n"
-        f"Вопрос: {user_prompt or 'Разбери график'}"
-    )
-
-    reply = None
-    # 1) Gemini (если есть ключ)
-    if GEMINI_API_KEY:
-        try:
-            if img_bytes:
-                def _run():
-                    return _gemini_rest_vision(chat_prompt, img_bytes, mime="image/jpeg") or _gemini_rest_text(chat_prompt)
-                reply = await asyncio.wait_for(asyncio.to_thread(_run), timeout=25)
-            else:
-                reply = await asyncio.wait_for(asyncio.to_thread(_chat_sync, chat_prompt), timeout=20)
-        except Exception as e:
-            logging.warning(f"ai-chat gemini fail: {e}")
-            reply = None
-
-    # 2) Локальный быстрый ответ — всегда есть план Б
-    if not reply or not str(reply).strip():
-        reply = _local_ai_reply(user_prompt)
-
-    bad = ["Review against Constraints", "Persona maintained", "Topic valid", "Emojis used", "HTTP Error"]
-    for b in bad:
-        if b in reply:
-            reply = _local_ai_reply(user_prompt)
-            break
-
-    # убрать лишнее приветствие, если пользователь не здоровался
-    low = user_prompt.lower()
-    if not any(w in low for w in ("привет", "здравств", "hello", "hi", "добрый")):
-        for g in ("Привет! 🤝", "Привет!", "Здравствуй!", "Приветствую!"):
-            if reply.startswith(g):
-                reply = reply[len(g):].lstrip(" \n")
-
-    return {"reply": reply}
 
 
 
