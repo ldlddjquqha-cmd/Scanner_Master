@@ -17,7 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="26.8")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.0")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
@@ -77,28 +77,23 @@ def calculate_ema(prices, period=20):
 def smart_market_analysis(prices, rsi, ema):
     current_price = prices[-1]
     prev_price = prices[-2] if len(prices) >= 2 else current_price
-
     trend_up = current_price > ema
     momentum_up = current_price > prev_price
-
     reasons = []
     if trend_up:
         reasons.append("Цена находится выше экспоненциальной скользящей средней (EMA), подтверждая сильный восходящий тренд.")
     else:
         reasons.append("Цена закрепилась ниже скользящей средней (EMA), что указывает на развитие нисходящей тенденции.")
-
     if rsi > 65:
         reasons.append(f"Индекс относительной силы RSI составляет {round(rsi, 1)}, актив приближается к зоне перекупленности.")
     elif rsi < 35:
         reasons.append(f"Индекс относительной силы RSI находится на отметке {round(rsi, 1)}, фиксируется зона перепроданности и потенциал отскока.")
     else:
         reasons.append(f"Индикатор RSI нейтрален ({round(rsi, 1)}), доминирует текущий локальный импульс.")
-
     if momentum_up:
         reasons.append("Свечной анализ показывает преобладание покупателей на последнем таймфрейме.")
     else:
         reasons.append("Наблюдается давление со стороны продавцов по закрытию последних свечей.")
-
     signal = "UP" if (trend_up and momentum_up) or (rsi < 40) else "DOWN"
     return signal, " ".join(reasons)
 
@@ -136,26 +131,22 @@ class ScannerAnalyzer:
     async def compute(self, image_bytes: bytes, config: dict) -> str:
         try:
             image = Image.open(io.BytesIO(image_bytes))
-
             if GEMINI_API_KEY:
                 try:
                     text = await asyncio.to_thread(self._gemini_sync, image, config)
                     if text:
-                        return f"--- TEAM MASTER AI CANDLE SCANNER ---\n{text}"
+                        return "--- TEAM MASTER AI CANDLE SCANNER ---\n" + text
                 except Exception as ex:
                     logging.warning(f"Gemini error: {ex}")
 
             img_rgb = image.convert("RGB")
             np_img = np.array(img_rgb)
-
             r = np_img[:, :, 0].astype(float)
             g = np_img[:, :, 1].astype(float)
             b = np_img[:, :, 2].astype(float)
-
             green_candles = int(np.sum((g > r + 30) & (g > b + 30)))
             red_candles = int(np.sum((r > g + 30) & (r > b + 30)))
             total_pixels = np_img.shape[0] * np_img.shape[1]
-
             candle_ratio = (green_candles + red_candles) / total_pixels
             if candle_ratio < 0.0015:
                 return "❌ ГРАФИК СО СВЕЧАМИ НЕ ОБНАРУЖЕН. Убедитесь, что на скриншоте четко виден график. 📷🔍"
@@ -167,23 +158,20 @@ class ScannerAnalyzer:
                 if bullish
                 else "Доминирование медвежьих красных свечей говорит о давлении продавцов. 🔴⚔️"
             )
-            rsi_note = "Импульс подтверждён закрытием последних свечей. ⚡"
-            level_note = "Уровни поддержки и сопротивления визуально подтверждены на графике. 🎯💎"
-
             return (
-                f"--- TEAM MASTER SIGNAL V4.0 ---\n"
-                f"📊 СТРАТЕГИЯ: {config.get('стратегия', 'Smart Money')}\n"
-                f"⏱ ТАЙМФРЕЙМ: {config.get('интервал', 'M1')}\n"
-                f"⏳ ЭКСПИРАЦИЯ: {config.get('экспирация', '1м')}\n"
-                f"-------------------------------\n"
-                f"🔥 ВЕРДИКТ: {direction}\n"
-                f"📌 ПРИЧИНА: Расположение и анализ свечных тел: {trend_desc}\n"
-                f"{rsi_note}\n"
-                f"{level_note}\n"
-                f"🚀 Сигнал готов к входу!"
+                "--- TEAM MASTER SIGNAL V4.0 ---\n"
+                "📊 СТРАТЕГИЯ: " + str(config.get("стратегия", "Smart Money")) + "\n"
+                "⏱ ТАЙМФРЕЙМ: " + str(config.get("интервал", "M1")) + "\n"
+                "⏳ ЭКСПИРАЦИЯ: " + str(config.get("экспирация", "1м")) + "\n"
+                "-------------------------------\n"
+                "🔥 ВЕРДИКТ: " + direction + "\n"
+                "📌 ПРИЧИНА: Расположение и анализ свечных тел: " + trend_desc + "\n"
+                "Импульс подтверждён закрытием последних свечей. ⚡\n"
+                "Уровни поддержки и сопротивления визуально подтверждены на графике. 🎯💎\n"
+                "🚀 Сигнал готов к входу!"
             )
         except Exception as e:
-            return f"❌ Ошибка анализа изображения: {str(e)} ⚠️"
+            return "❌ Ошибка анализа изображения: " + str(e) + " ⚠️"
 
 
 scanner_core = ScannerAnalyzer()
@@ -241,6 +229,7 @@ EDU_50 = [
     {
         "t": "1. Торговля от уровней поддержки и сопротивления",
         "tags": ["M1", "M5", "Pocket Option", "Уровни", "Price Action"],
+        "kind": "levels",
         "d": "📌 Подробный разбор стратегии торговли от уровней поддержки и сопротивления:\n\n"
              "• 🧠 Рыночная логика и суть стратегии:\n"
              "Уровни поддержки и сопротивления — это ключевые ценовые зоны, где баланс сил между покупателями и продавцами кардинально меняется. Уровень сопротивления — это область сверху, где продавцы останавливают рост цены и начинают агрессивно давить вниз. Уровень поддержки — область снизу, где покупатели защищают свои позиции и толкают цену вверх. Когда цена приближается к таким барьерам, крупные участники рынка часто фиксируют прибыль, что приводит к техническому отскоку или мощному пробою.\n\n"
@@ -257,6 +246,7 @@ EDU_50 = [
     {
         "t": "2. Торговля в боковике (Флэт и диапазон)",
         "tags": ["M1", "M5", "Pocket Option", "Флэт", "Боковик"],
+        "kind": "range",
         "d": "📌 Подробный разбор стратегии торговли в боковике (флэте):\n\n"
              "• 🧠 Рыночная логика и суть стратегии:\n"
              "Боковое движение (флэт) возникает тогда, когда на рынке нет ярко выраженного тренда, а цена движется внутри четкого горизонтального коридора между границами поддержки снизу и сопротивления сверху. Стратегия основана на возвращении цены к средним значениям диапазона (методика возврата к меану). Трейдер продает у верхней границы канала и покупает у нижней.\n\n"
@@ -273,6 +263,7 @@ EDU_50 = [
     {
         "t": "3. Accelerator Oscillator + Alligator",
         "tags": ["M1", "M2", "M5", "Pocket Option", "Индикаторы"],
+        "kind": "trend",
         "d": "📌 Подробный разбор профессиональной связки Accelerator Oscillator + Alligator:\n\n"
              "• 🧠 Рыночная логика и суть стратегии:\n"
              "Индикатор Alligator моделирует рыночные циклы, а Accelerator Oscillator (AC) измеряет ускорение движущей силы рынка.\n\n"
@@ -286,6 +277,7 @@ EDU_50 = [
     {
         "t": "4. ADX + Aroon",
         "tags": ["M1", "M5", "Pocket Option", "Индикаторы"],
+        "kind": "trend",
         "d": "📌 Подробный разбор связки ADX + Aroon:\n\n"
              "• 🧠 Рыночная логика:\nADX измеряет силу тренда, а Aroon находит экстремумы цены.\n\n"
              "• ⏱ Рекомендуемые таймфреймы:\nM1 и M5.\n\n"
@@ -298,6 +290,7 @@ EDU_50 = [
     {
         "t": "5. Bollinger Bands + Awesome Oscillator",
         "tags": ["S30", "M1", "Pocket Option", "Индикаторы"],
+        "kind": "bounce",
         "d": "📌 Подробный разбор связки Bollinger Bands + Awesome Oscillator:\n\n"
              "• 🧠 Рыночная логика:\nПолосы Боллинджера фиксируют волатильность и пробой границ, а AO оценивает импульс.\n\n"
              "• ⏱ Рекомендуемые таймфреймы:\nS30 и M1.\n\n"
@@ -310,9 +303,11 @@ EDU_50 = [
 ]
 
 for i in range(6, 51):
+    kinds = ["levels", "range", "trend", "bounce"]
     EDU_50.append({
         "t": f"{i}. Профессиональная стратегия и связка индикаторов №{i}",
         "tags": ["M1", "Pocket Option", "Стратегии"],
+        "kind": kinds[i % 4],
         "d": (
             f"📌 Подробный разбор стратегии и методики №{i} для терминала Pocket Option:\n\n"
             f"• 🧠 Рыночная механика и суть стратегии:\n"
@@ -399,8 +394,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
 .tag{font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;background:rgba(255,215,0,.08);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
 .bnav{position:fixed;bottom:0;left:0;right:0;background:#05070d;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 10px;z-index:100}
-.nav{display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--muted);font-size:8.5px;font-weight:800;cursor:pointer;min-width:40px;padding:3px 1px;transition:color .2s}
-.nav.on{color:var(--gold)}.nav span:first-child{font-size:15px}
+.nav{display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--muted);font-size:8px;font-weight:800;cursor:pointer;min-width:36px;padding:3px 1px;transition:color .2s}
+.nav.on{color:var(--gold)}.nav span:first-child{font-size:14px}
 .hidden{display:none!important}
 .gap{height:6px}.gap2{height:9px}
 .analyze-overlay{position:fixed;inset:0;background:rgba(4,6,10,.94);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .2s ease}
@@ -422,9 +417,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .profile-photo-upload{width:90px;height:90px;border-radius:50%;border:2px dashed var(--gold);background:var(--inner);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 12px;overflow:hidden;position:relative}
 .profile-photo-upload img{width:100%;height:100%;object-fit:cover}
 .about-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:16px;font-size:11.5px;color:#c5cdd8;line-height:1.75}
-.news-item{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 12px;margin-bottom:7px}
+.news-item{background:var(--inner);border:1px solid var(--border);border-radius:11px;padding:11px 12px;margin-bottom:7px;cursor:pointer;transition:border-color .15s}
+.news-item:active{transform:scale(.99)}
 .news-item.high{border-color:rgba(255,82,82,.45);background:rgba(255,82,82,.06)}
 .news-item.medium{border-color:rgba(255,167,38,.4);background:rgba(255,167,38,.05)}
+.news-item.open{border-color:var(--gold)}
 .news-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px}
 .news-cur{font-size:11px;font-weight:900;color:var(--gold)}
 .news-time{font-size:10px;color:var(--muted);font-weight:700}
@@ -437,6 +434,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .news-impact.low{background:rgba(255,215,0,.12);color:var(--gold)}
 .news-updated{font-size:10px;color:var(--muted);font-weight:700;text-align:center;margin-bottom:8px}
 .news-list{max-height:420px;overflow-y:auto}
+.news-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);font-size:11px;color:#c5cdd8;line-height:1.55}
+.news-item.open .news-detail{display:block}
+.chat-container{display:flex;flex-direction:column;height:380px;background:var(--inner);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{padding:8px 11px;border-radius:10px;font-size:11.5px;line-height:1.4;max-width:85%;white-space:pre-wrap}
+.chat-msg.user{background:rgba(255,215,0,0.15);color:var(--gold);align-self:flex-end;border:1px solid rgba(255,215,0,0.3)}
+.chat-msg.ai{background:var(--card);color:var(--text);align-self:flex-start;border:1px solid var(--border)}
+.chat-input-row{display:flex;gap:6px;padding:8px;background:var(--card);border-top:1px solid var(--border)}
+.chat-input{flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--inner);color:#fff;font-size:11.5px;outline:none}
+.chat-input:focus{border-color:var(--gold)}
+.strat-visual{background:#05070d;border:1px solid var(--border-g);border-radius:12px;padding:10px;margin-bottom:12px;overflow:hidden}
+.strat-visual svg{width:100%;height:auto;display:block}
 </style>
 </head>
 <body>
@@ -461,7 +470,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <span class="live" id="apiStatusBadge">● POCKET OPTION API: ONLINE 🟢</span>
       <span style="font-size:9px;color:var(--gold);font-weight:800" id="apiTimerDisplay" data-t="syncLbl">⚡ СИНХРОНИЗАЦИЯ</span>
     </div>
-
     <div class="selected-asset-box" onclick="openCatalogModal()">
       <div class="selected-asset-info">
         <span data-t="lblActiveAsset">ВЫБРАННЫЙ АКТИВ POCKET OPTION</span>
@@ -469,7 +477,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       </div>
       <span style="font-size:22px">📋</span>
     </div>
-
     <div class="grid2" style="margin-bottom:10px">
       <div>
         <label class="lbl" data-t="lblTf">ИНТЕРВАЛ (ТАЙМФРЕЙМ)</label>
@@ -492,11 +499,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
         </select>
       </div>
     </div>
-
     <button class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
     <div class="gap"></div>
     <button class="btn btn-green btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ актив</button>
-
     <div class="sig" id="sigBox">
       <div class="sig-meta" id="sigMeta"></div>
       <div class="sig-dir call" id="sigDir">⬆️ CALL</div>
@@ -517,10 +522,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <button class="btn btn-dark btn-sm" onclick="clearFavs()" data-t="btnClearFav">🗑 Очистить избранное</button>
   </div>
 
-  <!-- НОВОСТИ -->
   <div class="card tab hidden" id="tabNews">
     <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Экономические новости</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Календарь High/Medium событий. Автообновление — новые новости появляются сами.</p>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Календарь High/Medium. Нажмите на новость, чтобы раскрыть. Автообновление.</p>
     <div class="news-updated" id="newsUpdated">—</div>
     <div style="display:flex;gap:6px;margin-bottom:10px">
       <button class="btn btn-gold btn-sm" style="flex:1" onclick="loadNews(true)" data-t="btnRefreshNews">🔄 Обновить сейчас</button>
@@ -528,6 +532,22 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <div class="news-list" id="newsList">
       <div style="text-align:center;padding:20px;color:var(--muted);font-size:11px" data-t="newsLoading">Загрузка новостей...</div>
     </div>
+  </div>
+
+  <div class="card tab hidden" id="tabChat">
+    <h3 class="g-text" style="font-size:13px;margin-bottom:8px" data-t="chatTitle">🤖 ИИ Помощник Team Master</h3>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:10px" data-t="chatDesc">Вопросы по рынку, стратегиям, терминалу и команде Team Master Trade (аналитики 7+ лет, академия).</p>
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessagesBox">
+        <div class="chat-msg ai">Привет! 🤝 Я ИИ-помощник Team Master VIP. Спрашивай про рынок, сигналы, стратегии, технику терминала и про нашу команду Master Trade. 📈🚀</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" class="chat-input" id="chatInputText" data-ph="chatPlaceholder" placeholder="Спросите про рынок, команду или терминал..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
+        <button class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
+      </div>
+    </div>
+    <div class="gap2"></div>
+    <a class="btn btn-dark btn-sm" href="https://t.me/+uekq4TquqkM4Mzcy" target="_blank" rel="noopener" style="color:var(--gold)" data-t="btnTgCommunity">💬 Наши чаты и сообщество в Telegram</a>
   </div>
 
   <div class="card tab hidden" id="tabEdu">
@@ -552,13 +572,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhoto(event)">
     </label>
     <div style="text-align:center;font-size:10px;color:var(--muted);margin-bottom:12px" data-t="profPhotoHint">Нажмите для добавления фото вашего профиля</div>
-
     <label class="lbl" data-t="lblPocketId">АЙДИ С POCKET (Pocket ID)</label>
     <input class="input" id="profPocketId" data-ph="phPocketId" placeholder="Введите ваш Pocket ID..." onchange="saveProfileSettings()" onblur="saveProfileSettings()">
-
     <label class="lbl" style="margin-top:8px" data-t="lblFavStrat">ЛЮБИМАЯ СТРАТЕГИЯ</label>
     <input class="input" id="profFavStrat" data-ph="phFavStrat" placeholder="Например: Smart Money, Price Action..." onchange="saveProfileSettings()" onblur="saveProfileSettings()">
-
     <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin:6px 2px 10px">
       <span style="color:var(--muted)" data-t="profSigsLbl">Сигналов</span>
       <b id="profSigCount" style="color:var(--gold)">0</b>
@@ -567,7 +584,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <span style="color:var(--muted)" data-t="profFavCountLbl">Избранных активов</span>
       <b id="profFavCount" style="color:var(--gold)">0</b>
     </div>
-
     <button class="btn btn-red btn-sm" onclick="resetProfile()" data-t="btnResetProfile">🗑 Сбросить данные профиля</button>
   </div>
 
@@ -579,7 +595,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <span data-t="scanStep2">2️⃣ Откройте камеру или загрузите скриншот графика со свечами</span><br>
       <span data-t="scanStep3">3️⃣ Нажмите «ЗАПУСК (ИИ СКАН СВЕЧЕЙ)»</span>
     </div>
-
     <div class="lbl" style="margin-top:6px" data-t="lblScanTf">ИНТЕРВАЛ СВЕЧЕЙ</div>
     <div class="cats" style="margin-bottom:6px">
       <div class="cat" onclick="setScanCfg(this,'интервал','S5')">S5</div>
@@ -589,7 +604,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <div class="cat" onclick="setScanCfg(this,'интервал','M2')">M2</div>
       <div class="cat" onclick="setScanCfg(this,'интервал','M5')">M5</div>
     </div>
-
     <div class="lbl" data-t="lblExp">ЭКСПИРАЦИЯ СДЕЛКИ</div>
     <div class="cats" style="margin-bottom:6px">
       <div class="cat" onclick="setScanCfg(this,'экспирация','30с')">30с</div>
@@ -597,7 +611,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <div class="cat" onclick="setScanCfg(this,'экспирация','2м')">2м</div>
       <div class="cat" onclick="setScanCfg(this,'экспирация','5м')">5м</div>
     </div>
-
     <div class="lbl" data-t="lblScanStrat">СТРАТЕГИЯ АНАЛИЗА</div>
     <div class="cats" style="margin-bottom:8px">
       <div class="cat on" onclick="setScanCfg(this,'стратегия','Smart Money')">Smart Money</div>
@@ -606,7 +619,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <div class="cat" onclick="setScanCfg(this,'стратегия','Scalp')">Scalp</div>
       <div class="cat" onclick="setScanCfg(this,'стратегия','Trend')">Trend</div>
     </div>
-
     <button class="btn btn-gold btn-sm" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
     <div class="gap"></div>
     <div style="margin-bottom:8px">
@@ -615,7 +627,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
         <input type="file" id="scanFileInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
       </label>
     </div>
-
     <div class="scan-box">
       <div class="scan-frame" id="scanFrame">
         <video class="scan-video hidden" id="scanVideo" autoplay playsinline muted></video>
@@ -623,11 +634,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
         <div class="scan-placeholder" id="scanPh">📷<br><span data-t="camOff">Камера отключена или файл не выбран</span><br><small data-t="camOffSub">нажмите кнопку выше для запуска или загрузите скрин</small></div>
       </div>
     </div>
-
     <button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled style="background:#1b5e20;color:#fff;animation:none" data-t="btnScanNow">🚀 ЗАПУСК (ИИ СКАН СВЕЧЕЙ)</button>
     <div class="gap"></div>
     <button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру / Сбросить</button>
-
     <div class="sig" id="scanSigBox">
       <div class="sig-meta" id="scanMeta">TEAM MASTER AI SCANNER</div>
       <div class="sig-dir call" id="scanDir">BUY (ВВЕРХ)</div>
@@ -641,12 +650,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="card tab hidden" id="tabAbout">
     <h3 class="g-text" style="text-align:center;font-size:13px;margin-bottom:10px" data-t="aboutTitle">👑 О нашей команде (Team Master)</h3>
     <div class="about-box">
-      <b>TEAM MASTER VIP</b> — <span data-t="aboutP1">это международное сообщество и торговая экосистема, основанная трейдерами для тех, кто хочет системно развиваться на финансовых рынках и платформе Pocket Option.</span><br><br>
-      🎯 <b data-t="aboutGoalT">Наша цель и миссия:</b> <span data-t="aboutGoal">предоставить каждому участнику современные инструменты, включая ИИ-сканер графиков по свечам, авторские связки индикаторов и стратегии Price Action и Smart Money.</span><br><br>
+      <b>TEAM MASTER VIP</b> — <span data-t="aboutP1">это международное сообщество и торговая экосистема Team Master Trade. В команде аналитики с опытом 7+ лет, есть академия и сопровождение.</span><br><br>
+      🎯 <b data-t="aboutGoalT">Наша цель и миссия:</b> <span data-t="aboutGoal">дать участникам ИИ-сканер, сигналы, связки индикаторов, экономический календарь и поддержку наставников.</span><br><br>
       💡 <b data-t="aboutWhyT">Что внутри:</b><br>
       <span data-t="aboutL1">• Технические сигналы и ИИ-сканирование графиков</span><br>
       <span data-t="aboutL2">• База знаний из 50 связок и методик</span><br>
-      <span data-t="aboutL3">• Экономический календарь новостей с автообновлением</span><br><br>
+      <span data-t="aboutL3">• Экономический календарь и ИИ-помощник</span><br><br>
       <span data-t="aboutRisk">⚠️ Торговля бинарными опционами связана с высоким риском потери капитала. Сигналы не гарантируют прибыль. Риск на сделку — 1-2% от депозита.</span>
     </div>
     <div class="gap"></div>
@@ -659,6 +668,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="nav on" onclick="tab('tabSig',this)"><span>🎯</span><span data-t="navSig">Сигналы</span></div>
   <div class="nav" onclick="tab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
   <div class="nav" onclick="tab('tabNews',this)"><span>📰</span><span data-t="navNews">Новости</span></div>
+  <div class="nav" onclick="tab('tabChat',this)"><span>🤖</span><span data-t="navChat">ИИ Чат</span></div>
   <div class="nav" onclick="tab('tabEdu',this)"><span>📚</span><span data-t="navEdu">Связки</span></div>
   <div class="nav" onclick="tab('tabProf',this)"><span>👤</span><span data-t="navProf">Профиль</span></div>
   <div class="nav" onclick="tab('tabScan',this)"><span>📷</span><span data-t="navScan">Сканер</span></div>
@@ -693,24 +703,25 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 
 <script>
-const ASSETS_DATA_JS = __ASSETS_JSON__;
-const EDU = __EDU_JSON__;
+var ASSETS_DATA_JS = __ASSETS_JSON__;
+var EDU = __EDU_JSON__;
 
-let timers = {sig: null, scan: null};
-let stream = null, camReady = false;
-let favs = [];
+var timers = {sig: null, scan: null};
+var stream = null, camReady = false;
+var favs = [];
 try { favs = JSON.parse(localStorage.getItem("tmv_favs") || "[]"); } catch(e) { favs = []; }
-let sigCount = 0;
+var sigCount = 0;
 try { sigCount = parseInt(localStorage.getItem("tmv_sigs") || "0") || 0; } catch(e) {}
-let currentAsset = "🇪🇺🇺🇸 EUR/USD OTC";
-let currentLang = "ru";
-let modalCategory = "all";
-let uploadedImageBlob = null;
-let scanCfg = {"интервал": "M1", "экспирация": "1м", "стратегия": "Smart Money"};
-let newsTimer = null;
-let lastNewsHash = "";
+var currentAsset = "🇪🇺🇺🇸 EUR/USD OTC";
+var currentLang = "ru";
+var modalCategory = "all";
+var uploadedImageBlob = null;
+var scanCfg = {"интервал": "M1", "экспирация": "1м", "стратегия": "Smart Money"};
+var newsTimer = null;
+var lastNewsHash = "";
+var newsCache = [];
 
-const I18N = {
+var I18N = {
   ru: {
     syncLbl: "⚡ СИНХРОНИЗАЦИЯ",
     lblActiveAsset: "ВЫБРАННЫЙ АКТИВ POCKET OPTION", lblTf: "ИНТЕРВАЛ (ТАЙМФРЕЙМ)", lblExp: "ЭКСПИРАЦИЯ СДЕЛКИ",
@@ -723,8 +734,12 @@ const I18N = {
     phPocketId: "Введите ваш Pocket ID...", phFavStrat: "Например: Smart Money, Price Action...",
     favTabTitle: "⭐ Избранные активы", favTabDesc: "Нажмите на любой актив из списка для перехода.",
     profFavEmpty: "Пока пусто — добавь актив из полного каталога", btnClearFav: "🗑 Очистить избранное",
-    newsTitle: "📰 Экономические новости", newsDesc: "Календарь High/Medium событий. Автообновление — новые новости появляются сами.",
+    newsTitle: "📰 Экономические новости", newsDesc: "Календарь High/Medium. Нажмите на новость, чтобы раскрыть. Автообновление.",
     btnRefreshNews: "🔄 Обновить сейчас", newsLoading: "Загрузка новостей...",
+    chatTitle: "🤖 ИИ Помощник Team Master",
+    chatDesc: "Вопросы по рынку, стратегиям, терминалу и команде Team Master Trade (аналитики 7+ лет, академия).",
+    chatPlaceholder: "Спросите про рынок, команду или терминал...",
+    btnTgCommunity: "💬 Наши чаты и сообщество в Telegram",
     scanTitle: "📷 ИИ Сканер (Анализ по свечам)", scanInstr: "Инструкция ИИ-сканера свечей:",
     scanStep1: "1️⃣ Настройте параметры и стратегию ниже",
     scanStep2: "2️⃣ Откройте камеру или загрузите скриншот графика со свечами",
@@ -734,15 +749,15 @@ const I18N = {
     camOff: "Камера отключена или файл не выбран", camOffSub: "нажмите кнопку выше для запуска или загрузите скрин",
     btnScanNow: "🚀 ЗАПУСК (ИИ СКАН СВЕЧЕЙ)", btnCloseCam: "⏹ Закрыть камеру / Сбросить", btnNewScan: "⚡ Новый скан",
     aboutTitle: "👑 О нашей команде (Team Master)",
-    aboutP1: "это международное сообщество и торговая экосистема, основанная трейдерами для тех, кто хочет системно развиваться на финансовых рынках и платформе Pocket Option.",
+    aboutP1: "это международное сообщество и торговая экосистема Team Master Trade. В команде аналитики с опытом 7+ лет, есть академия и сопровождение.",
     aboutGoalT: "Наша цель и миссия:",
-    aboutGoal: "предоставить каждому участнику современные инструменты, включая ИИ-сканер графиков по свечам, авторские связки индикаторов и стратегии Price Action и Smart Money.",
+    aboutGoal: "дать участникам ИИ-сканер, сигналы, связки индикаторов, экономический календарь и поддержку наставников.",
     aboutWhyT: "Что внутри:",
     aboutL1: "• Технические сигналы и ИИ-сканирование графиков", aboutL2: "• База знаний из 50 связок и методик",
-    aboutL3: "• Экономический календарь новостей с автообновлением",
+    aboutL3: "• Экономический календарь и ИИ-помощник",
     aboutRisk: "⚠️ Торговля бинарными опционами связана с высоким риском потери капитала. Сигналы не гарантируют прибыль. Риск на сделку — 1-2% от депозита.",
     btnTgChan: "📢 Наш Telegram канал",
-    navSig: "Сигналы", navFavs: "Избранное", navNews: "Новости", navEdu: "Связки", navProf: "Профиль", navScan: "Сканер", navAbout: "О нас",
+    navSig: "Сигналы", navFavs: "Избранное", navNews: "Новости", navChat: "ИИ Чат", navEdu: "Связки", navProf: "Профиль", navScan: "Сканер", navAbout: "О нас",
     modalCatalogTitle: "📋 Полный каталог активов Pocket Option", searchPlaceholder: "Поиск актива...",
     catAll: "🌟 Все", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сырьё", catStocks: "📈 Акции", catIdx: "📊 Индексы"
   },
@@ -758,26 +773,30 @@ const I18N = {
     phPocketId: "Enter your Pocket ID...", phFavStrat: "E.g.: Smart Money, Price Action...",
     favTabTitle: "⭐ Favorite Assets", favTabDesc: "Tap any asset to switch to it.",
     profFavEmpty: "Empty yet — add an asset from the full catalog", btnClearFav: "🗑 Clear favorites",
-    newsTitle: "📰 Economic News", newsDesc: "High/Medium impact calendar. Auto-refresh — new events appear automatically.",
+    newsTitle: "📰 Economic News", newsDesc: "High/Medium calendar. Tap a news item to expand. Auto-refresh.",
     btnRefreshNews: "🔄 Refresh now", newsLoading: "Loading news...",
+    chatTitle: "🤖 AI Assistant Team Master",
+    chatDesc: "Ask about markets, strategies, the terminal and Team Master Trade (7+ years analysts, academy).",
+    chatPlaceholder: "Ask about market, team or terminal...",
+    btnTgCommunity: "💬 Our Telegram chats and community",
     scanTitle: "📷 AI Scanner (Candle Analysis)", scanInstr: "AI candle scanner instructions:",
     scanStep1: "1️⃣ Set the parameters and strategy below",
     scanStep2: "2️⃣ Open the camera or upload a chart screenshot with candles",
-    scanStep3: "3️⃣ Press “RUN (AI CANDLE SCAN)”",
+    scanStep3: "3️⃣ Press RUN (AI CANDLE SCAN)",
     lblScanTf: "CANDLE INTERVAL", lblScanStrat: "ANALYSIS STRATEGY",
     btnOpenCam: "📷 Open Camera", btnUpload: "📁 Upload chart screenshot with candles",
     camOff: "Camera is off or no file selected", camOffSub: "press the button above to start or upload a screenshot",
     btnScanNow: "🚀 RUN (AI CANDLE SCAN)", btnCloseCam: "⏹ Close Camera / Reset", btnNewScan: "⚡ New Scan",
     aboutTitle: "👑 About Our Team (Team Master)",
-    aboutP1: "is an international community and trading ecosystem created by traders for those who want to grow systematically on financial markets and the Pocket Option platform.",
+    aboutP1: "is an international community and trading ecosystem Team Master Trade. Analysts with 7+ years experience, academy and mentoring.",
     aboutGoalT: "Our goal and mission:",
-    aboutGoal: "to give every member modern tools, including an AI candle chart scanner, author indicator combos and Price Action and Smart Money strategies.",
+    aboutGoal: "to give members an AI scanner, signals, indicator combos, economic calendar and mentor support.",
     aboutWhyT: "What's inside:",
     aboutL1: "• Technical signals and AI chart scanning", aboutL2: "• Knowledge base of 50 combos and methods",
-    aboutL3: "• Economic news calendar with auto-refresh",
+    aboutL3: "• Economic calendar and AI assistant",
     aboutRisk: "⚠️ Binary options trading carries a high risk of losing capital. Signals do not guarantee profit. Risk per trade — 1-2% of the deposit.",
     btnTgChan: "📢 Our Telegram Channel",
-    navSig: "Signals", navFavs: "Favorites", navNews: "News", navEdu: "Combos", navProf: "Profile", navScan: "Scanner", navAbout: "About",
+    navSig: "Signals", navFavs: "Favorites", navNews: "News", navChat: "AI Chat", navEdu: "Combos", navProf: "Profile", navScan: "Scanner", navAbout: "About",
     modalCatalogTitle: "📋 Full Pocket Option Assets Catalog", searchPlaceholder: "Search asset...",
     catAll: "🌟 All", catCur: "💱 Currency", catCrypto: "🔥 Crypto", catComm: "🛢️ Commodities", catStocks: "📈 Stocks", catIdx: "📊 Indices"
   },
@@ -793,8 +812,12 @@ const I18N = {
     phPocketId: "Введіть ваш Pocket ID...", phFavStrat: "Наприклад: Smart Money, Price Action...",
     favTabTitle: "⭐ Обрані активи", favTabDesc: "Натисніть на будь-який актив зі списку для переходу.",
     profFavEmpty: "Поки порожньо — додай актив з повного каталогу", btnClearFav: "🗑 Очистити обране",
-    newsTitle: "📰 Економічні новини", newsDesc: "Календар High/Medium подій. Автооновлення — нові новини з'являються самі.",
+    newsTitle: "📰 Економічні новини", newsDesc: "Календар High/Medium. Натисніть на новину, щоб розкрити. Автооновлення.",
     btnRefreshNews: "🔄 Оновити зараз", newsLoading: "Завантаження новин...",
+    chatTitle: "🤖 ШІ Помічник Team Master",
+    chatDesc: "Питання про ринок, стратегії, термінал і команду Team Master Trade (аналітики 7+ років, академія).",
+    chatPlaceholder: "Запитайте про ринок, команду або термінал...",
+    btnTgCommunity: "💬 Наші чати та спільнота в Telegram",
     scanTitle: "📷 ШІ Сканер (Аналіз за свічками)", scanInstr: "Інструкція ШІ-сканера свічок:",
     scanStep1: "1️⃣ Налаштуйте параметри та стратегію нижче",
     scanStep2: "2️⃣ Відкрийте камеру або завантажте скріншот графіка зі свічками",
@@ -804,22 +827,27 @@ const I18N = {
     camOff: "Камера вимкнена або файл не обрано", camOffSub: "натисніть кнопку вище для запуску або завантажте скрін",
     btnScanNow: "🚀 ЗАПУСК (ШІ СКАН СВІЧОК)", btnCloseCam: "⏹ Закрити камеру / Скинути", btnNewScan: "⚡ Новий скан",
     aboutTitle: "👑 Про нашу команду (Team Master)",
-    aboutP1: "це міжнародна спільнота та торгова екосистема, створена трейдерами для тих, хто хоче системно розвиватися на фінансових ринках і платформі Pocket Option.",
+    aboutP1: "це міжнародна спільнота та торгова екосистема Team Master Trade. У команді аналітики з досвідом 7+ років, є академія та супровід.",
     aboutGoalT: "Наша мета і місія:",
-    aboutGoal: "надати кожному учаснику сучасні інструменти, зокрема ШІ-сканер графіків за свічками, авторські зв'язки індикаторів та стратегії Price Action і Smart Money.",
+    aboutGoal: "дати учасникам ШІ-сканер, сигнали, зв'язки індикаторів, економічний календар і підтримку наставників.",
     aboutWhyT: "Що всередині:",
     aboutL1: "• Технічні сигнали та ШІ-сканування графіків", aboutL2: "• База знань з 50 зв'язок і методик",
-    aboutL3: "• Економічний календар новин з автооновленням",
+    aboutL3: "• Економічний календар і ШІ-помічник",
     aboutRisk: "⚠️ Торгівля бінарними опціонами пов'язана з високим ризиком втрати капіталу. Сигнали не гарантують прибуток. Ризик на угоду — 1-2% від депозиту.",
     btnTgChan: "📢 Наш Telegram канал",
-    navSig: "Сигнали", navFavs: "Обране", navNews: "Новини", navEdu: "Зв'язки", navProf: "Профіль", navScan: "Сканер", navAbout: "Про нас",
+    navSig: "Сигнали", navFavs: "Обране", navNews: "Новини", navChat: "ШІ Чат", navEdu: "Зв'язки", navProf: "Профіль", navScan: "Сканер", navAbout: "Про нас",
     modalCatalogTitle: "📋 Повний каталог активів Pocket Option", searchPlaceholder: "Пошук активу...",
     catAll: "🌟 Всі", catCur: "💱 Валюта", catCrypto: "🔥 Крипто", catComm: "🛢️ Сировина", catStocks: "📈 Акції", catIdx: "📊 Індекси"
   }
 };
 
 function esc(s) {
-  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function getCategories() { return ASSETS_DATA_JS[currentLang] || ASSETS_DATA_JS["ru"]; }
@@ -829,9 +857,9 @@ function updateSelectedAssetUI() {
 }
 
 function tab(tabId, el) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
+  document.querySelectorAll(".tab").forEach(function(t) { t.classList.add("hidden"); });
   document.getElementById(tabId).classList.remove("hidden");
-  document.querySelectorAll(".bnav .nav").forEach(n => n.classList.remove("on"));
+  document.querySelectorAll(".bnav .nav").forEach(function(n) { n.classList.remove("on"); });
   if (el) el.classList.add("on");
   if (tabId === "tabFavs") renderMainFavs();
   if (tabId === "tabProf") updateProfileStats();
@@ -846,44 +874,44 @@ function closeCatalogModal() { document.getElementById("catalogModal").classList
 
 function setModalCat(cat, el) {
   modalCategory = cat;
-  document.querySelectorAll("#catalogFilterCats .cat").forEach(c => c.classList.remove("on"));
+  document.querySelectorAll("#catalogFilterCats .cat").forEach(function(c) { c.classList.remove("on"); });
   if (el) el.classList.add("on");
   renderCatalogList(document.getElementById("modalSearchInput").value);
 }
 
 function setScanCfg(el, type, val) {
-  el.parentElement.querySelectorAll(".cat").forEach(b => b.classList.remove("on"));
+  el.parentElement.querySelectorAll(".cat").forEach(function(b) { b.classList.remove("on"); });
   el.classList.add("on");
   scanCfg[type] = val;
 }
 
 function renderCatalogList(filter) {
   filter = (filter || "").toLowerCase();
-  const bodyEl = document.getElementById("modalCatalogBody");
-  const cats = getCategories();
-  let html = "";
-  for (let catName in cats) {
-    if (modalCategory !== "all" && !catName.includes(modalCategory)) continue;
-    const items = cats[catName].filter(it => it.toLowerCase().includes(filter));
+  var bodyEl = document.getElementById("modalCatalogBody");
+  var cats = getCategories();
+  var html = "";
+  for (var catName in cats) {
+    if (modalCategory !== "all" && catName.indexOf(modalCategory) < 0) continue;
+    var items = cats[catName].filter(function(it) { return it.toLowerCase().indexOf(filter) >= 0; });
     if (items.length) {
-      html += `<div class="catalog-category-header">${esc(catName)}</div>`;
-      items.forEach(item => {
-        const isFav = favs.includes(item);
-        html += `<div class="fav-item">
-          <span data-a="\( {esc(item)}" onclick="selectCatalogAsset(this.dataset.a)" style="flex:1"> \){esc(item)}</span>
-          <div style="display:flex;gap:10px;align-items:center">
-            <span style="cursor:pointer;font-size:15px" data-a="\( {esc(item)}" onclick="toggleFav(this.dataset.a)"> \){isFav ? "⭐" : "☆"}</span>
-            <span style="color:var(--gold);font-size:11px;cursor:pointer" data-a="${esc(item)}" onclick="selectCatalogAsset(this.dataset.a)">➔</span>
-          </div>
-        </div>`;
+      html += '<div class="catalog-category-header">' + esc(catName) + '</div>';
+      items.forEach(function(item) {
+        var isFav = favs.indexOf(item) >= 0;
+        var star = isFav ? "⭐" : "☆";
+        html += '<div class="fav-item">';
+        html += '<span data-a="' + esc(item) + '" onclick="selectCatalogAsset(this.getAttribute(\'data-a\'))" style="flex:1">' + esc(item) + '</span>';
+        html += '<div style="display:flex;gap:10px;align-items:center">';
+        html += '<span style="cursor:pointer;font-size:15px" data-a="' + esc(item) + '" onclick="toggleFav(this.getAttribute(\'data-a\'))">' + star + '</span>';
+        html += '<span style="color:var(--gold);font-size:11px;cursor:pointer" data-a="' + esc(item) + '" onclick="selectCatalogAsset(this.getAttribute(\'data-a\'))">➔</span>';
+        html += '</div></div>';
       });
     }
   }
-  bodyEl.innerHTML = html || `<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">—</div>`;
+  bodyEl.innerHTML = html || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">—</div>';
 }
 
 function toggleFav(name) {
-  if (favs.includes(name)) favs = favs.filter(f => f !== name);
+  if (favs.indexOf(name) >= 0) favs = favs.filter(function(f) { return f !== name; });
   else favs.push(name);
   try { localStorage.setItem("tmv_favs", JSON.stringify(favs)); } catch(e) {}
   renderCatalogList(document.getElementById("modalSearchInput").value);
@@ -899,17 +927,17 @@ function selectCatalogAsset(name) {
 }
 
 function renderMainFavs() {
-  const listEl = document.getElementById("mainFavList");
-  const emptyEl = document.getElementById("mainFavEmpty");
+  var listEl = document.getElementById("mainFavList");
+  var emptyEl = document.getElementById("mainFavEmpty");
   if (!favs.length) {
     listEl.innerHTML = "";
     emptyEl.style.display = "block";
     return;
   }
   emptyEl.style.display = "none";
-  let html = "";
-  favs.forEach(f => {
-    html += `<div class="fav-item" data-a="${esc(f)}" onclick="selectCatalogAsset(this.dataset.a)"><span>⭐ ${esc(f)}</span><span style="color:var(--gold)">➔</span></div>`;
+  var html = "";
+  favs.forEach(function(f) {
+    html += '<div class="fav-item" data-a="' + esc(f) + '" onclick="selectCatalogAsset(this.getAttribute(\'data-a\'))"><span>⭐ ' + esc(f) + '</span><span style="color:var(--gold)">➔</span></div>';
   });
   listEl.innerHTML = html;
 }
@@ -923,10 +951,10 @@ function clearFavs() {
 
 function startTimer(key, elementId, seconds, onComplete) {
   if (timers[key]) clearInterval(timers[key]);
-  let rem = seconds;
-  const el = document.getElementById(elementId);
+  var rem = seconds;
+  var el = document.getElementById(elementId);
   updateTimerDisplay(el, rem);
-  timers[key] = setInterval(() => {
+  timers[key] = setInterval(function() {
     rem--;
     if (rem <= 0) {
       clearInterval(timers[key]);
@@ -939,31 +967,31 @@ function startTimer(key, elementId, seconds, onComplete) {
 }
 
 function updateTimerDisplay(el, sec) {
-  const m = Math.floor(sec / 60), s = sec % 60;
+  var m = Math.floor(sec / 60), s = sec % 60;
   el.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
 }
 
 function runAnalyzer(callback) {
-  const overlay = document.getElementById("analyzeBox");
-  const txtEl = document.getElementById("analyzeTxt");
-  const smileEl = document.getElementById("analyzeSmile");
+  var overlay = document.getElementById("analyzeBox");
+  var txtEl = document.getElementById("analyzeTxt");
+  var smileEl = document.getElementById("analyzeSmile");
   overlay.classList.remove("hidden");
-  const phrases = [
+  var phrases = [
     "⚡ Подключаюсь к рынку... 😊",
     "📊 Анализирую котировки... 🔍",
     "💎 Сканирую индикаторы... ✨",
     "🚀 Формирую точный сигнал... 🎯"
   ];
-  const smiles = ["😊", "😎", "🤩", "🔥"];
-  let step = 0;
+  var smiles = ["😊", "😎", "🤩", "🔥"];
+  var step = 0;
   txtEl.textContent = phrases[0];
   smileEl.textContent = smiles[0];
-  const interval = setInterval(() => {
+  var interval = setInterval(function() {
     step++;
     txtEl.textContent = phrases[step % phrases.length];
     smileEl.textContent = smiles[step % smiles.length];
   }, 480);
-  setTimeout(() => {
+  setTimeout(function() {
     clearInterval(interval);
     overlay.classList.add("hidden");
     if (callback) callback();
@@ -972,39 +1000,37 @@ function runAnalyzer(callback) {
 
 function incSig() {
   sigCount++;
-  try { localStorage.setItem("tmv_sigs", sigCount); } catch(e) {}
+  try { localStorage.setItem("tmv_sigs", String(sigCount)); } catch(e) {}
   updateProfileStats();
 }
 
 function getSig() {
-  runAnalyzer(async () => {
-    const tf = document.getElementById("tf").value;
-    const expSec = parseInt(document.getElementById("exp").value);
-    let dir = "⬆️ CALL (ВВЕРХ)";
-    let stratText = `Технический анализ котировок для актива (${currentAsset}) по таймфрейму ${tf} с экспирацией ${expSec} сек.`;
-
+  runAnalyzer(async function() {
+    var tf = document.getElementById("tf").value;
+    var expSec = parseInt(document.getElementById("exp").value);
+    var dir = "⬆️ CALL (ВВЕРХ)";
+    var stratText = "Технический анализ котировок для актива (" + currentAsset + ") по таймфрейму " + tf + " с экспирацией " + expSec + " сек.";
     try {
-      const res = await fetch(`/get_signal?asset=\( {encodeURIComponent(currentAsset)}&timeframe= \){encodeURIComponent(tf)}`);
+      var res = await fetch("/get_signal?asset=" + encodeURIComponent(currentAsset) + "&timeframe=" + encodeURIComponent(tf));
       if (res.ok) {
-        const data = await res.json();
+        var data = await res.json();
         if (data.signal) {
           dir = data.signal === "UP" ? "⬆️ CALL (ВВЕРХ)" : "⬇️ PUT (ВНИЗ)";
           if (data.reason) stratText = data.reason;
         }
       }
     } catch (e) {}
-
-    const isCall = dir.includes("CALL");
-    document.getElementById("sigMeta").textContent = `Pocket Option · ${currentAsset} · ${tf} · ${expSec} сек`;
-    const dirEl = document.getElementById("sigDir");
+    var isCall = dir.indexOf("CALL") >= 0;
+    document.getElementById("sigMeta").textContent = "Pocket Option · " + currentAsset + " · " + tf + " · " + expSec + " сек";
+    var dirEl = document.getElementById("sigDir");
     dirEl.textContent = dir;
     dirEl.className = "sig-dir " + (isCall ? "call" : "put");
-    document.getElementById("sigStrat").innerHTML = `<b>Анализ сигнала:</b> ${esc(stratText)}`;
+    document.getElementById("sigStrat").innerHTML = "<b>Анализ сигнала:</b> " + esc(stratText);
     document.getElementById("sigBox").style.display = "block";
     document.getElementById("btnCancel").style.display = "block";
     document.getElementById("btnNew").style.display = "none";
     incSig();
-    startTimer("sig", "cd", expSec, () => {
+    startTimer("sig", "cd", expSec, function() {
       document.getElementById("btnCancel").style.display = "none";
       document.getElementById("btnNew").style.display = "block";
     });
@@ -1012,9 +1038,9 @@ function getSig() {
 }
 
 function autoSig() {
-  let allItems = [];
-  const cats = getCategories();
-  for (let c in cats) allItems = allItems.concat(cats[c]);
+  var allItems = [];
+  var cats = getCategories();
+  for (var c in cats) allItems = allItems.concat(cats[c]);
   currentAsset = allItems[Math.floor(Math.random() * allItems.length)];
   updateSelectedAssetUI();
   getSig();
@@ -1025,101 +1051,169 @@ function cancelSig() {
   document.getElementById("sigBox").style.display = "none";
 }
 
+function pad2(n) { return n < 10 ? "0" + n : String(n); }
+
 function formatNewsTime(iso) {
   try {
-    const d = new Date(iso);
+    var d = new Date(iso);
     if (isNaN(d.getTime())) return iso || "—";
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mi = String(d.getMinutes()).padStart(2, "0");
-    return `\( {dd}. \){mm} \( {hh}: \){mi}`;
+    return pad2(d.getDate()) + "." + pad2(d.getMonth() + 1) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
   } catch (e) { return iso || "—"; }
 }
 
 function impactClass(imp) {
-  const x = (imp || "").toLowerCase();
+  var x = String(imp || "").toLowerCase();
   if (x === "high") return "high";
   if (x === "medium") return "medium";
   return "low";
 }
 
-function impactEmoji(imp) {
-  const x = (imp || "").toLowerCase();
+function impactLabel(imp) {
+  var x = String(imp || "").toLowerCase();
   if (x === "high") return "🔴 High";
   if (x === "medium") return "🟠 Medium";
   return "🟡 Low";
 }
 
+function newsDetailText(ev) {
+  var lines = [];
+  lines.push("Валюта: " + (ev.currency || "—"));
+  lines.push("Важность: " + (ev.impact || "—"));
+  lines.push("Время: " + formatNewsTime(ev.date));
+  if (ev.forecast) lines.push("Прогноз рынка: " + ev.forecast);
+  if (ev.previous) lines.push("Предыдущее значение: " + ev.previous);
+  if (ev.actual) lines.push("Фактическое значение: " + ev.actual);
+  else lines.push("Фактическое значение ещё не опубликовано — следите за обновлением.");
+  lines.push("");
+  lines.push("Совет Team Master: на High-новостях спред и волатильность растут. Лучше не открывать сделки за 2–5 минут до выхода сильной статистики, если нет чёткого плана.");
+  return lines.join("\n");
+}
+
 function renderNewsList(events) {
-  const list = document.getElementById("newsList");
+  var list = document.getElementById("newsList");
   if (!events || !events.length) {
-    list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Нет событий на ближайшие дни</div>`;
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Нет событий на ближайшие дни</div>';
     return;
   }
-  let html = "";
-  events.forEach(ev => {
-    const ic = impactClass(ev.impact);
-    const actual = (ev.actual || "").trim();
-    const forecast = (ev.forecast || "").trim();
-    const previous = (ev.previous || "").trim();
-    html += `<div class="news-item ${ic}">
-      <div class="news-top">
-        <span class="news-cur">${esc(ev.currency || "—")} · <span class="news-impact \( {ic}"> \){impactEmoji(ev.impact)}</span></span>
-        <span class="news-time">🕒 ${esc(formatNewsTime(ev.date))}</span>
-      </div>
-      <div class="news-name">${esc(ev.name || "Событие")}</div>
-      <div class="news-meta">
-        ${forecast ? `<span>📈 Прогноз: ${esc(forecast)}</span>` : ""}
-        ${previous ? `<span>📉 Пред.: ${esc(previous)}</span>` : ""}
-        ${actual ? `<span style="color:var(--green)">✅ Факт: ${esc(actual)}</span>` : `<span>⏳ Ожидается</span>`}
-      </div>
-    </div>`;
+  var html = "";
+  events.forEach(function(ev, idx) {
+    var ic = impactClass(ev.impact);
+    var actual = String(ev.actual || "").trim();
+    var forecast = String(ev.forecast || "").trim();
+    var previous = String(ev.previous || "").trim();
+    html += '<div class="news-item ' + ic + '" data-idx="' + idx + '" onclick="toggleNews(' + idx + ')">';
+    html += '<div class="news-top">';
+    html += '<span class="news-cur">' + esc(ev.currency || "—") + ' · <span class="news-impact ' + ic + '">' + impactLabel(ev.impact) + '</span></span>';
+    html += '<span class="news-time">🕒 ' + esc(formatNewsTime(ev.date)) + '</span>';
+    html += '</div>';
+    html += '<div class="news-name">' + esc(ev.name || "Событие") + '</div>';
+    html += '<div class="news-meta">';
+    if (forecast) html += '<span>📈 Прогноз: ' + esc(forecast) + '</span>';
+    if (previous) html += '<span>📉 Пред.: ' + esc(previous) + '</span>';
+    if (actual) html += '<span style="color:var(--green)">✅ Факт: ' + esc(actual) + '</span>';
+    else html += '<span>⏳ Ожидается</span>';
+    html += '</div>';
+    html += '<div class="news-detail" id="newsDetail' + idx + '">' + esc(newsDetailText(ev)).replace(/\n/g, "<br>") + '</div>';
+    html += '</div>';
   });
   list.innerHTML = html;
 }
 
+function toggleNews(idx) {
+  var items = document.querySelectorAll(".news-item");
+  items.forEach(function(el) {
+    var i = parseInt(el.getAttribute("data-idx"));
+    if (i === idx) el.classList.toggle("open");
+    else el.classList.remove("open");
+  });
+}
+
 async function loadNews(force) {
-  const upd = document.getElementById("newsUpdated");
+  var upd = document.getElementById("newsUpdated");
   try {
-    const res = await fetch("/news");
+    var res = await fetch("/news");
     if (!res.ok) throw new Error("fail");
-    const data = await res.json();
-    const events = data.events || [];
-    const hash = JSON.stringify(events.map(e => [e.name, e.date, e.actual, e.forecast]));
+    var data = await res.json();
+    var events = data.events || [];
+    newsCache = events;
+    var hash = JSON.stringify(events.map(function(e) { return [e.name, e.date, e.actual, e.forecast]; }));
     if (force || hash !== lastNewsHash) {
       lastNewsHash = hash;
       renderNewsList(events);
     }
-    const t = data.updated ? formatNewsTime(data.updated) : formatNewsTime(new Date().toISOString());
-    upd.textContent = `🔄 Обновлено: ${t} · событий: ${events.length}`;
+    var t = data.updated ? formatNewsTime(data.updated) : formatNewsTime(new Date().toISOString());
+    upd.textContent = "🔄 Обновлено: " + t + " · событий: " + events.length;
   } catch (e) {
-    if (!document.getElementById("newsList").innerHTML.includes("news-item")) {
-      document.getElementById("newsList").innerHTML = `<div style="text-align:center;padding:20px;color:var(--red);font-size:11px">Не удалось загрузить новости. Нажмите обновить.</div>`;
+    if (document.getElementById("newsList").innerHTML.indexOf("news-item") < 0) {
+      document.getElementById("newsList").innerHTML = '<div style="text-align:center;padding:20px;color:var(--red);font-size:11px">Не удалось загрузить новости. Нажмите обновить.</div>';
     }
   }
 }
 
 function startNewsAuto() {
   if (newsTimer) clearInterval(newsTimer);
-  newsTimer = setInterval(() => loadNews(false), 90000);
+  newsTimer = setInterval(function() { loadNews(false); }, 90000);
+}
+
+function strategyVisual(kind) {
+  if (kind === "range") {
+    return '<div class="strat-visual"><svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect x="0" y="0" width="320" height="140" fill="#05070d"/>' +
+      '<line x1="20" y1="35" x2="300" y2="35" stroke="#FF5252" stroke-width="2" stroke-dasharray="6 4"/>' +
+      '<text x="24" y="28" fill="#FF5252" font-size="11" font-weight="700">Resistance → PUT</text>' +
+      '<path d="M30 90 C70 50, 110 110, 150 70 S230 40, 290 85" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
+      '<line x1="20" y1="105" x2="300" y2="105" stroke="#00E676" stroke-width="2" stroke-dasharray="6 4"/>' +
+      '<text x="24" y="122" fill="#00E676" font-size="11" font-weight="700">Support → CALL</text>' +
+      '</svg></div>';
+  }
+  if (kind === "trend") {
+    return '<div class="strat-visual"><svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect x="0" y="0" width="320" height="140" fill="#05070d"/>' +
+      '<path d="M25 115 L70 95 L110 100 L150 70 L190 75 L240 45 L295 30" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
+      '<circle cx="240" cy="45" r="6" fill="#00E676"/>' +
+      '<text x="200" y="28" fill="#00E676" font-size="11" font-weight="700">CALL по тренду</text>' +
+      '<text x="24" y="130" fill="#7a8499" font-size="10">Импульс вверх + подтверждение индикатора</text>' +
+      '</svg></div>';
+  }
+  if (kind === "bounce") {
+    return '<div class="strat-visual"><svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect x="0" y="0" width="320" height="140" fill="#05070d"/>' +
+      '<path d="M30 40 Q90 20 130 55 Q170 100 210 110 Q250 70 290 45" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
+      '<line x1="20" y1="115" x2="300" y2="115" stroke="#00E676" stroke-width="2" stroke-dasharray="5 4"/>' +
+      '<circle cx="210" cy="110" r="6" fill="#00E676"/>' +
+      '<text x="150" y="100" fill="#00E676" font-size="11" font-weight="700">Отскок CALL</text>' +
+      '</svg></div>';
+  }
+  return '<div class="strat-visual"><svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect x="0" y="0" width="320" height="140" fill="#05070d"/>' +
+    '<line x1="20" y1="40" x2="300" y2="40" stroke="#FF5252" stroke-width="2" stroke-dasharray="6 4"/>' +
+    '<text x="200" y="32" fill="#FF5252" font-size="11" font-weight="700">PUT у сопротивления</text>' +
+    '<path d="M30 100 C80 95, 120 50, 160 55 S230 95, 290 60" fill="none" stroke="#FFD700" stroke-width="2.5"/>' +
+    '<line x1="20" y1="110" x2="300" y2="110" stroke="#00E676" stroke-width="2" stroke-dasharray="6 4"/>' +
+    '<text x="24" y="128" fill="#00E676" font-size="11" font-weight="700">CALL у поддержки</text>' +
+    '</svg></div>';
 }
 
 function renderEdu() {
-  let html = "";
-  EDU.forEach((ed, i) => {
-    html += `<div class="edu-item" onclick="openEdu(\( {i})"><h4> \){esc(ed.t)}</h4><span style="color:var(--gold)">➔</span></div>`;
+  var html = "";
+  EDU.forEach(function(ed, i) {
+    html += '<div class="edu-item" onclick="openEdu(' + i + ')"><h4>' + esc(ed.t) + '</h4><span style="color:var(--gold)">➔</span></div>';
   });
   document.getElementById("eduItems").innerHTML = html;
 }
 
 function openEdu(idx) {
-  const ed = EDU[idx];
+  var ed = EDU[idx];
   document.getElementById("eduList").classList.add("hidden");
   document.getElementById("eduView").classList.remove("hidden");
-  let tagsHtml = "";
-  ed.tags.forEach(t => { tagsHtml += `<span class="tag">${esc(t)}</span>`; });
-  document.getElementById("eduBody").innerHTML = `<h3>\( {esc(ed.t)}</h3><div class="tag-row"> \){tagsHtml}</div><p>${esc(ed.d)}</p>`;
+  var tagsHtml = "";
+  (ed.tags || []).forEach(function(t) { tagsHtml += '<span class="tag">' + esc(t) + '</span>'; });
+  var visual = strategyVisual(ed.kind || "levels");
+  document.getElementById("eduBody").innerHTML =
+    '<h3>' + esc(ed.t) + '</h3>' +
+    '<div class="tag-row">' + tagsHtml + '</div>' +
+    visual +
+    '<p>' + esc(ed.d) + '</p>';
 }
 function closeEdu() {
   document.getElementById("eduView").classList.add("hidden");
@@ -1128,15 +1222,15 @@ function closeEdu() {
 function openRandomEdu() { openEdu(Math.floor(Math.random() * EDU.length)); }
 
 function updateProfileStats() {
-  document.getElementById("profSigCount").textContent = sigCount;
-  document.getElementById("profFavCount").textContent = favs.length;
+  document.getElementById("profSigCount").textContent = String(sigCount);
+  document.getElementById("profFavCount").textContent = String(favs.length);
 }
 
 function loadProfile() {
   try {
     document.getElementById("profPocketId").value = localStorage.getItem("tmv_pocketId") || "";
     document.getElementById("profFavStrat").value = localStorage.getItem("tmv_favStrat") || "";
-    const photo = localStorage.getItem("tmv_profPhoto");
+    var photo = localStorage.getItem("tmv_profPhoto");
     if (photo) {
       document.getElementById("profilePhotoImg").src = photo;
       document.getElementById("profilePhotoImg").classList.remove("hidden");
@@ -1170,9 +1264,9 @@ function resetProfile() {
 }
 
 function handleProfilePhoto(event) {
-  const file = event.target.files[0];
+  var file = event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
+  var reader = new FileReader();
   reader.onload = function (e) {
     try { localStorage.setItem("tmv_profPhoto", e.target.result); } catch (err) {}
     document.getElementById("profilePhotoImg").src = e.target.result;
@@ -1184,14 +1278,14 @@ function handleProfilePhoto(event) {
 
 function openCam() {
   uploadedImageBlob = null;
-  const video = document.getElementById("scanVideo");
+  var video = document.getElementById("scanVideo");
   document.getElementById("scanPreviewImg").classList.add("hidden");
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     alert("Камера недоступна в этом браузере. Загрузите скриншот графика.");
     return;
   }
   navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-    .then(s => {
+    .then(function(s) {
       stream = s;
       video.srcObject = stream;
       video.classList.remove("hidden");
@@ -1200,17 +1294,17 @@ function openCam() {
       camReady = true;
       document.getElementById("btnScan").removeAttribute("disabled");
     })
-    .catch(err => { alert("Не удалось получить доступ к камере: " + err); });
+    .catch(function(err) { alert("Не удалось получить доступ к камере: " + err); });
 }
 
 function handleImageUpload(event) {
-  const file = event.target.files[0];
+  var file = event.target.files[0];
   if (!file) return;
   uploadedImageBlob = file;
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
   document.getElementById("scanVideo").classList.add("hidden");
-  const previewImg = document.getElementById("scanPreviewImg");
-  const reader = new FileReader();
+  var previewImg = document.getElementById("scanPreviewImg");
+  var reader = new FileReader();
   reader.onload = function (e) {
     previewImg.src = e.target.result;
     previewImg.classList.remove("hidden");
@@ -1223,7 +1317,7 @@ function handleImageUpload(event) {
 }
 
 function stopCam() {
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
   uploadedImageBlob = null;
   document.getElementById("scanVideo").classList.add("hidden");
   document.getElementById("scanPreviewImg").classList.add("hidden");
@@ -1235,64 +1329,65 @@ function stopCam() {
 }
 
 function getScanExpSeconds() {
-  const v = scanCfg["экспирация"];
-  const n = parseInt(v);
-  return v.includes("с") ? n : n * 60;
+  var v = scanCfg["экспирация"];
+  var n = parseInt(v);
+  return String(v).indexOf("с") >= 0 ? n : n * 60;
 }
 
 function doScan() {
   if (!camReady) { alert("Сначала откройте камеру или загрузите скриншот графика со свечами!"); return; }
-  const expSec = getScanExpSeconds();
+  var expSec = getScanExpSeconds();
   if (uploadedImageBlob) {
     processImageBlobForScan(uploadedImageBlob, expSec);
   } else {
-    const video = document.getElementById("scanVideo");
-    const canvas = document.createElement("canvas");
+    var video = document.getElementById("scanVideo");
+    var canvas = document.createElement("canvas");
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
     canvas.getContext("2d").drawImage(video, 0, 0);
-    canvas.toBlob(blob => { processImageBlobForScan(blob, expSec); }, "image/jpeg");
+    canvas.toBlob(function(blob) { processImageBlobForScan(blob, expSec); }, "image/jpeg");
   }
 }
 
 function processImageBlobForScan(blob, expSec) {
-  runAnalyzer(async () => {
-    let resText = "❌ Ошибка анализа. Попробуйте ещё раз.";
+  runAnalyzer(async function() {
+    var resText = "❌ Ошибка анализа. Попробуйте ещё раз.";
     try {
-      const fd = new FormData();
+      var fd = new FormData();
       fd.append("file", blob, "snapshot.jpg");
       fd.append("cfg", JSON.stringify(scanCfg));
-      const response = await fetch("/analyze", { method: "POST", body: fd });
+      var response = await fetch("/analyze", { method: "POST", body: fd });
       if (response.ok) {
-        const resData = await response.json();
+        var resData = await response.json();
         resText = resData.text || resText;
       }
     } catch (e) {}
 
-    const isErr = resText.includes("❌");
+    var isErr = resText.indexOf("❌") >= 0;
     document.getElementById("scanMeta").textContent = "TEAM MASTER AI SCANNER";
-    const dirEl = document.getElementById("scanDir");
+    var dirEl = document.getElementById("scanDir");
 
     if (isErr) {
       dirEl.textContent = "❌ ОШИБКА / ГРАФИК НЕ ОБНАРУЖЕН";
       dirEl.className = "sig-dir put";
     } else {
-      const upper = resText.toUpperCase();
-      const iBuy = Math.min(...["BUY", "ВВЕРХ"].map(w => upper.indexOf(w) < 0 ? 1e9 : upper.indexOf(w)));
-      const iSell = Math.min(...["SELL", "ВНИЗ"].map(w => upper.indexOf(w) < 0 ? 1e9 : upper.indexOf(w)));
-      const buy = iBuy <= iSell;
+      var upper = resText.toUpperCase();
+      function idxOf(w) { var i = upper.indexOf(w); return i < 0 ? 1e9 : i; }
+      var iBuy = Math.min(idxOf("BUY"), idxOf("ВВЕРХ"));
+      var iSell = Math.min(idxOf("SELL"), idxOf("ВНИЗ"));
+      var buy = iBuy <= iSell;
       dirEl.textContent = buy ? "BUY (ВВЕРХ) 📈" : "SELL (ВНИЗ) 📉";
       dirEl.className = "sig-dir " + (buy ? "call" : "put");
       incSig();
     }
 
-    document.getElementById("scanStrat").innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;margin:0">${esc(resText)}</pre>`;
+    document.getElementById("scanStrat").innerHTML = '<pre style="white-space:pre-wrap;font-family:inherit;margin:0">' + esc(resText) + '</pre>';
     document.getElementById("scanSigBox").style.display = "block";
     document.getElementById("btnScanCancel").style.display = "block";
     document.getElementById("btnScanNew").style.display = "none";
 
     if (!isErr) {
-      startTimer("scan", "scanCd", expSec, () => {
+      startTimer("scan", "scanCd", expSec, function() {
         document.getElementById("btnScanCancel").style.display = "none";
         document.getElementById("btnScanNew").style.display = "block";
       });
@@ -1308,23 +1403,53 @@ function cancelScan() {
   document.getElementById("scanSigBox").style.display = "none";
 }
 
+async function sendAiChatMessage() {
+  var inputEl = document.getElementById("chatInputText");
+  var msgBox = document.getElementById("chatMessagesBox");
+  var text = (inputEl.value || "").trim();
+  if (!text) return;
+
+  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg user">' + esc(text) + '</div>');
+  inputEl.value = "";
+  msgBox.scrollTop = msgBox.scrollHeight;
+
+  var loadingId = "ai_load_" + Date.now();
+  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai" id="' + loadingId + '">Ассистент анализирует вопрос... 🤖</div>');
+  msgBox.scrollTop = msgBox.scrollHeight;
+
+  var reply = "⚠️ Ошибка связи с сервером.";
+  try {
+    var fd = new FormData();
+    fd.append("prompt", text);
+    var response = await fetch("/ai-chat", { method: "POST", body: fd });
+    if (response.ok) {
+      var data = await response.json();
+      reply = data.reply || reply;
+    }
+  } catch (e) {}
+  var loadEl = document.getElementById(loadingId);
+  if (loadEl) loadEl.remove();
+  msgBox.insertAdjacentHTML("beforeend", '<div class="chat-msg ai">' + esc(reply) + '</div>');
+  msgBox.scrollTop = msgBox.scrollHeight;
+}
+
 function changeLanguage(lang) {
   currentLang = lang;
-  const dict = I18N[lang];
+  var dict = I18N[lang];
   if (!dict) return;
-  document.querySelectorAll("[data-t]").forEach(el => {
-    const k = el.getAttribute("data-t");
+  document.querySelectorAll("[data-t]").forEach(function(el) {
+    var k = el.getAttribute("data-t");
     if (dict[k] !== undefined) el.innerHTML = dict[k];
   });
-  document.querySelectorAll("[data-ph]").forEach(el => {
-    const k = el.getAttribute("data-ph");
+  document.querySelectorAll("[data-ph]").forEach(function(el) {
+    var k = el.getAttribute("data-ph");
     if (dict[k] !== undefined) el.setAttribute("placeholder", dict[k]);
   });
   document.documentElement.lang = lang === "ua" ? "uk" : lang;
   renderCatalogList(document.getElementById("modalSearchInput").value);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", function() {
   updateSelectedAssetUI();
   renderMainFavs();
   renderEdu();
@@ -1350,11 +1475,9 @@ def serve_terminal():
 @app.get("/get_signal")
 async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str = "M1"):
     asyncio.create_task(send_tg_signal_alert(asset, timeframe))
-
     await asyncio.sleep(1.0)
     is_otc = "OTC" in asset
     clean_asset = re.sub(r"[^\x00-\x7F]+", "", asset).replace("OTC", "").strip()
-
     prices = None
     if not is_otc and clean_asset in BINANCE_MAPPING:
         try:
@@ -1364,10 +1487,8 @@ async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str
                 prices = [float(c[4]) for c in res.json()]
         except Exception:
             prices = None
-
     if not prices:
         prices = generate_otc_candles(asset, count=50)
-
     rsi = calculate_rsi(prices)
     ema = calculate_ema(prices)
     signal, reason = smart_market_analysis(prices, rsi, ema)
@@ -1378,8 +1499,6 @@ async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str
 async def get_news():
     events = []
     updated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    # 1) ShowMyTrades — high/medium + actual
     try:
         url = (
             "https://showmytrades.com/api/public/calendar/v1"
@@ -1405,7 +1524,6 @@ async def get_news():
     except Exception as ex:
         logging.warning(f"ShowMyTrades news error: {ex}")
 
-    # 2) Fallback — PipAtlas
     if not events:
         try:
             async with httpx.AsyncClient() as client:
@@ -1430,14 +1548,7 @@ async def get_news():
         except Exception as ex:
             logging.warning(f"PipAtlas news error: {ex}")
 
-    # ближайшие сверху
-    def sort_key(x):
-        try:
-            return x.get("date") or ""
-        except Exception:
-            return ""
-
-    events.sort(key=sort_key)
+    events.sort(key=lambda x: x.get("date") or "")
     return {"events": events[:80], "updated": updated}
 
 
@@ -1450,6 +1561,41 @@ async def analyze(file: UploadFile = File(...), cfg: str = Form(...)):
         config = {}
     result_text = await scanner_core.compute(image_bytes, config)
     return {"text": result_text}
+
+
+def _chat_sync(chat_prompt):
+    model = genai.GenerativeModel(GEMINI_MODEL)
+    response = model.generate_content(chat_prompt)
+    return response.text.strip() if response and response.text else "Нет ответа от ИИ. 🤖"
+
+
+@app.post("/ai-chat")
+async def ai_chat(prompt: str = Form(...)):
+    user_prompt = prompt.strip()
+    if not GEMINI_API_KEY:
+        return {"reply": "⚠️ Ключ GEMINI_API_KEY не настроен в окружении Render."}
+
+    chat_prompt = (
+        "Ты профессиональный трейдер-наставник и ИИ-помощник команды Team Master VIP / Team Master Trade "
+        "на платформе Pocket Option.\n"
+        "О команде: Team Master Trade — команда аналитиков с опытом 7+ лет, есть академия, торговые чаты, "
+        "сопровождение и обучение стратегиям Price Action, Smart Money, ICT, скальпингу.\n"
+        "Отвечай на вопросы по трейдингу, рынкам, индикаторам, стратегиям, сигналам, терминалу Team Master VIP, "
+        "а также по команде, академии и обучению.\n"
+        "Используй эмодзи (📈📉⚡🚀💎👑🎯🤖⭐🔥📊).\n\n"
+        "ПРАВИЛА:\n"
+        "1. Только темы: трейдинг, рынки, стратегии, сигналы, терминал, команда Team Master / Master Trade, академия. "
+        "Если вопрос посторонний — откажись вежливо и верни к теме.\n"
+        "2. На неприличные вопросы не отвечай.\n"
+        "3. Если просят сигнал/направление — дай разбор и напомни о рисках бинарных опционов (риск 1-2% на сделку).\n"
+        "4. Отвечай на языке вопроса пользователя.\n\n"
+        f"Вопрос пользователя: {user_prompt}"
+    )
+    try:
+        reply = await asyncio.to_thread(_chat_sync, chat_prompt)
+        return {"reply": reply}
+    except Exception as e:
+        return {"reply": f"⚠️ Ошибка связи с ИИ: {str(e)}"}
 
 
 if __name__ == "__main__":
