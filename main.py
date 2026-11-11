@@ -11,7 +11,7 @@ import httpx
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="27.5")
+app = FastAPI(title="TEAM MASTER VIP - ULTIMATE QUANTUM CORE", version="29.0")
 
 DB_FILE = "requests.json"
 BOT_TOKEN = "8847524172:AAF3um77sDqsX6IWq_W-D-Hb8TQJSpK-0qo"
@@ -361,7 +361,7 @@ for i in range(6, 51):
         f"• 🧠 ⚡ РЫНОЧНАЯ МЕХАНИКА И СУТЬ СТРАТЕГИИ:\n"
         f"Данная элитная торговая система построена на комплексном анализе уровней ликвидности, динамических зон перекупленности/перепроданности "
         f"и фильтрации рыночного шума! 🚀 Она создана для уверенной прибыльной торговли бинарными опционами на любых валютных парах, акциях и криптовалютах, "
-        f"позволяя с хирургической точностью определять моменты разворота тренда и импульсного продолжения движения! 💎✨\n\n"
+        f"позволяя с хирургической точностью определять моменты разворота тренда и импульсного движения! 💎✨\n\n"
         f"• ⏱ ⚡ РЕКОМЕНДУЕМЫЕ ТАЙМФРЕЙМЫ ГРАФИКА:\n"
         f"Оптимально использовать таймфреймы M1 (1 минута), M2 и M5 для стабильной и надежной отработки сигналов! 🎯🔥\n\n"
         f"• ⏳ 🕒 ОПТИМАЛЬНАЯ ЭКСПИРАЦИЯ СДЕЛКИ В POCKET OPTION:\n"
@@ -514,7 +514,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="grid2" style="margin-bottom:10px">
 <div>
 <label class="lbl" data-t="lblTf">ИНТЕРВАЙМ (ТАЙМФРЕЙМ)</label>
-<select class="sel" id="tf">
+<select class="sel" id="tf" onchange="syncExpiration()">
 <option value="S5">5 сек</option><option value="S15">15 сек</option><option value="S30">30 сек</option>
 <option value="M1" selected>1 мин</option><option value="M2">2 мин</option><option value="M3">3 мин</option>
 <option value="M5">5 мин</option><option value="M10">10 мин</option><option value="M15">15 мин</option>
@@ -533,9 +533,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </select>
 </div>
 </div>
-<button class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
+<button type="button" class="btn btn-gold" onclick="getSig()" data-t="btnCalcSig">⚡ Просчитать сигнал</button>
 <div class="gap"></div>
-<button class="btn btn-green btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ актив</button>
+<button type="button" class="btn btn-green btn-sm" onclick="autoSig()" data-t="btnAutoSig">🤖 Выбрать топ актив</button>
 <div class="gap"></div>
 <a class="btn btn-gold btn-sm" style="background:linear-gradient(135deg,#FFD700,#FFA000)" href="https://u3.shortink.io/cabinet/demo-quick-high-low?utm_campaign=850173&utm_source=affiliate&utm_medium=sr&a=RLQDltKf13Zlrj&al=1771346&ac=smart-link&cid=960963&code=WELCOME50" target="_blank" id="poDeepLink" data-t="btnOpenPo">🚀 Открыть Pocket Option</a>
 <div class="sig" id="sigBox">
@@ -544,8 +544,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="timer">⏱ <span id="cd">01:00</span></div>
 <div class="strat" id="sigStrat"></div>
 <div class="sig-stats"><span><span data-t="lblCombo">Связка</span>: <b id="sigCombo">Multi-Factor</b></span></div>
-<button class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none" data-t="btnCancel">✖ Отменить</button>
-<button class="btn btn-gold btn-sm" id="btnNew" onclick="getSig()" style="display:none" data-t="btnNewSig">⚡ Новый сигнал</button>
+<button type="button" class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none" data-t="btnCancel">✖ Отменить</button>
+<button type="button" class="btn btn-gold btn-sm" id="btnNew" onclick="getSig()" style="display:none" data-t="btnNewSig">⚡ Новый сигнал</button>
 </div>
 </div>
 
@@ -565,7 +565,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   </div>
   <div class="chat-input-row">
     <input type="text" class="chat-input" id="chatInputText" placeholder="Введите вопрос по трейдингу..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
-    <button class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
+    <button type="button" class="btn btn-gold btn-sm" style="width:auto;padding:8px 14px" onclick="sendAiChatMessage()">➔</button>
   </div>
 </div>
 <div class="gap2"></div>
@@ -574,7 +574,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 <div class="card tab hidden" id="tabEdu">
 <div style="display:flex;gap:6px;margin-bottom:10px">
-  <button class="btn btn-gold btn-sm" style="flex:1" onclick="openRandomEdu()" data-t="btnRandomStrat">🎲 Рандом стратегия</button>
+  <button type="button" class="btn btn-gold btn-sm" style="flex:1" onclick="openRandomEdu()" data-t="btnRandomStrat">🎲 Рандом стратегия</button>
 </div>
 
 <div id="eduList">
@@ -582,7 +582,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div id="eduItems"></div>
 </div>
 <div id="eduView" class="hidden">
-<button class="btn btn-gold btn-sm" style="margin-bottom:10px" onclick="closeEdu()" data-t="btnBackEdu">← Назад к списку</button>
+<button type="button" class="btn btn-gold btn-sm" style="margin-bottom:10px" onclick="closeEdu()" data-t="btnBackEdu">← Назад к списку</button>
 <div class="edu-detail" id="eduBody"></div>
 </div>
 </div>
@@ -611,7 +611,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 <div class="fav-list" id="favList"></div>
 <div id="favEmpty" style="text-align:center;padding:16px;color:var(--muted);font-size:11px;font-weight:600" data-t="profFavEmpty">Пока пусто — добавь актив из полного каталога</div>
 <div class="gap2"></div>
-<button class="btn btn-dark btn-sm" onclick="clearFavs()" data-t="btnClearFav">🗑 Очистить избранное</button>
+<button type="button" class="btn btn-dark btn-sm" onclick="clearFavs()" data-t="btnClearFav">🗑 Очистить избранное</button>
 </div>
 
 <div class="card tab hidden" id="tabScan">
@@ -650,7 +650,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="cat" onclick="setScanCfg(this,'стратегия','Trend')">Trend</div>
 </div>
 
-<button class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
+<button type="button" class="btn btn-gold btn-sm" id="btnOpenCam" onclick="openCam()" data-t="btnOpenCam">📷 Открыть камеру</button>
 <div class="gap"></div>
 <div style="margin-bottom:8px">
   <label class="btn btn-dark btn-sm" style="cursor:pointer; text-align:center; display:block;">
@@ -665,16 +665,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 </div>
 </div>
 
-<button class="btn btn-gold" id="btnScan" onclick="doScan()" disabled style="background:#1b5e20;color:#fff">🚀 ЗАПУСК (СКАН СВЕЧЕЙ)</button>
+<button type="button" class="btn btn-gold" id="btnScan" onclick="doScan()" disabled style="background:#1b5e20;color:#fff">🚀 ЗАПУСК (СКАН СВЕЧЕЙ)</button>
 <div class="gap"></div>
-<button class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру / Сбросить</button>
+<button type="button" class="btn btn-dark btn-sm" onclick="stopCam()" data-t="btnCloseCam">⏹ Закрыть камеру / Сбросить</button>
 <div class="sig" id="scanSigBox">
 <div class="sig-meta" id="scanMeta">TEAM MASTER SIGNAL V4.0</div>
 <div class="sig-dir call" id="scanDir">BUY (ВВЕРХ)</div>
 <div class="timer">⏱ <span id="scanCd">01:00</span></div>
 <div class="strat" id="scanStrat"></div>
-<button class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
-<button class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
+<button type="button" class="btn btn-red btn-sm" id="btnScanCancel" onclick="cancelScan()" style="display:none" data-t="btnCancel">✖ Отменить</button>
+<button type="button" class="btn btn-gold btn-sm" id="btnScanNew" onclick="doScan()" style="display:none" data-t="btnNewScan">⚡ Новый скан</button>
 </div>
 </div>
 
@@ -706,17 +706,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="modal-content">
     <div class="modal-header">
       <h3 data-t="modalCatalogTitle">📋 Полный каталог активов Pocket Option</h3>
-      <button class="modal-close" onclick="closeCatalogModal()">✕</button>
+      <button type="button" class="modal-close" onclick="closeCatalogModal()">✕</button>
     </div>
     <input type="text" class="modal-search-input" id="modalSearchInput" placeholder="Поиск актива..." oninput="renderCatalogList(this.value)">
     
     <div class="cats" style="margin-bottom:8px" id="catalogFilterCats">
-      <button class="cat on" onclick="setModalCat('all',this)">🌟 Все</button>
-      <button class="cat" onclick="setModalCat('💱',this)">💱 Валюта</button>
-      <button class="cat" onclick="setModalCat('🔥',this)">🔥 Крипто</button>
-      <button class="cat" onclick="setModalCat('🛢️',this)">🛢️ Сырьё</button>
-      <button class="cat" onclick="setModalCat('📈',this)">📈 Акции</button>
-      <button class="cat" onclick="setModalCat('📊',this)">📊 Индексы</button>
+      <button type="button" class="cat on" onclick="setModalCat('all',this)">🌟 Все</button>
+      <button type="button" class="cat" onclick="setModalCat('💱',this)">💱 Валюта</button>
+      <button type="button" class="cat" onclick="setModalCat('🔥',this)">🔥 Крипто</button>
+      <button type="button" class="cat" onclick="setModalCat('🛢️',this)">🛢️ Сырьё</button>
+      <button type="button" class="cat" onclick="setModalCat('📈',this)">📈 Акции</button>
+      <button type="button" class="cat" onclick="setModalCat('📊',this)">📊 Индексы</button>
     </div>
     
     <div class="modal-body" id="modalCatalogBody"></div>
@@ -894,7 +894,7 @@ function renderAssetButtons() {
   items.forEach((assetName) => {
     let activeClass = (assetName === currentAsset) ? " on" : "";
     let badgeStr = getAssetBadge(assetName);
-    html += `<button class="cat ${activeClass}" onclick="selectCatalogAsset('${assetName}')">${assetName} <span class="cat-payout">${badgeStr}</span></button>`;
+    html += `<button type="button" class="cat ${activeClass}" onclick="selectCatalogAsset('${assetName}')">${assetName} <span class="cat-payout">${badgeStr}</span></button>`;
   });
   container.innerHTML = html;
 }
@@ -935,6 +935,28 @@ function setScanCfg(el, type, val) {
   el.parentElement.querySelectorAll('.cat').forEach(b => b.classList.remove('active', 'on'));
   el.classList.add('active', 'on');
   scanCfg[type] = val;
+}
+
+function syncExpiration() {
+  const tfVal = document.getElementById("tf").value;
+  const expSelect = document.getElementById("exp");
+  let targetSec = 60;
+  if(tfVal === "S5") targetSec = 15;
+  else if(tfVal === "S15") targetSec = 30;
+  else if(tfVal === "S30") targetSec = 60;
+  else if(tfVal === "M1") targetSec = 60;
+  else if(tfVal === "M2") targetSec = 120;
+  else if(tfVal === "M3") targetSec = 180;
+  else if(tfVal === "M5") targetSec = 300;
+  else if(tfVal === "M10") targetSec = 600;
+  else if(tfVal === "M15") targetSec = 900;
+  
+  for(let i=0; i<expSelect.options.length; i++){
+    if(parseInt(expSelect.options[i].value) === targetSec){
+      expSelect.selectedIndex = i;
+      break;
+    }
+  }
 }
 
 function renderCatalogList(filter=""){
