@@ -96,8 +96,10 @@ def translate_news_title(title: str) -> str:
         return title
     raw = title.strip()
     low = raw.lower()
+    # Prefer longest exact-ish match first
     for en, ru in sorted(NEWS_RU_MAP.items(), key=lambda x: -len(x[0])):
         if en in low:
+            # Avoid double period suffixes already in ru map
             if any(x in ru for x in ("м/м", "г/г", "кв/кв")):
                 return ru
             suffix = ""
@@ -108,6 +110,7 @@ def translate_news_title(title: str) -> str:
             elif "qoq" in low or "q/q" in low or "(q/q)" in low:
                 suffix = " (кв/кв)"
             return ru + suffix
+    # Clean common English leftovers without mangling the whole title
     out = raw
     replacements = [
         ("MoM", "м/м"), ("YoY", "г/г"), ("QoQ", "кв/кв"),
@@ -121,6 +124,7 @@ def translate_news_title(title: str) -> str:
     ]
     for a, b in replacements:
         out = out.replace(a, b)
+    # Remove double spaces / trailing junk
     out = re.sub(r"\s+", " ", out).strip()
     return out
 
@@ -632,7 +636,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
       <div class="sig-meta" id="sigMeta"></div>
       <div class="sig-dir call" id="sigDir">⬆️ CALL</div>
       <div class="timer">⏱ <span id="cd">01:00</span></div>
-      <div id="sigChartContainer" style="margin:10px 0;text-align:center;"></div>
       <div class="strat" id="sigStrat"></div>
       <div class="sig-stats"><span><span data-t="lblCombo">Связка</span>: <b id="sigCombo">Multi-Factor</b></span></div>
       <button class="btn btn-red btn-sm" id="btnCancel" onclick="cancelSig()" style="display:none" data-t="btnCancel">✖ Отменить</button>
@@ -652,10 +655,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
   <!-- NEWS -->
   <div class="card tab hidden" id="tabNews">
-    <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Экономические новости</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Актуальный календарь форекс-новостей. Четкие уровни важности, переведенные описания и влияние на активы.</p>
+    <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Форекс-новости</h3>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Все основные валюты. High и Medium важность. Чёткие названия и объяснения.</p>
     <div class="filter-row" id="newsFilterRow">
-      <button class="filter-btn on" onclick="setNewsFilter('ALL',this)">ВСЕ</button>
+      <button class="filter-btn on" onclick="setNewsFilter('ALL',this)">ALL</button>
       <button class="filter-btn" onclick="setNewsFilter('USD',this)">USD</button>
       <button class="filter-btn" onclick="setNewsFilter('EUR',this)">EUR</button>
       <button class="filter-btn" onclick="setNewsFilter('GBP',this)">GBP</button>
@@ -677,7 +680,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
     <button class="btn btn-dark btn-sm" onclick="loadNews(true)" data-t="btnRefreshNews">🔄 Обновить</button>
   </div>
 
-  <!-- PROFILE -->
+  <!-- PROFILE (в середине) -->
   <div class="card tab hidden" id="tabProfile">
     <h3 class="g-text" style="font-size:13px;margin-bottom:12px" data-t="profTitle">👤 Профиль</h3>
     <div class="profile-photo-upload" onclick="document.getElementById('profPhotoInput').click()">
@@ -765,7 +768,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 
 </div>
 
-<!-- Bottom Navigation -->
+<!-- Bottom Navigation (Профиль по середине) -->
 <div class="bnav">
   <div class="nav on" onclick="showTab('tabSig',this)"><span>⚡</span><span data-t="navSig">Сигнал</span></div>
   <div class="nav" onclick="showTab('tabFavs',this)"><span>⭐</span><span data-t="navFavs">Избранное</span></div>
@@ -854,8 +857,8 @@ var I18N = {
     favTabDesc: "Нажмите на любой актив для перехода.",
     profFavEmpty: "Пока пусто — добавь актив из каталога",
     btnClearFav: "🗑 Очистить избранное",
-    newsTitle: "📰 Экономические новости",
-    newsDesc: "Актуальный календарь форекс-новостей. Четкие уровни важности, переведенные описания и влияние на активы.",
+    newsTitle: "📰 Форекс-новости",
+    newsDesc: "Только форекс. High и Medium важность.",
     btnRefreshNews: "🔄 Обновить",
     eduTitle: "📚 Связки и стратегии",
     eduDesc: "Выберите стратегию + мини-тест",
@@ -893,8 +896,8 @@ var I18N = {
     favTabDesc: "Tap any asset to select it.",
     profFavEmpty: "Empty — add from catalog",
     btnClearFav: "🗑 Clear favorites",
-    newsTitle: "📰 Economic News",
-    newsDesc: "Up-to-date forex calendar. Clear impact levels, translated descriptions and asset impact.",
+    newsTitle: "📰 Forex News",
+    newsDesc: "Forex only. High & Medium impact.",
     btnRefreshNews: "🔄 Refresh",
     eduTitle: "📚 Strategies",
     eduDesc: "Choose a strategy + mini-test",
@@ -932,8 +935,8 @@ var I18N = {
     favTabDesc: "Натисніть на актив.",
     profFavEmpty: "Порожньо",
     btnClearFav: "🗑 Очистити",
-    newsTitle: "📰 Економічні новини",
-    newsDesc: "Актуальний календар новин. Чіткі рівня важливості, перекладені описи та вплив на активи.",
+    newsTitle: "📰 Новини",
+    newsDesc: "Тільки форекс. High і Medium.",
     btnRefreshNews: "🔄 Оновити",
     eduTitle: "📚 Стратегії",
     eduDesc: "Оберіть стратегію + міні-тест",
@@ -1157,61 +1160,12 @@ function openHistoryModal() {
 }
 function closeHistoryModal() { document.getElementById("historyModal").classList.add("hidden"); }
 
-function drawCandleChartSVG(prices, signalDir, entryPrice) {
-  if (!prices || !prices.length) return '';
-  var w = 360, h = 180;
-  var minP = Math.min.apply(null, prices);
-  var maxP = Math.max.apply(null, prices);
-  var rangeP = (maxP - minP) || 0.0001;
-  var pad = 20;
-  var chartH = h - pad * 2;
-  var count = prices.length;
-  var stepW = (w - 40) / count;
-  
-  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg" style="background:#070a10;border-radius:10px;width:100%;height:auto;border:1px solid rgba(255,215,0,0.2);">';
-  svg += '<rect width="' + w + '" height="' + h + '" fill="#070a10"/>';
-  
-  // Grid lines
-  for (var i = 1; i <= 3; i++) {
-    var gy = pad + (chartH / 4) * i;
-    svg += '<line x1="20" y1="' + gy + '" x2="' + (w - 20) + '" y2="' + gy + '" stroke="#161e2e" stroke-width="1" stroke-dasharray="3 3"/>';
-  }
-  
-  var points = [];
-  for (var i = 0; i < count; i++) {
-    var p = prices[i];
-    var x = 20 + i * stepW + stepW / 2;
-    var y = pad + chartH - ((p - minP) / rangeP) * chartH;
-    points.push({x: x, y: y, p: p});
-  }
-  
-  // Draw line / candles
-  for (var i = 0; i < points.length - 1; i++) {
-    var curr = points[i];
-    var next = points[i+1];
-    var color = next.p >= curr.p ? "#00E676" : "#FF5252";
-    svg += '<line x1="' + curr.x + '" y1="' + curr.y + '" x2="' + next.x + '" y2="' + next.y + '" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>';
-  }
-  
-  // Entry point highlight on the last candle
-  var last = points[points.length - 1];
-  var isCall = signalDir.indexOf("CALL") >= 0 || signalDir.indexOf("UP") >= 0;
-  var dotColor = isCall ? "#00E676" : "#FF5252";
-  
-  svg += '<circle cx="' + last.x + '" cy="' + last.y + '" r="6" fill="' + dotColor + '" stroke="#FFD700" stroke-width="2"/>';
-  svg += '<text x="' + Math.min(last.x - 20, w - 110) + '" y="' + Math.max(last.y - 10, 15) + '" fill="#FFD700" font-size="10" font-weight="900">ВХОД: ' + Number(entryPrice).toFixed(5) + '</text>';
-  svg += '</svg>';
-  return svg;
-}
-
 function getSig() {
   runAnalyzer(async function() {
     var tf = document.getElementById("tf").value;
     var expSec = parseInt(document.getElementById("exp").value);
     var dir = "⬆️ CALL (ВВЕРХ)";
     var stratText = "Технический анализ котировок для актива (" + currentAsset + ") по таймфрейму " + tf + " с экспирацией " + expSec + " сек.";
-    var prices = generate_otc_candles(currentAsset, 40);
-    
     try {
       var res = await fetch("/get_signal?asset=" + encodeURIComponent(currentAsset) + "&timeframe=" + encodeURIComponent(tf));
       if (res.ok) {
@@ -1222,18 +1176,11 @@ function getSig() {
         }
       }
     } catch (e) {}
-
-    var entryPrice = prices[prices.length - 1];
-    var isCall = dir.indexOf("CALL") >= 0 || dir.indexOf("UP") >= 0;
-    
+    var isCall = dir.indexOf("CALL") >= 0;
     document.getElementById("sigMeta").textContent = "Pocket Option · " + currentAsset + " · " + tf + " · " + expSec + " сек";
     var dirEl = document.getElementById("sigDir");
     dirEl.textContent = dir;
     dirEl.className = "sig-dir " + (isCall ? "call" : "put");
-    
-    // Render real candle chart SVG with entry point
-    document.getElementById("sigChartContainer").innerHTML = drawCandleChartSVG(prices, dir, entryPrice);
-    
     document.getElementById("sigStrat").innerHTML = "<b>Анализ сигнала:</b> " + esc(stratText);
     document.getElementById("sigBox").style.display = "block";
     document.getElementById("btnCancel").style.display = "block";
@@ -1325,7 +1272,7 @@ function newsDetailText(ev) {
     lines.push("Заявки/безработица отражают рынок труда. Рост заявок = хуже для валюты, снижение = лучше.");
   } else if (nm.indexOf("cpi") >= 0 || nm.indexOf("инфляц") >= 0 || nm.indexOf("pce") >= 0 || nm.indexOf("ppi") >= 0) {
     lines.push("Инфляция. Выше прогноза часто повышает ожидания по ставкам и укрепляет валюту.");
-  } else if (nm.indexOf("ставк") >= 0 || nm.indexOf("rate") >= 0 || nm.indexOf("fomc") >= 0) {
+  } else if (nm.indexOf("ставк") >= 0 || nm.indexOf("rate") >= 0 || nm.indexOf("fomc") >= 0 || nm.indexOf("еуб") >= 0) {
     lines.push("Решение по ставке — одно из самых сильных событий. Повышение обычно укрепляет валюту.");
   } else {
     lines.push("Смотрите факт vs прогноз. Сильное отклонение даёт резкий импульс по связанным парам.");
