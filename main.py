@@ -94,26 +94,38 @@ NEWS_RU_MAP = {
 def translate_news_title(title: str) -> str:
     if not title:
         return title
-    low = title.lower().strip()
+    raw = title.strip()
+    low = raw.lower()
+    # Prefer longest exact-ish match first
     for en, ru in sorted(NEWS_RU_MAP.items(), key=lambda x: -len(x[0])):
         if en in low:
-            suffix = ""
-            if "mom" in low or "m/m" in low:
-                suffix = " (м/м)"
-            elif "yoy" in low or "y/y" in low:
-                suffix = " (г/г)"
-            elif "qoq" in low or "q/q" in low:
-                suffix = " (кв/кв)"
+            # Avoid double period suffixes already in ru map
             if any(x in ru for x in ("м/м", "г/г", "кв/кв")):
                 return ru
+            suffix = ""
+            if "mom" in low or "m/m" in low or "(m/m)" in low:
+                suffix = " (м/м)"
+            elif "yoy" in low or "y/y" in low or "(y/y)" in low:
+                suffix = " (г/г)"
+            elif "qoq" in low or "q/q" in low or "(q/q)" in low:
+                suffix = " (кв/кв)"
             return ru + suffix
-    out = title
-    for a, b in [
+    # Clean common English leftovers without mangling the whole title
+    out = raw
+    replacements = [
         ("MoM", "м/м"), ("YoY", "г/г"), ("QoQ", "кв/кв"),
         ("m/m", "м/м"), ("y/y", "г/г"), ("q/q", "кв/кв"),
+        ("(m/m)", "(м/м)"), ("(y/y)", "(г/г)"), ("(q/q)", "(кв/кв)"),
         ("Speech", "Выступление"), ("Decision", "Решение"),
-    ]:
+        ("Prelim", "Предв."), ("Preliminary", "Предварительный"),
+        ("Unemployment Claims", "Заявки по безработице"),
+        ("Initial Jobless Claims", "Первичные заявки по безработице"),
+        ("GDP", "ВВП"), ("CPI", "ИПЦ"), ("PPI", "ИЦП"),
+    ]
+    for a, b in replacements:
         out = out.replace(a, b)
+    # Remove double spaces / trailing junk
+    out = re.sub(r"\s+", " ", out).strip()
     return out
 
 
@@ -514,29 +526,37 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
 .profile-photo-upload{width:90px;height:90px;border-radius:50%;border:2px dashed var(--gold);background:var(--inner);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 12px;overflow:hidden;position:relative}
 .profile-photo-upload img{width:100%;height:100%;object-fit:cover}
 .about-box{background:var(--inner);border:1px solid var(--border-g);border-radius:14px;padding:16px;font-size:12px;color:#c5cdd8;line-height:1.8}
-.news-sec-title{font-size:12px;font-weight:900;margin:14px 0 8px;padding:8px 10px;border-radius:10px;letter-spacing:.3px}
-.news-sec-up{background:linear-gradient(90deg,rgba(255,215,0,.18),transparent);color:var(--gold);border:1px solid rgba(255,215,0,.25)}
-.news-sec-done{background:linear-gradient(90deg,rgba(0,230,118,.12),transparent);color:var(--green);border:1px solid rgba(0,230,118,.25)}
-.news-item{background:linear-gradient(180deg,rgba(18,22,34,.95),rgba(10,12,20,.98));border:1px solid var(--border);border-radius:14px;padding:12px 13px;margin-bottom:9px;cursor:pointer;transition:all .18s;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.news-sec-title{font-size:12px;font-weight:900;margin:16px 0 10px;padding:10px 12px;border-radius:12px;letter-spacing:.4px;display:flex;align-items:center;gap:8px}
+.news-sec-up{background:linear-gradient(90deg,rgba(255,215,0,.22),rgba(255,215,0,.04));color:var(--gold);border:1px solid rgba(255,215,0,.35);box-shadow:0 4px 14px rgba(255,215,0,.08)}
+.news-sec-done{background:linear-gradient(90deg,rgba(0,230,118,.16),rgba(0,230,118,.03));color:var(--green);border:1px solid rgba(0,230,118,.3);box-shadow:0 4px 14px rgba(0,230,118,.06)}
+.news-item{background:linear-gradient(180deg,rgba(18,22,34,.98),rgba(8,10,16,.99));border:1.5px solid var(--border);border-radius:16px;padding:14px 14px 12px;margin-bottom:11px;cursor:pointer;transition:all .2s ease;box-shadow:0 6px 18px rgba(0,0,0,.32)}
 .news-item:active{transform:scale(.985)}
-.news-item.high{border-color:rgba(255,82,82,.55);box-shadow:0 0 0 1px rgba(255,82,82,.12),0 6px 18px rgba(255,82,82,.08)}
-.news-item.medium{border-color:rgba(255,167,38,.45);box-shadow:0 0 0 1px rgba(255,167,38,.1)}
-.news-item.open{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,215,0,.25),0 8px 22px rgba(255,215,0,.1)}
-.news-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.news-item.high{border-color:rgba(255,82,82,.6);box-shadow:0 0 0 1px rgba(255,82,82,.15),0 8px 22px rgba(255,82,82,.1)}
+.news-item.medium{border-color:rgba(255,167,38,.5);box-shadow:0 0 0 1px rgba(255,167,38,.12),0 6px 18px rgba(255,167,38,.06)}
+.news-item.open{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,215,0,.3),0 10px 28px rgba(255,215,0,.12)}
+.news-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
 .news-cur{font-size:11px;font-weight:900;color:var(--gold);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.news-time{font-size:11px;color:#fff;font-weight:800;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.25);padding:3px 8px;border-radius:8px;white-space:nowrap}
-.news-name{font-size:13px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.35}
-.news-pairs{font-size:10.5px;color:#9aa3b5;margin-bottom:7px;font-weight:600}
+.news-time{font-size:11px;color:#fff;font-weight:800;background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.28);padding:4px 9px;border-radius:9px;white-space:nowrap}
+.news-name{font-size:14px;font-weight:800;color:#fff;margin-bottom:5px;line-height:1.35;letter-spacing:.2px}
+.news-pairs{font-size:10.5px;color:#9aa3b5;margin-bottom:8px;font-weight:600}
 .news-meta{display:flex;flex-wrap:wrap;gap:6px;font-size:10.5px;font-weight:700;color:#c5cdd8}
-.news-meta span{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:4px 8px}
+.news-meta span{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:5px 9px}
 .news-impact{font-size:9px;font-weight:900;padding:3px 8px;border-radius:7px}
 .news-impact.high{background:rgba(255,82,82,.22);color:#ff8a80}
 .news-impact.medium{background:rgba(255,167,38,.2);color:#FFB74D}
 .news-impact.low{background:rgba(255,215,0,.12);color:var(--gold)}
-.news-updated{font-size:10px;color:var(--muted);font-weight:700;text-align:center;margin-bottom:8px}
-.news-list{max-height:460px;overflow-y:auto;padding-right:2px}
-.news-detail{display:none;margin-top:10px;padding:10px 11px;border-top:1px solid rgba(255,215,0,.2);border-radius:0 0 10px 10px;font-size:11.5px;color:#d7deea;line-height:1.65;background:rgba(0,0,0,.25)}
+.news-updated{font-size:10px;color:var(--muted);font-weight:700;text-align:center;margin-bottom:10px;padding:6px;background:rgba(255,255,255,.03);border-radius:8px}
+.news-list{max-height:480px;overflow-y:auto;padding-right:3px}
+.news-detail{display:none;margin-top:12px;padding:12px 12px 10px;border-top:1px solid rgba(255,215,0,.25);border-radius:0 0 12px 12px;font-size:12px;color:#d7deea;line-height:1.7;background:rgba(0,0,0,.28)}
 .news-item.open .news-detail{display:block}
+.news-copy-btn{margin-top:10px;width:100%;padding:9px;border-radius:10px;border:1px solid rgba(255,215,0,.35);background:rgba(255,215,0,.08);color:var(--gold);font-size:11px;font-weight:800;cursor:pointer}
+.news-copy-btn:active{transform:scale(.97)}
+.news-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 16px;gap:14px}
+.news-loading-wheel{width:42px;height:42px;border:3px solid rgba(255,215,0,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .75s linear infinite}
+.news-loading-text{font-size:12px;font-weight:800;color:var(--gold);animation:pulse 1.2s ease infinite}
+.news-skeleton{background:linear-gradient(90deg,rgba(18,22,34,.9) 25%,rgba(30,36,52,.95) 50%,rgba(18,22,34,.9) 75%);background-size:200% 100%;animation:shimmer 1.4s ease infinite;border-radius:14px;height:92px;margin-bottom:10px;border:1px solid var(--border)}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sig-count-badge{font-size:10px;font-weight:800;color:var(--gold);background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);padding:3px 8px;border-radius:8px}
 .strat-visual{background:linear-gradient(180deg,#070b14,#05070d);border:1px solid var(--border-g);border-radius:14px;padding:12px;margin-bottom:14px;overflow:hidden;box-shadow:inset 0 0 30px rgba(255,215,0,.04)}
 .strat-visual svg{width:100%;height:auto;display:block}
 .strat-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;font-weight:700;color:#b0b8c8}
@@ -577,6 +597,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="card tab" id="tabSig">
     <div class="live-bar">
       <span class="live" id="apiStatusBadge">● POCKET OPTION API: ONLINE 🟢</span>
+      <span class="sig-count-badge" id="headerSigCount">Сигналов: 0</span>
       <span style="font-size:10px;color:var(--gold);font-weight:800" id="liveClock">🕒 --:--:--</span>
     </div>
     <div class="selected-asset-box" onclick="openCatalogModal()">
@@ -635,17 +656,26 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <!-- NEWS -->
   <div class="card tab hidden" id="tabNews">
     <h3 class="g-text" style="font-size:13px;margin-bottom:6px" data-t="newsTitle">📰 Форекс-новости</h3>
-    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Только форекс. High и Medium важность.</p>
+    <p style="font-size:10.5px;color:var(--muted);margin-bottom:8px" data-t="newsDesc">Все основные валюты. High и Medium важность. Чёткие названия и объяснения.</p>
     <div class="filter-row" id="newsFilterRow">
       <button class="filter-btn on" onclick="setNewsFilter('ALL',this)">ALL</button>
       <button class="filter-btn" onclick="setNewsFilter('USD',this)">USD</button>
       <button class="filter-btn" onclick="setNewsFilter('EUR',this)">EUR</button>
       <button class="filter-btn" onclick="setNewsFilter('GBP',this)">GBP</button>
       <button class="filter-btn" onclick="setNewsFilter('JPY',this)">JPY</button>
+      <button class="filter-btn" onclick="setNewsFilter('AUD',this)">AUD</button>
+      <button class="filter-btn" onclick="setNewsFilter('CAD',this)">CAD</button>
+      <button class="filter-btn" onclick="setNewsFilter('CHF',this)">CHF</button>
+      <button class="filter-btn" onclick="setNewsFilter('NZD',this)">NZD</button>
       <button class="filter-btn" onclick="setNewsFilter('RUB',this)">RUB</button>
     </div>
     <div class="news-updated" id="newsUpdated">Обновление...</div>
-    <div class="news-list" id="newsList"></div>
+    <div class="news-list" id="newsList">
+      <div class="news-loading" id="newsLoading">
+        <div class="news-loading-wheel"></div>
+        <div class="news-loading-text">Загружаю календарь новостей...</div>
+      </div>
+    </div>
     <div class="gap"></div>
     <button class="btn btn-dark btn-sm" onclick="loadNews(true)" data-t="btnRefreshNews">🔄 Обновить</button>
   </div>
@@ -674,10 +704,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justif
   <div class="card tab hidden" id="tabEdu">
     <div id="eduList">
       <h3 class="g-text" style="font-size:13px;margin-bottom:8px" data-t="eduTitle">📚 Связки и стратегии</h3>
-      <p style="font-size:11px;color:var(--muted);margin-bottom:10px" data-t="eduDesc">Выберите стратегию + мини-тест</p>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px" data-t="eduDesc">Выберите стратегию + 5 вопросов мини-теста. У каждой свой график-пример.</p>
+      <button class="btn btn-gold btn-sm" onclick="openRandomEdu()" data-t="btnRandomEdu" style="margin-bottom:12px">🎲 Случайная стратегия</button>
       <div id="eduItems"></div>
-      <div class="gap2"></div>
-      <button class="btn btn-dark btn-sm" onclick="openRandomEdu()" data-t="btnRandomEdu">🎲 Случайная стратегия</button>
     </div>
     <div id="eduView" class="hidden">
       <button class="btn btn-dark btn-sm" onclick="closeEdu()" style="margin-bottom:10px" data-t="btnBack">← Назад</button>
@@ -1077,12 +1106,13 @@ function runAnalyzer(callback) {
   var smileEl = document.getElementById("analyzeSmile");
   overlay.classList.remove("hidden");
   var phrases = [
-    "⚡ Подключаюсь к рынку... 😊",
-    "📊 Анализирую котировки... 🔍",
-    "💎 Сканирую индикаторы... ✨",
-    "🚀 Формирую точный сигнал... 🎯"
+    "Подключаюсь к потоку котировок...",
+    "Считываю свечи и объём...",
+    "Сверяю EMA / RSI / импульс...",
+    "Фильтрую шум и ложные входы...",
+    "Формирую финальный сигнал..."
   ];
-  var smiles = ["😊", "😎", "🤩", "🔥"];
+  var smiles = ["📡", "📊", "🔍", "⚙️", "🎯"];
   var step = 0;
   txtEl.textContent = phrases[0];
   smileEl.textContent = smiles[0];
@@ -1090,12 +1120,12 @@ function runAnalyzer(callback) {
     step++;
     txtEl.textContent = phrases[step % phrases.length];
     smileEl.textContent = smiles[step % smiles.length];
-  }, 480);
+  }, 420);
   setTimeout(function() {
     clearInterval(interval);
     overlay.classList.add("hidden");
     if (callback) callback();
-  }, 2400);
+  }, 2300);
 }
 
 function incSig() {
@@ -1222,19 +1252,33 @@ function impactLabel(imp, impRu) {
 
 function newsDetailText(ev) {
   var lines = [];
-  lines.push("📌 Событие: " + (ev.name || "—"));
-  if (ev.name_en && ev.name_en !== ev.name) lines.push("EN: " + ev.name_en);
-  lines.push("💱 Валюта: " + (ev.currency || "—"));
-  if (ev.pair_hint) lines.push("📊 Пары: " + ev.pair_hint);
-  lines.push("⚡ Важность: " + (ev.impact_ru || ev.impact || "—"));
-  lines.push("🕒 Время: " + formatNewsTime(ev.date));
-  lines.push("📍 Статус: " + (ev.status_ru || "—"));
-  if (ev.forecast) lines.push("📈 Прогноз: " + ev.forecast);
-  if (ev.previous) lines.push("📉 Предыдущее: " + ev.previous);
-  if (ev.actual) lines.push("✅ Факт: " + ev.actual);
-  else lines.push("⏳ Факт ещё не вышел.");
+  lines.push("Событие: " + (ev.name || "—"));
+  if (ev.name_en && ev.name_en !== ev.name) lines.push("Оригинал: " + ev.name_en);
+  lines.push("Валюта: " + (ev.currency || "—"));
+  if (ev.pair_hint) lines.push("Влияет на пары: " + ev.pair_hint);
+  lines.push("Важность: " + (ev.impact_ru || ev.impact || "—"));
+  lines.push("Время выхода: " + formatNewsTime(ev.date));
+  lines.push("Статус: " + (ev.status_ru || "—"));
+  if (ev.forecast) lines.push("Прогноз (ожидание рынка): " + ev.forecast);
+  if (ev.previous) lines.push("Предыдущее значение: " + ev.previous);
+  if (ev.actual) lines.push("Фактическое значение: " + ev.actual);
+  else lines.push("Факт ещё не вышел — ждите публикации.");
   lines.push("");
-  lines.push("💡 Team Master: на High-новостях волатильность резко растёт. Не входи за 3–5 мин до выхода.");
+  lines.push("Что это значит:");
+  var nm = (ev.name || "").toLowerCase();
+  if (nm.indexOf("ввп") >= 0 || nm.indexOf("gdp") >= 0) {
+    lines.push("ВВП показывает рост экономики. Сильнее прогноза обычно усиливает валюту, слабее — ослабляет.");
+  } else if (nm.indexOf("безраб") >= 0 || nm.indexOf("unemployment") >= 0 || nm.indexOf("claims") >= 0) {
+    lines.push("Заявки/безработица отражают рынок труда. Рост заявок = хуже для валюты, снижение = лучше.");
+  } else if (nm.indexOf("cpi") >= 0 || nm.indexOf("инфляц") >= 0 || nm.indexOf("pce") >= 0 || nm.indexOf("ppi") >= 0) {
+    lines.push("Инфляция. Выше прогноза часто повышает ожидания по ставкам и укрепляет валюту.");
+  } else if (nm.indexOf("ставк") >= 0 || nm.indexOf("rate") >= 0 || nm.indexOf("fomc") >= 0 || nm.indexOf("еуб") >= 0) {
+    lines.push("Решение по ставке — одно из самых сильных событий. Повышение обычно укрепляет валюту.");
+  } else {
+    lines.push("Смотрите факт vs прогноз. Сильное отклонение даёт резкий импульс по связанным парам.");
+  }
+  lines.push("");
+  lines.push("Team Master: на High-новостях не входите за 3–5 минут до выхода. Дождитесь реакции рынка.");
   return lines.join("\n");
 }
 
@@ -1252,7 +1296,7 @@ function renderNewsList(events) {
     filtered = filtered.filter(function(e) { return (e.currency || "").toUpperCase() === newsFilter; });
   }
   if (!filtered.length) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Нет форекс-событий High/Medium</div>';
+    list.innerHTML = '<div style="text-align:center;padding:28px;color:var(--muted);font-size:12px;font-weight:600">Нет событий High/Medium по выбранной валюте</div>';
     return;
   }
   var released = filtered.filter(function(e) { return e.status === "released"; });
@@ -1260,38 +1304,61 @@ function renderNewsList(events) {
   var ordered = upcoming.concat(released);
   var html = "";
   if (upcoming.length) {
-    html += '<div class="news-sec-title news-sec-up">⏳ Скоро выйдет</div>';
+    html += '<div class="news-sec-title news-sec-up">⏳ Скоро выйдет · ' + upcoming.length + '</div>';
   }
   var shownReleasedHeader = false;
   ordered.forEach(function(ev, idx) {
     if (ev.status === "released" && !shownReleasedHeader) {
-      html += '<div class="news-sec-title news-sec-done">✅ Уже вышло</div>';
+      html += '<div class="news-sec-title news-sec-done">✅ Уже вышло · ' + released.length + '</div>';
       shownReleasedHeader = true;
     }
     var ic = impactClass(ev.impact);
     var actual = String(ev.actual || "").trim();
     var forecast = String(ev.forecast || "").trim();
     var previous = String(ev.previous || "").trim();
+    var cleanName = (ev.name || "Событие").replace(/\s+/g, " ").trim();
     html += '<div class="news-item ' + ic + '" data-idx="' + idx + '" onclick="toggleNews(' + idx + ')">';
     html += '<div class="news-top">';
     html += '<span class="news-cur">' + esc(ev.currency || "—") + ' · <span class="news-impact ' + ic + '">' + impactLabel(ev.impact, ev.impact_ru) + '</span></span>';
     html += '<span class="news-time">🕒 ' + esc(formatNewsTime(ev.date)) + '</span>';
     html += '</div>';
-    html += '<div class="news-pairs">' + esc(ev.status_ru || "") + (ev.pair_hint ? " · влияет на " + esc(ev.pair_hint) : "") + '</div>';
-    html += '<div class="news-name">' + esc(ev.name || "Событие") + '</div>';
+    html += '<div class="news-name">' + esc(cleanName) + '</div>';
     if (ev.name_en && ev.name_en !== ev.name) {
       html += '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">' + esc(ev.name_en) + '</div>';
     }
+    html += '<div class="news-pairs">' + esc(ev.status_ru || "") + (ev.pair_hint ? " · влияет на " + esc(ev.pair_hint) : "") + '</div>';
     html += '<div class="news-meta">';
     if (forecast) html += '<span>📈 Прогноз: ' + esc(forecast) + '</span>';
     if (previous) html += '<span>📉 Пред.: ' + esc(previous) + '</span>';
     if (actual) html += '<span style="color:var(--green)">✅ Факт: ' + esc(actual) + '</span>';
     else html += '<span>⏳ Ожидается</span>';
     html += '</div>';
-    html += '<div class="news-detail" id="newsDetail' + idx + '">' + esc(newsDetailText(ev)).replace(/\n/g, "<br>") + '</div>';
+    var detailId = "newsDetail" + idx;
+    html += '<div class="news-detail" id="' + detailId + '">' + esc(newsDetailText(ev)).replace(/\n/g, "<br>");
+    html += '<button class="news-copy-btn" onclick="event.stopPropagation();copyNewsDetail(' + idx + ')">📋 Копировать объяснение</button>';
+    html += '</div>';
     html += '</div>';
   });
   list.innerHTML = html;
+}
+
+function copyNewsDetail(idx) {
+  var filtered = newsCache || [];
+  if (newsFilter && newsFilter !== "ALL") {
+    filtered = filtered.filter(function(e) { return (e.currency || "").toUpperCase() === newsFilter; });
+  }
+  var upcoming = filtered.filter(function(e) { return e.status !== "released"; });
+  var released = filtered.filter(function(e) { return e.status === "released"; });
+  var ordered = upcoming.concat(released);
+  var ev = ordered[idx];
+  if (!ev) return;
+  var text = newsDetailText(ev);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      var btn = document.querySelector("#newsDetail" + idx + " .news-copy-btn");
+      if (btn) { btn.textContent = "✅ Скопировано"; setTimeout(function(){ btn.textContent = "📋 Копировать объяснение"; }, 1600); }
+    }).catch(function(){});
+  }
 }
 
 function toggleNews(idx) {
@@ -1305,6 +1372,12 @@ function toggleNews(idx) {
 
 async function loadNews(force) {
   var upd = document.getElementById("newsUpdated");
+  var list = document.getElementById("newsList");
+  if (force || !newsCache || !newsCache.length) {
+    list.innerHTML = '<div class="news-loading"><div class="news-loading-wheel"></div><div class="news-loading-text">Загружаю календарь новостей...</div></div>' +
+      '<div class="news-skeleton"></div><div class="news-skeleton" style="height:78px"></div><div class="news-skeleton" style="height:86px"></div>';
+    upd.textContent = "⏳ Загрузка...";
+  }
   try {
     var res = await fetch("/news");
     if (!res.ok) throw new Error("fail");
@@ -1319,9 +1392,10 @@ async function loadNews(force) {
     var t = data.updated ? formatNewsTime(data.updated) : formatNewsTime(new Date().toISOString());
     upd.textContent = "🔄 Обновлено: " + t + " · событий: " + events.length;
   } catch (e) {
-    if (document.getElementById("newsList").innerHTML.indexOf("news-item") < 0) {
-      document.getElementById("newsList").innerHTML = '<div style="text-align:center;padding:20px;color:var(--red);font-size:11px">Не удалось загрузить. Нажмите обновить.</div>';
+    if (list.innerHTML.indexOf("news-item") < 0) {
+      list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--red);font-size:12px;font-weight:700">Не удалось загрузить. Нажмите «Обновить».</div>';
     }
+    upd.textContent = "⚠️ Ошибка загрузки";
   }
 }
 
@@ -1337,7 +1411,8 @@ function tickClock() {
   el.textContent = "🕒 " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
 }
 
-function strategyVisual(kind) {
+function strategyVisual(kind, idx) {
+  idx = typeof idx === "number" ? idx : 0;
   if (kind === "range") {
     return '<div class="strat-visual"><svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">' +
       '<rect width="360" height="200" fill="#05070d"/>' +
@@ -1411,22 +1486,30 @@ var QUIZ_BANK = {
   levels: [
     {q: "Где открывать PUT по уровням?", opts: ["У поддержки", "У сопротивления", "В середине диапазона"], a: 1},
     {q: "Что важно перед входом?", opts: ["Свечное подтверждение", "Случайный вход", "Только объём"], a: 0},
-    {q: "Оптимальный риск на сделку?", opts: ["10%", "1–2%", "50%"], a: 1}
+    {q: "Оптимальный риск на сделку?", opts: ["10%", "1–2%", "50%"], a: 1},
+    {q: "CALL по уровням чаще открывают...", opts: ["У сопротивления", "У поддержки + подтверждение", "В любом месте"], a: 1},
+    {q: "Лучшие таймфреймы для уровней?", opts: ["M1–M5", "H4–D1", "Только S5"], a: 0}
   ],
   range: [
     {q: "Где покупать во флэте?", opts: ["У верхней границы", "У нижней границы", "В любом месте"], a: 1},
     {q: "Что проверять перед входом во флэт?", opts: ["Новостной фон", "Цвет графика", "Время суток"], a: 0},
-    {q: "Экспирация во флэте обычно?", opts: ["1–3 мин", "30 мин", "1 день"], a: 0}
+    {q: "Экспирация во флэте обычно?", opts: ["1–3 мин", "30 мин", "1 день"], a: 0},
+    {q: "PUT во флэте открывают...", opts: ["У нижней границы", "У верхней границы", "В центре"], a: 1},
+    {q: "Флэт лучше не торговать, если...", opts: ["Нет новостей", "Выходит High-новость", "График красивый"], a: 1}
   ],
   trend: [
     {q: "Вход по тренду делается...", opts: ["Против тренда", "По направлению тренда после отката", "Случайно"], a: 1},
     {q: "ADX ниже 20 означает?", opts: ["Сильный тренд", "Слабый/нет тренда", "Гарантированный сигнал"], a: 1},
-    {q: "Лучше входить...", opts: ["На откате к тренду", "На пике импульса", "Без анализа"], a: 0}
+    {q: "Лучше входить...", opts: ["На откате к тренду", "На пике импульса", "Без анализа"], a: 0},
+    {q: "Против тренда входить...", opts: ["Можно всегда", "Опасно и нежелательно", "Обязательно"], a: 1},
+    {q: "Сильный тренд подтверждается...", opts: ["ADX > 25 и направленный импульс", "Только одной свечой", "Случайным входом"], a: 0}
   ],
   bounce: [
     {q: "Отскок от нижней полосы Боллинджера чаще даёт?", opts: ["PUT", "CALL", "Ничего"], a: 1},
     {q: "Что подтверждает отскок?", opts: ["Разворот AO / свеча", "Только цвет", "Случайность"], a: 0},
-    {q: "Таймфрейм для bounce-стратегий?", opts: ["S30 / M1", "H4", "D1"], a: 0}
+    {q: "Таймфрейм для bounce-стратегий?", opts: ["S30 / M1", "H4", "D1"], a: 0},
+    {q: "Отскок от верхней полосы чаще даёт?", opts: ["CALL", "PUT", "Флэт"], a: 1},
+    {q: "Риск на bounce-сделку?", opts: ["1–2%", "20%", "50%"], a: 0}
   ]
 };
 
@@ -1444,13 +1527,14 @@ function openEdu(idx) {
   document.getElementById("eduView").classList.remove("hidden");
   var tagsHtml = "";
   (ed.tags || []).forEach(function(t) { tagsHtml += '<span class="tag">' + esc(t) + '</span>'; });
-  var visual = strategyVisual(ed.kind || "levels");
+  var visual = strategyVisual(ed.kind || "levels", idx);
   document.getElementById("eduBody").innerHTML =
     '<h3>' + esc(ed.t) + '</h3>' +
     '<div class="tag-row">' + tagsHtml + '</div>' +
     visual +
     '<div style="white-space:pre-wrap;font-size:12px;line-height:1.65;color:#d0d7e2;margin-bottom:14px">' + esc(ed.d) + '</div>' +
-    '<button class="btn btn-gold btn-sm" onclick="openQuiz(\'' + (ed.kind || "levels") + '\',\'' + esc(ed.t).replace(/'/g,"\\'") + '\')">📝 Открыть мини-тест</button>';
+    '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700">5 вопросов по этой стратегии · сигналов получено: <span class="sig-count-badge">' + sigCount + '</span></div>' +
+    '<button class="btn btn-gold btn-sm" onclick="openQuiz(\'' + (ed.kind || "levels") + '\',\'' + esc(ed.t).replace(/'/g,"\\'") + '\')">📝 Пройти 5 вопросов</button>';
 }
 function closeEdu() {
   document.getElementById("eduView").classList.add("hidden");
@@ -1489,6 +1573,8 @@ function closeQuiz() {
 function updateProfileStats() {
   document.getElementById("profSigCount").textContent = String(sigCount);
   document.getElementById("profFavCount").textContent = String(favs.length);
+  var hs = document.getElementById("headerSigCount");
+  if (hs) hs.textContent = "Сигналов: " + sigCount;
 }
 
 function loadProfile() {
