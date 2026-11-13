@@ -1,7 +1,7 @@
-otcharts
 fastapi
 uvicorn
 httpx
 numpy
-Pillow
+pillow
 python-multipart
+google-generativeai
