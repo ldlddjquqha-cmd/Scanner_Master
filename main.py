@@ -27,11 +27,15 @@ if GEMINI_API_KEY:
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_CHAT_ID = os.environ.get("ADMIN_CHAT_ID", "")
 
-# ===== POCKET OPTION REAL API (SSID из Environment на Render) =====
-POCKET_SSID = os.environ.get("POCKET_SSID", "")
+# ===== OTCHARDS.COM REAL API (ключ из Environment на Render) =====
+# В Render → Environment уже должна быть переменная OTCHARDS_API_KEY с твоим ключом.
+# Если у otchards.com другой базовый адрес API — поменяй OTCHARDS_API_URL ниже
+# или задай свою переменную окружения OTCHARDS_API_URL в Render.
+OTCHARDS_API_KEY = os.environ.get("OTCHARDS_API_KEY", "")
+OTCHARDS_API_URL = os.environ.get("OTCHARDS_API_URL", "https://otchards.com/api/candles")
 
-# Только эти 5 активов берутся с реального API Pocket Option
-PO_REAL_MAP = {
+# Только эти 5 активов берутся с реального API otchards.com
+OTCHARDS_SYMBOL_MAP = {
     "AUD/USD OTC": "AUDUSD_otc",
     "EUR/USD OTC": "EURUSD_otc",
     "GBP/USD OTC": "GBPUSD_otc",
@@ -44,49 +48,72 @@ TF_SEC = {
     "M5": 300, "M10": 600, "M15": 900,
 }
 
-_po_client = None
-_po_lock = asyncio.Lock()
 
-
-def po_symbol_for(asset: str):
+def otchards_symbol_for(asset: str):
     key = re.sub(r"[^\x00-\x7F]+", "", asset or "")
     key = re.sub(r"\s+", " ", key).strip().upper()
-    return PO_REAL_MAP.get(key)
+    return OTCHARDS_SYMBOL_MAP.get(key)
 
 
-async def get_po_client():
-    global _po_client
-    if not POCKET_SSID:
-        return None
-    async with _po_lock:
-        if _po_client is None:
-            from BinaryOptionsToolsV2.pocketoption import PocketOptionAsync
-            _po_client = PocketOptionAsync(POCKET_SSID)
-            await asyncio.sleep(5)
-        return _po_client
-
-
-async def fetch_po_candles(symbol: str, tf: str, count: int = 50):
-    """Возвращает список [open, high, low, close] с реального API Pocket Option."""
-    global _po_client
-    period = TF_SEC.get(tf, 60)
-    api = await get_po_client()
-    if api is None:
-        raise RuntimeError("POCKET_SSID не задан")
+def _parse_candle_row(row):
+    """Понимает разные форматы свечи: dict с именованными полями или массив [o,h,l,c]."""
     try:
-        raw = await asyncio.wait_for(api.get_candles(symbol, period, period * (count + 5)), timeout=15)
+        if isinstance(row, dict):
+            o = row.get("open", row.get("o"))
+            h = row.get("high", row.get("h"))
+            l = row.get("low", row.get("l"))
+            c = row.get("close", row.get("c"))
+            return [float(o), float(h), float(l), float(c)]
+        if isinstance(row, (list, tuple)) and len(row) >= 4:
+            # Частые варианты: [time,o,h,l,c] или [o,h,l,c]
+            vals = row[1:5] if len(row) >= 5 else row[:4]
+            return [float(vals[0]), float(vals[1]), float(vals[2]), float(vals[3])]
     except Exception:
-        _po_client = None
-        raise
+        return None
+    return None
+
+
+async def fetch_otchards_candles(symbol: str, tf: str, count: int = 50):
+    """Возвращает список [open, high, low, close] с реального API otchards.com."""
+    if not OTCHARDS_API_KEY:
+        raise RuntimeError("OTCHARDS_API_KEY не задан в Environment на Render")
+    period = TF_SEC.get(tf, 60)
+    params = {
+        "symbol": symbol,
+        "timeframe": period,
+        "period": period,
+        "count": count,
+        "limit": count,
+        "api_key": OTCHARDS_API_KEY,
+    }
+    headers = {
+        "Authorization": f"Bearer {OTCHARDS_API_KEY}",
+        "X-API-KEY": OTCHARDS_API_KEY,
+    }
+    async with httpx.AsyncClient() as client:
+        res = await client.get(OTCHARDS_API_URL, params=params, headers=headers, timeout=10.0)
+        res.raise_for_status()
+        data = res.json()
+
+    # API может вернуть список напрямую или объект с ключом candles/data/result
+    raw_list = None
+    if isinstance(data, list):
+        raw_list = data
+    elif isinstance(data, dict):
+        for key in ("candles", "data", "result", "items"):
+            if isinstance(data.get(key), list):
+                raw_list = data[key]
+                break
+    if raw_list is None:
+        raise RuntimeError("Неизвестный формат ответа otchards.com")
+
     out = []
-    for c in raw or []:
-        try:
-            out.append([float(c["open"]), float(c["high"]), float(c["low"]), float(c["close"])])
-        except Exception:
-            continue
-    if len(out) < 15:
-        _po_client = None
-        raise RuntimeError("мало свечей от Pocket Option")
+    for row in raw_list:
+        c = _parse_candle_row(row)
+        if c:
+            out.append(c)
+    if len(out) < 10:
+        raise RuntimeError("Мало свечей от otchards.com")
     return out[-count:]
 
 
@@ -1294,7 +1321,7 @@ function drawCandles(candles, source, asset, tf) {
   svg += '<text x="' + (W - padR + 3) + '" y="' + (ly + 3).toFixed(1) + '" fill="#111" font-size="8.5" font-weight="900">' + last.toFixed(dec) + '</text>';
   svg += '</svg>';
   var real = source === "pocket_api" || source === "binance";
-  var srcLabel = source === "pocket_api" ? "🟢 РЕАЛЬНЫЕ ДАННЫЕ · POCKET OPTION API" : (source === "binance" ? "🟢 РЕАЛЬНЫЕ ДАННЫЕ · BINANCE" : "🎲 УМНЫЙ РАНДОМ");
+  var srcLabel = source === "pocket_api" ? "🟢 РЕАЛЬНЫЕ ДАННЫЕ · OTCHARDS.COM API" : (source === "binance" ? "🟢 РЕАЛЬНЫЕ ДАННЫЕ · BINANCE" : "🎲 УМНЫЙ РАНДОМ");
   return '<div class="chart-head"><span class="chart-title">📊 График свечей · ' + esc(tf) + '</span><span class="chart-src ' + (real ? "real" : "fake") + '">' + srcLabel + '</span></div>' + svg;
 }
 
@@ -1942,7 +1969,7 @@ def serve_terminal():
 
 @app.get("/po_status")
 async def po_status():
-    return {"ssid_set": bool(POCKET_SSID), "assets": list(PO_REAL_MAP.keys())}
+    return {"api_key_set": bool(OTCHARDS_API_KEY), "api_url": OTCHARDS_API_URL, "assets": list(OTCHARDS_SYMBOL_MAP.keys())}
 
 
 @app.get("/get_signal")
@@ -1952,14 +1979,14 @@ async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str
     candles = None
     source = "otc"
 
-    # 1) 5 избранных OTC-активов -> РЕАЛЬНЫЙ API Pocket Option
-    po_sym = po_symbol_for(asset)
-    if po_sym:
+    # 1) 5 избранных OTC-активов -> РЕАЛЬНЫЙ API otchards.com
+    otc_sym = otchards_symbol_for(asset)
+    if otc_sym:
         try:
-            candles = await fetch_po_candles(po_sym, timeframe, 50)
+            candles = await fetch_otchards_candles(otc_sym, timeframe, 50)
             source = "pocket_api"
         except Exception as e:
-            logging.warning(f"Pocket Option API error for {asset}: {e}")
+            logging.warning(f"otchards.com API error for {asset}: {e}")
             candles = None
 
     # 2) Обычные (не OTC) активы -> Binance
@@ -1992,7 +2019,7 @@ async def get_signal(asset: str = "🇪🇺🇺🇸 EUR/USD OTC", timeframe: str
     ema = calculate_ema(prices)
     signal, reason = smart_market_analysis(prices, rsi, ema)
     if source == "pocket_api":
-        reason = "🟢 Данные получены напрямую с Pocket Option API. " + reason
+        reason = "🟢 Данные получены напрямую с otchards.com API. " + reason
     return {"signal": signal, "reason": reason, "source": source, "candles": candles[-50:]}
 
 
