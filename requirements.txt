@@ -1,9 +1,7 @@
+otcharts
 fastapi
-uvicorn[standard]
-google-generativeai
-python-multipart
-numpy
-pillow
+uvicorn
 httpx
-BinaryOptionsToolsV2
-matplotlib
+numpy
+Pillow
+python-multipart
