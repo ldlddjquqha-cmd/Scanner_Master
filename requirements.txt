@@ -2,6 +2,6 @@ fastapi
 uvicorn
 httpx
 numpy
-pillow
+Pillow
 python-multipart
-google-generativeai
+pywebpush
