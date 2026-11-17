@@ -1,7 +1,8 @@
 fastapi
-uvicorn
+uvicorn[standard]
 httpx
 numpy
-Pillow
+pillow
 python-multipart
-pywebpush
+websockets
+psycopg2-binary
