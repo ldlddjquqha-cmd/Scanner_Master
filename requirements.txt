@@ -6,3 +6,4 @@ pillow
 python-multipart
 websockets
 psycopg2-binary
+playwright
